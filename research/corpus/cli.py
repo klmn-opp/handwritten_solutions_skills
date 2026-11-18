@@ -37,6 +37,7 @@ def main():
     recognize.add_argument("--checkpoint", type=Path)
     recognize.add_argument("--source", type=Path)
     recognize.add_argument("--run-id")
+    recognize.add_argument("--candidates", type=int, choices=[1, 2, 3], default=1)
     sub.add_parser("status")
     args = parser.parse_args()
     corpus = Corpus(args.corpus)
@@ -62,6 +63,7 @@ def main():
                 python=args.python,
                 checkpoint=args.checkpoint,
                 source=args.source,
+                candidate_count=args.candidates,
             )
         )
         return

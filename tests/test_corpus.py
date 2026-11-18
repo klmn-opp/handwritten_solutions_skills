@@ -95,6 +95,98 @@ def test_recognition_never_verifies_and_requires_matching_crop(corpus):
     assert c.get("sample", s["sample_id"])["verified_text"] is None
     with pytest.raises(ValueError, match="match"):
         c.add_recognition(s["sample_id"], {**r, "input_sha256": "fake"})
+    approved = verify(c, s)
+    c.add_recognition(s["sample_id"], {**r, "text": "SECOND WRONG CANDIDATE"})
+    assert c.get("sample", s["sample_id"]) == approved
+
+
+def test_formula_missing_selection_preserves_reviewed_and_existing_candidates(corpus):
+    from research.corpus.candidate_jobs import select_missing
+
+    c, _ = corpus
+    page_id = c.rows("page")[0]["page_id"]
+    a = c.propose(page_id, [1, 1, 20, 20])
+    b = c.propose(page_id, [21, 1, 40, 20])
+    done = c.propose(page_id, [41, 1, 60, 20])
+    word = c.propose(page_id, [61, 1, 80, 20], content_type="english-word")
+    c.review(done["sample_id"], 0, {"review_status": "rejected"}, "fixture")
+    c.add_recognition(
+        b["sample_id"],
+        {
+            "engine": "unimernet",
+            "version": "fixture",
+            "text": "x",
+            "raw": {},
+            "input_sha256": b["crop_sha256"],
+        },
+    )
+    assert select_missing(c, page_id) == [a["sample_id"]]
+    assert word["sample_id"] not in select_missing(c, page_id)
+    with pytest.raises(KeyError):
+        select_missing(c, "nonexistent")
+
+
+def test_formula_jobs_bound_concurrency_and_leave_labels_untouched(corpus, monkeypatch, tmp_path):
+    import threading
+    import time
+
+    from research.corpus.candidate_jobs import CandidateJobs
+
+    c, _ = corpus
+    s = sample(c)
+    jobs = CandidateJobs(c)
+    monkeypatch.setattr(jobs, "available", lambda: True)
+    started, release = threading.Event(), threading.Event()
+
+    def fixture_recognize(*args, **kwargs):
+        assert kwargs["candidate_count"] == 3
+        started.set()
+        assert release.wait(3)
+        return tmp_path / "fixture-only-not-inference"
+
+    monkeypatch.setattr("research.corpus.candidate_jobs.recognize", fixture_recognize)
+    j = jobs.start(sample_id=s["sample_id"])
+    assert started.wait(2)
+    try:
+        with pytest.raises(ValueError, match="运行"):
+            jobs.start(sample_id=s["sample_id"])
+        with pytest.raises(ValueError, match="Choose"):
+            jobs.start(sample_id=s["sample_id"], page_id=s["page_id"])
+    finally:
+        release.set()
+    for _ in range(100):
+        if jobs.get(j["id"])["status"] != "running":
+            break
+        time.sleep(0.01)
+    assert jobs.get(j["id"])["status"] == "complete"
+    assert c.get("sample", s["sample_id"]) == s
+
+
+def test_candidate_count_rejected_before_loading_model(corpus):
+    from research.corpus.recognition import recognize
+
+    c, _ = corpus
+    for count in [0, 4, True, "3"]:
+        with pytest.raises(ValueError, match="Candidate count"):
+            recognize(c, "unimernet", [], candidate_count=count)
+
+
+def test_formula_job_failure_is_visible_and_preserves_labels(corpus, monkeypatch):
+    from research.corpus.candidate_jobs import CandidateJobs
+
+    c, _ = corpus
+    s = sample(c)
+    jobs = CandidateJobs(c)
+    jobs.jobs["fixture"] = {"id": "fixture", "status": "running", "count": 1}
+
+    def fail(*args, **kwargs):
+        raise RuntimeError("fixture CUDA unavailable")
+
+    monkeypatch.setattr("research.corpus.candidate_jobs.recognize", fail)
+    jobs._work("fixture", [s["sample_id"]])
+    assert jobs.get("fixture")["status"] == "failed"
+    assert "CUDA unavailable" in jobs.get("fixture")["error"]
+    assert c.get("sample", s["sample_id"]) == s
 
 
 def test_review_gates_conflicts_and_restart(corpus):
@@ -272,6 +364,15 @@ def test_studio_local_auth_persistence_and_revision_conflict(corpus):
             response.read()
             assert response.status == expected
         assert Corpus(c.root).get("sample", s["sample_id"])["candidate_text"] == "B"
+        for body, extra, expected in [
+            ({"sample_id": s["sample_id"]}, {"X-Corpus-Token": "wrong"}, 403),
+            ({"sample_id": s["sample_id"], "python": "/untrusted"}, {}, 400),
+            ({"sample_id": s["sample_id"], "page_id": s["page_id"]}, {}, 400),
+        ]:
+            connection.request("POST", "/api/recognize", json.dumps(body), {**headers, **extra})
+            response = connection.getresponse()
+            response.read()
+            assert response.status == expected
         connection.request("GET", "/api/state", headers={"Host": "external.example"})
         response = connection.getresponse()
         response.read()

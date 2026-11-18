@@ -10,8 +10,11 @@
 <main><section class="viewer"><div class="toolbar"><button id="draw">框选新区域</button><button id="split">拆分当前区域</button><button id="merge">合并勾选区域</button><button id="reload">刷新</button></div>
 <div id="canvas"><img id="original" alt="原始作业页"><svg id="overlay" aria-label="识别区域"></svg></div><p>可滚动查看原图。框选保留原始像素；不删除涂改、不补画缺失笔画。拆分：在父区域内连续画至少两个框，再点“完成拆分”。</p></section>
 <section class="editor"><div id="summary"></div><div id="regions"></div><div id="editing" hidden>
-<h2 id="sampleTitle">区域</h2><img id="crop" alt="当前原始裁剪"><div id="risk"></div><div id="candidates"></div>
+<h2 id="sampleTitle">区域</h2><img id="crop" alt="当前原始裁剪"><div id="risk"></div>
+<div class="toolbar candidate-tools"><button id="recognizeRegion">识别当前区域</button><button id="recognizePage">补全本页公式候选</button><button id="refreshCandidates">刷新候选</button></div>
+<p id="recognitionStatus" role="status">公式候选需要对照原图；多个候选一致也不代表正确。</p><div id="candidates"></div>
 <label>实际写下的文字 / LaTeX<textarea id="text" rows="5" spellcheck="false"></textarea></label><div id="mathPreview" aria-label="公式预览"></div>
+<details><summary>常用公式输入辅助（点击插入到光标处）</summary><p>选中文字后点按钮可包进分数、根号或上下标；占位符需按原图修改。</p><div id="mathTools"></div></details>
 <div class="fields"><label>内容 <select id="type"><option value="unknown">待分类</option><option value="english-line">英文行</option><option value="english-word">英文单词</option><option value="math-expression">数学表达式</option><option value="math-symbol">数学符号</option><option value="glyph">可靠单字符</option><option value="page">页面结构</option></select></label>
 <label>书写者/区域 <select id="role"><option value="unknown">待确认</option><option value="personal-handwriting">本人手写</option><option value="printed">印刷内容</option><option value="other-writer">他人书写/批注</option><option value="mixed">混合，需拆分</option></select></label>
 <label>墨迹质量 <select id="quality"><option value="unassessed">待判断</option><option value="clean">清晰完整，可用于生成训练</option><option value="readable-correction">有涂改但可读，仅识别研究</option><option value="unusable">遮挡/不可可靠转写，排除</option></select></label></div>

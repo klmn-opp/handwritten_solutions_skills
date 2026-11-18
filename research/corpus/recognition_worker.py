@@ -14,6 +14,11 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--request", type=Path, required=True)
     req = json.loads(parser.parse_args().request.read_text())
+    candidate_count = req.get("candidate_count", 1)
+    if type(candidate_count) is not int or not 1 <= candidate_count <= 3:
+        raise ValueError("Candidate count must be 1 to 3")
+    if candidate_count > 1 and req["engine"] != "unimernet":
+        raise ValueError("Multiple candidates require UniMERNet")
     if any(set(r) - {"id", "image", "sha256"} for r in req["images"]):
         raise ValueError("Recognition must not receive expected labels")
     os.environ.update(
@@ -39,7 +44,7 @@ def main():
             .eval()
         )
 
-        def predict(image):
+        def predict(image, candidate_index):
             pixels = processor(images=image, return_tensors="pt").pixel_values.to("cuda")
             tokens = model.generate(pixels, do_sample=False, num_beams=4, max_new_tokens=256)
             return processor.batch_decode(tokens, skip_special_tokens=True)[0], tokens[0].tolist()
@@ -67,37 +72,57 @@ def main():
         model = model.to("cuda").eval()
         processor = FormulaImageEvalProcessor([192, 672])
 
-        def predict(image):
+        def predict(image, candidate_index):
+            # Upstream DonutEncoderDecoder discards beam kwargs. Use its supported
+            # sampling controls explicitly; these are alternatives, not confidence scores.
             result = model.generate(
                 {"image": processor(image).unsqueeze(0).to("cuda")},
-                temperature=1.0,
-                do_sample=False,
+                temperature=1.0 if candidate_index == 0 else [0.35, 0.65][candidate_index - 1],
+                do_sample=candidate_index > 0,
+                top_p=0.95,
             )
             return result["pred_str"][0], result["pred_ids"][0].tolist()
 
         config = {
             "max_new_tokens": 512,
             "image_size": [192, 672],
-            "do_sample": False,
             "official_processor": True,
             "checkpoint_strict": True,
+            "candidate_count": candidate_count,
+            "alternatives": "greedy then seeded sampling at temperature 0.35/0.65; no beam kwargs",
+            "decoding_variants": [
+                {
+                    "do_sample": i > 0,
+                    "temperature": [1.0, 0.35, 0.65][i],
+                    "top_p": 0.95,
+                    "seed": req["seed"] + i,
+                }
+                for i in range(candidate_count)
+            ],
         }
     else:
         raise ValueError("Unknown real recognition backend")
     rows = []
-    for row in req["images"]:
+    for row, candidate_index in ((row, i) for row in req["images"] for i in range(candidate_count)):
         if hashlib.sha256(Path(row["image"]).read_bytes()).hexdigest() != row["sha256"]:
             raise ValueError("Input digest changed")
         torch.cuda.reset_peak_memory_stats()
+        seed = req["seed"] + candidate_index
+        torch.manual_seed(seed)
         start = time.perf_counter()
         with Image.open(row["image"]) as im, torch.inference_mode():
-            text, tokens = predict(im.convert("RGB"))
+            text, tokens = predict(im.convert("RGB"), candidate_index)
         torch.cuda.synchronize()
         rows.append(
             {
                 "id": row["id"],
                 "text": text,
                 "tokens": tokens,
+                "candidate_method": "greedy"
+                if candidate_index == 0
+                else f"sample-{candidate_index}",
+                "seed": seed,
+                "decoding": config.get("decoding_variants", [config])[candidate_index],
                 "seconds": time.perf_counter() - start,
                 "peak_cuda_bytes": torch.cuda.max_memory_allocated(),
                 "input_sha256": row["sha256"],
@@ -123,7 +148,7 @@ def main():
                 indent=2,
             )
         )
-        print(row["id"], flush=True)
+        print(row["id"], candidate_index, flush=True)
 
 
 if __name__ == "__main__":

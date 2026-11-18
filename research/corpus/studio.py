@@ -7,6 +7,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
+from research.corpus.candidate_jobs import CandidateJobs
 from research.corpus.dataset import export_dataset
 from research.corpus.experiment import create
 from research.corpus.store import Conflict, Corpus
@@ -15,6 +16,7 @@ from research.corpus.store import Conflict, Corpus
 def server(corpus: Corpus, *, port: int = 8769, katex: Path | None = None) -> ThreadingHTTPServer:
     token = secrets.token_urlsafe(32)
     static = Path(__file__).parent / "web"
+    candidates = CandidateJobs(corpus)
 
     class Handler(BaseHTTPRequestHandler):
         def reply(self, data: bytes, content_type: str, status=200):
@@ -56,10 +58,13 @@ def server(corpus: Corpus, *, port: int = 8769, katex: Path | None = None) -> Th
                             "pages": corpus.rows("page"),
                             "samples": corpus.rows("sample"),
                             "recognition": corpus.rows("recognition"),
+                            "formula_recognition_available": candidates.available(),
                         }
                     )
                 if url.path == "/api/history":
                     return self.json(corpus.history(parse_qs(url.query)["id"][0]))
+                if url.path == "/api/recognize-status":
+                    return self.json(candidates.get(parse_qs(url.query)["id"][0]))
                 if url.path == "/asset":
                     file = corpus.path(parse_qs(url.query)["path"][0])
                 elif url.path.startswith("/katex/"):
@@ -112,6 +117,10 @@ def server(corpus: Corpus, *, port: int = 8769, katex: Path | None = None) -> Th
                     result = corpus.propose(
                         req["page_id"], req["box"], label_source="manual-region:" + req["actor"]
                     )
+                elif self.path == "/api/recognize":
+                    if set(req) - {"sample_id", "page_id"}:
+                        raise ValueError("Only a local region or page selector is accepted")
+                    result = candidates.start(**req)
                 elif self.path == "/api/export":
                     run = create(
                         "corpus-reviewed-export",

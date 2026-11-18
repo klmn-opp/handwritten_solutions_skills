@@ -15,6 +15,8 @@ class Element {
   setAttribute(name,value) { this.attributes[name]=value; }
   removeAttribute(name) { delete this.attributes[name]; }
   addEventListener() {}
+  focus() {}
+  setSelectionRange(start,end) { this.selectionStart=start;this.selectionEnd=end; }
   querySelectorAll(selector) {
     const all=this.children.flatMap(c=>[c,...(c.querySelectorAll?.("*")||[])]);
     return all.filter(c=>selector==="*"||(c.tag==="input"&&(!selector.includes(":checked")||c.checked)));
@@ -119,4 +121,28 @@ test("outdated drafts remain visible and cannot overwrite a newer revision",asyn
   assert.match(a.elements.actionStatus.textContent,/修订已过期/);
   await a.run('select("c")');await a.run('select("b")');
   assert.equal(a.elements.text.value,"old pending text");assert.equal(JSON.parse(storage.get("corpus-draft:b")).revision,-1);
+});
+
+test("formula candidates are deduplicated and choosing one only updates a draft",async()=>{
+  const a=await app();
+  a.database.recognition=[{sample_id:"a",engine:"unimernet",text:"x^{2}",candidate_method:"greedy"},
+    {sample_id:"a",engine:"unimernet",text:"x^{2}",candidate_method:"sample-1"},
+    {sample_id:"a",engine:"unimernet",text:"x^{-2}",candidate_method:"sample-2"}];
+  a.elements.text.value="my unfinished correction";a.run("draft()");a.elements.attest.checked=true;
+  await a.run("refreshCandidates()");
+  assert.equal(a.elements.text.value,"my unfinished correction");assert.equal(a.elements.attest.checked,true);
+  assert.equal(a.elements.candidates.children.length,2);
+  a.elements.candidates.children[1].children[2].onclick();
+  assert.equal(a.elements.text.value,"x^{-2}");assert.equal(a.elements.type.value,"math-expression");
+  assert.equal(a.elements.attest.checked,false);assert.equal(a.posts.length,0);
+  assert.equal(a.database.samples[0].candidate_text,"a");
+  await a.run('select("b")');await a.run('select("a")');assert.equal(a.elements.text.value,"x^{-2}");
+});
+
+test("formula helpers wrap a selection, keep surrounding text and require a new attestation",async()=>{
+  const a=await app();a.elements.text.value="x+a=y";
+  a.elements.text.selectionStart=2;a.elements.text.selectionEnd=3;a.elements.attest.checked=true;
+  a.run('insertMath("\\\\sqrt{","}")');
+  assert.equal(a.elements.text.value,"x+\\sqrt{a}=y");assert.equal(a.elements.type.value,"math-expression");
+  assert.equal(a.elements.attest.checked,false);assert.equal(a.posts.length,0);
 });

@@ -3,6 +3,7 @@ const el = id => document.getElementById(id);
 const csrf = document.querySelector('meta[name="corpus-token"]').content;
 let state, current, page, dirty=false, mode=null, start=null, boxes=[], busy=false;
 let selectionVersion=0, draftRevision=null;
+let recognitionJob=null, recognitionStarting=false;
 const defects={"crossed-out":"划掉","occluded":"遮挡","overwritten":"重写重叠","erasure":"擦除残迹","faint":"过淡","blurred":"模糊","clipped":"裁切缺笔","mixed-writers":"混合书写者","printed-overlap":"印刷重叠","background-interference":"背景干扰","unknown":"其他待查"};
 function status(text, error=false){
   el("status").textContent=text;
@@ -83,6 +84,81 @@ function draft(){
   status("草稿已保存在本机浏览器；可切换区域。保存或确认后才写入审核记录。");
   preview();
 }
+function useCandidate(r){
+  if(!current||busy)return;
+  el("text").value=r.text;
+  if(r.engine==="unimernet"&&!el("type").value.startsWith("math"))el("type").value="math-expression";
+  draft();
+  status("已将候选填入草稿；请对照原图检查负号、上下标和大小写，再确认。");
+}
+function renderCandidates(){
+  el("candidates").replaceChildren();
+  if(!current)return;
+  const rank=r=>r.candidate_method==="sample-2"?2:r.candidate_method==="sample-1"?1:0;
+  const rows=state.recognition.filter(r=>r.sample_id===current.sample_id&&r.text.trim())
+    .sort((a,b)=>Number(b.engine==="unimernet")-Number(a.engine==="unimernet")||rank(a)-rank(b));
+  const seen=new Set();
+  const unique=rows.filter(r=>{const key=r.engine+":"+r.text.trim();if(seen.has(key))return false;seen.add(key);return true;});
+  if(!unique.length){
+    const empty=document.createElement("p");empty.textContent="尚无识别候选。点“识别当前区域”生成 LaTeX；混合多行请先框出完整单行公式。";el("candidates").append(empty);
+  }
+  for(const [i,r] of unique.entries()){
+    const card=document.createElement("article");card.className="candidate-card";
+    const title=document.createElement("p");title.textContent=`候选 ${i+1} · ${r.engine}（待核验）`;
+    const rendered=document.createElement("div");rendered.className="candidate-preview";
+    if(r.engine==="unimernet"&&window.katex){
+      try{katex.render(r.text,rendered,{throwOnError:true,trust:false,strict:"warn",maxExpand:1000,displayMode:true});}
+      catch(e){rendered.textContent="预览失败，此候选可能不完整："+r.text;}
+    }else rendered.textContent=r.text;
+    const details=document.createElement("details"),summary=document.createElement("summary"),raw=document.createElement("pre");
+    summary.textContent="查看转写源码与来源";raw.textContent=r.text+"\n来源运行："+(r.run||"未记录")+"\n解码："+(r.candidate_method||"原始识别")+(r.raw?.possible_token_truncation?"\n注意：可能达到识别长度上限":"");details.append(summary,raw);
+    const choose=document.createElement("button");choose.textContent="使用候选 "+(i+1);choose.onclick=()=>useCandidate(r);
+    card.append(title,rendered,choose,details);el("candidates").append(card);
+  }
+  const unavailable=!state.formula_recognition_available;
+  el("recognizeRegion").disabled=unavailable||!!recognitionJob||recognitionStarting;
+  el("recognizePage").disabled=unavailable||!!recognitionJob||recognitionStarting;
+}
+async function refreshCandidates(){
+  const data=await api("/api/state");
+  state.recognition=data.recognition;
+  state.formula_recognition_available=data.formula_recognition_available;
+  renderCandidates();
+}
+async function pollRecognition(){
+  if(!recognitionJob)return;
+  try{
+    const job=await api("/api/recognize-status?id="+encodeURIComponent(recognitionJob));
+    if(job.status==="running"){
+      el("recognitionStatus").textContent=`正在本机识别 ${job.count} 个区域，每个最多3次解码；可以继续审核其他区域。`;
+      setTimeout(pollRecognition,1500);return;
+    }
+    recognitionJob=null;localStorage.removeItem("corpus-recognition-job");
+    await refreshCandidates();
+    el("recognitionStatus").textContent=job.status==="complete"?"识别完成，候选已刷新；当前转写和草稿保持原样。":"识别失败："+job.error+"。已有候选仍可使用。";
+  }catch(e){
+    recognitionJob=null;localStorage.removeItem("corpus-recognition-job");renderCandidates();
+    el("recognitionStatus").textContent="无法获取识别状态："+e.message+"。请点刷新候选查看已完成结果。";
+  }
+}
+async function requestRecognition(scope){
+  if(!current||recognitionJob||recognitionStarting)return;
+  persistDraft();recognitionStarting=true;renderCandidates();
+  try{
+    const job=await api("/api/recognize",scope==="page"?{page_id:page.page_id}:{sample_id:current.sample_id});
+    if(job.id){recognitionJob=job.id;localStorage.setItem("corpus-recognition-job",job.id);}
+    else{await refreshCandidates();el("recognitionStatus").textContent=job.message;}
+  }finally{recognitionStarting=false;renderCandidates();}
+  if(recognitionJob)await pollRecognition();
+}
+function insertMath(before,after=""){
+  if(!current||busy)return;
+  const field=el("text"),start=field.selectionStart??field.value.length,end=field.selectionEnd??start;
+  const selected=field.value.slice(start,end),value=before+selected+after;
+  field.value=field.value.slice(0,start)+value+field.value.slice(end);
+  if(!el("type").value.startsWith("math"))el("type").value="math-expression";
+  field.focus();field.setSelectionRange(start+before.length,start+before.length+selected.length);draft();
+}
 async function select(id){
   if(busy)return;
   persistDraft();
@@ -104,7 +180,7 @@ async function select(id){
   }else status("已切换区域；对照原图核验后再确认。");
 el("sampleTitle").textContent=id+" · "+current.review_status;el("crop").src=asset(c.image_crop);el("text").value=c.candidate_text;el("notes").value=c.notes;el("type").value=c.content_type;el("role").value=c.region_role;el("quality").value=c.quality_status||"unassessed";el("privacy").checked=c.privacy_checked;el("attest").checked=false;for(const input of el("defects").querySelectorAll("input"))input.checked=(c.defects||[]).includes(input.value);
 el("risk").textContent=(c.quality_triage?.flags||[]).join("\n")||"尚无自动风险提示；这不代表区域清晰。请检查划改、笔画遮挡及其他书写者。";
-el("candidates").replaceChildren();for(const r of state.recognition.filter(r=>r.sample_id===id)){const b=document.createElement("button");b.textContent=r.engine+"（候选）: "+r.text;b.onclick=()=>{el("text").value=r.text;draft();};el("candidates").append(b);}
+renderCandidates();
 preview();drawOverlay();
 el("history").textContent="正在读取操作历史…";
 const history=await api("/api/history?id="+id);
@@ -131,6 +207,10 @@ for(const [key,label] of Object.entries(defects)){const l=document.createElement
 el("actor").value=localStorage.getItem("corpus-actor")||"";el("actor").oninput=()=>localStorage.setItem("corpus-actor",el("actor").value);
 for(const id of ["text","notes","type","role","quality","privacy","defects"])el(id).addEventListener("input",draft);
 el("save").onclick=()=>guard(()=>save());el("verify").onclick=()=>guard(()=>save("verified"));el("reject").onclick=()=>guard(()=>save("rejected"));el("reload").onclick=()=>guard(load);el("page").onchange=()=>guard(changePage);el("filter").onchange=()=>guard(changePage);
+el("recognizeRegion").onclick=()=>guard(()=>requestRecognition("region"));el("recognizePage").onclick=()=>guard(()=>requestRecognition("page"));el("refreshCandidates").onclick=()=>guard(async()=>{await refreshCandidates();el("recognitionStatus").textContent="候选已刷新，当前转写和草稿保持原样。";});
+for(const [label,before,after] of [["分数","\\frac{","}{b}"],["根号","\\sqrt{","}"],["n次根号","\\sqrt[n]{","}"],["上标","^{","}"],["下标","_{","}"],["积分","\\int_{a}^{b} ","\\,dx"],["求和","\\sum_{i=1}^{n} ",""],["箭头 →","\\to ",""],["偏导 ∂","\\partial ",""],["矩阵","\\begin{pmatrix}a & b \\\\ c & d\\end{pmatrix}",""]]){
+  const b=document.createElement("button");b.textContent=label;b.onclick=()=>insertMath(before,after);el("mathTools").append(b);
+}
 el("draw").onclick=()=>{mode="new";boxes=[];status("在原页拖动框选新区域");};
 el("split").onclick=()=>guard(async()=>{if(!current)throw Error("请先选择父区域");if(mode!=="split"){if(dirty)await save();mode="split";boxes=[];el("split").textContent="完成拆分";status("在父区域内画至少两个框");}else{await api("/api/reshape",{items:[{id:current.sample_id,revision:current.revision}],boxes,actor:actor()});el("split").textContent="拆分当前区域";await load();}});
 el("merge").onclick=()=>guard(async()=>{if(dirty)await save();const ids=[...el("regions").querySelectorAll("input:checked")].map(n=>n.value);await api("/api/reshape",{items:ids.map(id=>({id,revision:state.samples.find(s=>s.sample_id===id).revision})),actor:actor()});await load();});
@@ -139,4 +219,4 @@ el("overlay").onpointerdown=e=>{if(!mode)return;start=point(e);el("overlay").set
 el("overlay").onpointerup=e=>guard(async()=>{if(!mode||!start)return;const end=point(e),box=[Math.min(start[0],end[0]),Math.min(start[1],end[1]),Math.max(start[0],end[0]),Math.max(start[1],end[1])];start=null;if(mode==="new"){const row=await api("/api/propose",{page_id:page.page_id,box,actor:actor()});await load();await select(row.sample_id);}else{boxes.push(box);drawOverlay();status("已画 "+boxes.length+" 个子区域；点完成拆分提交");}});
 el("export").onclick=()=>guard(async()=>{if(dirty)await save();const r=await api("/api/export",{actor:actor()});status(`已导出 ${r.eligible_samples} 条合格样本：${r.path}`);});
 window.addEventListener("beforeunload",e=>{if(dirty){e.preventDefault();e.returnValue="";}});
-guard(load);
+guard(async()=>{await load();recognitionJob=localStorage.getItem("corpus-recognition-job");if(recognitionJob){renderCandidates();await pollRecognition();}});

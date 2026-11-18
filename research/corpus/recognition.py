@@ -22,7 +22,12 @@ def recognize(
     python: Path | None = None,
     checkpoint: Path | None = None,
     source: Path | None = None,
+    candidate_count: int = 1,
 ) -> Path:
+    if type(candidate_count) is not int or not 1 <= candidate_count <= 3:
+        raise ValueError("Candidate count must be 1 to 3")
+    if candidate_count > 1 and engine != "unimernet":
+        raise ValueError("Multiple candidates currently require UniMERNet")
     samples = [corpus.get("sample", sid) for sid in sample_ids]
     if not samples:
         raise ValueError("Select at least one real crop")
@@ -43,6 +48,7 @@ def recognize(
             "checkpoints": weights,
             "python": str(python),
             "source": str(source),
+            "candidate_count": candidate_count,
             "no_external_upload": True,
         },
     )
@@ -96,6 +102,7 @@ def recognize(
             req = {
                 "engine": engine,
                 "seed": 902,
+                "candidate_count": candidate_count,
                 "checkpoint": str(checkpoint.resolve()),
                 "source": str(source.resolve()) if source else None,
                 "output": str(run.path / "reports/raw.json"),
@@ -124,7 +131,12 @@ def recognize(
                 )
             output = json.loads((run.path / "reports/raw.json").read_text())
             version = output["dependencies"]["transformers"]
+        seen = set()
         for row in output["rows"]:
+            key = (row["id"], row["text"].strip())
+            if not key[1] or key in seen:
+                continue
+            seen.add(key)
             corpus.add_recognition(
                 row["id"],
                 {
@@ -137,13 +149,17 @@ def recognize(
                     "checkpoint_sha256": weights,
                     "run": str(run.path),
                     "source": str(source),
+                    "candidate_method": row.get("candidate_method", "original"),
+                    "candidate_seed": row.get("seed", 902),
                 },
             )
         run.finish(
             "held",
             result={
                 "recognition_executed": True,
-                "crops": len(output["rows"]),
+                "crops": len({r["id"] for r in output["rows"]}),
+                "decoded_candidates": len(output["rows"]),
+                "distinct_nonempty_candidates": len(seen),
                 "human_verified": False,
                 "generator_training": False,
             },
