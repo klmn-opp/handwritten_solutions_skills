@@ -23,6 +23,16 @@ CER与WER使用确定性Levenshtein对齐、微平均；Exact Match区分大小�
 生产解释器只负责编排、字体、指标、PDF；PyTorch仅在 `workspace/environments/english-htr-v08/` 中。该环境的实际固定依赖在 `research/english/requirements-evaluation.lock`，torch/torchvision来自官方cu128索引，模型资产需按run请求摘要提前准备；CPU安装包不包含研究代码或torch依赖。
 
 ```bash
+# 仅在没有同名环境时创建；本次已有环境应直接复用，不重建。
+# 不得向 .venv 安装这些神经依赖。
+UV_CACHE_DIR=/tmp/hwsol-eval-cache uv venv --python 3.12 \
+  workspace/environments/english-htr-v08
+UV_CACHE_DIR=/tmp/hwsol-eval-cache uv pip install \
+  --python workspace/environments/english-htr-v08/bin/python \
+  --extra-index-url https://download.pytorch.org/whl/cu128 \
+  --index-strategy unsafe-best-match -r research/english/requirements-evaluation.lock
+# 固定模型资产须另按请求清单准备。
+
 .venv/bin/python -m research.english.cli font \
   --profile personal@v1 --split development --run-id NEW-UNIQUE-ID
 

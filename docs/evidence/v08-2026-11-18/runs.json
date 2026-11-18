@@ -1,0 +1,154 @@
+[
+  {
+    "run_id": "v08-blind-review",
+    "path": "workspace/runs/v08-blind-review",
+    "status": "held",
+    "commit": "41c7dd76c64335c7c131f7f3607d24829e236d73",
+    "run_sha256": "1b53aa7de49b1136b070593c6b1076d2d73b1480aa2e62fa8f112322dbf23426",
+    "manifest_verification": "passed"
+  },
+  {
+    "run_id": "v08-diffbrush-development",
+    "path": "workspace/runs/v08-diffbrush-development",
+    "status": "held",
+    "commit": "8052b717e57e794c922c3002bcb8f8acd09751a2",
+    "run_sha256": "ba0405689efeee63be6ddfe9ee6988eb96d74e75c34e85a1ebe3c8d6d0dca9e4",
+    "manifest_verification": "passed"
+  },
+  {
+    "run_id": "v08-diffbrush-fit-smoke",
+    "path": "workspace/runs/v08-diffbrush-fit-smoke",
+    "status": "held",
+    "commit": "8052b717e57e794c922c3002bcb8f8acd09751a2",
+    "run_sha256": "6684d5b6adfe1850ff17c98482adeed7faa4be2d56f86c3e83d00fb87155d291",
+    "manifest_verification": "passed"
+  },
+  {
+    "run_id": "v08-diffbrush-holdout",
+    "path": "workspace/runs/v08-diffbrush-holdout",
+    "status": "held",
+    "commit": "8052b717e57e794c922c3002bcb8f8acd09751a2",
+    "run_sha256": "fdaff8261ef56d36fe41f6b7570e894b2930e460fbd5b5085d1448d198166e36",
+    "manifest_verification": "passed"
+  },
+  {
+    "run_id": "v08-diffbrush-official-pilot",
+    "path": "workspace/runs/v08-diffbrush-official-pilot",
+    "status": "held",
+    "commit": "2423e83d5ddfbc3414008bd194e82d27bf05aac7",
+    "run_sha256": "21eda082b9bcf79d19007245c6723deb538f3f18486d83d2994d8ead288193fa",
+    "manifest_verification": "passed"
+  },
+  {
+    "run_id": "v08-diffbrush-official-smoke",
+    "path": "workspace/runs/v08-diffbrush-official-smoke",
+    "status": "held",
+    "commit": "2423e83d5ddfbc3414008bd194e82d27bf05aac7",
+    "run_sha256": "625ba9fbe725c7c930a9c143118ebf36231d868c7a088286a6b86489134f49ff",
+    "manifest_verification": "passed"
+  },
+  {
+    "run_id": "v08-diffusionpen-pilot",
+    "path": "workspace/runs/v08-diffusionpen-pilot",
+    "status": "held",
+    "commit": "e7ff1dd5c2972031195ea4625e47f7eceb3ba3e7",
+    "run_sha256": "86ab6942c6a8d27b15f2e811d6f1ddd73e4319682d73c8eff2e6f70c19953130",
+    "manifest_verification": "passed"
+  },
+  {
+    "run_id": "v08-diffusionpen-smoke",
+    "path": "workspace/runs/v08-diffusionpen-smoke",
+    "status": "held",
+    "commit": "4c8f9bc4d42acf5244f418f5f28bd13fc2d740ad",
+    "run_sha256": "3894003838f2102e235141c768694cac708c5962a99ff403e482ebe0e084bb93",
+    "manifest_verification": "passed"
+  },
+  {
+    "run_id": "v08-evaluation-baselines",
+    "path": "workspace/runs/v08-evaluation-baselines",
+    "status": "failed",
+    "commit": "0894324fa138ca5978739c45b96092acb3edfb9c",
+    "run_sha256": "07714f465de503784fb5a782dd715914f6f12a622fd06f1a784ceb9a3ceb48d7",
+    "manifest_verification": "passed"
+  },
+  {
+    "run_id": "v08-evaluation-final",
+    "path": "workspace/runs/v08-evaluation-final",
+    "status": "held",
+    "commit": "6783254d6a29df985ef6e349691a02ce7d9a8aab",
+    "run_sha256": "034e6fbd6cfdf726073414887a2743ea88b5ea2730e4a26cd2081db67ce93659",
+    "manifest_verification": "passed"
+  },
+  {
+    "run_id": "v08-evidence-analysis",
+    "path": "workspace/runs/v08-evidence-analysis",
+    "status": "held",
+    "commit": "8052b717e57e794c922c3002bcb8f8acd09751a2",
+    "run_sha256": "273ee277f5785910ccefd85eaa13d4d5fee93cf56ac7175555de4bb186239c32",
+    "manifest_verification": "passed"
+  },
+  {
+    "run_id": "v08-final-validation",
+    "path": "workspace/runs/v08-final-validation",
+    "status": "passed",
+    "commit": "6fef23974dbe15ada025b3b94bfee7de32fee695",
+    "run_sha256": "5b813fd908b7db6dec9b2c23e125b7e6da972f9bc4b95d06b53ed20a7b9fd7f0",
+    "manifest_verification": "passed"
+  },
+  {
+    "run_id": "v08-font-v1-development",
+    "path": "workspace/runs/v08-font-v1-development",
+    "status": "passed",
+    "commit": "7d9e42910cc14da9f22866a08001d3521443c425",
+    "run_sha256": "99e2f608d92585b38fff513afdd6609b23c0ca37215b8c3adc221aa73155c07e",
+    "manifest_verification": "passed"
+  },
+  {
+    "run_id": "v08-font-v1-frozen",
+    "path": "workspace/runs/v08-font-v1-frozen",
+    "status": "passed",
+    "commit": "2423e83d5ddfbc3414008bd194e82d27bf05aac7",
+    "run_sha256": "4174c484923be7ce2e4b952b58f17da92bc060a1b2d9d3cb41a7eddc8b139eeb",
+    "manifest_verification": "passed"
+  },
+  {
+    "run_id": "v08-font-v3-frozen",
+    "path": "workspace/runs/v08-font-v3-frozen",
+    "status": "passed",
+    "commit": "2423e83d5ddfbc3414008bd194e82d27bf05aac7",
+    "run_sha256": "8ea33da6b2459c01a684322b359be982f46a842d3cc6d74f31996d82a8d93a32",
+    "manifest_verification": "passed"
+  },
+  {
+    "run_id": "v08-initial-audit",
+    "path": "workspace/runs/v08-initial-audit",
+    "status": "passed",
+    "commit": "21a582bd2c3dcdbfc3e28dc93cdf6e46e74c07dc",
+    "run_sha256": "1d01ae5296afbbeadf1bb8f3ad212b5fbe6265ff9d93724a6f20e8c8c15288fe",
+    "manifest_verification": "passed"
+  },
+  {
+    "run_id": "v08-model-preparation",
+    "path": "workspace/runs/v08-model-preparation",
+    "status": "passed",
+    "commit": "21a582bd2c3dcdbfc3e28dc93cdf6e46e74c07dc",
+    "run_sha256": "c77c796fad1d5e80033ef9951244fb75f8566664dda2edfec88ee1ce68f51a83",
+    "manifest_verification": "passed"
+  },
+  {
+    "run_id": "v08-personal-references",
+    "path": "workspace/runs/v08-personal-references",
+    "status": "held",
+    "commit": "2423e83d5ddfbc3414008bd194e82d27bf05aac7",
+    "run_sha256": "d912e777c274a7b7b89a1b8df1247106ed06f01010b64c14a4fccacfd97b0bad",
+    "manifest_verification": "passed"
+  },
+  {
+    "run_id": "v08-validation",
+    "path": "workspace/runs/v08-validation",
+    "status": "passed",
+    "commit": "4c8f9bc4d42acf5244f418f5f28bd13fc2d740ad",
+    "run_sha256": "4c953c9e6a2333fa4259af739a053c771912b678fef18b5461d568172567c3ee",
+    "manifest_verification": "passed"
+  }
+]

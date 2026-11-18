@@ -1,0 +1,28 @@
+{
+  "tests": {
+    "pytest-py312": {
+      "tests": 141,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "pytest-py313": {
+      "tests": 141,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "ruff": "passed",
+  "format": "passed",
+  "build": "passed in v08-validation",
+  "build_run_sha256": "4c953c9e6a2333fa4259af739a053c771912b678fef18b5461d568172567c3ee",
+  "final_blind_review_browser": {
+    "items": 72,
+    "loaded_images": 74,
+    "style_forms_disabled": 72,
+    "backend_names_visible": false,
+    "human_scores_created": 0
+  },
+  "cpu_runtime_source_changed": false
+}

@@ -1,3 +1,21 @@
+# 当前状态：v0.8证据评估完成，个人训练No-Go
+
+当前研究分支 `experiment/english-evidence-v08`；稳定main、v0.6.0包、CPU Runtime、personal@v1和正式latest均未改变。[完整v0.8 Evidence-Based Go/No-Go](V08_GO_NO_GO.md) · [英文基准协议](ENGLISH_BENCHMARK_V1.md) · [模型调查](V08_MODEL_INVESTIGATION.md) · [研发日志](V08_DEVELOPMENT_LOG.md)。
+
+- 固定120行英文：96 development、24独立holdout，含16行smoke。v1/v3各120行实际渲染，此条件下像素全部相同。
+- DiffBrush官方32组真实对照；全基准240请求中236生成、4次明确不支持字符；参考fit消融32生成。输入完整，原图至PDF保真，主要内容异常已存在于原始模型。
+- DiffusionPen官方权重+5本人扫描词，16文本×2种子真实CUDA推理成功。它仍按词生成后组合，未训练。
+- Tesseract与真实TrOCR共同评测588张图；同smoke的TrOCR CER：字体5.14%、DiffBrush32.78%、DiffusionPen22.57%，不是真实人工错误率。16行本人扫描校准也显示识别偏差。
+- 72份内容先行盲评材料已生成，真实人工评分0份。没有证据给自然度或作者相似性打新分数。
+- 推荐DiffusionPen为下一轮工程验证主候选；所有路线当前均不准入个人监督微调或生产。DiffInk发布词表无法完整覆盖任何一条本轮英文文本，原中文在线实验保留。
+- Python3.12/3.13各141项全套测试通过（零失败、零跳过）；构建、Ruff、PDF保真、模型摘要和浏览器门禁检查通过。
+
+交付入口：`workspace/runs/v08-evidence-analysis/rendered/homework_solutions.pdf`、`workspace/runs/v08-blind-review/comparisons/blind-review.html`、`workspace/runs/v08-evaluation-final/reports/observations.json`。下阶段先内容人工校核与词间尺度/标点验证，达标后再论证监督微调；不做从零训练、LoRA或RL。
+
+---
+
+以下为保留的v0.7历史状态，不代表已完成v0.8个人训练。
+
 # 当前状态：v0.6 已交付，v0.7 已完成真实 CUDA 实验
 
 继续原仓库和 Agent Skill，没有重建项目。历史审计见 [CURRENT_STATE_AUDIT.md](CURRENT_STATE_AUDIT.md)；v0.4.0 的原证据保留。稳定 `main` 已合入 v0.6，当前研究位于 `experiment/diffink-cuda-v07`。CPU 发布标签 `v0.6.0 → 2bcb260352dd4fee177e9cc8ce9179201bf0b5f3`；研究源码提交和每次执行的来源详见 run.json。

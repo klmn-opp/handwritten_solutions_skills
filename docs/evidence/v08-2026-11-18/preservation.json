@@ -1,0 +1,15 @@
+{
+  "index_entries": 5074,
+  "historical_files_excluding_audit_self": 5073,
+  "self_entry_excluded": "workspace/runs/v08-initial-audit/run.json",
+  "self_exclusion_reason": "Index was collected while its own audit run was running; finish legitimately sealed run.json afterward",
+  "changed_historical_files": [],
+  "changed_runtime_source": [],
+  "regenerated_build_metadata": [
+    "src/handwritten_solutions.egg-info/SOURCES.txt"
+  ],
+  "latest_unchanged": true,
+  "active_profile_unchanged": true,
+  "untracked_vscode_unchanged": true,
+  "production_torch_present": false
+}

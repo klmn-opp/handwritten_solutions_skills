@@ -1,0 +1,14 @@
+{
+  "personal_training": "no-go",
+  "production_promotion": "no-go",
+  "next_research_priority": "diffusionpen",
+  "basis": [
+    "real official English inference",
+    "same-smoke HTR discrepancy lower than DiffBrush",
+    "persistent long-word/numeric/punctuation and word-scale issues",
+    "full DiffusionPen development/holdout not run",
+    "no human content/style scores"
+  ],
+  "human_ratings": 0,
+  "training_executed": false
+}
