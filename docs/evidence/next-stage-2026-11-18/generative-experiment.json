@@ -1,0 +1,77 @@
+{
+  "environment.json": {
+    "handnote_revision": "114919f183817643c795e47e851ea25b96e3c393",
+    "gpu_exit": 9,
+    "gpu_error": "NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver. Make sure that the latest NVIDIA driver is installed and running.\n\n",
+    "probe": {
+      "interface": "(device: 'str' = 'auto', *, steps: 'int' = 50, half: 'bool' = False, unet=None, vae=None, content: 'np.ndarray | None' = None)",
+      "optional_dependencies_available": false,
+      "weights": {
+        "folder": "/home/klmn/handwritten_solutions_skills/out/next-stage-2026-11-18/line-experiment-final/model-cache/diffbrush",
+        "diffbrush.pt": false,
+        "vae/config.json": false,
+        "vae/diffusion_pytorch_model.safetensors": false,
+        "content.npz": false
+      }
+    },
+    "runtime_enabled": false,
+    "real_model_inference_completed": false
+  },
+  "optional-environment.json": {
+    "optional_dependencies_available": true,
+    "versions": {
+      "torch": "2.6.0+cpu",
+      "torchvision": "0.21.0+cpu",
+      "diffusers": "0.32.2",
+      "einops": "0.8.1",
+      "huggingface-hub": "0.28.1",
+      "safetensors": "0.5.3"
+    },
+    "model_inference_completed": false
+  },
+  "download-outcome.json": {
+    "status": "incomplete-stopped",
+    "download_bytes": 295698432,
+    "expected_checkpoint_bytes": 1165546469,
+    "decision": "Stop this optional feasibility download after sustained partial transfer; CPU engineering is ready, GPU driver unusable. This is not a network failure or successful model inference.",
+    "processes_stopped": 1,
+    "model_inference_completed": false
+  },
+  "real_invocation": {
+    "backend": "handnote-diffbrush",
+    "mock": false,
+    "argv": [
+      "/tmp/hwsol-next-stage-lineenv/bin/python",
+      "-m",
+      "handnote",
+      "line",
+      "generate",
+      "--text",
+      "The median is the middle ordered value.",
+      "--style",
+      "/home/klmn/handwritten_solutions_skills/out/next-stage-2026-11-18/line-experiment-final/reference-line.png",
+      "--out",
+      "/home/klmn/handwritten_solutions_skills/out/next-stage-2026-11-18/line-experiment-final/diffbrush-after-deps.png",
+      "--device",
+      "cpu",
+      "--steps",
+      "50",
+      "--seed",
+      "42"
+    ],
+    "reference_sha256": "4192f2a88e508613a129bf5ffc5f6590a7789f43c9c3e22aa852e43d47760355",
+    "text": "The median is the middle ordered value.",
+    "seed": 42,
+    "status": "failed",
+    "content_validation": "not-evaluated",
+    "style_naturalness": null,
+    "cer": null,
+    "wer": null,
+    "inference_seconds": null,
+    "peak_memory_bytes": null,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/tmp/hwsol-next-stage-lineenv/lib/python3.12/site-packages/handnote/__main__.py\", line 3, in <module>\n    raise SystemExit(main())\n                     ^^^^^^\n  File \"/tmp/hwsol-next-stage-lineenv/lib/python3.12/site-packages/handnote/cli.py\", line 548, in main\n    return int(args.func(args))\n               ^^^^^^^^^^^^^^^\n  File \"/tmp/hwsol-next-stage-lineenv/lib/python3.12/site-packages/handnote/cli.py\", line 367, in cmd_line\n    images = generate_lines(lines, args.style, device=args.device, steps=args.steps,\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/hwsol-next-stage-lineenv/lib/python3.12/site-packages/handnote/linegen/generate.py\", line 163, in generate_lines\n    gen = LineGenerator(device, steps=steps, half=half)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/hwsol-next-stage-lineenv/lib/python3.12/site-packages/handnote/linegen/generate.py\", line 72, in __init__\n    folder = weights.require()\n             ^^^^^^^^^^^^^^^^^\n  File \"/tmp/hwsol-next-stage-lineenv/lib/python3.12/site-packages/handnote/linegen/weights.py\", line 80, in require\n    raise WeightsError(f\"DiffBrush files not found in {cache_dir()}; run \"\nhandnote.model.weights.WeightsError: DiffBrush files not found in /home/klmn/handwritten_solutions_skills/out/next-stage-2026-11-18/line-experiment-final/model-cache/diffbrush; run `python -m handnote line fetch`\n",
+    "process_seconds": 1.6757289740053238
+  }
+}

@@ -60,7 +60,7 @@ hwsol-studio evaluate --profile personal --version vN
 `source_failures` 不为空时表示覆盖分析不完整。普通解题不调用此采集流程。
 当前缺字表覆盖已分析历史作业，不能外推到任意 LaTeX。
 
-候选保留原始字体和 178 个真实变体，增加度量资产及角色统计；版本对比单独报告字符覆盖是否改变。
+历史原始字体保持逐字节不变。全历史重建候选有 178 个真实变体，增加度量资产及角色统计；新扫描提取与 v3 的边界存在最大 0.093 em 差异，详情记录在候选比较中，未当作质量提升。
 `Trace.origin` 可以是 `recorded-pen`、`estimated-trajectory` 或 `scan-contour`。估计轨迹不算真实笔顺。
 只含 traces 的 calibration JSON 可导入；真实数字轨迹只有显式 `--include-traces` 才进入可迁移资产。
 `model-adapter` 资产角色可登记可选参数，但本轮没有创建空模型或宣称已完成适配。
