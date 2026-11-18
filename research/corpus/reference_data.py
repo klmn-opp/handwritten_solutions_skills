@@ -194,6 +194,11 @@ def export_views(profile, dataset: Path, destination: Path) -> dict:
                 profile.font.parent / "sources.json",
                 dataset / "manifest.json",
                 dataset / "samples.jsonl",
+                *[
+                    dataset / name
+                    for name in ("label-policy.json", "review-snapshot.json", "split-plan.json")
+                    if (dataset / name).is_file()
+                ],
             ]
         },
         "files": {p.name: sha256(p) for p in destination.iterdir() if p.is_file()},

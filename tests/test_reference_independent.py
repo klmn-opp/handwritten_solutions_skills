@@ -90,6 +90,37 @@ def test_external_crops_must_match_pdf_and_split(tmp_path, monkeypatch, dpi):
     assert len(reference_test.validate_package(tmp_path, tmp_path, "validation")) == 1
     with pytest.raises(ValueError, match="incorrectly split"):
         reference_test.validate_package(tmp_path, tmp_path, "holdout")
+    samples.write_text(
+        json.dumps(
+            {
+                "source_hash": sha256(pdf),
+                "dataset_split": "validation",
+                "crop_sha256": sha256(crop),
+                "verified_text": "1",
+            }
+        )
+        + "\n"
+    )
+    with pytest.raises(ValueError, match="Duplicate real crop"):
+        reference_test.validate_package(tmp_path, tmp_path, "validation")
+    assert (
+        len(
+            reference_test.validate_package(
+                tmp_path, tmp_path, "validation", allow_existing_validation=True
+            )
+        )
+        == 1
+    )
+    samples.write_text(
+        json.dumps(
+            {
+                "source_hash": sha256(pdf),
+                "dataset_split": "validation",
+                "crop_sha256": "old-unrelated",
+            }
+        )
+        + "\n"
+    )
     Image.new("RGB", (15, 60), "white").save(crop)
     row["crop_sha256"] = sha256(crop)
     atomic_json(tmp_path / "reports/proposals.json", [row])

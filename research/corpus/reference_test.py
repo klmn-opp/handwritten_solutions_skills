@@ -16,7 +16,9 @@ from research.corpus.reference_evaluate import shape_distance
 from research.corpus.reference_worker import contact_sheet
 
 
-def validate_package(package: Path, data: Path, split: str) -> list[dict]:
+def validate_package(
+    package: Path, data: Path, split: str, *, allow_existing_validation: bool = False
+) -> list[dict]:
     """Mechanical provenance validation only; do not relabel Sol's accepted transcriptions."""
     import pypdfium2 as pdfium
 
@@ -35,7 +37,8 @@ def validate_package(package: Path, data: Path, split: str) -> list[dict]:
             assigned = plan[doc["split_group"]]
             if doc_splits.setdefault(doc["source_hash"], assigned) != assigned:
                 raise ValueError("Frozen document split changed")
-    existing_hashes = {r["crop_sha256"] for r in source_rows}
+    existing_hashes = {r["crop_sha256"]: r for r in source_rows}
+    new_hashes = set()
     rows = json.loads((package / "reports/proposals.json").read_text())
 
     @cache
@@ -82,13 +85,29 @@ def validate_package(package: Path, data: Path, split: str) -> list[dict]:
         ]:
             if checksum(path) != digest:
                 raise ValueError("External source checksum changed")
-        if row["crop_sha256"] in existing_hashes:
-            raise ValueError("Duplicate real crop in new independent package")
-        existing_hashes.add(row["crop_sha256"])
+        old = existing_hashes.get(row["crop_sha256"])
+        if old:
+            from research.corpus.label_admission import label_text
+
+            if (
+                not allow_existing_validation
+                or split != "validation"
+                or old["dataset_split"] != "validation"
+                or old["source_hash"] != row["source_pdf_sha256"]
+                or label_text(old) != row["candidate_label"]
+            ):
+                raise ValueError("Duplicate real crop in new independent package")
+        if row["crop_sha256"] in new_hashes:
+            raise ValueError("Duplicate crop within external package")
+        new_hashes.add(row["crop_sha256"])
         original = page(row["source_pdf_path"], row["source_pdf_page_number"], row["render_dpi"])
         saved_page = np.asarray(Image.open(row["page_image_path"]).convert("RGB"))
         if not np.array_equal(original, saved_page):
             raise ValueError("Saved page differs from original PDF rendering")
+        if row.get("page_number", row["source_pdf_page_number"]) != row[
+            "source_pdf_page_number"
+        ] or row.get("page_size", list(original.shape[1::-1])) != list(original.shape[1::-1]):
+            raise ValueError("Page coordinates/number do not match original rendering")
         x0, y0, x1, y1 = row["bbox"]
         if not all(type(v) is int for v in row["bbox"]) or not (
             0 <= x0 < x1 <= original.shape[1] and 0 <= y0 < y1 <= original.shape[0]
@@ -152,7 +171,7 @@ def evaluate(sample: Path, package: Path, *, split: str, frozen: Path | None = N
         ):
             raise ValueError("Model/sample set not in frozen candidates")
     data = Path(request["data"])
-    rows = validate_package(package, data, split)
+    rows = validate_package(package, data, split, allow_existing_validation=split == "validation")
     labels = json.loads((data / "manifest.json").read_text())["labels"]
     arrays = np.load(data / "arrays.npz", allow_pickle=False)
     generated = np.load(sample / "reports/generated.npz", allow_pickle=False)["ink"]

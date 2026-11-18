@@ -14,7 +14,7 @@ from pathlib import Path
 import numpy as np
 
 from hwsol.profiles.io import atomic_json, sha256
-from hwsol.workspace import profile_store
+from hwsol.workspace import profile_store, verify_run
 from research.corpus.dataset import readiness
 from research.corpus.experiment import create
 from research.corpus.label_admission import CHECKS, accepted_label, label_text
@@ -47,6 +47,7 @@ def page_geometry(original: Path, number: int, dpi: int) -> dict:
 
 
 def source_dataset(data: Path) -> Path:
+    verify_run(data.parent.parent)
     manifest = validate_views(data)
     return next(Path(p).parent for p in manifest["source_files"] if Path(p).name == "samples.jsonl")
 
