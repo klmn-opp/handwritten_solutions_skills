@@ -1,3 +1,27 @@
+# 当前状态：v0.9 新增298真实Train，完成两轮续训与一次修正，生产仍No-Go
+
+研究分支`experiment/expanded-corpus-two-rounds-v09`；[完整证据与路径](V09_EXPANDED_CORPUS_TRAINING.md)。
+正式font-cpu、personal@v1、latest及原Studio数据未改变，主交付保持held。
+
+- Sol xhigh清洗新增298张真实Train，41→339张、4→52类；178字体辅助/75类保持不变。23类仍无真实Train。
+- 两轮8000+8000次真实CUDA更新，开发集发现断笔后额外4000次修正；全部75类继续联合训练。
+  本轮共20000次，修正候选选中祖先累计9500步；保存best/last/优化器/原始图，不把OCR称作训练。
+- 新Validation58/40类（合计71）参与开发；新Holdout57/38类仅在冻结全部候选后查看。
+- 第二轮Holdout形状距离0.127473，上一版0.133715，几何0.128807；约4.7%代理改善，不等于自然度提升。
+  600图断裂代理为旧6、R1 16、R2 20、修正11；修正轮8类变化偏小、14图二值同字体，存在退步。
+- 375图Sol盲检每种方法75图：缺损标记Handnote1/旧7/R1 10/R2 7/修正2；新模型仍有5/J、√/T不匹配。
+  孤立字符歧义和弃答不算真实文本错误，没有作者风格评分，不能声称超过Handnote。
+- 全200测试通过，另3项Torch损失检查通过；600生成PNG同设备/权重/种子重放一致。23个子run封存验证通过。
+- 14原件、审核快照、受保护Profile/latest/旧权重摘要不变；生产环境无Torch、源码与依赖未改。
+
+交付：`workspace/runs/20261118T174726751468Z-expanded-corpus-two-rounds-58bbf5d2/`。
+rendered/homework_solutions.pdf为新5页全75类对照，含Handnote/旧版/两轮/修正；逐页PNG与原600图齐备。
+下一阶段补低覆盖真实类、解决身份/完整性与多样性的冲突；不继续盲目加步数、不发布默认模型、不做RL。
+
+---
+
+以下为前轮状态，保留历史；其中旧覆盖数与评估数不是当前值。
+
 # 当前状态：v0.9 全75个人字符首版神经候选已完成，生产仍No-Go
 
 研究分支`experiment/all-personal-glyphs-v09`，继续原项目，正式font-cpu、personal@v1、latest不变。

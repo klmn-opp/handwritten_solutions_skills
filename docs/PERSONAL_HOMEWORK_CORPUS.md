@@ -239,3 +239,22 @@ stage包括real-control、real-prior、font-pretrain、font-finetune。最后一
 保存600张原始神经图、逐字来源及5页对照，每页15类、每类字体参考+7个展示候选（全部8个PNG另存）。
 全部环境、分阶段真实更新、失败样本和可复现命令见[V09_ALL_CHARACTER_TRAINING](V09_ALL_CHARACTER_TRAINING.md)。
 候选仍held；不激活Profile、不改latest、不把模型图或Sol结论伪装成人工真实样本。
+
+
+## 已封存清洗批增量数据版本
+
+新增`research.corpus.dataset_extension`；接受Sol按已授权策略制作、封存并通过原PDF重渲染的Train/Validation包。
+300DPI page view以独立ID和原PDF坐标保存，原Studio150DPI records及审核事件不变。
+同页的不同DPI裁剪以PDF物理区域检测重叠，不能重复计为新增笔迹。原color crop不修改；学习视图另存。
+输出完整dataset、views和extension证明，逐条保留parent标签/原记录/所有旧像素；Holdout包拒绝加入。
+已在父数据里的同Validation可只读重放评估，不能再次准入。标签、分组、授权摘要均绑定manifest。
+
+```bash
+PYTHONPATH=.:src .venv/bin/python -m research.corpus.dataset_extension   PARENT_DATA --train-package SEALED_TRAIN_RUN --validation-package SEALED_VALIDATION_RUN
+```
+
+省略validation参数可只增Train。续训必须显式`reference_study train --allow-data-extension`，
+checkpoint所依赖数据必须精确匹配extension父版本；不能替换旧数据后伪装同一次续训。
+本轮最终339真实Train/52类+71Validation+178字体辅助/75类，model标签与human标签仍分开。
+`prior_support_weight`默认0，实验可加入同类别完整Train距离场约束，绝不读取Validation/Holdout支持图。
+详见[V09_EXPANDED_CORPUS_TRAINING](V09_EXPANDED_CORPUS_TRAINING.md)；模型输出依旧是offline image generation。
