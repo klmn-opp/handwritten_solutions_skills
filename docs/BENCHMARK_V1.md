@@ -48,3 +48,8 @@ render-only 从版本化参考解答生成；end-to-end 的 packet 只包含原�
 独立观察格式为 `{"observations":[{"case_id":"...","artifact_sha256":"...","method":"human-blind","evaluator":"...","reference_visible":false,"english_transcription":"...","symbol_accuracy":0.0,"structure_accuracy":0.0,"style_similarity":0.0,"naturalness":0.0,"legibility":0.0}]}`。评分使用 [0,1]；未测量的字段省略，不填 0。观察接口验证归属和格式，不可能自动证明评审者真的盲评。
 
 holdout 是固定、可审计的隔离集合，不是保密考试。CLI 拒绝用它执行 purpose=tuning；所有题库条目禁止 model_training。先冻结开发实现，再运行 holdout。若据 holdout 修复渲染器，该版本 holdout 就不再是新的泛化证据，必须另建版本而不能改写旧结果。
+
+
+## v0.8 英文专项基准
+
+新增独立的120行英文基准，96 development / 24 holdout，含16行smoke子集。两识别器和人工校核严格分开；详情见 [English Handwriting Benchmark v1](ENGLISH_BENCHMARK_V1.md) 与 [v0.8 决策报告](V08_GO_NO_GO.md)。原60题数据和结果保留。
