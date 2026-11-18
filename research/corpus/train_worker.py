@@ -9,12 +9,25 @@ from pathlib import Path
 from hwsol.profiles.io import atomic_json, sha256
 
 
+def admitted_request(request: dict) -> tuple[list[dict], dict]:
+    from research.corpus.train import validate_dataset
+
+    rows, gate = validate_dataset(Path(request["dataset"]))
+    if gate["decision"] != "GO-limited-prototype":
+        raise ValueError("Independent worker refuses a dataset without verified training coverage")
+    if rows != request["rows"] or gate != request["gate"]:
+        raise ValueError("Training request no longer matches the versioned dataset")
+    if not 1 <= request["epochs"] <= 500:
+        raise ValueError("Invalid epoch budget")
+    return rows, gate
+
+
 def main():
     request = json.loads(Path(sys.argv[1]).read_text())
     dataset = Path(request["dataset"])
     run_path = Path(request["run_path"])
-    seed, epochs, gate = request["seed"], request["epochs"], request["gate"]
-    rows = request["rows"]
+    seed, epochs = request["seed"], request["epochs"]
+    rows, gate = admitted_request(request)
     import numpy as np
     import torch
     from PIL import Image, ImageOps
@@ -63,6 +76,7 @@ def main():
     optimizer = torch.optim.AdamW(model.parameters(), lr=0.001)
     torch.save(model.state_dict(), run_path / "logs/initial-state.pt")
     initial_sha = sha256(run_path / "logs/initial-state.pt")
+    initial_parameters = [p.detach().clone() for p in model.parameters()]
     atomic_json(
         run_path / "reports/architecture.json",
         {
@@ -92,6 +106,8 @@ def main():
                         torch.zeros((len(label), 4), device="cuda"),
                     )
                     loss, _ = objective(pred, ink, mu, logvar)
+                    if not torch.isfinite(loss):
+                        raise ValueError("Nonfinite training loss; do not save a valid candidate")
                     if training:
                         optimizer.zero_grad()
                         loss.backward()
@@ -120,6 +136,10 @@ def main():
         {
             "training_executed": True,
             "optimizer_updates": epochs * len(loader),
+            "parameter_absolute_change": sum(
+                (a - p).abs().sum().item()
+                for a, p in zip(initial_parameters, model.parameters(), strict=True)
+            ),
             "initial_sha256": initial_sha,
             "checkpoint_sha256": sha256(run_path / "logs/best-checkpoint.pt"),
             "seconds": time.perf_counter() - start,

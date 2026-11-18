@@ -223,6 +223,19 @@ def test_balanced_split_freezes_independent_groups_and_never_reshuffles(corpus):
         frozen_splits(c, docs, 903)
 
 
+def test_isolated_training_worker_cannot_bypass_admission(corpus, tmp_path):
+    from research.corpus.train_worker import admitted_request
+
+    c, _ = corpus
+    sample(c)
+    destination = tmp_path / "unverified"
+    export_dataset(c, destination)
+    with pytest.raises(ValueError, match="without verified"):
+        admitted_request(
+            {"dataset": str(destination), "rows": [], "gate": {"decision": "GO"}, "epochs": 1}
+        )
+
+
 def test_studio_local_auth_persistence_and_revision_conflict(corpus):
     import http.client
     import re

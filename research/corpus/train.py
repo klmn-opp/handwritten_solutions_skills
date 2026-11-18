@@ -17,6 +17,7 @@ def validate_dataset(dataset: Path) -> tuple[list[dict], dict]:
     rows = [json.loads(line) for line in records.read_text().splitlines()]
     splits = {}
     crop_splits = {}
+    document_splits = {}
     for row in rows:
         if (
             row["review_status"] != "verified"
@@ -35,7 +36,11 @@ def validate_dataset(dataset: Path) -> tuple[list[dict], dict]:
             or sha256(Path(row["source_original"])) != row["source_hash"]
         ):
             raise ValueError("Source/crop integrity mismatch")
-        for mapping, key in [(splits, row["split_group"]), (crop_splits, row["crop_sha256"])]:
+        for mapping, key in [
+            (splits, row["split_group"]),
+            (crop_splits, row["crop_sha256"]),
+            (document_splits, row["source_hash"]),
+        ]:
             if mapping.setdefault(key, row["dataset_split"]) != row["dataset_split"]:
                 raise ValueError("Train/holdout leakage")
     return rows, readiness(rows)
