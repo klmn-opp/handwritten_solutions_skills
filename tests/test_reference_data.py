@@ -62,3 +62,41 @@ def test_all_character_training_stays_outside_runtime():
     ).DEFAULT_CONFIG
     assert not config["holdout_used_for_selection"]
     assert not config["production_eligible"]
+
+
+def test_metrics_report_copying_and_no_variation_with_serializable_numbers():
+    import json
+
+    from research.corpus.reference_evaluate import character_metrics, shape_distance
+
+    ink = np.zeros((96, 96), np.float32)
+    ink[20:70, 40:44] = 1
+    outputs = np.stack([ink, ink])
+    result = character_metrics(outputs, ink[None], np.array([0]), 0)
+    assert result["exact_font_mask_copies"] == 2
+    assert result["mean_pairwise_ink_xor"] == 0
+    assert result["unique_binary_outputs"] == 1
+    assert result["blank_count"] == result["border_count"] == 0
+    json.dumps(result, allow_nan=False)
+    shifted = np.roll(ink, 3, axis=1)
+    assert shape_distance(ink, shifted) == shape_distance(shifted, ink)
+
+
+def test_sample_delivery_pdf_and_provenance(tmp_path):
+    import json
+
+    from pypdf import PdfReader
+
+    from research.corpus.reference_evaluate import panels
+
+    for directory in ["rendered/pages", "reports", "comparisons"]:
+        (tmp_path / directory).mkdir(parents=True)
+    reference = np.zeros((1, 96, 96), np.float32)
+    reference[:, 20:80, 45:50] = 1
+    panels(tmp_path, ["1"], reference, np.repeat(reference[:, None], 2, axis=1))
+    pdf = PdfReader(tmp_path / "rendered/homework_solutions.pdf")
+    assert len(pdf.pages) == 1
+    assert abs(float(pdf.pages[0].mediabox.width) - 595.276) < 0.2
+    provenance = json.loads((tmp_path / "reports/glyph-provenance.json").read_text())
+    assert len(provenance) == 2
+    assert all(not p["is_real_personal_sample"] for p in provenance)
