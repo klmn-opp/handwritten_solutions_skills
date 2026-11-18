@@ -15,6 +15,7 @@
 | 位置反例 | [旧规划器](../../../out/next-stage-2026-11-18/delivery/formula-legacy/homework_solutions.pdf) / [语义锚点](../../../out/next-stage-2026-11-18/delivery/formula-fixed/homework_solutions.pdf) |
 | 缺字采集计划及模板 | [计划](../../../out/next-stage-2026-11-18/delivery/collection-queue/collection-plan.json) / [Handnote PDF](../../../out/next-stage-2026-11-18/delivery/collection-queue/symbols-01.pdf) |
 | 干净 wheel 的五题重放 | [PDF](../../../out/next-stage-2026-11-18/wheel-replay/homework_solutions.pdf)，实测见 wheel-replay.json |
+| 干净 wheel 的 contextual 五题重放 | [PDF](../../../out/next-stage-2026-11-18/wheel-contextual-replay/homework_solutions.pdf)，实测见 wheel-contextual-replay.json |
 
 个人 PDF、扫描、字体、候选以及模型缓存均保留在本地忽略目录，不随源码包分发；上面的个人产物链接只在本工作区可用。
 所有新增 PDF 遵守一题一页；三个样式比较页是三个独立的单页作业的合并展示。
@@ -24,6 +25,7 @@
 - [CPU 对照数据](cpu-comparisons.json)：11 个新作业、27 页，逐页 PDF/PNG 核验通过。固定审计五题另逐字节重放旧交付成功。
 - [测试 Python 3.12](tests-final-py312.log) / [Python 3.13](tests-final-py313.log)：各 110 passed，包含两项隔离 MTH 测试，无跳过。JUnit 见同名 XML。3.13 运行当前源码，发行 wheel 另在干净 3.12 环境验证。
 - [Ruff](ruff-check.log) / [格式检查](ruff-format.log)：通过。未配置独立静态类型检查或测试覆盖率工具；未做联网漏洞库扫描。
+- [最终交付核验](delivery-verification.json)：两轮独立新建环境安装发行 wheel，历史五题与 contextual 五题的 PDF 和全部 PNG 均与对应源码输出逐字节一致；源码与 wheel 的 renderer fingerprint 一致。详见[历史回放](wheel-replay.json)和[新因素回放](wheel-contextual-replay.json)。
 - [公式反例回归](formula-regression.json)：LaTeX 与公式内部几何摘要一致；四条公式左端 x 从 546/148/303/725 px 变为 159/154/176/148 px。整组等号约束可核对。此页已用于既往校准，不再称为独立 holdout。
 - 规范化字体小写主体上沿 CV 2.14% → 0.57%，数字 2.45% → 0.42%。这是字体几何代理量；没有直接证明词内自然度提高。
 - 数学示例按全部可见数学 item（含矩阵单字符及结构笔画）计算，个人来源 30/45 → 37/45，即 66.7% → 82.2%。矩阵方括号仍为 6 条程序几何；向量箭头和不能安全拉伸的根号仍为外部字形。
@@ -43,3 +45,19 @@
 | 工程交付一致性 | 双环境测试、来源快照、历史保护、发行对应及干净重放各自留证 |
 
 生成式路线独立见 [实验报告](../../CONTINUOUS_WRITING_EXPERIMENT.md)，不使用 mock 质量结果。
+
+## 复现实验
+
+个人库仍在本工作区时，可用新的输出目录再次运行：
+
+```bash
+.venv/bin/python scripts/next_stage_evidence.py \
+  --candidate personal@v5 --output out/next-stage-new-replay
+```
+
+该脚本显式读取候选用于 Studio 对照，普通 Runtime 仍只读取已发布 Profile。
+`v0.4.0` 对应 commit `64cff8e5b2c1b194814027ea0cd10276b60ed71f`；[发行映射](../../../dist/v0.4.0/release.json)和
+[摘要清单](../../../dist/v0.4.0/SHA256SUMS)位于发行目录。发行后的 wheel 重放证据可晚于标签提交，渲染器源码一致。
+
+[本地交付文件摘要](artifact-inventory.json)记录基线、最终对照、两轮 wheel 回放和发行文件的路径、大小与 SHA-256；
+[证据文件摘要](SHA256SUMS)覆盖本证据目录除摘要清单自身之外的文件。

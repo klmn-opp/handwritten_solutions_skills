@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "release": {
+    "commit": "64cff8e5b2c1b194814027ea0cd10276b60ed71f",
+    "lock_sha256": "da904ebf9b993d4ae17df4e1098c04820d5e2ba751aaf63a18170d6f6daa57d2",
+    "tag": "v0.4.0"
+  },
+  "renderer_fingerprint": "d54e0d4487f8386739c69fccee63a77cdbdc6952baac2d56c64d19e5137bdfcf",
+  "clean_wheel_replays": {
+    "archived_five": 5,
+    "contextual_five": 5
+  },
+  "pdf_png_byte_identical_to_source": true,
+  "preserved_existing_files": 1292,
+  "changed_existing_files": [],
+  "tests": {
+    "python3.12": 110,
+    "python3.13": 110,
+    "skipped": 0
+  },
+  "ruff": "passed",
+  "default_profile": "personal@v1",
+  "candidate": "personal@v5",
+  "candidate_activated": false,
+  "neural_model_inference": "not_completed",
+  "author_style_acceptance": "not_evaluated"
+}
