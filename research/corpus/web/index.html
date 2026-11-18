@@ -6,7 +6,7 @@
 <body><header><strong>个人作业 · 审核 Studio</strong><span>本地处理 · OCR 仅为候选 · 不自动发布模型</span></header>
 <nav><label>审核人 <input id="actor" placeholder="你的名字或代号"></label><label>页面 <select id="page"></select></label>
 <label>队列 <select id="filter"><option value="pending">待核验</option><option value="risky">质量风险 / 低置信度</option><option value="all">全部</option><option value="verified">人工已核验</option><option value="model-accepted">Sol清洗已采纳</option><option value="symbols">待核验字符/符号</option></select></label>
-<button id="export">导出已核验数据</button><span id="status" role="status">载入中</span></nav>
+<button id="export">导出可用训练数据</button><span id="status" role="status">载入中</span></nav>
 <main><section class="viewer"><div class="toolbar"><button id="draw">框选新区域</button><button id="split">拆分当前区域</button><button id="merge">合并勾选区域</button><button id="reload">刷新</button></div>
 <div id="canvas"><img id="original" alt="原始作业页"><svg id="overlay" aria-label="识别区域"></svg></div><p>可滚动查看原图。框选保留原始像素；不删除涂改、不补画缺失笔画。拆分：在父区域内连续画至少两个框，再点“完成拆分”。</p></section>
 <section class="editor"><div id="summary"></div><div id="regions"></div><div id="editing" hidden>

@@ -29,7 +29,7 @@ export PYTHONPATH=.:src
 同一原件已有 DPI/处理配方时拒绝改配方覆盖。本轮 PDF 试点为 150 DPI；
 以后提高识别分辨率需要增加版本化派生图支持，不能覆盖现有页图。
 
-已收到的7份 PDF 共831页均已归档；只渲染其中10页做试点，另有7张旧采集图。
+已收到的7份 PDF 共831页均已归档；当前已渲染其中13页做试点，另有7张旧采集图。
 这不表示所有831页已经清洗或转写。初始版本及失败运行保留。
 
 ## 审核与涂改处理
@@ -156,4 +156,51 @@ workspace/sources/v09，来源 commit 和模型摘要见 `v09-recognition-prepar
 5 Holdout 清晰核验实例、至少3独立组；该门槛只是启动研究的下限，不保证效果。
 上下文在没有可靠量测时明确为零。训练代码保存初始/最佳/最后权重、优化器、曲线、
 种子和来源，最佳模型依据 Validation；仍必须独立检查身份、自然变化、记忆与风格。
-目前数据准入为 No-Go，完整个人训练循环与生成质量尚未实测。
+数字1已达到上述研究门槛并实际完成GPU训练；输出偏淡模糊，生成质量仍No-Go。
+其余字符、连续英文、完整数学公式尚未准入，不能以一次单类试验宣称完整个人模型已可用。
+
+
+## 用户授权的Sol清洗直接准入
+
+用户明确要求直接使用GPT-6.2-Sol xhigh的识别结果，不追加主Agent逐条复读或人工确认。
+该策略只对显式授权的原始PDF及干净单符号生效；普通OCR/UniMERNet候选仍不能自动准入。
+
+- `model-accepted`：Sol明确判定完整、本人、单符号、无隐私信息、无质量或歧义标记；
+  文本存`model_text`，`verified_text/verified_latex`与人工核验声明保持空值。
+- `model_review`记录模型/推理级别、证据文件摘要、逐条证据摘要、标签/裁剪绑定、授权策略摘要。
+  策略保留用户原始指令及文档范围。`human_review=false`，不是人工真值。
+- 多公式组合、涂改、遮挡、重写、裁切及不确定字符默认拒绝。不能借上下文猜测或按参考答案补字。
+  本轮单符号入口不接收含上述风险的整体区域；如存在独立干净子区域，另存可追溯的新框。
+- 入库仍自动检查原页、原件和裁剪摘要、父区域修订/坐标、重复物理墨迹和固定分组。
+  这些是完整性检查，不是再次付费识别。不会自动填成人工审核通过。
+- 普通审核API不能手工伪造model-accepted。用户仍可纠正或拒绝模型记录；旧模型证据留在事件历史。
+  待核验队列不再显示已采纳模型条目，单独队列“Sol清洗已采纳”用于查看，无需重新确认。
+
+新导出附`label-policy.json`及摘要；统计分别报告人工与模型标签数量。训练协调器与独立worker
+均验证授权和证据，策略不自动扩展到其他作者、文档或生成图像。当前94条中25条人工、69条模型。
+
+可靠符号准备入口（先生成候选，不用公式字符串位置猜字）：
+
+```bash
+.venv/bin/python -m research.corpus.cli prepare-symbols --parents parent-ids.json
+.venv/bin/python -m research.corpus.cli publish-symbols --selection sol-proposals.json \
+  --annotator gpt-6.2-sol-xhigh --model-evidence sol-proposals.json
+```
+
+首次准入前需通过`label_admission.authorize`保存用户的实际授权及文档清单；未授权时上面的
+model-evidence路径会被拒绝。保留完整Sol证据，不以代码生成的占位标签冒充模型工作。
+
+本次训练采用显式`--preprocessing dark-ink-v1`：原图不修改，64×64学习视图只抑制浅纸纹/格线，
+保留深色笔画的软边。此模式不适用于浅色或彩色笔迹；默认仍raw-gray，不自动擦除结构线。
+
+```bash
+.venv/bin/python -m research.corpus.train <dataset-dir> \
+  --run-id <new-unique-id> --epochs 120 --preprocessing dark-ink-v1
+.venv/bin/python -m research.corpus.evaluate_generator <training-run> \
+  --font profiles/realism-studio/profiles/personal/versions/v1/font.ttf
+```
+
+两条命令都由CPU协调器启动独立Torch worker，不向生产Runtime添加Torch或Handnote训练环境依赖。
+目前评估命令仅支持本次数字1试验。16张固定种子采样、真实Train/Holdout、个人字体和非学习扰动
+对照保存在新run；没有独立身份/风格评分前仍为held。字体对照为Pillow直接渲染personal@v1
+字形，不冒充整页Handnote排版对照。像素不同不证明自然变化或未记忆。

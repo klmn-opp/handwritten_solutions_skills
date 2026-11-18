@@ -57,6 +57,20 @@ async function app(storage=new Map()) {
   return {elements,storage,posts,database,run,fail:message=>{failure=message;}};
 }
 
+test("model-admitted labels bypass pending review without claiming human attestation",async()=>{
+  const a=await app();
+  a.database.samples[1].review_status="model-accepted";
+  a.database.samples[1].content_type="glyph";
+  await a.run("load()");
+  assert.deepEqual(Array.from(a.run("visible().map(s=>s.sample_id)")),["a","c"]);
+  a.elements.filter.value="model-accepted";
+  assert.deepEqual(Array.from(a.run("visible().map(s=>s.sample_id)")),["b"]);
+  await a.run('select("b")');
+  assert.match(a.elements.risk.textContent,/无需重复确认/);
+  assert.equal(a.elements.attest.checked,false);
+  assert.equal(a.posts.length,0);
+});
+
 test("an incomplete review does not block changing regions; text and notes survive",async()=>{
   const a=await app();await a.run('select("b")');
   a.elements.text.value="corrected second region";a.elements.notes.value="uncertain sign";a.run("draft()");
