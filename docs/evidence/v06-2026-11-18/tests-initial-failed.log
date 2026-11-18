@@ -1,0 +1,865 @@
+........................................................................ [ 57%]
+................................FFFFFFFFF............                    [100%]
+=================================== FAILURES ===================================
+________ test_body_sized_math_fraction_and_matrix_glyphs[baseline-150] _________
+
+tmp_path = PosixPath('/tmp/pytest-of-klmn/pytest-68/test_body_sized_math_fraction_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x70bcb9667890>
+dpi = 150, mode = 'baseline'
+
+    @pytest.mark.parametrize("dpi", [150, 300])
+    @pytest.mark.parametrize("mode", MODES)
+    def test_body_sized_math_fraction_and_matrix_glyphs(tmp_path, monkeypatch, dpi, mode):
+        import numpy as np
+        from fontTools.ttLib import TTFont
+        from handnote.opentype import add_alternates
+        from handnote.variants import base_outline
+        from matplotlib.path import Path as MplPath
+    
+        from hwsol.config import test_font
+        from hwsol.jobs.layout import SinglePageRenderer
+    
+        # A very wide variant exposes accidental vertical shrinking in both selection passes.
+        path = tmp_path / "wide.ttf"
+        with TTFont(test_font()) as font:
+            cmap = font.getBestCmap()
+            add_alternates(font, {cmap[ord("2")]: [cmap[ord("∞")]]})
+            font.save(path)
+        store = ProfileStore(tmp_path / "studio")
+        import_sample(store, "sized", [path], kind="font")
+        ref = train(store, "sized")["candidate"]
+        profile = store.resolve(ref, candidate=True)
+        observed = []
+        original = SinglePageRenderer.to_vector_pdf
+    
+        def capture(renderer, pages):
+            for page in pages:
+                for kind, key, matrix, *_ in page.items:
+                    if kind != "path" or key[0] not in {"glyph", "mglyph"}:
+                        continue
+                    codepoint = key[2] if key[0] == "glyph" else key[3]
+                    if codepoint not in {ord("2"), ord("8")}:
+                        continue
+                    outline = renderer._outlines[key]
+                    verts = outline.verts[outline.codes != MplPath.CLOSEPOLY]
+                    a, b, c, d, x, y = matrix
+                    placed = verts @ np.array([[a, b], [c, d]]) + (x, y)
+                    observed.append((key, np.ptp(placed[:, 1])))
+            return original(renderer, pages)
+    
+        monkeypatch.setattr(SinglePageRenderer, "to_vector_pdf", capture)
+        content = (
+            r"8 $8+\frac{8}{8}+8^8+\frac{\frac{8}{8}}{8}$."
+            "\n\n"
+            r"Wide $2+2+2+2+2+2$."
+            "\n\n"
+            r"Matrix $\begin{pmatrix}8&88\\8&8\end{pmatrix}$."
+            "\n\n"
+            r"$$A=\begin{pmatrix}8&\frac{8}{8}\\88&8\end{pmatrix}$$"
+        )
+        cfg = RenderConfig(dpi=dpi)
+>       pdf, report = render_one(content, "1", profile, cfg, Background(), None, mode)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_realism.py:374: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/hwsol/jobs/layout.py:347: in render_one
+    pages = renderer.render_vector([title, *body])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:1145: in render_vector
+    pages, state = self._start(blocks)
+                   ^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:1170: in _start
+    lines = self.layout(blocks)
+            ^^^^^^^^^^^^^^^^^^^
+src/hwsol/jobs/handwriting.py:463: in layout
+    return super().layout(blocks)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:650: in layout
+    w = self.math_advance(tok[1], size)[1]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:846: in math_advance
+    img, _ = self.math_image(tex, px)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <hwsol.jobs.layout.SinglePageRenderer object at 0x70bcb9665700>
+tex = '\\begin{pmatrix}8&88\\\\8&8\\end{pmatrix}', px = 27
+
+    def math_image(self, tex, px):
+        result = super().math_image(tex, px)
+        if any(item[0] != "path" or item[1][0] == "math" for item in self._math_vec[(tex, px)]):
+>           raise ValueError(
+                f"Formula fallback is not auditable: {tex}; {'; '.join(self.warnings)}"
+            )
+E           ValueError: Formula fallback is not auditable: \begin{pmatrix}8&88\\8&8\end{pmatrix};
+
+src/hwsol/jobs/layout.py:77: ValueError
+________ test_body_sized_math_fraction_and_matrix_glyphs[baseline-300] _________
+
+tmp_path = PosixPath('/tmp/pytest-of-klmn/pytest-68/test_body_sized_math_fraction_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x70bcb8c4c9b0>
+dpi = 300, mode = 'baseline'
+
+    @pytest.mark.parametrize("dpi", [150, 300])
+    @pytest.mark.parametrize("mode", MODES)
+    def test_body_sized_math_fraction_and_matrix_glyphs(tmp_path, monkeypatch, dpi, mode):
+        import numpy as np
+        from fontTools.ttLib import TTFont
+        from handnote.opentype import add_alternates
+        from handnote.variants import base_outline
+        from matplotlib.path import Path as MplPath
+    
+        from hwsol.config import test_font
+        from hwsol.jobs.layout import SinglePageRenderer
+    
+        # A very wide variant exposes accidental vertical shrinking in both selection passes.
+        path = tmp_path / "wide.ttf"
+        with TTFont(test_font()) as font:
+            cmap = font.getBestCmap()
+            add_alternates(font, {cmap[ord("2")]: [cmap[ord("∞")]]})
+            font.save(path)
+        store = ProfileStore(tmp_path / "studio")
+        import_sample(store, "sized", [path], kind="font")
+        ref = train(store, "sized")["candidate"]
+        profile = store.resolve(ref, candidate=True)
+        observed = []
+        original = SinglePageRenderer.to_vector_pdf
+    
+        def capture(renderer, pages):
+            for page in pages:
+                for kind, key, matrix, *_ in page.items:
+                    if kind != "path" or key[0] not in {"glyph", "mglyph"}:
+                        continue
+                    codepoint = key[2] if key[0] == "glyph" else key[3]
+                    if codepoint not in {ord("2"), ord("8")}:
+                        continue
+                    outline = renderer._outlines[key]
+                    verts = outline.verts[outline.codes != MplPath.CLOSEPOLY]
+                    a, b, c, d, x, y = matrix
+                    placed = verts @ np.array([[a, b], [c, d]]) + (x, y)
+                    observed.append((key, np.ptp(placed[:, 1])))
+            return original(renderer, pages)
+    
+        monkeypatch.setattr(SinglePageRenderer, "to_vector_pdf", capture)
+        content = (
+            r"8 $8+\frac{8}{8}+8^8+\frac{\frac{8}{8}}{8}$."
+            "\n\n"
+            r"Wide $2+2+2+2+2+2$."
+            "\n\n"
+            r"Matrix $\begin{pmatrix}8&88\\8&8\end{pmatrix}$."
+            "\n\n"
+            r"$$A=\begin{pmatrix}8&\frac{8}{8}\\88&8\end{pmatrix}$$"
+        )
+        cfg = RenderConfig(dpi=dpi)
+>       pdf, report = render_one(content, "1", profile, cfg, Background(), None, mode)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_realism.py:374: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/hwsol/jobs/layout.py:347: in render_one
+    pages = renderer.render_vector([title, *body])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:1145: in render_vector
+    pages, state = self._start(blocks)
+                   ^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:1170: in _start
+    lines = self.layout(blocks)
+            ^^^^^^^^^^^^^^^^^^^
+src/hwsol/jobs/handwriting.py:463: in layout
+    return super().layout(blocks)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:650: in layout
+    w = self.math_advance(tok[1], size)[1]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:846: in math_advance
+    img, _ = self.math_image(tex, px)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <hwsol.jobs.layout.SinglePageRenderer object at 0x70bcb8c4fb90>
+tex = '\\begin{pmatrix}8&88\\\\8&8\\end{pmatrix}', px = 54
+
+    def math_image(self, tex, px):
+        result = super().math_image(tex, px)
+        if any(item[0] != "path" or item[1][0] == "math" for item in self._math_vec[(tex, px)]):
+>           raise ValueError(
+                f"Formula fallback is not auditable: {tex}; {'; '.join(self.warnings)}"
+            )
+E           ValueError: Formula fallback is not auditable: \begin{pmatrix}8&88\\8&8\end{pmatrix};
+
+src/hwsol/jobs/layout.py:77: ValueError
+_____ test_body_sized_math_fraction_and_matrix_glyphs[layout-enhanced-150] _____
+
+tmp_path = PosixPath('/tmp/pytest-of-klmn/pytest-68/test_body_sized_math_fraction_2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x70bcb8b44920>
+dpi = 150, mode = 'layout-enhanced'
+
+    @pytest.mark.parametrize("dpi", [150, 300])
+    @pytest.mark.parametrize("mode", MODES)
+    def test_body_sized_math_fraction_and_matrix_glyphs(tmp_path, monkeypatch, dpi, mode):
+        import numpy as np
+        from fontTools.ttLib import TTFont
+        from handnote.opentype import add_alternates
+        from handnote.variants import base_outline
+        from matplotlib.path import Path as MplPath
+    
+        from hwsol.config import test_font
+        from hwsol.jobs.layout import SinglePageRenderer
+    
+        # A very wide variant exposes accidental vertical shrinking in both selection passes.
+        path = tmp_path / "wide.ttf"
+        with TTFont(test_font()) as font:
+            cmap = font.getBestCmap()
+            add_alternates(font, {cmap[ord("2")]: [cmap[ord("∞")]]})
+            font.save(path)
+        store = ProfileStore(tmp_path / "studio")
+        import_sample(store, "sized", [path], kind="font")
+        ref = train(store, "sized")["candidate"]
+        profile = store.resolve(ref, candidate=True)
+        observed = []
+        original = SinglePageRenderer.to_vector_pdf
+    
+        def capture(renderer, pages):
+            for page in pages:
+                for kind, key, matrix, *_ in page.items:
+                    if kind != "path" or key[0] not in {"glyph", "mglyph"}:
+                        continue
+                    codepoint = key[2] if key[0] == "glyph" else key[3]
+                    if codepoint not in {ord("2"), ord("8")}:
+                        continue
+                    outline = renderer._outlines[key]
+                    verts = outline.verts[outline.codes != MplPath.CLOSEPOLY]
+                    a, b, c, d, x, y = matrix
+                    placed = verts @ np.array([[a, b], [c, d]]) + (x, y)
+                    observed.append((key, np.ptp(placed[:, 1])))
+            return original(renderer, pages)
+    
+        monkeypatch.setattr(SinglePageRenderer, "to_vector_pdf", capture)
+        content = (
+            r"8 $8+\frac{8}{8}+8^8+\frac{\frac{8}{8}}{8}$."
+            "\n\n"
+            r"Wide $2+2+2+2+2+2$."
+            "\n\n"
+            r"Matrix $\begin{pmatrix}8&88\\8&8\end{pmatrix}$."
+            "\n\n"
+            r"$$A=\begin{pmatrix}8&\frac{8}{8}\\88&8\end{pmatrix}$$"
+        )
+        cfg = RenderConfig(dpi=dpi)
+>       pdf, report = render_one(content, "1", profile, cfg, Background(), None, mode)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_realism.py:374: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/hwsol/jobs/layout.py:347: in render_one
+    pages = renderer.render_vector([title, *body])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:1145: in render_vector
+    pages, state = self._start(blocks)
+                   ^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:1170: in _start
+    lines = self.layout(blocks)
+            ^^^^^^^^^^^^^^^^^^^
+src/hwsol/jobs/handwriting.py:462: in layout
+    return self.planner.plan(blocks)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+src/hwsol/jobs/handwriting.py:160: in plan
+    rows = self.text_lines(block, text_rows)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/hwsol/jobs/handwriting.py:124: in text_lines
+    width = r.math_advance(word, size)[1]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:846: in math_advance
+    img, _ = self.math_image(tex, px)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <hwsol.jobs.layout.SinglePageRenderer object at 0x70bcb9604fe0>
+tex = '\\begin{pmatrix}8&88\\\\8&8\\end{pmatrix}', px = 27
+
+    def math_image(self, tex, px):
+        result = super().math_image(tex, px)
+        if any(item[0] != "path" or item[1][0] == "math" for item in self._math_vec[(tex, px)]):
+>           raise ValueError(
+                f"Formula fallback is not auditable: {tex}; {'; '.join(self.warnings)}"
+            )
+E           ValueError: Formula fallback is not auditable: \begin{pmatrix}8&88\\8&8\end{pmatrix};
+
+src/hwsol/jobs/layout.py:77: ValueError
+_____ test_body_sized_math_fraction_and_matrix_glyphs[layout-enhanced-300] _____
+
+tmp_path = PosixPath('/tmp/pytest-of-klmn/pytest-68/test_body_sized_math_fraction_3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x70bcb8fc8620>
+dpi = 300, mode = 'layout-enhanced'
+
+    @pytest.mark.parametrize("dpi", [150, 300])
+    @pytest.mark.parametrize("mode", MODES)
+    def test_body_sized_math_fraction_and_matrix_glyphs(tmp_path, monkeypatch, dpi, mode):
+        import numpy as np
+        from fontTools.ttLib import TTFont
+        from handnote.opentype import add_alternates
+        from handnote.variants import base_outline
+        from matplotlib.path import Path as MplPath
+    
+        from hwsol.config import test_font
+        from hwsol.jobs.layout import SinglePageRenderer
+    
+        # A very wide variant exposes accidental vertical shrinking in both selection passes.
+        path = tmp_path / "wide.ttf"
+        with TTFont(test_font()) as font:
+            cmap = font.getBestCmap()
+            add_alternates(font, {cmap[ord("2")]: [cmap[ord("∞")]]})
+            font.save(path)
+        store = ProfileStore(tmp_path / "studio")
+        import_sample(store, "sized", [path], kind="font")
+        ref = train(store, "sized")["candidate"]
+        profile = store.resolve(ref, candidate=True)
+        observed = []
+        original = SinglePageRenderer.to_vector_pdf
+    
+        def capture(renderer, pages):
+            for page in pages:
+                for kind, key, matrix, *_ in page.items:
+                    if kind != "path" or key[0] not in {"glyph", "mglyph"}:
+                        continue
+                    codepoint = key[2] if key[0] == "glyph" else key[3]
+                    if codepoint not in {ord("2"), ord("8")}:
+                        continue
+                    outline = renderer._outlines[key]
+                    verts = outline.verts[outline.codes != MplPath.CLOSEPOLY]
+                    a, b, c, d, x, y = matrix
+                    placed = verts @ np.array([[a, b], [c, d]]) + (x, y)
+                    observed.append((key, np.ptp(placed[:, 1])))
+            return original(renderer, pages)
+    
+        monkeypatch.setattr(SinglePageRenderer, "to_vector_pdf", capture)
+        content = (
+            r"8 $8+\frac{8}{8}+8^8+\frac{\frac{8}{8}}{8}$."
+            "\n\n"
+            r"Wide $2+2+2+2+2+2$."
+            "\n\n"
+            r"Matrix $\begin{pmatrix}8&88\\8&8\end{pmatrix}$."
+            "\n\n"
+            r"$$A=\begin{pmatrix}8&\frac{8}{8}\\88&8\end{pmatrix}$$"
+        )
+        cfg = RenderConfig(dpi=dpi)
+>       pdf, report = render_one(content, "1", profile, cfg, Background(), None, mode)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_realism.py:374: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/hwsol/jobs/layout.py:347: in render_one
+    pages = renderer.render_vector([title, *body])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:1145: in render_vector
+    pages, state = self._start(blocks)
+                   ^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:1170: in _start
+    lines = self.layout(blocks)
+            ^^^^^^^^^^^^^^^^^^^
+src/hwsol/jobs/handwriting.py:462: in layout
+    return self.planner.plan(blocks)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+src/hwsol/jobs/handwriting.py:160: in plan
+    rows = self.text_lines(block, text_rows)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/hwsol/jobs/handwriting.py:124: in text_lines
+    width = r.math_advance(word, size)[1]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:846: in math_advance
+    img, _ = self.math_image(tex, px)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <hwsol.jobs.layout.SinglePageRenderer object at 0x70bcf6d11760>
+tex = '\\begin{pmatrix}8&88\\\\8&8\\end{pmatrix}', px = 54
+
+    def math_image(self, tex, px):
+        result = super().math_image(tex, px)
+        if any(item[0] != "path" or item[1][0] == "math" for item in self._math_vec[(tex, px)]):
+>           raise ValueError(
+                f"Formula fallback is not auditable: {tex}; {'; '.join(self.warnings)}"
+            )
+E           ValueError: Formula fallback is not auditable: \begin{pmatrix}8&88\\8&8\end{pmatrix};
+
+src/hwsol/jobs/layout.py:77: ValueError
+_____ test_body_sized_math_fraction_and_matrix_glyphs[stroke-enhanced-150] _____
+
+tmp_path = PosixPath('/tmp/pytest-of-klmn/pytest-68/test_body_sized_math_fraction_4')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x70bcb96dd430>
+dpi = 150, mode = 'stroke-enhanced'
+
+    @pytest.mark.parametrize("dpi", [150, 300])
+    @pytest.mark.parametrize("mode", MODES)
+    def test_body_sized_math_fraction_and_matrix_glyphs(tmp_path, monkeypatch, dpi, mode):
+        import numpy as np
+        from fontTools.ttLib import TTFont
+        from handnote.opentype import add_alternates
+        from handnote.variants import base_outline
+        from matplotlib.path import Path as MplPath
+    
+        from hwsol.config import test_font
+        from hwsol.jobs.layout import SinglePageRenderer
+    
+        # A very wide variant exposes accidental vertical shrinking in both selection passes.
+        path = tmp_path / "wide.ttf"
+        with TTFont(test_font()) as font:
+            cmap = font.getBestCmap()
+            add_alternates(font, {cmap[ord("2")]: [cmap[ord("∞")]]})
+            font.save(path)
+        store = ProfileStore(tmp_path / "studio")
+        import_sample(store, "sized", [path], kind="font")
+        ref = train(store, "sized")["candidate"]
+        profile = store.resolve(ref, candidate=True)
+        observed = []
+        original = SinglePageRenderer.to_vector_pdf
+    
+        def capture(renderer, pages):
+            for page in pages:
+                for kind, key, matrix, *_ in page.items:
+                    if kind != "path" or key[0] not in {"glyph", "mglyph"}:
+                        continue
+                    codepoint = key[2] if key[0] == "glyph" else key[3]
+                    if codepoint not in {ord("2"), ord("8")}:
+                        continue
+                    outline = renderer._outlines[key]
+                    verts = outline.verts[outline.codes != MplPath.CLOSEPOLY]
+                    a, b, c, d, x, y = matrix
+                    placed = verts @ np.array([[a, b], [c, d]]) + (x, y)
+                    observed.append((key, np.ptp(placed[:, 1])))
+            return original(renderer, pages)
+    
+        monkeypatch.setattr(SinglePageRenderer, "to_vector_pdf", capture)
+        content = (
+            r"8 $8+\frac{8}{8}+8^8+\frac{\frac{8}{8}}{8}$."
+            "\n\n"
+            r"Wide $2+2+2+2+2+2$."
+            "\n\n"
+            r"Matrix $\begin{pmatrix}8&88\\8&8\end{pmatrix}$."
+            "\n\n"
+            r"$$A=\begin{pmatrix}8&\frac{8}{8}\\88&8\end{pmatrix}$$"
+        )
+        cfg = RenderConfig(dpi=dpi)
+>       pdf, report = render_one(content, "1", profile, cfg, Background(), None, mode)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_realism.py:374: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/hwsol/jobs/layout.py:347: in render_one
+    pages = renderer.render_vector([title, *body])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:1145: in render_vector
+    pages, state = self._start(blocks)
+                   ^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:1170: in _start
+    lines = self.layout(blocks)
+            ^^^^^^^^^^^^^^^^^^^
+src/hwsol/jobs/handwriting.py:463: in layout
+    return super().layout(blocks)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:650: in layout
+    w = self.math_advance(tok[1], size)[1]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:846: in math_advance
+    img, _ = self.math_image(tex, px)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <hwsol.jobs.layout.SinglePageRenderer object at 0x70bcb9642ae0>
+tex = '\\begin{pmatrix}8&88\\\\8&8\\end{pmatrix}', px = 27
+
+    def math_image(self, tex, px):
+        result = super().math_image(tex, px)
+        if any(item[0] != "path" or item[1][0] == "math" for item in self._math_vec[(tex, px)]):
+>           raise ValueError(
+                f"Formula fallback is not auditable: {tex}; {'; '.join(self.warnings)}"
+            )
+E           ValueError: Formula fallback is not auditable: \begin{pmatrix}8&88\\8&8\end{pmatrix};
+
+src/hwsol/jobs/layout.py:77: ValueError
+_____ test_body_sized_math_fraction_and_matrix_glyphs[stroke-enhanced-300] _____
+
+tmp_path = PosixPath('/tmp/pytest-of-klmn/pytest-68/test_body_sized_math_fraction_5')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x70bcbba86810>
+dpi = 300, mode = 'stroke-enhanced'
+
+    @pytest.mark.parametrize("dpi", [150, 300])
+    @pytest.mark.parametrize("mode", MODES)
+    def test_body_sized_math_fraction_and_matrix_glyphs(tmp_path, monkeypatch, dpi, mode):
+        import numpy as np
+        from fontTools.ttLib import TTFont
+        from handnote.opentype import add_alternates
+        from handnote.variants import base_outline
+        from matplotlib.path import Path as MplPath
+    
+        from hwsol.config import test_font
+        from hwsol.jobs.layout import SinglePageRenderer
+    
+        # A very wide variant exposes accidental vertical shrinking in both selection passes.
+        path = tmp_path / "wide.ttf"
+        with TTFont(test_font()) as font:
+            cmap = font.getBestCmap()
+            add_alternates(font, {cmap[ord("2")]: [cmap[ord("∞")]]})
+            font.save(path)
+        store = ProfileStore(tmp_path / "studio")
+        import_sample(store, "sized", [path], kind="font")
+        ref = train(store, "sized")["candidate"]
+        profile = store.resolve(ref, candidate=True)
+        observed = []
+        original = SinglePageRenderer.to_vector_pdf
+    
+        def capture(renderer, pages):
+            for page in pages:
+                for kind, key, matrix, *_ in page.items:
+                    if kind != "path" or key[0] not in {"glyph", "mglyph"}:
+                        continue
+                    codepoint = key[2] if key[0] == "glyph" else key[3]
+                    if codepoint not in {ord("2"), ord("8")}:
+                        continue
+                    outline = renderer._outlines[key]
+                    verts = outline.verts[outline.codes != MplPath.CLOSEPOLY]
+                    a, b, c, d, x, y = matrix
+                    placed = verts @ np.array([[a, b], [c, d]]) + (x, y)
+                    observed.append((key, np.ptp(placed[:, 1])))
+            return original(renderer, pages)
+    
+        monkeypatch.setattr(SinglePageRenderer, "to_vector_pdf", capture)
+        content = (
+            r"8 $8+\frac{8}{8}+8^8+\frac{\frac{8}{8}}{8}$."
+            "\n\n"
+            r"Wide $2+2+2+2+2+2$."
+            "\n\n"
+            r"Matrix $\begin{pmatrix}8&88\\8&8\end{pmatrix}$."
+            "\n\n"
+            r"$$A=\begin{pmatrix}8&\frac{8}{8}\\88&8\end{pmatrix}$$"
+        )
+        cfg = RenderConfig(dpi=dpi)
+>       pdf, report = render_one(content, "1", profile, cfg, Background(), None, mode)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_realism.py:374: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/hwsol/jobs/layout.py:347: in render_one
+    pages = renderer.render_vector([title, *body])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:1145: in render_vector
+    pages, state = self._start(blocks)
+                   ^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:1170: in _start
+    lines = self.layout(blocks)
+            ^^^^^^^^^^^^^^^^^^^
+src/hwsol/jobs/handwriting.py:463: in layout
+    return super().layout(blocks)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:650: in layout
+    w = self.math_advance(tok[1], size)[1]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:846: in math_advance
+    img, _ = self.math_image(tex, px)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <hwsol.jobs.layout.SinglePageRenderer object at 0x70bcb93904d0>
+tex = '\\begin{pmatrix}8&88\\\\8&8\\end{pmatrix}', px = 54
+
+    def math_image(self, tex, px):
+        result = super().math_image(tex, px)
+        if any(item[0] != "path" or item[1][0] == "math" for item in self._math_vec[(tex, px)]):
+>           raise ValueError(
+                f"Formula fallback is not auditable: {tex}; {'; '.join(self.warnings)}"
+            )
+E           ValueError: Formula fallback is not auditable: \begin{pmatrix}8&88\\8&8\end{pmatrix};
+
+src/hwsol/jobs/layout.py:77: ValueError
+________ test_body_sized_math_fraction_and_matrix_glyphs[combined-150] _________
+
+tmp_path = PosixPath('/tmp/pytest-of-klmn/pytest-68/test_body_sized_math_fraction_6')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x70bcb8ec4440>
+dpi = 150, mode = 'combined'
+
+    @pytest.mark.parametrize("dpi", [150, 300])
+    @pytest.mark.parametrize("mode", MODES)
+    def test_body_sized_math_fraction_and_matrix_glyphs(tmp_path, monkeypatch, dpi, mode):
+        import numpy as np
+        from fontTools.ttLib import TTFont
+        from handnote.opentype import add_alternates
+        from handnote.variants import base_outline
+        from matplotlib.path import Path as MplPath
+    
+        from hwsol.config import test_font
+        from hwsol.jobs.layout import SinglePageRenderer
+    
+        # A very wide variant exposes accidental vertical shrinking in both selection passes.
+        path = tmp_path / "wide.ttf"
+        with TTFont(test_font()) as font:
+            cmap = font.getBestCmap()
+            add_alternates(font, {cmap[ord("2")]: [cmap[ord("∞")]]})
+            font.save(path)
+        store = ProfileStore(tmp_path / "studio")
+        import_sample(store, "sized", [path], kind="font")
+        ref = train(store, "sized")["candidate"]
+        profile = store.resolve(ref, candidate=True)
+        observed = []
+        original = SinglePageRenderer.to_vector_pdf
+    
+        def capture(renderer, pages):
+            for page in pages:
+                for kind, key, matrix, *_ in page.items:
+                    if kind != "path" or key[0] not in {"glyph", "mglyph"}:
+                        continue
+                    codepoint = key[2] if key[0] == "glyph" else key[3]
+                    if codepoint not in {ord("2"), ord("8")}:
+                        continue
+                    outline = renderer._outlines[key]
+                    verts = outline.verts[outline.codes != MplPath.CLOSEPOLY]
+                    a, b, c, d, x, y = matrix
+                    placed = verts @ np.array([[a, b], [c, d]]) + (x, y)
+                    observed.append((key, np.ptp(placed[:, 1])))
+            return original(renderer, pages)
+    
+        monkeypatch.setattr(SinglePageRenderer, "to_vector_pdf", capture)
+        content = (
+            r"8 $8+\frac{8}{8}+8^8+\frac{\frac{8}{8}}{8}$."
+            "\n\n"
+            r"Wide $2+2+2+2+2+2$."
+            "\n\n"
+            r"Matrix $\begin{pmatrix}8&88\\8&8\end{pmatrix}$."
+            "\n\n"
+            r"$$A=\begin{pmatrix}8&\frac{8}{8}\\88&8\end{pmatrix}$$"
+        )
+        cfg = RenderConfig(dpi=dpi)
+>       pdf, report = render_one(content, "1", profile, cfg, Background(), None, mode)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_realism.py:374: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/hwsol/jobs/layout.py:347: in render_one
+    pages = renderer.render_vector([title, *body])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:1145: in render_vector
+    pages, state = self._start(blocks)
+                   ^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:1170: in _start
+    lines = self.layout(blocks)
+            ^^^^^^^^^^^^^^^^^^^
+src/hwsol/jobs/handwriting.py:462: in layout
+    return self.planner.plan(blocks)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+src/hwsol/jobs/handwriting.py:160: in plan
+    rows = self.text_lines(block, text_rows)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/hwsol/jobs/handwriting.py:124: in text_lines
+    width = r.math_advance(word, size)[1]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:846: in math_advance
+    img, _ = self.math_image(tex, px)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <hwsol.jobs.layout.SinglePageRenderer object at 0x70bcb9040620>
+tex = '\\begin{pmatrix}8&88\\\\8&8\\end{pmatrix}', px = 27
+
+    def math_image(self, tex, px):
+        result = super().math_image(tex, px)
+        if any(item[0] != "path" or item[1][0] == "math" for item in self._math_vec[(tex, px)]):
+>           raise ValueError(
+                f"Formula fallback is not auditable: {tex}; {'; '.join(self.warnings)}"
+            )
+E           ValueError: Formula fallback is not auditable: \begin{pmatrix}8&88\\8&8\end{pmatrix};
+
+src/hwsol/jobs/layout.py:77: ValueError
+________ test_body_sized_math_fraction_and_matrix_glyphs[combined-300] _________
+
+tmp_path = PosixPath('/tmp/pytest-of-klmn/pytest-68/test_body_sized_math_fraction_7')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x70bcb984de50>
+dpi = 300, mode = 'combined'
+
+    @pytest.mark.parametrize("dpi", [150, 300])
+    @pytest.mark.parametrize("mode", MODES)
+    def test_body_sized_math_fraction_and_matrix_glyphs(tmp_path, monkeypatch, dpi, mode):
+        import numpy as np
+        from fontTools.ttLib import TTFont
+        from handnote.opentype import add_alternates
+        from handnote.variants import base_outline
+        from matplotlib.path import Path as MplPath
+    
+        from hwsol.config import test_font
+        from hwsol.jobs.layout import SinglePageRenderer
+    
+        # A very wide variant exposes accidental vertical shrinking in both selection passes.
+        path = tmp_path / "wide.ttf"
+        with TTFont(test_font()) as font:
+            cmap = font.getBestCmap()
+            add_alternates(font, {cmap[ord("2")]: [cmap[ord("∞")]]})
+            font.save(path)
+        store = ProfileStore(tmp_path / "studio")
+        import_sample(store, "sized", [path], kind="font")
+        ref = train(store, "sized")["candidate"]
+        profile = store.resolve(ref, candidate=True)
+        observed = []
+        original = SinglePageRenderer.to_vector_pdf
+    
+        def capture(renderer, pages):
+            for page in pages:
+                for kind, key, matrix, *_ in page.items:
+                    if kind != "path" or key[0] not in {"glyph", "mglyph"}:
+                        continue
+                    codepoint = key[2] if key[0] == "glyph" else key[3]
+                    if codepoint not in {ord("2"), ord("8")}:
+                        continue
+                    outline = renderer._outlines[key]
+                    verts = outline.verts[outline.codes != MplPath.CLOSEPOLY]
+                    a, b, c, d, x, y = matrix
+                    placed = verts @ np.array([[a, b], [c, d]]) + (x, y)
+                    observed.append((key, np.ptp(placed[:, 1])))
+            return original(renderer, pages)
+    
+        monkeypatch.setattr(SinglePageRenderer, "to_vector_pdf", capture)
+        content = (
+            r"8 $8+\frac{8}{8}+8^8+\frac{\frac{8}{8}}{8}$."
+            "\n\n"
+            r"Wide $2+2+2+2+2+2$."
+            "\n\n"
+            r"Matrix $\begin{pmatrix}8&88\\8&8\end{pmatrix}$."
+            "\n\n"
+            r"$$A=\begin{pmatrix}8&\frac{8}{8}\\88&8\end{pmatrix}$$"
+        )
+        cfg = RenderConfig(dpi=dpi)
+>       pdf, report = render_one(content, "1", profile, cfg, Background(), None, mode)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_realism.py:374: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/hwsol/jobs/layout.py:347: in render_one
+    pages = renderer.render_vector([title, *body])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:1145: in render_vector
+    pages, state = self._start(blocks)
+                   ^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:1170: in _start
+    lines = self.layout(blocks)
+            ^^^^^^^^^^^^^^^^^^^
+src/hwsol/jobs/handwriting.py:462: in layout
+    return self.planner.plan(blocks)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+src/hwsol/jobs/handwriting.py:160: in plan
+    rows = self.text_lines(block, text_rows)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/hwsol/jobs/handwriting.py:124: in text_lines
+    width = r.math_advance(word, size)[1]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:846: in math_advance
+    img, _ = self.math_image(tex, px)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <hwsol.jobs.layout.SinglePageRenderer object at 0x70bcb96dcd10>
+tex = '\\begin{pmatrix}8&88\\\\8&8\\end{pmatrix}', px = 54
+
+    def math_image(self, tex, px):
+        result = super().math_image(tex, px)
+        if any(item[0] != "path" or item[1][0] == "math" for item in self._math_vec[(tex, px)]):
+>           raise ValueError(
+                f"Formula fallback is not auditable: {tex}; {'; '.join(self.warnings)}"
+            )
+E           ValueError: Formula fallback is not auditable: \begin{pmatrix}8&88\\8&8\end{pmatrix};
+
+src/hwsol/jobs/layout.py:77: ValueError
+_____ test_measured_math_strokes_are_portable_and_preserve_formula_layout ______
+
+tmp_path = PosixPath('/tmp/pytest-of-klmn/pytest-68/test_measured_math_strokes_are0')
+
+    def test_measured_math_strokes_are_portable_and_preserve_formula_layout(tmp_path):
+        from dataclasses import replace
+    
+        from pydantic import ValidationError
+    
+        from hwsol.training.calibration import AnnotatedPage
+    
+        page = {
+            "schema_version": 1,
+            "width": 400,
+            "height": 300,
+            "em": 30,
+            "source_sha256": "a" * 64,
+            "math_strokes": [
+                {
+                    "kind": kind,
+                    "source_sha256": "a" * 64,
+                    "source_box": [10, 10, 100, 30],
+                    "width_em": 3,
+                    "envelope": [[0, 0.06, 0.02], [0.5, 0, 0.055], [1, -0.06, 0.08]],
+                }
+                for kind in ("bar", "rule")
+            ],
+        }
+        source = tmp_path / "strokes.json"
+        atomic_json(source, page)
+        store = ProfileStore(tmp_path / "studio")
+        sample = import_sample(store, "writer", [source], kind="calibration")
+        assert sample.state == "accepted" and not sample.has_recorded_strokes
+        ref = train(store, "writer")["candidate"]
+        candidate = store.resolve(ref, candidate=True)
+        assert len(candidate.styles) == 1 and not candidate.styles[0].lines
+        assert evaluate(store, ref)["status"] == "passed"
+        publish(store, ref)
+        profile = store.resolve(ref)
+        plain = replace(profile, styles=())
+        # Nested rules, an accent inside a radical, and an inline matrix exercise both math routes.
+        content = (
+            r"Mean $\bar{x}$ and $\begin{pmatrix}\frac{1}{2}&3\\4&5\end{pmatrix}$."
+            "\n\n"
+            r"$$\frac{\sqrt{\bar{x}+\frac{1}{2}}}{3}+\overline{x+1}$$"
+        )
+        for dpi in (150, 300):
+            cfg = RenderConfig(dpi=dpi)
+            for mode in MODES:
+                args = (cfg, Background(), None, mode)
+>               blob, report = render_one(content, "6", profile, *args)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_realism.py:446: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/hwsol/jobs/layout.py:347: in render_one
+    pages = renderer.render_vector([title, *body])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:1145: in render_vector
+    pages, state = self._start(blocks)
+                   ^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:1170: in _start
+    lines = self.layout(blocks)
+            ^^^^^^^^^^^^^^^^^^^
+src/hwsol/jobs/handwriting.py:463: in layout
+    return super().layout(blocks)
+           ^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:650: in layout
+    w = self.math_advance(tok[1], size)[1]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/handnote/render.py:846: in math_advance
+    img, _ = self.math_image(tex, px)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <hwsol.jobs.layout.SinglePageRenderer object at 0x70bcb8c4e7b0>
+tex = '\\begin{pmatrix}\\frac{1}{2}&3\\\\4&5\\end{pmatrix}', px = 27
+
+    def math_image(self, tex, px):
+        result = super().math_image(tex, px)
+        if any(item[0] != "path" or item[1][0] == "math" for item in self._math_vec[(tex, px)]):
+>           raise ValueError(
+                f"Formula fallback is not auditable: {tex}; {'; '.join(self.warnings)}"
+            )
+E           ValueError: Formula fallback is not auditable: \begin{pmatrix}\frac{1}{2}&3\\4&5\end{pmatrix};
+
+src/hwsol/jobs/layout.py:77: ValueError
+=========================== short test summary info ============================
+FAILED tests/test_realism.py::test_body_sized_math_fraction_and_matrix_glyphs[baseline-150]
+FAILED tests/test_realism.py::test_body_sized_math_fraction_and_matrix_glyphs[baseline-300]
+FAILED tests/test_realism.py::test_body_sized_math_fraction_and_matrix_glyphs[layout-enhanced-150]
+FAILED tests/test_realism.py::test_body_sized_math_fraction_and_matrix_glyphs[layout-enhanced-300]
+FAILED tests/test_realism.py::test_body_sized_math_fraction_and_matrix_glyphs[stroke-enhanced-150]
+FAILED tests/test_realism.py::test_body_sized_math_fraction_and_matrix_glyphs[stroke-enhanced-300]
+FAILED tests/test_realism.py::test_body_sized_math_fraction_and_matrix_glyphs[combined-150]
+FAILED tests/test_realism.py::test_body_sized_math_fraction_and_matrix_glyphs[combined-300]
+FAILED tests/test_realism.py::test_measured_math_strokes_are_portable_and_preserve_formula_layout
+9 failed, 116 passed in 43.37s
