@@ -12,7 +12,7 @@ einops==0.8.1
 filelock==4.2.4
 fonttools==4.68.0
 fsspec==2026.9.0
-handnote==2.0.0.dev0
+handnote @ git+https://github.com/zh271/handnote.git@114919f183817643c795e47e851ea25b96e3c393
 huggingface-hub==0.28.1
 idna==3.4
 importlib_metadata==7.1.0
