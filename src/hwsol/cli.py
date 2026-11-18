@@ -14,6 +14,7 @@ from hwsol.lab.cli import lab
 from hwsol.probe import digest, run_probe
 from hwsol.profile_cli import profiles, studio
 from hwsol.profiles.store import ProfileStore
+from hwsol.workspace_cli import workspace
 
 app = typer.Typer(
     no_args_is_help=True, help="Handwritten Solutions — local Profiles, CPU Studio and rendering."
@@ -21,6 +22,7 @@ app = typer.Typer(
 app.add_typer(profiles, name="profiles")
 app.add_typer(lab, name="lab")
 app.add_typer(studio, name="profile")
+app.add_typer(workspace, name="workspace")
 
 
 def fail(exc: Exception) -> None:
@@ -112,7 +114,11 @@ def render_probe(
             raise RenderError(
                 "Unknown backend or missing --backend-python for compatibility backend"
             )
-        report = run_probe(
+        from hwsol.workspace import tracked_call
+
+        report = tracked_call(
+            "probe",
+            run_probe,
             input_path,
             output,
             font or selected.font,
@@ -137,14 +143,23 @@ def render_probe(
 @app.command()
 def render(
     manifest: Annotated[Path, typer.Option()],
-    output: Annotated[Path, typer.Option()],
+    output: Annotated[Path | None, typer.Option(help="Optional legacy-format export.")] = None,
+    workspace: Annotated[Path | None, typer.Option()] = None,
+    run_id: Annotated[str | None, typer.Option()] = None,
     realism: Annotated[str | None, typer.Option(help="Override the job realism mode.")] = None,
 ):
     """Render a local assignment and publish all verified pages together."""
-    from hwsol.jobs.runtime import render_job
+    from hwsol.workspace import render_assignment
 
     try:
-        typer.echo(json.dumps(render_job(manifest, output, realism=realism), ensure_ascii=False))
+        typer.echo(
+            json.dumps(
+                render_assignment(
+                    manifest, output=output, workspace=workspace, run_id=run_id, realism=realism
+                ),
+                ensure_ascii=False,
+            )
+        )
     except (ValueError, OSError) as exc:
         fail(exc)
 
@@ -160,7 +175,13 @@ def verify(
     from hwsol.jobs.runtime import verify_job
 
     try:
-        typer.echo(json.dumps(verify_job(job, pixels=pixels), ensure_ascii=False))
+        if (job / "run.json").exists():
+            from hwsol.workspace import verify_run
+
+            result = verify_run(job)
+        else:
+            result = verify_job(job, pixels=pixels)
+        typer.echo(json.dumps(result, ensure_ascii=False))
     except Exception as exc:
         fail(exc)
 

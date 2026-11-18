@@ -159,6 +159,8 @@ def build(
     from hwsol.jobs.layout import render_one
 
     job = load_job(manifest)
+    if job.backend != "font-cpu":
+        raise ValueError("diffink-experimental is not admitted to production; use the isolated lab")
     if realism is not None:
         job = Job.model_validate({**job.model_dump(exclude_unset=True), "realism": realism})
     root = manifest.resolve().parent
