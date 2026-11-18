@@ -1,0 +1,37 @@
+{
+  "source": "DiffInk official linked Google Drive",
+  "hash_origin": "locally computed after exact published size check",
+  "weights_license": "CASIA original dataset research terms",
+  "assets": {
+    "writers": {
+      "relative_path": "datas/meta/selected_400_100.json",
+      "bytes": 11163,
+      "sha256": "ccea69255316fa3f9ef1c9ff27189717c10cd2a0f44abf6434d2e3949c4ee57a",
+      "google_drive_id": "1V7g1tTXQzuuri28mVQfSY8o2lbZRF9a3"
+    },
+    "vocabulary": {
+      "relative_path": "datas/meta/All_zi.json",
+      "bytes": 44043,
+      "sha256": "8e618fed59ea03fca214d45b988897be4e5bb2177896d26e9f164c39bbb9d4d3",
+      "google_drive_id": "1yQpL0oxC5dv8yXTdWuHsdkaZpAI4XYeQ"
+    },
+    "validation": {
+      "relative_path": "datas/train_val_400_100/val.h5",
+      "bytes": 80310344,
+      "sha256": "b958fcad1bb2d76bbad54513ce68f59b9e117cac108e2e53a6de8b007f3bf553",
+      "google_drive_id": "1ZOgUD6UBUWpb154VeXkGvPt9EZ7t1QRg"
+    },
+    "vae": {
+      "relative_path": "outputs/ink_vae_03_14_02_12/ckpt/vae_epoch_100.pt",
+      "bytes": 178524954,
+      "sha256": "eb3001b7d5140a303f9f42783a77e786735b5629644dbbba7821067bf8d64fc7",
+      "google_drive_id": "11fprScAKJnML2Dv_BFZ5JDSQ1cQm341t"
+    },
+    "dit": {
+      "relative_path": "outputs/ink_dit_tune_03_21_13_37/ckpt/dit_epoch_1.pt",
+      "bytes": 2914621632,
+      "sha256": "ed7300c1896fd97f7366e44d9cead8b2b2699108037fe5ee86c6a37ec9b74219",
+      "google_drive_id": "13sApjo9rqFHdfNnWmiWaRjFVWewJqECY"
+    }
+  }
+}

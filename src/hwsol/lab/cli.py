@@ -37,6 +37,41 @@ def models():
     emit(catalog())
 
 
+@lab.command("diffink")
+def diffink(
+    text: Annotated[str, typer.Option()],
+    reference: OptionPath,
+    python: OptionPath,
+    checkout: OptionPath,
+    assets_root: OptionPath,
+    research: OptionPath,
+    workspace: Annotated[Path | None, typer.Option()] = None,
+    run_id: str | None = None,
+    seed: int = 4206,
+    steps: int = 20,
+    cfg_scale: float = 1.0,
+):
+    """Run real isolated CUDA continuation; held output never updates latest.json."""
+    from hwsol.lab.diffink import DiffInkAdapter
+
+    try:
+        result = DiffInkAdapter(python, checkout, assets_root, research).render(
+            text,
+            reference,
+            seed=seed,
+            steps=steps,
+            cfg_scale=cfg_scale,
+            workspace=workspace,
+            run_id=run_id,
+        )
+    except (ValueError, OSError, KeyError, subprocess.SubprocessError) as exc:
+        typer.echo(json.dumps({"status": "failed", "error": str(exc)}, ensure_ascii=False))
+        raise typer.Exit(2) from exc
+    emit(result)
+    if result["status"] == "held":
+        raise typer.Exit(2)
+
+
 @lab.command()
 def prepare(model: Annotated[str, typer.Option()], output: OptionPath):
     """Create a new local trial directory and fixed prompt list."""

@@ -7,8 +7,10 @@ No random-weight fallback and no generated output counts as independently valida
 import argparse
 import gc
 import hashlib
+import importlib.metadata
 import json
 import os
+import resource
 import sys
 import time
 import traceback
@@ -34,6 +36,7 @@ def main():
     args = parser.parse_args()
     request = json.loads(args.request.read_text())
     output = Path(request["run"])
+    worker_started = time.perf_counter()
     report = {
         "status": "failed",
         "model_executed": False,
@@ -44,6 +47,18 @@ def main():
     }
     try:
         checkout = Path(request["checkout"])
+        installed = {
+            dist.metadata["Name"].lower().replace("_", "-"): dist.version
+            for dist in importlib.metadata.distributions()
+        }
+        write(output / "reports/installed-dependencies.json", installed)
+        if request.get("dependency_lock"):
+            for line in Path(request["dependency_lock"]).read_text().splitlines():
+                if "==" not in line or line.startswith(("#", "--")):
+                    continue
+                name, version = line.split("==", 1)
+                if installed.get(name.lower().replace("_", "-")) != version:
+                    raise ValueError("Isolated dependency mismatch: " + name)
         for relative, expected in request["upstream_source_sha256"].items():
             if digest(checkout / relative) != expected:
                 raise ValueError("Upstream source changed: " + relative)
@@ -101,18 +116,46 @@ def main():
         if chosen is None:
             raise ValueError("No suitable real validation sample found")
         writer_id, points, target_text, character_ends = dataset[chosen]
+        reference_text = target_text
+        reference_origin = "dataset-recorded-online"
+        reference_digest = assets["validation"]["sha256"]
+        reference_personal = False
+        reference_license = "CASIA academic research terms"
+        if request.get("reference"):
+            reference_path = Path(request["reference"])
+            if digest(reference_path) != request["reference_sha256"]:
+                raise ValueError("Style reference changed")
+            reference = json.loads(reference_path.read_text())
+            reference_text = reference["text"]
+            target_text = request["text"]
+            prefix = max(1, round(len(reference_text) * 0.3))
+            if (
+                len(target_text) != len(reference_text)
+                or target_text[:prefix] != reference_text[:prefix]
+            ):
+                raise ValueError("This adapter preserves the aligned reference prefix and length")
+            if any(c not in vocab for c in target_text):
+                raise ValueError("Target contains unsupported model vocabulary")
+            points = torch.tensor(reference["points"], dtype=torch.float32)
+            character_ends = np.asarray(reference["character_end_indices"], dtype=np.int64)
+            writer_id = reference.get("writer", "reference-writer")
+            key = "explicit-online-reference"
+            reference_origin = reference["origin"]
+            reference_digest = request["reference_sha256"]
+            reference_personal = bool(reference.get("personal_collected", False))
+            reference_license = reference.get("license", "unspecified; local reference only")
         write(
             output / "solutions/reference.json",
             {
-                "origin": "dataset-recorded-online",
-                "personal_collected": False,
-                "source_sha256": assets["validation"]["sha256"],
+                "origin": reference_origin,
+                "personal_collected": reference_personal,
+                "source_sha256": reference_digest,
                 "dataset_key": key,
                 "writer": writer_id,
-                "text": target_text,
+                "text": reference_text,
                 "points": points.tolist(),
                 "character_end_indices": character_ends.tolist(),
-                "license": "CASIA academic research terms",
+                "license": reference_license,
             },
         )
         write(
@@ -130,6 +173,8 @@ def main():
             num_workers=0,
             collate_fn=ValDataset.collate_fn,
         )
+        if request.get("reference"):
+            loader = [ValDataset.collate_fn([(writer_id, points, target_text, character_ends)])]
         # Safe tensor loading; original upstream can silently use random weights when paths fail.
         vae_checkpoint = torch.load(
             assets["vae"]["path"], map_location="cpu", weights_only=True, mmap=True
@@ -180,6 +225,16 @@ def main():
             return sequence
 
         trainer.sample_from_params = capture
+        if request.get("sampling_steps", 20) != 20 or request.get("cfg_scale", 1.0) != 1.0:
+            original_ddim = trainer.Diffusion.ddim_sample
+
+            def configured_ddim(self, *positional, **keywords):
+                keywords.update(
+                    sampling_timesteps=request["sampling_steps"], cfg_scale=request["cfg_scale"]
+                )
+                return original_ddim(self, *positional, **keywords)
+
+            trainer.Diffusion.ddim_sample = configured_ddim
         torch.cuda.synchronize()
         torch.cuda.reset_peak_memory_stats()
         started = time.perf_counter()
@@ -210,8 +265,8 @@ def main():
             captures=captures,
             output_sha256=digest(preview),
             preserved_prefix_ratio=0.3,
-            sampling_steps=20,
-            cfg_scale=1.0,
+            sampling_steps=request.get("sampling_steps", 20),
+            cfg_scale=request.get("cfg_scale", 1.0),
             inference_scope="official Chinese continuation; not personal English generation",
             patches=[
                 "batch 1, single short sample, workers 0",
@@ -220,12 +275,15 @@ def main():
                 "sampler instrumentation saves unchanged online sequence",
             ],
             upstream_algorithm_modified=False,
+            personal_reference_claimed=reference_personal,
         )
         dataset.hf.close()
     except Exception as exc:
         report.update(
             error=str(exc), error_type=type(exc).__name__, traceback=traceback.format_exc()
         )
+    report["worker_wall_seconds"] = time.perf_counter() - worker_started
+    report["peak_host_rss_bytes"] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
     write(output / "reports/inference.json", report)
     print(
         json.dumps({k: v for k, v in report.items() if k != "traceback"}, ensure_ascii=False),
