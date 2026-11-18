@@ -17,4 +17,6 @@ Use the installed `hwsol`. In a source checkout use `uv run --offline --frozen -
 
 For a request limited to typesetting supplied Markdown, the original `render-probe` interface remains available. See [probe inputs](references/probe-inputs.md).
 
+For explicitly requested neural research, use the isolated [DiffInk](docs/DIFFINK_CUDA_REPRODUCTION.md) or [DiffBrush](docs/DIFFBRUSH_CUDA_COMPARISON.md) workflow. Keep every trial under a fresh workspace run ID. A real model execution marked `held` is not a validated homework deliverable. Preserve raw outputs and content errors; never replace equations or publish an experimental model from an interface test or a visually attractive sample.
+
 For Profile authoring, use `hwsol profile` or `hwsol-studio`. Follow the [CPU Studio guide](docs/TRAINING.md) for template/import/train/evaluate/publish and [Profile format](docs/PROFILE_FORMAT.md) for activation, rollback and transfer. The bundled-default Profile contains the licensed Patrick Hand engineering font. Personalize through a derived Profile.

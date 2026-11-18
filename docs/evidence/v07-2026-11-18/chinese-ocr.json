@@ -1,0 +1,58 @@
+{
+  "cases": [
+    {
+      "run": "workspace/runs/v07-diffink-adapter-original",
+      "run_sha256": "af9b51c4cabec57f0c7be0804ad36a7b54f3776d3522f2414cd8ee84b1f1817d",
+      "image_sha256": "c627fa48a549e069c553d19854f09ae44f62c66507c40cdbbf9613281fe65585",
+      "kind": "reference",
+      "expected": "要的应该是法律问题!",
+      "ocr": "受2丰纺是所伴间束|",
+      "cer": 0.9,
+      "length_delta": 0,
+      "wer": null,
+      "style_similarity": null,
+      "human_naturalness": null
+    },
+    {
+      "run": "workspace/runs/v07-diffink-adapter-original",
+      "run_sha256": "af9b51c4cabec57f0c7be0804ad36a7b54f3776d3522f2414cd8ee84b1f1817d",
+      "image_sha256": "bac9c89ff5cadade4050115b228afa707fa22891339e3bc18e62846470f584c2",
+      "kind": "generated",
+      "expected": "要的应该是法律问题!",
+      "ocr": "吉%廊坎二2",
+      "cer": 1.0,
+      "length_delta": -4,
+      "wer": null,
+      "style_similarity": null,
+      "human_naturalness": null
+    },
+    {
+      "run": "workspace/runs/v07-diffink-adapter-changed",
+      "run_sha256": "3b8569ec7a5b35b5758526ada01e2242d4e3016180c0e35915ddc76b48b3a1f3",
+      "image_sha256": "c627fa48a549e069c553d19854f09ae44f62c66507c40cdbbf9613281fe65585",
+      "kind": "reference",
+      "expected": "要的应该是法律问题!",
+      "ocr": "受2丰纺是所伴间束|",
+      "cer": 0.9,
+      "length_delta": 0,
+      "wer": null,
+      "style_similarity": null,
+      "human_naturalness": null
+    },
+    {
+      "run": "workspace/runs/v07-diffink-adapter-changed",
+      "run_sha256": "3b8569ec7a5b35b5758526ada01e2242d4e3016180c0e35915ddc76b48b3a1f3",
+      "image_sha256": "7c72054c5a0a3773f727d7940c7848bf360fc35f734720652dd2d5578d516d6b",
+      "kind": "generated",
+      "expected": "要的应该是数学问题!",
+      "ocr": "多2让炊半天和2",
+      "cer": 1.0,
+      "length_delta": -2,
+      "wer": null,
+      "style_similarity": null,
+      "human_naturalness": null
+    }
+  ],
+  "scope": "Two short Chinese targets, conditioned 30% prefix included; not benchmark accuracy",
+  "ocr_limitations": "Printed-font OCR also errs on real handwriting; require human reading"
+}

@@ -1,0 +1,60 @@
+{
+  "text": "The median is the middle ordered value.",
+  "rows": [
+    {
+      "run": "workspace/runs/v07-font-english",
+      "run_sha256": "8a22c8d7214c3bfe1f5e019d38cbcbada87098fc582d04f5de42c81de651bda4",
+      "native_png_sha256": "e9e5af77215de082ea1d98308c8c6f0a3d670f11a91a6587fc17bcf41d9ea049",
+      "native_ink_touches_border": false,
+      "normalized_png_sha256": "24db4ba77aaf38e8623b3703253003d775b820e57946f614056c15087f5cac10",
+      "transcription": "The yedian is the middle ovdeved value.",
+      "scores": {
+        "cer": 0.07692307692307693,
+        "wer": 0.2857142857142857,
+        "exact_match": false,
+        "length_delta": 0,
+        "word_count_delta": 0
+      },
+      "style_similarity": null,
+      "human_naturalness": null
+    },
+    {
+      "run": "workspace/runs/v07-diffbrush-personal-42-retry",
+      "run_sha256": "7e87b57f9ca7fd405a1d4287f042313a8c98f211bbb41db9743cd0598cfbae4c",
+      "native_png_sha256": "374910a9571dc78813e575cbc536c3bcb9bdb4d57c7a8dbffb2366c07ea86fa6",
+      "native_ink_touches_border": true,
+      "normalized_png_sha256": "2b6f09449140e34e40ce723c3de1f28d57ff10025823893a312e584ad4c08836",
+      "transcription": "The medion is Hu wildle ordered yalugn.",
+      "scores": {
+        "cer": 0.23076923076923078,
+        "wer": 0.5714285714285714,
+        "exact_match": false,
+        "length_delta": 0,
+        "word_count_delta": 0
+      },
+      "style_similarity": null,
+      "human_naturalness": null
+    },
+    {
+      "run": "workspace/runs/v07-diffbrush-personal-43",
+      "run_sha256": "a0cd485e5593fc5846cb9da978004ed15100db8aa523fd16115881eee0a441a6",
+      "native_png_sha256": "4a4a414fefc7696b455f38f46b46d3bbafa5ba940a152128bd0b8402f3675bce",
+      "native_ink_touches_border": true,
+      "normalized_png_sha256": "ddcfc3b78fb3ec08ad66e9573b51306f794c151b086b7fe1d7ede0a056802afc",
+      "transcription": "The median is the mde ordered yaluvalu .",
+      "scores": {
+        "cer": 0.20512820512820512,
+        "wer": 0.42857142857142855,
+        "exact_match": false,
+        "length_delta": 1,
+        "word_count_delta": 1
+      },
+      "style_similarity": null,
+      "human_naturalness": null
+    }
+  ],
+  "candidate_policy": "exact OCR match and no border ink required before style ranking",
+  "eligible_model_candidates": [],
+  "model_published": false,
+  "interpretation": "One smoke sentence; not benchmark or human style acceptance"
+}

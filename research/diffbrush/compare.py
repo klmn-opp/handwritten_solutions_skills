@@ -119,7 +119,7 @@ def main():
             {
                 "text": text,
                 "rows": rows,
-                "candidate_policy": "exact OCR match and no boundary ink required before style ranking",
+                "candidate_policy": "require exact OCR and no border ink before style ranking",
                 "eligible_model_candidates": [
                     row["run"]
                     for row in rows[1:]

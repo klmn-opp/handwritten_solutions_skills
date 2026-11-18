@@ -40,6 +40,6 @@ latest.json 只在整个作业独立重验通过后原子更新；失败、holdo
 
 ## DVC 评估
 
-DVC 可用 Git 内的小型 `.dvc` 元数据跟踪外部大文件，并使用本地/私有远端存储；参见[官方文件格式](https://doc.dvc.org/user-guide/project-structure/dvc-files)和[存储说明](https://doc.dvc.org/user-guide/data-management/remote-storage)。本轮选择先使用 SHA-256 资产清单和不可变目录，未安装或上传 DVC：还没有完成 CUDA 复现，也没有新增个人在线训练集，部署远端没有实际收益。
+DVC 可用 Git 内的小型 `.dvc` 元数据跟踪外部大文件，并使用本地/私有远端存储；参见[官方文件格式](https://doc.dvc.org/user-guide/project-structure/dvc-files)和[存储说明](https://doc.dvc.org/user-guide/data-management/remote-storage)。本轮选择先使用 SHA-256 资产清单和不可变目录，未安装或上传 DVC。后续 CUDA 复现已完成，官方 checkpoint 在 workspace/checkpoints，有精确大小和摘要；仍没有新增个人在线训练集，不引入私有远端即可复现本机实验。
 
 以后可以在独立私有数据仓库中 `dvc add datasets/<version> checkpoints/<version>`，元数据和锁文件进 Git，数据进受控存储。运行目录不整体进入 DVC，避免重复缓存 PDF；不得把个人扫描上传公共远端。DVC 不是必需运行依赖。

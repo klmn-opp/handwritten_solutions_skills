@@ -110,6 +110,8 @@ uv run --frozen hwsol render-probe --input examples/phase0/common.md --output ou
 
 运行 `hwsol lab models` 查看固定上游版本，`hwsol lab prepare --model one-dm --output out/trial` 创建本地实验。研究工具可以导入和盲评词图或行图。执行神经采样需要独立环境、获授权的风格样本、检查点和本地 VAE。[阶段 4 操作及许可](docs/PHASE4.md)
 
+v0.7 实验分支已实际运行 [DiffInk CUDA 续写](docs/DIFFINK_CUDA_REPRODUCTION.md) 和 [Handnote DiffBrush 个人英文参考对照](docs/DIFFBRUSH_CUDA_COMPARISON.md)，均有真实权重、输出、耗时与显存证据。DiffInk 不支持一般英文，DiffBrush 两候选未通过内容筛选；模型保持 held，未进入生产或进行个人训练。`hwsol lab diffink --help` 查看隔离入口。[本轮验收与产物](docs/evidence/v07-2026-11-18/README.md)
+
 ## 开源与贡献
 
 项目代码使用 MIT，内附 Patrick Hand 字体使用 SIL OFL 1.1。第三方运行依赖按其各自许可安装。打包过程保留字体来源及完整许可。仓库内的样例、源解答及 AI 生成记录供核查，课程要求独立完成或亲笔书写时应遵循课程规范。[许可清单](docs/LICENSES.md) · [贡献与打包](CONTRIBUTING.md) · [版本记录](CHANGELOG.md)

@@ -1,0 +1,110 @@
+{
+  "historical_files": 2213,
+  "changed": [],
+  "active_profile": {
+    "reference": "personal@v1",
+    "manifest_sha256": "be98e8e2343f8becc71ae7b9ce9bac7a77f5c8c3dec98dc02bf462a13a5689b8",
+    "source_kind": "personal-assets",
+    "distribution": "local-only",
+    "font_sha256": "60466bbde4f39280838ac15f1121fc975cf841f42b581f74618eff50c8b2bcd9"
+  },
+  "cpu_torch_installed": false,
+  "latest": {
+    "schema_version": 1,
+    "run_id": "v06-five-final",
+    "run": "runs/v06-five-final",
+    "run_sha256": "c593dea6b59c5183d706bb275db0bb8b9b149ea402bf30ec861a70098ba9ac55",
+    "pdf": "runs/v06-five-final/rendered/homework_solutions.pdf",
+    "pdf_sha256": "4ffb691c6bf377b7b692eba79fe72658106a4566e826bb61e0bdde4a39d0fb69",
+    "validation": "engineering-only; independent style/content not implied"
+  },
+  "diffbrush_repeat_identical": true,
+  "diffbrush_png_sha256": "374910a9571dc78813e575cbc536c3bcb9bdb4d57c7a8dbffb2366c07ea86fa6",
+  "runs": [
+    {
+      "status": "passed",
+      "run_status": "passed",
+      "run_id": "v07-cuda-preflight"
+    },
+    {
+      "status": "passed",
+      "run_status": "failed",
+      "run_id": "v07-diffbrush-personal-42"
+    },
+    {
+      "status": "passed",
+      "run_status": "held",
+      "run_id": "v07-diffbrush-personal-42-repeat"
+    },
+    {
+      "status": "passed",
+      "run_status": "held",
+      "run_id": "v07-diffbrush-personal-42-retry"
+    },
+    {
+      "status": "passed",
+      "run_status": "held",
+      "run_id": "v07-diffbrush-personal-43"
+    },
+    {
+      "status": "passed",
+      "run_status": "failed",
+      "run_id": "v07-diffbrush-preflight"
+    },
+    {
+      "status": "passed",
+      "run_status": "passed",
+      "run_id": "v07-diffbrush-preflight-retry"
+    },
+    {
+      "status": "passed",
+      "run_status": "held",
+      "run_id": "v07-diffink-adapter-changed"
+    },
+    {
+      "status": "passed",
+      "run_status": "held",
+      "run_id": "v07-diffink-adapter-original"
+    },
+    {
+      "status": "passed",
+      "run_status": "held",
+      "run_id": "v07-diffink-adapter-repeat"
+    },
+    {
+      "status": "passed",
+      "run_status": "failed",
+      "run_id": "v07-diffink-english-gate"
+    },
+    {
+      "status": "passed",
+      "run_status": "failed",
+      "run_id": "v07-diffink-english-rejected"
+    },
+    {
+      "status": "passed",
+      "run_status": "held",
+      "run_id": "v07-diffink-ocr"
+    },
+    {
+      "status": "passed",
+      "run_status": "held",
+      "run_id": "v07-diffink-official-01"
+    },
+    {
+      "status": "passed",
+      "run_status": "prepared",
+      "run_id": "v07-english-input"
+    },
+    {
+      "status": "passed",
+      "run_status": "held",
+      "run_id": "v07-english-model-comparison"
+    },
+    {
+      "status": "passed",
+      "run_status": "passed",
+      "run_id": "v07-font-english"
+    }
+  ]
+}
