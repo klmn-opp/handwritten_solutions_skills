@@ -36,3 +36,17 @@ def test_micro_denominators_and_case_sensitive_exact_match():
     assert aggregate([])["micro_cer"] is None
     assert score("A  B", "A B")["exact_match"]
     assert not score("A.", "a")["exact_match"]
+
+
+def test_lossless_preview_retains_edge_pixels(tmp_path):
+    from PIL import Image
+
+    from research.english.artifacts import lossless_pdf, normalize
+
+    image = Image.new("RGB", (123, 64), "white")
+    image.putpixel((122, 63), (12, 47, 150))
+    path = tmp_path / "edge.png"
+    image.save(path)
+    assert normalize(path, tmp_path / "normalized.png")["border_ink"]
+    result = lossless_pdf([path], tmp_path / "preview.pdf")
+    assert result["pages"][0]["pixel_identical"]
