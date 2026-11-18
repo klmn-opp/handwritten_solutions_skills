@@ -1,3 +1,28 @@
+# 当前状态：v0.9 真实作业语料与审核试点已运行，个人训练仍 No-Go
+
+研究分支 `experiment/personal-corpus-v09`，沿用既有项目/Agent Skill/Handnote。
+正式 font-cpu、personal@v1、latest不变；DiffBrush/DiffusionPen/DiffInk研发暂停，旧证据保留。
+
+- 新收到7份PDF，共831页；原件已只读归档，10页实际作业试点，另保留7张旧采集图。
+- 190个可追溯候选区域；TrOCR/UniMERNet/Tesseract实际得到58条识别结果，人工核验0条。
+- 本地Review Studio支持原图高亮、英文/LaTeX修正、公式预览、合并拆分、缺陷/作者标记、修订历史与恢复。
+- 涂改、遮挡、重写及不确定来源不进入干净墨迹训练；不猜标签，不用补全图冒充真实笔迹。
+- 数据集v1.1已冻结文档/会话分组并导出全部候选快照；合格监督样本为0，真实覆盖率仍待核验。
+- 约40万参数条件VAE原型与独立训练环境已准备，CUDA合成夹具参数更新测试通过；**没有个人模型训练完成**。
+- 四学科4页CPU基线PDF/PNG验证通过，神经字形使用数为0。完整个人生成、连续英文和SFT/RL仍未准入。
+- Python3.12/3.13各159项全套测试通过；回归和历史保护结果见 [v0.9验收报告](V09_GO_NO_GO.md)。原12,822历史文件与7新PDF均未改变。
+
+入口：[数据格式与审核操作](PERSONAL_HOMEWORK_CORPUS.md) · [研发日志](V09_DEVELOPMENT_LOG.md) · [最初审计](V09_AUDIT.md)。
+本机运行 `.venv/bin/python -m research.corpus.cli review`（`PYTHONPATH=.:src`），打开 `http://127.0.0.1:8769`。
+
+证据目录：`workspace/runs/v09-corpus-evidence-report/`、`v09-personal-corpus-v1.1/`、
+`v09-four-subject-cpu-baseline-retry/`、`v09-final-gate-verification/`。
+下一步是核验少量真实候选并扩大分层抽样，不要求先手工清洗所有831页或重新抄字母表。
+
+---
+
+以下v0.8及更早状态保留用于追溯，其模型路线建议已由v0.9决定暂停。
+
 # 当前状态：v0.8证据评估完成，个人训练No-Go
 
 当前研究分支 `experiment/english-evidence-v08`；稳定main、v0.6.0包、CPU Runtime、personal@v1和正式latest均未改变。[完整v0.8 Evidence-Based Go/No-Go](V08_GO_NO_GO.md) · [英文基准协议](ENGLISH_BENCHMARK_V1.md) · [模型调查](V08_MODEL_INVESTIGATION.md) · [研发日志](V08_DEVELOPMENT_LOG.md)。

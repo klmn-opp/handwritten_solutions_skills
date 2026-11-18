@@ -1,3 +1,23 @@
+# 当前研发里程碑：v0.9 Personal Homework Corpus
+
+本轮优先级：真实语料 > 准确转写/质量审核 > 最小神经生成训练 > 生产集成 > RL/RSI。
+[已执行与No-Go证据](V09_GO_NO_GO.md) · [数据与审核说明](PERSONAL_HOMEWORK_CORPUS.md)。
+
+1. 使用现有Review Studio核验10页试点中的完整区域。保留实际拼写/数学错误，标记划改、遮挡、混合作者。
+2. 从831页中继续分层抽样：矩阵/求和、物理图示、中文/英文混写、不同纸张与书写时段。先量化干净且可核验的覆盖。
+3. 改进区域检测与背景处理，增加近重复人工解除流程；PaddleOCR可作为后续本地检测/印刷辅助，须用本人页面验证。
+4. 维护冻结的原文档/会话Train、Validation、Holdout；导出新版本，不改旧样本/旧运行。
+5. 只有出现足够已核验干净字符/符号后，运行有限条件生成训练，保存参数/优化器/曲线，独立评估身份、变化、记忆与风格。
+6. 再比较真实样本、CPU字体、非学习扰动和新生成字形；未通过验收的内容继续font-cpu，数学结构仍由Handnote/MathText控制。
+7. 内容与风格独立评估稳定后再收集偏好，不提前推进RL/RSI自动发布；不预设LoRA或从零大模型训练。
+
+暂停DiffBrush、DiffusionPen、DiffInk比较与训练；保留所有v0.7/v0.8源码、权重、PDF和实验结果。
+当前无个人生成模型获准进入SFT/RL或生产，默认Profile及正式latest保持原状。
+
+---
+
+以下为原v0.8及更早路线，保留历史，不代表当前执行计划。
+
 # 当前研发里程碑：v0.8 Evidence-Based Go/No-Go
 
 v0.8已完成固定120行英文数据、两个CPU Profile实测、DiffBrush官方/Adapter/PDF诊断、多种子与holdout、真实DiffusionPen英文CUDA推理、588图双识别器评测和72份内容先行盲评材料。[验收报告](V08_GO_NO_GO.md)。生产仍为v0.6 font-cpu。
