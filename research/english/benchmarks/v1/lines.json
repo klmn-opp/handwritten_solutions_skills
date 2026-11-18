@@ -1,0 +1,2411 @@
+{
+  "schema_version": 1,
+  "version": "1.0.0",
+  "splits": {
+    "development": 96,
+    "holdout": 24,
+    "smoke_subset": 16
+  },
+  "cases": [
+    {
+      "id": "ehb1-short-01",
+      "category": "short",
+      "split": "development",
+      "smoke": true,
+      "text": "Check the sign.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-short-02",
+      "category": "short",
+      "split": "development",
+      "smoke": true,
+      "text": "The result is positive.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-short-03",
+      "category": "short",
+      "split": "development",
+      "smoke": false,
+      "text": "We now simplify both sides.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-short-04",
+      "category": "short",
+      "split": "development",
+      "smoke": false,
+      "text": "Keep the units consistent.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-short-05",
+      "category": "short",
+      "split": "development",
+      "smoke": false,
+      "text": "This value is an estimate.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-short-06",
+      "category": "short",
+      "split": "development",
+      "smoke": false,
+      "text": "The two vectors are parallel.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-short-07",
+      "category": "short",
+      "split": "development",
+      "smoke": false,
+      "text": "First inspect the given data.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-short-08",
+      "category": "short",
+      "split": "development",
+      "smoke": false,
+      "text": "The graph crosses the axis.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-short-09",
+      "category": "short",
+      "split": "development",
+      "smoke": false,
+      "text": "Use the smaller root here.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-short-10",
+      "category": "short",
+      "split": "development",
+      "smoke": false,
+      "text": "The answer follows directly.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-short-11",
+      "category": "short",
+      "split": "development",
+      "smoke": false,
+      "text": "Round only at the final step.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-short-12",
+      "category": "short",
+      "split": "development",
+      "smoke": false,
+      "text": "A negative slope means decay.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-short-13",
+      "category": "short",
+      "split": "holdout",
+      "smoke": false,
+      "text": "State the assumption clearly.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-short-14",
+      "category": "short",
+      "split": "holdout",
+      "smoke": false,
+      "text": "The remaining term is zero.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-short-15",
+      "category": "short",
+      "split": "holdout",
+      "smoke": false,
+      "text": "Both methods give the same value.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-long-01",
+      "category": "long",
+      "split": "development",
+      "smoke": true,
+      "text": "Subtract the second equation from the first, then divide by the common coefficient.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-long-02",
+      "category": "long",
+      "split": "development",
+      "smoke": true,
+      "text": "The observations are independent, so the variance of their sum is the sum of their variances.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-long-03",
+      "category": "long",
+      "split": "development",
+      "smoke": false,
+      "text": "After checking the endpoints, compare the critical values to find the absolute maximum.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-long-04",
+      "category": "long",
+      "split": "development",
+      "smoke": false,
+      "text": "The direction of the magnetic force follows from the chosen current direction and field orientation.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-long-05",
+      "category": "long",
+      "split": "development",
+      "smoke": false,
+      "text": "We retain all significant digits during the calculation and round the reported answer only once.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-long-06",
+      "category": "long",
+      "split": "development",
+      "smoke": false,
+      "text": "Although the curves intersect twice, only the positive intersection lies in the physical domain.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-long-07",
+      "category": "long",
+      "split": "development",
+      "smoke": false,
+      "text": "Every pivot column contributes one independent direction, while the remaining columns are free.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-long-08",
+      "category": "long",
+      "split": "development",
+      "smoke": false,
+      "text": "The estimated uncertainty includes both the measurement error and the variation between repeated trials.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-long-09",
+      "category": "long",
+      "split": "development",
+      "smoke": false,
+      "text": "Before applying the theorem, verify that the function is continuous on the entire closed interval.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-long-10",
+      "category": "long",
+      "split": "development",
+      "smoke": false,
+      "text": "The confidence interval describes the estimation procedure and does not assign a probability to a fixed parameter.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-long-11",
+      "category": "long",
+      "split": "development",
+      "smoke": false,
+      "text": "Write the intermediate equations on separate lines so that each substitution can be checked without guessing.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-long-12",
+      "category": "long",
+      "split": "development",
+      "smoke": false,
+      "text": "Because the final expression contains a square root, the allowed parameter values must keep its argument nonnegative.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-long-13",
+      "category": "long",
+      "split": "holdout",
+      "smoke": false,
+      "text": "The sample is small and visibly asymmetric, so the assumptions behind the approximation need careful discussion.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-long-14",
+      "category": "long",
+      "split": "holdout",
+      "smoke": false,
+      "text": "An apparently reasonable numerical answer can still be incorrect when a minus sign or a unit conversion is omitted.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-long-15",
+      "category": "long",
+      "split": "holdout",
+      "smoke": false,
+      "text": "Explain why the boundary term vanishes before replacing the original integral with the simpler expression.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-repeats-01",
+      "category": "repeats",
+      "split": "development",
+      "smoke": true,
+      "text": "Minimum illumination is necessary.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-repeats-02",
+      "category": "repeats",
+      "split": "development",
+      "smoke": true,
+      "text": "Bookkeeper bookkeeping committee.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-repeats-03",
+      "category": "repeats",
+      "split": "development",
+      "smoke": false,
+      "text": "Mississippi possesses several s letters.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-repeats-04",
+      "category": "repeats",
+      "split": "development",
+      "smoke": false,
+      "text": "A balloon will follow the yellow wall.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-repeats-05",
+      "category": "repeats",
+      "split": "development",
+      "smoke": false,
+      "text": "The committee will assess the success.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-repeats-06",
+      "category": "repeats",
+      "split": "development",
+      "smoke": false,
+      "text": "See three green trees near the street.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-repeats-07",
+      "category": "repeats",
+      "split": "development",
+      "smoke": false,
+      "text": "Parallel lines remain parallel lines.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-repeats-08",
+      "category": "repeats",
+      "split": "development",
+      "smoke": false,
+      "text": "Minimum minimum minimum, then maximum.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-repeats-09",
+      "category": "repeats",
+      "split": "development",
+      "smoke": false,
+      "text": "The puppy happily hopped uphill.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-repeats-10",
+      "category": "repeats",
+      "split": "development",
+      "smoke": false,
+      "text": "All twelve little letters look alike.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-repeats-11",
+      "category": "repeats",
+      "split": "development",
+      "smoke": false,
+      "text": "Press the button twice, not three times.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-repeats-12",
+      "category": "repeats",
+      "split": "development",
+      "smoke": false,
+      "text": "The word millennium contains repeated letters.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-repeats-13",
+      "category": "repeats",
+      "split": "holdout",
+      "smoke": false,
+      "text": "Successive assessments need careful bookkeeping.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-repeats-14",
+      "category": "repeats",
+      "split": "holdout",
+      "smoke": false,
+      "text": "A narrow ribbon was wrapped around the barrel.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-repeats-15",
+      "category": "repeats",
+      "split": "holdout",
+      "smoke": false,
+      "text": "Too many repeated words can obscure the intended answer.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-joins-01",
+      "category": "joins",
+      "split": "development",
+      "smoke": true,
+      "text": "Write warm water with a steady wrist.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-joins-02",
+      "category": "joins",
+      "split": "development",
+      "smoke": true,
+      "text": "The thin thread passed through the ring.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-joins-03",
+      "category": "joins",
+      "split": "development",
+      "smoke": false,
+      "text": "Brown branches bend beside the bridge.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-joins-04",
+      "category": "joins",
+      "split": "development",
+      "smoke": false,
+      "text": "A quick sketch shows the shape clearly.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-joins-05",
+      "category": "joins",
+      "split": "development",
+      "smoke": false,
+      "text": "Try joining th, sh, ch, and wh smoothly.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-joins-06",
+      "category": "joins",
+      "split": "development",
+      "smoke": false,
+      "text": "The rhythm of writing changes within words.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-joins-07",
+      "category": "joins",
+      "split": "development",
+      "smoke": false,
+      "text": "Clarity requires clean joins between letters.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-joins-08",
+      "category": "joins",
+      "split": "development",
+      "smoke": false,
+      "text": "An awkward junction should remain readable.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-joins-09",
+      "category": "joins",
+      "split": "development",
+      "smoke": false,
+      "text": "The angular path turns sharply to the right.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-joins-10",
+      "category": "joins",
+      "split": "development",
+      "smoke": false,
+      "text": "Strong strokes connect without closing loops.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-joins-11",
+      "category": "joins",
+      "split": "development",
+      "smoke": false,
+      "text": "The stretched string swings through the frame.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-joins-12",
+      "category": "joins",
+      "split": "development",
+      "smoke": false,
+      "text": "Quirky typography challenges every quick writer.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-joins-13",
+      "category": "joins",
+      "split": "holdout",
+      "smoke": false,
+      "text": "Keep the lower loop open when writing together.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-joins-14",
+      "category": "joins",
+      "split": "holdout",
+      "smoke": false,
+      "text": "The flowing phrase should preserve every letter.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-joins-15",
+      "category": "joins",
+      "split": "holdout",
+      "smoke": false,
+      "text": "Watch the junctions in minimum, rhythm, and through.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-mixed-01",
+      "category": "mixed",
+      "split": "development",
+      "smoke": true,
+      "text": "Trial 01: 2.50 V, 15 mA, and 37 ohm.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-mixed-02",
+      "category": "mixed",
+      "split": "development",
+      "smoke": true,
+      "text": "Case A differs from case a by 0.01.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-mixed-03",
+      "category": "mixed",
+      "split": "development",
+      "smoke": false,
+      "text": "At 09:45, sample B12 reached 273 K.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-mixed-04",
+      "category": "mixed",
+      "split": "development",
+      "smoke": false,
+      "text": "\"Why?\" she asked; \"Check step 3!\"",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-mixed-05",
+      "category": "mixed",
+      "split": "development",
+      "smoke": false,
+      "text": "Use values 1, 10, 100, and 1000.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-mixed-06",
+      "category": "mixed",
+      "split": "development",
+      "smoke": false,
+      "text": "Result (A): accepted; result (B): rejected.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-mixed-07",
+      "category": "mixed",
+      "split": "development",
+      "smoke": false,
+      "text": "Don't replace the author's final period.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-mixed-08",
+      "category": "mixed",
+      "split": "development",
+      "smoke": false,
+      "text": "The URL token is A/B, not A-B.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-mixed-09",
+      "category": "mixed",
+      "split": "development",
+      "smoke": false,
+      "text": "Data: 0.005, 5.050, 50.500; END.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-mixed-10",
+      "category": "mixed",
+      "split": "development",
+      "smoke": false,
+      "text": "Compare x1 with X1 and y2 with Y2.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-mixed-11",
+      "category": "mixed",
+      "split": "development",
+      "smoke": false,
+      "text": "Record 25% of the initial mass in [g].",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-mixed-12",
+      "category": "mixed",
+      "split": "development",
+      "smoke": false,
+      "text": "Temperature = 298 K; uncertainty = 2 K.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-mixed-13",
+      "category": "mixed",
+      "split": "holdout",
+      "smoke": false,
+      "text": "Row 07 contains 101.01 and 10.10.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-mixed-14",
+      "category": "mixed",
+      "split": "holdout",
+      "smoke": false,
+      "text": "\"Keep 3 digits,\" Dr. Lee wrote in blue.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-mixed-15",
+      "category": "mixed",
+      "split": "holdout",
+      "smoke": false,
+      "text": "File ABC_09 has labels i, I, l, and L.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-longwords-01",
+      "category": "longwords",
+      "split": "development",
+      "smoke": true,
+      "text": "Electroencephalography requires calibration.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-longwords-02",
+      "category": "longwords",
+      "split": "development",
+      "smoke": true,
+      "text": "Incomprehensibility should never hide an error.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-longwords-03",
+      "category": "longwords",
+      "split": "development",
+      "smoke": false,
+      "text": "Interdisciplinary communication takes practice.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-longwords-04",
+      "category": "longwords",
+      "split": "development",
+      "smoke": false,
+      "text": "Counterclockwise rotation changes the direction.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-longwords-05",
+      "category": "longwords",
+      "split": "development",
+      "smoke": false,
+      "text": "Characteristically, the approximation improves.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-longwords-06",
+      "category": "longwords",
+      "split": "development",
+      "smoke": false,
+      "text": "Misinterpretation of units changes the result.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-longwords-07",
+      "category": "longwords",
+      "split": "development",
+      "smoke": false,
+      "text": "Thermodynamically consistent models conserve energy.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-longwords-08",
+      "category": "longwords",
+      "split": "development",
+      "smoke": false,
+      "text": "Antidisestablishmentarianism is a long test word.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-longwords-09",
+      "category": "longwords",
+      "split": "development",
+      "smoke": false,
+      "text": "Hyperparameterization does not establish correctness.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-longwords-10",
+      "category": "longwords",
+      "split": "development",
+      "smoke": false,
+      "text": "Uncharacteristically long words expose width limits.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-longwords-11",
+      "category": "longwords",
+      "split": "development",
+      "smoke": false,
+      "text": "Electromagnetically induced currents oppose the change.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-longwords-12",
+      "category": "longwords",
+      "split": "development",
+      "smoke": false,
+      "text": "Pneumonoultramicroscopicsilicovolcanoconiosis.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-longwords-13",
+      "category": "longwords",
+      "split": "holdout",
+      "smoke": false,
+      "text": "The longest word must remain complete at the right boundary.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-longwords-14",
+      "category": "longwords",
+      "split": "holdout",
+      "smoke": false,
+      "text": "Reproducibility and identifiability require separate arguments.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-longwords-15",
+      "category": "longwords",
+      "split": "holdout",
+      "smoke": false,
+      "text": "Institutionalization should not become institutionalizatio.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-confusables-01",
+      "category": "confusables",
+      "split": "development",
+      "smoke": true,
+      "text": "Read ill, little, and illicit carefully.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-confusables-02",
+      "category": "confusables",
+      "split": "development",
+      "smoke": true,
+      "text": "Compare rn with m in modern and corner.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-confusables-03",
+      "category": "confusables",
+      "split": "development",
+      "smoke": false,
+      "text": "The code is O0O, followed by 010.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-confusables-04",
+      "category": "confusables",
+      "split": "development",
+      "smoke": false,
+      "text": "A capital I differs from a lowercase l.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-confusables-05",
+      "category": "confusables",
+      "split": "development",
+      "smoke": false,
+      "text": "Distinguish vv from w in this review.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-confusables-06",
+      "category": "confusables",
+      "split": "development",
+      "smoke": false,
+      "text": "The digits 1 and 7 need different tops.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-confusables-07",
+      "category": "confusables",
+      "split": "development",
+      "smoke": false,
+      "text": "Do not confuse cl with d in clean data.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-confusables-08",
+      "category": "confusables",
+      "split": "development",
+      "smoke": false,
+      "text": "A zero is not the letter O in this row.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-confusables-09",
+      "category": "confusables",
+      "split": "development",
+      "smoke": false,
+      "text": "The token rn1 is different from m1.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-confusables-10",
+      "category": "confusables",
+      "split": "development",
+      "smoke": false,
+      "text": "Check b and h, then p and q.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-confusables-11",
+      "category": "confusables",
+      "split": "development",
+      "smoke": false,
+      "text": "Read 5S, 2Z, 8B, and 6G separately.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-confusables-12",
+      "category": "confusables",
+      "split": "development",
+      "smoke": false,
+      "text": "The word modern must not become modem.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-confusables-13",
+      "category": "confusables",
+      "split": "holdout",
+      "smoke": false,
+      "text": "The string Ill1 includes three distinct symbols.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-confusables-14",
+      "category": "confusables",
+      "split": "holdout",
+      "smoke": false,
+      "text": "A clear opening separates c from e and o.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-confusables-15",
+      "category": "confusables",
+      "split": "holdout",
+      "smoke": false,
+      "text": "Turn a corner slowly; keep rn separate from m.",
+      "complexity": "stress",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-homework-01",
+      "category": "homework",
+      "split": "development",
+      "smoke": true,
+      "text": "The determinant is nonzero, so the matrix is invertible.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-homework-02",
+      "category": "homework",
+      "split": "development",
+      "smoke": true,
+      "text": "Choose a basis for the null space before describing the solution.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-homework-03",
+      "category": "homework",
+      "split": "development",
+      "smoke": false,
+      "text": "A repeated eigenvalue does not guarantee independent eigenvectors.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-homework-04",
+      "category": "homework",
+      "split": "development",
+      "smoke": false,
+      "text": "Integrate by parts and evaluate the remaining boundary term.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-homework-05",
+      "category": "homework",
+      "split": "development",
+      "smoke": false,
+      "text": "The derivative changes sign from negative to positive.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-homework-06",
+      "category": "homework",
+      "split": "development",
+      "smoke": false,
+      "text": "The left and right limits agree at the point.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-homework-07",
+      "category": "homework",
+      "split": "development",
+      "smoke": false,
+      "text": "Reject the null hypothesis at the stated significance level.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-homework-08",
+      "category": "homework",
+      "split": "development",
+      "smoke": false,
+      "text": "The residual plot suggests that a linear model is inadequate.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-homework-09",
+      "category": "homework",
+      "split": "development",
+      "smoke": false,
+      "text": "A larger sample reduces the standard error of the mean.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-homework-10",
+      "category": "homework",
+      "split": "development",
+      "smoke": false,
+      "text": "The capacitor voltage is continuous when the switch closes.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-homework-11",
+      "category": "homework",
+      "split": "development",
+      "smoke": false,
+      "text": "The reflected ray lies in the plane of incidence.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-homework-12",
+      "category": "homework",
+      "split": "development",
+      "smoke": false,
+      "text": "Resolve the force into components along the chosen axes.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-homework-13",
+      "category": "homework",
+      "split": "holdout",
+      "smoke": false,
+      "text": "Conservation of energy gives a second way to check the result.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-homework-14",
+      "category": "homework",
+      "split": "holdout",
+      "smoke": false,
+      "text": "Report the confidence level together with the interval endpoints.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    },
+    {
+      "id": "ehb1-homework-15",
+      "category": "homework",
+      "split": "holdout",
+      "smoke": false,
+      "text": "The unit vector specifies direction and has magnitude one.",
+      "complexity": "standard",
+      "source": {
+        "kind": "original-authored",
+        "license": "MIT",
+        "version": "1.0.0"
+      },
+      "constraints": {
+        "exact_text": true,
+        "case_sensitive": true,
+        "punctuation_sensitive": true,
+        "silent_rewrite_allowed": false
+      },
+      "allow_training": false
+    }
+  ]
+}
