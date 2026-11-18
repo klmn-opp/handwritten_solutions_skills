@@ -23,12 +23,56 @@ def split_for(group: str, seed: int = 902) -> str:
     return "train" if bucket < 70 else "validation" if bucket < 85 else "holdout"
 
 
+def frozen_splits(corpus: Corpus, documents: dict, seed: int) -> dict:
+    """Initial group ranking reserves independent evaluation; later imports never reshuffle it."""
+    groups = {d["split_group"] for d in documents.values()}
+    with corpus.db() as db:
+        try:
+            plan = corpus._get(db, "policy", "dataset-split-balanced-v2")
+            if plan["seed"] != seed:
+                raise ValueError("Frozen split seed cannot change")
+        except KeyError:
+            ranked = sorted(
+                (g for g in groups if "legacy-calibration-exposed" not in g),
+                key=lambda g: digest([seed, g]),
+            )
+            assignments = {g: "train" for g in groups}
+            if len(ranked) >= 3:
+                size = max(1, int(len(ranked) * 0.15))
+                assignments.update({g: "holdout" for g in ranked[:size]})
+                assignments.update({g: "validation" for g in ranked[size : 2 * size]})
+            plan = {
+                "seed": seed,
+                "version": 2,
+                "assignments": assignments,
+                "policy": (
+                    "Initial group hash rank reserves validation/holdout; legacy is train-only; "
+                    "later groups hash-append without reshuffling"
+                ),
+                "created_at": now(),
+            }
+            corpus.event(db, "freeze-balanced-splits", "dataset", plan)
+        for group in groups:
+            plan["assignments"].setdefault(group, split_for(group, seed))
+        corpus._put(db, "policy", "dataset-split-balanced-v2", plan)
+        return plan
+
+
 def export_dataset(corpus: Corpus, destination: Path, *, seed: int = 902) -> dict:
     if destination.exists():
         raise FileExistsError("Dataset versions are immutable; use a new version")
-    documents = {d["document_id"]: d for d in corpus.rows("document")}
-    pages = corpus.rows("page")
-    samples = corpus.rows("sample")
+    with corpus.db() as db:
+        try:
+            policy = corpus._get(db, "policy", "dataset-split")
+            if policy["seed"] != seed:
+                raise ValueError("Corpus split seed is already frozen; holdout cannot be rerolled")
+        except KeyError:
+            corpus._put(db, "policy", "dataset-split", {"seed": seed})
+    snapshot = corpus.snapshot()
+    documents = {d["document_id"]: d for d in snapshot.get("document", [])}
+    plan = frozen_splits(corpus, documents, seed)
+    pages = snapshot.get("page", [])
+    samples = snapshot.get("sample", [])
     # Near-identical pages from different original documents cannot straddle splits.
     duplicate_documents = set()
     duplicate_pairs = []
@@ -90,7 +134,7 @@ def export_dataset(corpus: Corpus, destination: Path, *, seed: int = 902) -> dic
         eligible.append(
             {
                 **sample,
-                "dataset_split": split_for(group, seed),
+                "dataset_split": plan["assignments"][group],
                 "split_group": group,
                 "category": CATEGORIES[sample["content_type"]],
                 "image_crop": str(corpus.path(sample["image_crop"])),
@@ -100,14 +144,18 @@ def export_dataset(corpus: Corpus, destination: Path, *, seed: int = 902) -> dic
     destination.mkdir(parents=True)
     records = destination / "samples.jsonl"
     records.write_text("".join(json.dumps(s, ensure_ascii=False) + "\n" for s in eligible))
+    atomic_json(destination / "review-snapshot.json", snapshot)
+    atomic_json(destination / "split-plan.json", plan)
     atomic_json(destination / "pending.json", pending)
     atomic_json(destination / "near-duplicates.json", duplicate_pairs)
     labels = [s.get("verified_text") or s.get("verified_latex") or "" for s in eligible]
     report = {
         "schema": "personal-homework-dataset/1",
+        "review_event_sequence": snapshot["event_sequence"],
         "created_at": now(),
         "seed": seed,
-        "split_policy": "source-session SHA256 buckets 70/15/15; immutable seed; no reroll",
+        "split_policy": plan["policy"],
+        "split_plan_version": plan["version"],
         "sample_manifest_sha256": sha256(records),
         "documents": len(documents),
         "pages": len(pages),
@@ -117,9 +165,7 @@ def export_dataset(corpus: Corpus, destination: Path, *, seed: int = 902) -> dic
         "statuses": dict(Counter(s["review_status"] for s in samples)),
         "categories": dict(Counter(s["category"] for s in eligible)),
         "splits": dict(Counter(s["dataset_split"] for s in eligible)),
-        "split_groups": {
-            d["split_group"]: split_for(d["split_group"], seed) for d in documents.values()
-        },
+        "split_groups": plan["assignments"],
         "verified_english_lines": sum(s["content_type"] == "english-line" for s in eligible),
         "english_vocabulary": sorted(set(re.findall(r"[A-Za-z]+", " ".join(labels)))),
         "character_coverage": dict(Counter("".join(labels))),
@@ -132,7 +178,7 @@ def export_dataset(corpus: Corpus, destination: Path, *, seed: int = 902) -> dic
         "near_duplicate_document_ratio": len(duplicate_documents) / max(1, len(documents)),
         "human_verified_ratio": len(eligible) / max(1, len(samples)),
         "unlabelled_or_ineligible_ratio": len(pending) / max(1, len(samples)),
-        "automatic_recognition_results": len(corpus.rows("recognition")),
+        "automatic_recognition_results": len(snapshot.get("recognition", [])),
         "corpus_root": str(corpus.root),
     }
     atomic_json(destination / "manifest.json", report)

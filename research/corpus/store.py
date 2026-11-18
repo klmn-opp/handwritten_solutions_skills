@@ -101,6 +101,16 @@ class Corpus:
                 for r in db.execute("SELECT data FROM records WHERE kind=? ORDER BY id", (kind,))
             ]
 
+    def snapshot(self) -> dict:
+        with self.db() as db:
+            result = {}
+            for kind, data in db.execute("SELECT kind,data FROM records ORDER BY kind,id"):
+                result.setdefault(kind, []).append(json.loads(data))
+            result["event_sequence"] = db.execute(
+                "SELECT COALESCE(MAX(seq),0) FROM events"
+            ).fetchone()[0]
+            return result
+
     def history(self, entity: str) -> list[dict]:
         with self.db() as db:
             return [

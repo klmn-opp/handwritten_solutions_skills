@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="corpus-token" content="__CSRF__"><title>个人作业审核 Studio</title>
+<link rel="stylesheet" href="/katex/katex.min.css"><link rel="stylesheet" href="/studio.css">
+<script defer src="/katex/katex.min.js"></script><script defer src="/studio.js"></script></head>
+<body><header><strong>个人作业 · 审核 Studio</strong><span>本地处理 · OCR 仅为候选 · 不自动发布模型</span></header>
+<nav><label>审核人 <input id="actor" placeholder="你的名字或代号"></label><label>页面 <select id="page"></select></label>
+<label>队列 <select id="filter"><option value="pending">待核验</option><option value="risky">质量风险 / 低置信度</option><option value="all">全部</option><option value="verified">已核验</option></select></label>
+<button id="export">导出已核验数据</button><span id="status" role="status">载入中</span></nav>
+<main><section class="viewer"><div class="toolbar"><button id="draw">框选新区域</button><button id="split">拆分当前区域</button><button id="merge">合并勾选区域</button><button id="reload">刷新</button></div>
+<div id="canvas"><img id="original" alt="原始作业页"><svg id="overlay" aria-label="识别区域"></svg></div><p>可滚动查看原图。框选保留原始像素；不删除涂改、不补画缺失笔画。拆分：在父区域内连续画至少两个框，再点“完成拆分”。</p></section>
+<section class="editor"><div id="summary"></div><div id="regions"></div><div id="editing" hidden>
+<h2 id="sampleTitle">区域</h2><img id="crop" alt="当前原始裁剪"><div id="risk"></div><div id="candidates"></div>
+<label>实际写下的文字 / LaTeX<textarea id="text" rows="5" spellcheck="false"></textarea></label><div id="mathPreview" aria-label="公式预览"></div>
+<div class="fields"><label>内容 <select id="type"><option value="unknown">待分类</option><option value="english-line">英文行</option><option value="english-word">英文单词</option><option value="math-expression">数学表达式</option><option value="math-symbol">数学符号</option><option value="glyph">可靠单字符</option><option value="page">页面结构</option></select></label>
+<label>书写者/区域 <select id="role"><option value="unknown">待确认</option><option value="personal-handwriting">本人手写</option><option value="printed">印刷内容</option><option value="other-writer">他人书写/批注</option><option value="mixed">混合，需拆分</option></select></label>
+<label>墨迹质量 <select id="quality"><option value="unassessed">待判断</option><option value="clean">清晰完整，可用于生成训练</option><option value="readable-correction">有涂改但可读，仅识别研究</option><option value="unusable">遮挡/不可可靠转写，排除</option></select></label></div>
+<fieldset id="defects"><legend>缺陷标记（可多选）</legend></fieldset>
+<label>备注<textarea id="notes" rows="2"></textarea></label>
+<label><input type="checkbox" id="privacy">已检查姓名、学号等隐私；此区域可进入本地数据集</label>
+<label class="attest"><input type="checkbox" id="attest">我已对照原图，确认实际转写、完整边界及书写者。公式照实记录，即使原解答有误。</label>
+<div class="actions"><button id="save">保存待复核</button><button id="verify">确认转写</button><button id="reject">排除此区域</button></div>
+<details><summary>来源与操作历史</summary><pre id="history"></pre></details>
+</div></section></main></body></html>

@@ -102,7 +102,9 @@ def import_file(
         for index in indices:
             page_id = "p-" + digest([sha, index])[:32]
             try:
-                corpus.get("page", page_id)
+                existing = corpus.get("page", page_id)
+                for name in ("color_image", "ink_image", "background_image"):
+                    corpus.path(existing[name])
                 continue
             except KeyError:
                 pass

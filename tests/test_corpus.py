@@ -1,14 +1,13 @@
 """Corpus safety tests use synthetic fixtures, never counted as personal research data."""
 
 import json
-from pathlib import Path
 
 import numpy as np
 import pytest
 from PIL import Image, ImageDraw
 from pypdf import PdfReader, PdfWriter
 
-from research.corpus.dataset import export_dataset, split_for
+from research.corpus.dataset import export_dataset, frozen_splits, split_for
 from research.corpus.ingest import import_file
 from research.corpus.store import Conflict, Corpus
 from research.corpus.train import validate_dataset
@@ -210,3 +209,62 @@ def test_duplicate_document_quarantine_and_session_split(corpus, tmp_path):
     result = export_dataset(c, tmp_path / "dups")
     assert result["eligible_samples"] == 0 and result["near_duplicate_pairs"] == 1
     assert split_for("a") == split_for("a")
+
+
+def test_balanced_split_freezes_independent_groups_and_never_reshuffles(corpus):
+    c, _ = corpus
+    docs = {str(i): {"split_group": str(i)} for i in range(7)}
+    plan = frozen_splits(c, docs, 902)
+    assert set(plan["assignments"].values()) == {"train", "validation", "holdout"}
+    docs["later"] = {"split_group": "later"}
+    updated = frozen_splits(c, docs, 902)
+    assert all(updated["assignments"][g] == split for g, split in plan["assignments"].items())
+    with pytest.raises(ValueError):
+        frozen_splits(c, docs, 903)
+
+
+def test_studio_local_auth_persistence_and_revision_conflict(corpus):
+    import http.client
+    import re
+    import threading
+
+    from research.corpus.studio import server
+
+    c, _ = corpus
+    s = sample(c)
+    service = server(c, port=0)
+    thread = threading.Thread(target=service.serve_forever, daemon=True)
+    thread.start()
+    connection = http.client.HTTPConnection("127.0.0.1", service.server_port)
+    try:
+        connection.request("GET", "/")
+        response = connection.getresponse()
+        html = response.read().decode()
+        token = re.search(r'name="corpus-token" content="([^"]+)"', html)[1]
+        request = {
+            "sample_id": s["sample_id"],
+            "revision": 0,
+            "actor": "unit-fixture",
+            "changes": {"candidate_text": "B", "review_status": "needs-review"},
+        }
+        headers = {"Content-Type": "application/json", "X-Corpus-Token": token}
+        for extra, expected in [
+            ({"X-Corpus-Token": "wrong"}, 403),
+            ({"Origin": "https://external.example"}, 403),
+            ({}, 200),
+            ({}, 409),
+        ]:
+            connection.request("POST", "/api/review", json.dumps(request), {**headers, **extra})
+            response = connection.getresponse()
+            response.read()
+            assert response.status == expected
+        assert Corpus(c.root).get("sample", s["sample_id"])["candidate_text"] == "B"
+        connection.request("GET", "/api/state", headers={"Host": "external.example"})
+        response = connection.getresponse()
+        response.read()
+        assert response.status == 403
+    finally:
+        connection.close()
+        service.shutdown()
+        service.server_close()
+        thread.join()
