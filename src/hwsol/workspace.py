@@ -24,6 +24,17 @@ def workspace_root(path: Path | None = None) -> Path:
     return (path or Path(os.environ.get("HWSOL_WORKSPACE", "workspace"))).expanduser().resolve()
 
 
+def profile_store(workspace: Path | None = None):
+    from hwsol.profiles.store import ProfileStore
+
+    settings = workspace_root(workspace) / "workspace.json"
+    if not os.environ.get("HWSOL_DATA_DIR") and settings.is_file():
+        configured = json.loads(settings.read_text()).get("profile_store")
+        if configured:
+            return ProfileStore(Path(configured))
+    return ProfileStore()
+
+
 def hardware() -> dict:
     """No model imports and no device allocation; CUDA readiness is a separate lab check."""
     return {
@@ -184,9 +195,8 @@ def render_assignment(
     latest: bool = True,
 ) -> dict:
     from hwsol.jobs.runtime import load_job, render_job
-    from hwsol.profiles.store import ProfileStore
 
-    store = store or ProfileStore()
+    store = store or profile_store(workspace)
     if output and output.exists() and any(output.iterdir()):
         raise ValueError("Compatibility export must be new or empty")
     run = Run.create(

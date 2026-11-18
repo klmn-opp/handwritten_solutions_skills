@@ -50,7 +50,10 @@ def latest(path: Annotated[Path | None, typer.Option()] = None):
 
 def emit(function):
     try:
-        typer.echo(json.dumps(function(), ensure_ascii=False, indent=2))
+        value = function()
+        typer.echo(json.dumps(value, ensure_ascii=False, indent=2))
+        if value.get("status") in {"failed", "held", "blocked"}:
+            raise typer.Exit(2)
     except (OSError, ValueError, KeyError) as exc:
         typer.echo(json.dumps({"status": "failed", "error": str(exc)}), err=True)
         raise typer.Exit(2) from exc

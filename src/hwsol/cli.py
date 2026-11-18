@@ -9,6 +9,7 @@ from fontTools.ttLib import TTFont
 from hwsol.adapters.base import RenderError
 from hwsol.adapters.handnote import HandnoteAdapter
 from hwsol.adapters.markdown_to_handwrite import MarkdownToHandwriteAdapter
+from hwsol.benchmarks.cli import benchmark
 from hwsol.config import RenderConfig, data_dir
 from hwsol.lab.cli import lab
 from hwsol.probe import digest, run_probe
@@ -23,6 +24,7 @@ app.add_typer(profiles, name="profiles")
 app.add_typer(lab, name="lab")
 app.add_typer(studio, name="profile")
 app.add_typer(workspace, name="workspace")
+app.add_typer(benchmark, name="benchmark")
 
 
 def fail(exc: Exception) -> None:

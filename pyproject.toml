@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "handwritten-solutions"
-version = "0.4.0"
+version = "0.6.0"
 description = "Local Agent Skill for verified handwritten homework PDFs and versioned handwriting profiles"
 readme = "README.md"
 requires-python = ">=3.12,<3.14"
@@ -30,6 +30,7 @@ dependencies = [
 [project.scripts]
 hwsol = "hwsol.cli:app"
 hwsol-studio = "hwsol.profile_cli:studio"
+hwsol-benchmark = "hwsol.benchmarks.cli:app"
 
 [dependency-groups]
 dev = ["pytest==9.2.0", "ruff==0.17.5", "build==1.6.1"]
@@ -38,7 +39,7 @@ dev = ["pytest==9.2.0", "ruff==0.17.5", "build==1.6.1"]
 where = ["src"]
 
 [tool.setuptools.package-data]
-hwsol = ["assets/presets/patrick-hand/*", "_build.json"]
+hwsol = ["assets/presets/patrick-hand/*", "assets/benchmarks/v1/*", "_build.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

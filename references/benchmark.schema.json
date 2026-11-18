@@ -1,0 +1,237 @@
+{
+  "$defs": {
+    "Case": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^(smoke|core|stress|holdout)-[a-z0-9-]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "suite": {
+          "enum": [
+            "smoke",
+            "core",
+            "stress",
+            "holdout"
+          ],
+          "title": "Suite",
+          "type": "string"
+        },
+        "category": {
+          "enum": [
+            "linear-algebra",
+            "calculus",
+            "statistics",
+            "physics",
+            "english",
+            "layout",
+            "edge"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "complexity": {
+          "enum": [
+            "medium",
+            "high",
+            "extreme"
+          ],
+          "title": "Complexity",
+          "type": "string"
+        },
+        "source": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Source",
+          "type": "object"
+        },
+        "question": {
+          "minLength": 1,
+          "title": "Question",
+          "type": "string"
+        },
+        "input_format": {
+          "enum": [
+            "text",
+            "image",
+            "pdf"
+          ],
+          "title": "Input Format",
+          "type": "string"
+        },
+        "reference_solution": {
+          "minLength": 1,
+          "title": "Reference Solution",
+          "type": "string"
+        },
+        "reference_verification": {
+          "$ref": "#/$defs/ReferenceVerification"
+        },
+        "expected": {
+          "$ref": "#/$defs/Expected"
+        },
+        "paper": {
+          "enum": [
+            "plain",
+            "lined",
+            "grid",
+            "dots",
+            "image",
+            "pdf"
+          ],
+          "title": "Paper",
+          "type": "string"
+        },
+        "isolation": {
+          "additionalProperties": {
+            "type": "boolean"
+          },
+          "title": "Isolation",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "suite",
+        "category",
+        "complexity",
+        "source",
+        "question",
+        "input_format",
+        "reference_solution",
+        "reference_verification",
+        "expected",
+        "paper",
+        "isolation"
+      ],
+      "title": "Case",
+      "type": "object"
+    },
+    "Equality": {
+      "additionalProperties": false,
+      "properties": {
+        "lhs": {
+          "minLength": 1,
+          "title": "Lhs",
+          "type": "string"
+        },
+        "rhs": {
+          "minLength": 1,
+          "title": "Rhs",
+          "type": "string"
+        }
+      },
+      "required": [
+        "lhs",
+        "rhs"
+      ],
+      "title": "Equality",
+      "type": "object"
+    },
+    "Expected": {
+      "additionalProperties": false,
+      "properties": {
+        "outcome": {
+          "enum": [
+            "render",
+            "reject"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "error_contains": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Error Contains"
+        },
+        "page_count": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Page Count",
+          "type": "integer"
+        },
+        "no_clipping": {
+          "title": "No Clipping",
+          "type": "boolean"
+        },
+        "structures": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Structures",
+          "type": "array"
+        }
+      },
+      "required": [
+        "outcome",
+        "error_contains",
+        "page_count",
+        "no_clipping",
+        "structures"
+      ],
+      "title": "Expected",
+      "type": "object"
+    },
+    "ReferenceVerification": {
+      "additionalProperties": false,
+      "properties": {
+        "method": {
+          "title": "Method",
+          "type": "string"
+        },
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/Equality"
+          },
+          "title": "Checks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "method",
+        "checks"
+      ],
+      "title": "ReferenceVerification",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "benchmark_version": {
+      "title": "Benchmark Version",
+      "type": "string"
+    },
+    "license": {
+      "title": "License",
+      "type": "string"
+    },
+    "cases": {
+      "items": {
+        "$ref": "#/$defs/Case"
+      },
+      "title": "Cases",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "benchmark_version",
+    "license",
+    "cases"
+  ],
+  "title": "Corpus",
+  "type": "object"
+}

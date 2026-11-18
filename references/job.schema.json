@@ -448,6 +448,15 @@
       "title": "Schema Version",
       "type": "integer"
     },
+    "backend": {
+      "default": "font-cpu",
+      "enum": [
+        "font-cpu",
+        "diffink-experimental"
+      ],
+      "title": "Backend",
+      "type": "string"
+    },
     "realism": {
       "default": "baseline",
       "enum": [
