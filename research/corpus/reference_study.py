@@ -60,10 +60,18 @@ def train(
     real_per_batch: int = 4,
     real_sampling: str = "balanced",
     all_variant_selection: bool = False,
+    allow_data_extension: bool = False,
 ) -> Path:
     if not 1000 <= steps <= 12000 or not 0 < learning_rate <= 0.001:
         raise ValueError("Training bounds violated")
     manifest = validate_views(data)
+    if allow_data_extension:
+        from research.corpus.dataset_extension import certify_extension
+
+        parent = manifest.get("extension", {}).get("parent_data")
+        if parent is None or resume is None:
+            raise ValueError("Explicit extension requires a certified parent and checkpoint")
+        certify_extension(Path(parent), data, write=False)
     if real_per_batch not in {0, 1, 2, 4} or real_sampling not in {"balanced", "proportional"}:
         raise ValueError("Unknown source sampling protocol")
     config = dict(
@@ -84,6 +92,7 @@ def train(
         "seed": seed,
         "arrays_sha256": sha256(data / "arrays.npz"),
         "manifest_sha256": sha256(data / "manifest.json"),
+        "allow_data_extension": allow_data_extension,
     }
     if resume:
         verify_run(resume)
@@ -139,6 +148,7 @@ if __name__ == "__main__":
     t.add_argument("--real-per-batch", type=int, default=4)
     t.add_argument("--real-sampling", choices=["balanced", "proportional"], default="balanced")
     t.add_argument("--all-variant-selection", action="store_true")
+    t.add_argument("--allow-data-extension", action="store_true")
     args = parser.parse_args()
     if args.command == "prepare":
         print(prepare(args.dataset))
@@ -153,5 +163,6 @@ if __name__ == "__main__":
                 real_per_batch=args.real_per_batch,
                 real_sampling=args.real_sampling,
                 all_variant_selection=args.all_variant_selection,
+                allow_data_extension=args.allow_data_extension,
             )
         )

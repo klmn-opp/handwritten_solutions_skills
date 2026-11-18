@@ -27,16 +27,17 @@ def test_holdout_never_opens_without_matching_freeze(tmp_path, monkeypatch):
         reference_test.evaluate(sample.path, tmp_path, split="holdout", frozen=frozen.path)
 
 
-def test_external_crops_must_match_pdf_and_split(tmp_path, monkeypatch):
+@pytest.mark.parametrize("dpi", [150, 300])
+def test_external_crops_must_match_pdf_and_split(tmp_path, monkeypatch, dpi):
     import pypdfium2 as pdfium
 
     pdf = tmp_path / "original.pdf"
     ink = np.full((100, 100, 3), 255, np.uint8)
     ink[25:75, 45:50] = 0
-    Image.fromarray(ink).save(pdf, resolution=150)
+    Image.fromarray(ink).save(pdf, resolution=dpi)
     doc = pdfium.PdfDocument(pdf)
     page = doc[0]
-    raster = page.render(scale=150 / 72).to_pil().convert("RGB")
+    raster = page.render(scale=dpi / 72).to_pil().convert("RGB")
     page.close()
     doc.close()
     original = tmp_path / "page.png"
@@ -76,7 +77,7 @@ def test_external_crops_must_match_pdf_and_split(tmp_path, monkeypatch):
         "annotation_reasoning_effort": "xhigh",
         "human_review": False,
         "candidate_label": "1",
-        "render_dpi": 150,
+        "render_dpi": dpi,
         "source_pdf_path": str(pdf),
         "page_image_path": str(original),
         "source_image_sha256": sha256(original),

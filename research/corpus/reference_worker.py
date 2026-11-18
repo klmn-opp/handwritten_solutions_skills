@@ -59,8 +59,9 @@ def main(request_path: Path):
         if sha256(source) != request["resume_sha256"]:
             raise ValueError("Resume checkpoint changed")
         old = torch.load(source, weights_only=True, map_location="cuda")
-        if old["labels"] != labels or old["arrays_sha256"] != request["arrays_sha256"]:
-            raise ValueError("Continuation data/class mismatch")
+        from research.corpus.reference_lineage import verify_continuation
+
+        verify_continuation(request, old)
         model.load_state_dict(old["model"])
         optimizer.load_state_dict(old["optimizer"])
         for group in optimizer.param_groups:

@@ -27,6 +27,14 @@ def validate_package(package: Path, data: Path, split: str) -> list[dict]:
     )
     source_rows = [json.loads(line) for line in source_manifest.read_text().splitlines()]
     doc_splits = {r["source_hash"]: r["dataset_split"] for r in source_rows}
+    snapshot_path = source_manifest.parent / "review-snapshot.json"
+    plan_path = source_manifest.parent / "split-plan.json"
+    if snapshot_path.exists() and plan_path.exists():
+        plan = json.loads(plan_path.read_text())["assignments"]
+        for doc in json.loads(snapshot_path.read_text()).get("document", []):
+            assigned = plan[doc["split_group"]]
+            if doc_splits.setdefault(doc["source_hash"], assigned) != assigned:
+                raise ValueError("Frozen document split changed")
     existing_hashes = {r["crop_sha256"] for r in source_rows}
     rows = json.loads((package / "reports/proposals.json").read_text())
 
@@ -35,11 +43,15 @@ def validate_package(package: Path, data: Path, split: str) -> list[dict]:
         return sha256(Path(path))
 
     @cache
-    def page(path, number):
+    def page(path, number, dpi):
         with pdfium.PdfDocument(path) as doc:
             pdf_page = doc[number - 1]
             try:
-                return np.asarray(pdf_page.render(scale=150 / 72).to_pil().convert("RGB")).copy()
+                bitmap = pdf_page.render(scale=dpi / 72)
+                try:
+                    return np.asarray(bitmap.to_pil().convert("RGB")).copy()
+                finally:
+                    bitmap.close()
             finally:
                 pdf_page.close()
 
@@ -60,7 +72,7 @@ def validate_package(package: Path, data: Path, split: str) -> list[dict]:
             or row["annotation_reasoning_effort"] != "xhigh"
             or row["human_review"]
             or len(row["candidate_label"]) != 1
-            or row["render_dpi"] != 150
+            or row["render_dpi"] not in {150, 300}
         ):
             raise ValueError("Uncertain, damaged, untraceable or incorrectly split external sample")
         for path, digest in [
@@ -73,12 +85,14 @@ def validate_package(package: Path, data: Path, split: str) -> list[dict]:
         if row["crop_sha256"] in existing_hashes:
             raise ValueError("Duplicate real crop in new independent package")
         existing_hashes.add(row["crop_sha256"])
-        original = page(row["source_pdf_path"], row["source_pdf_page_number"])
+        original = page(row["source_pdf_path"], row["source_pdf_page_number"], row["render_dpi"])
         saved_page = np.asarray(Image.open(row["page_image_path"]).convert("RGB"))
         if not np.array_equal(original, saved_page):
             raise ValueError("Saved page differs from original PDF rendering")
         x0, y0, x1, y1 = row["bbox"]
-        if not (0 <= x0 < x1 <= original.shape[1] and 0 <= y0 < y1 <= original.shape[0]):
+        if not all(type(v) is int for v in row["bbox"]) or not (
+            0 <= x0 < x1 <= original.shape[1] and 0 <= y0 < y1 <= original.shape[0]
+        ):
             raise ValueError("Invalid crop boundary")
         crop = np.asarray(Image.open(row["crop_path"]).convert("RGB"))
         if not np.array_equal(original[y0:y1, x0:x1], crop):

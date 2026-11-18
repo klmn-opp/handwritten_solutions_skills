@@ -131,7 +131,7 @@ def export_views(profile, dataset: Path, destination: Path) -> dict:
         label = label_text(row)
         if label not in labels or row["dataset_split"] not in {"train", "validation"}:
             continue
-        if row["content_type"] not in {"glyph", "symbol"}:
+        if row["content_type"] not in {"glyph", "math-symbol"}:
             continue
         ink, transform = align_real(Path(row["image_crop"]), references[label])
         record = {
