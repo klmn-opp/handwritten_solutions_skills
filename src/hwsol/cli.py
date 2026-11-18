@@ -10,6 +10,7 @@ from hwsol.adapters.base import RenderError
 from hwsol.adapters.handnote import HandnoteAdapter
 from hwsol.adapters.markdown_to_handwrite import MarkdownToHandwriteAdapter
 from hwsol.config import RenderConfig, data_dir
+from hwsol.lab.cli import lab
 from hwsol.probe import digest, run_probe
 from hwsol.profile_cli import profiles, studio
 from hwsol.profiles.store import ProfileStore
@@ -18,6 +19,7 @@ app = typer.Typer(
     no_args_is_help=True, help="Handwritten Solutions — local Profiles, CPU Studio and rendering."
 )
 app.add_typer(profiles, name="profiles")
+app.add_typer(lab, name="lab")
 app.add_typer(studio, name="profile")
 
 
