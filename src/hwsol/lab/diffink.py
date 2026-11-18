@@ -147,6 +147,15 @@ class DiffInkAdapter:
                 for key, value in manifest.items()
             }
             source = json.loads((self.research / "upstream-files.json").read_text())
+            record = run.record()
+            record["checkpoints"] = {k: v for k, v in assets.items() if k in {"vae", "dit"}}
+            record["config"].update(
+                upstream_commit=source["commit"],
+                worker_sha256=sha256(self.research / "reproduce.py"),
+                dependency_lock_sha256=sha256(self.research / "requirements-inference.lock"),
+                asset_verification="pending isolated worker",
+            )
+            atomic_json(run.path / "run.json", record)
             vocabulary = json.loads(Path(assets["vocabulary"]["path"]).read_text())
             data = json.loads(reference.read_text())
             constraints = validate_reference(data, text, vocabulary)
@@ -170,13 +179,7 @@ class DiffInkAdapter:
             }
             atomic_json(run.path / "reports/request.json", request)
             record = run.record()
-            record["checkpoints"] = {k: v for k, v in assets.items() if k in {"vae", "dit"}}
-            record["config"].update(
-                constraints=constraints,
-                upstream_commit=source["commit"],
-                worker_sha256=sha256(self.research / "reproduce.py"),
-                dependency_lock_sha256=sha256(self.research / "requirements-inference.lock"),
-            )
+            record["config"]["constraints"] = constraints
             atomic_json(run.path / "run.json", record)
             with (
                 (run.path / "logs/stdout.txt").open("w") as stdout,
@@ -230,6 +233,7 @@ class DiffInkAdapter:
             )
             record = run.record()
             record["hardware"]["cuda"] = report["hardware"]
+            record["config"]["asset_verification"] = "passed by isolated worker"
             atomic_json(run.path / "run.json", record)
             return run.finish(
                 "held",

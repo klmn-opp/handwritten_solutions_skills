@@ -46,6 +46,13 @@ def main():
             verify_run(root)
             native = root / "rendered/pages/01.png"
             image = Image.open(native).convert("L")
+            native_box = ImageChops.invert(image).point(lambda x: 255 if x >= 50 else 0).getbbox()
+            touches_border = bool(native_box) and (
+                native_box[0] == 0
+                or native_box[1] == 0
+                or native_box[2] == image.width
+                or native_box[3] == image.height
+            )
             if root == args.font_run:
                 report = json.loads((root / "rendered/validation_report.json").read_text())
                 glyphs = report["pages"][0]["glyph_provenance"]
@@ -90,6 +97,7 @@ def main():
                     "run": str(root),
                     "run_sha256": sha256(root / "run.json"),
                     "native_png_sha256": sha256(native),
+                    "native_ink_touches_border": touches_border,
                     "normalized_png_sha256": sha256(path),
                     "transcription": actual,
                     "scores": transcription_scores(text, actual),
@@ -111,6 +119,13 @@ def main():
             {
                 "text": text,
                 "rows": rows,
+                "candidate_policy": "exact OCR match and no boundary ink required before style ranking",
+                "eligible_model_candidates": [
+                    row["run"]
+                    for row in rows[1:]
+                    if row["scores"]["exact_match"] and not row["native_ink_touches_border"]
+                ],
+                "model_published": False,
                 "interpretation": "One smoke sentence; not benchmark or human style acceptance",
             },
         )
