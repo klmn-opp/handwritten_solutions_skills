@@ -34,3 +34,6 @@ out/
 /.release-work/
 *.pt
 *.pkl
+
+# Private historical homework inbox (v0.9).
+/source_pdf/
