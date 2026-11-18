@@ -1,0 +1,128 @@
+{
+  "assignment": "0053f5da4520789bf3a70d023459867bb80071a6f998e8e68d07332a061d8c76",
+  "preview_page": 3,
+  "modes": {
+    "baseline": {
+      "pdf_sha256": "08c02f8d24f285fc8c373ca18f03463847435683be6fc69e28a3552cea0afe5e",
+      "pixel_verification": {
+        "status": "passed",
+        "page_count": 5,
+        "problem_order": [
+          "2",
+          "4",
+          "6",
+          "7",
+          "9"
+        ]
+      },
+      "changed_pixels_by_page": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "math_geometry_matches_baseline": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "verified_equalities": 5
+    },
+    "layout-enhanced": {
+      "pdf_sha256": "6bcc4432c04b912bcb02764ad15be6d688b0d4505ddcd6e17f17664ab684681e",
+      "pixel_verification": {
+        "status": "passed",
+        "page_count": 5,
+        "problem_order": [
+          "2",
+          "4",
+          "6",
+          "7",
+          "9"
+        ]
+      },
+      "changed_pixels_by_page": [
+        11626,
+        16253,
+        16221,
+        9192,
+        8685
+      ],
+      "math_geometry_matches_baseline": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "verified_equalities": 5
+    },
+    "stroke-enhanced": {
+      "pdf_sha256": "40f939f2e4e33dd6479cfa4426a8c9e539d83d9250e23421c1f1df4e5e1f498d",
+      "pixel_verification": {
+        "status": "passed",
+        "page_count": 5,
+        "problem_order": [
+          "2",
+          "4",
+          "6",
+          "7",
+          "9"
+        ]
+      },
+      "changed_pixels_by_page": [
+        5865,
+        6997,
+        7427,
+        3154,
+        3275
+      ],
+      "math_geometry_matches_baseline": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "verified_equalities": 5
+    },
+    "combined": {
+      "pdf_sha256": "0676bf0b7cb33d9618e9290aa87de725d8e3137b5b1ce4093a15fc04d75a9300",
+      "pixel_verification": {
+        "status": "passed",
+        "page_count": 5,
+        "problem_order": [
+          "2",
+          "4",
+          "6",
+          "7",
+          "9"
+        ]
+      },
+      "changed_pixels_by_page": [
+        12182,
+        17056,
+        17104,
+        9530,
+        9117
+      ],
+      "math_geometry_matches_baseline": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "verified_equalities": 5
+    }
+  },
+  "profile": {
+    "reference": "demo@v2",
+    "manifest_sha256": "8cd1c862c6a1c2cc0a058f22ef715cbf1c812ab5a277627f755c99d400c4bcd0",
+    "source_kind": "personal-assets",
+    "distribution": "local-only"
+  }
+}

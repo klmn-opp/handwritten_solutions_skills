@@ -56,8 +56,10 @@ class HandnoteAdapter:
     def render(self, source: str, font: Path, config: RenderConfig, output: Path) -> RenderResult:
         from handnote.coverage import document_chars, font_codepoints
         from handnote.markdown import parse
-        from handnote.render import Renderer, flatten
+        from handnote.render import flatten
         from matplotlib import rc_context
+
+        from hwsol.adapters.profile_renderer import ProfileRenderer
 
         blocks = parse(source)
         if not blocks:
@@ -69,7 +71,7 @@ class HandnoteAdapter:
             raise RenderError(f"Text glyphs missing from selected font: {''.join(missing_text)}")
         cfg = upstream_config(font, config, self.real_variants)
         with RENDER_LOCK, rc_context():
-            renderer = Renderer(cfg)
+            renderer = ProfileRenderer(cfg)
             coverage = renderer.coverage(blocks)
             images = renderer.render(blocks)
             pdf = renderer.pdf(blocks, images)

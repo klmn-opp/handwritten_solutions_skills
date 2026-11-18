@@ -1,0 +1,16 @@
+{
+  "schema_version": 1, "width": 600, "height": 800, "em": 24,
+  "lines": [
+    {"kind": "text", "text": "Two measured words", "baseline": [[70, 80], [146, 81], [278, 78]],
+     "words": [[70, 110], [118, 218], [226, 278]]},
+    {"kind": "text", "text": "The next line", "baseline": [[72, 121], [178, 122], [273, 120]],
+     "words": [[72, 113], [121, 198], [207, 273]]},
+    {"kind": "math", "text": "x=2", "baseline": [[104, 162], [215, 162]]}
+  ],
+  "traces": [
+    {"kind": "glyph", "text": "x", "strokes": [
+      [{"x":104,"y":146,"time":0,"pressure":0.40},{"x":116,"y":162,"time":18,"pressure":0.6}],
+      [{"x":116,"y":146,"time":24,"pressure":0.50},{"x":104,"y":162,"time":42,"pressure":0.5}]
+    ]}
+  ]
+}

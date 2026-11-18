@@ -1,0 +1,99 @@
+{
+  "environment_default_data_dir": "/home/klmn/.local/share/handwritten-solutions",
+  "environment_default_settings": {},
+  "selected_store_settings": {
+    "default_profile": "personal@v1",
+    "active_versions": {
+      "personal-round1": "v1",
+      "personal": "v1"
+    }
+  },
+  "existing_latest_verify": {
+    "status": "passed",
+    "page_count": 5,
+    "problem_order": [
+      "2",
+      "4",
+      "6",
+      "7",
+      "9"
+    ]
+  },
+  "fresh_replay_verify": {
+    "status": "passed",
+    "page_count": 5,
+    "problem_order": [
+      "2",
+      "4",
+      "6",
+      "7",
+      "9"
+    ]
+  },
+  "pdf_and_png_replay": {
+    "homework_solutions.pdf": true,
+    "pages/01.png": true,
+    "pages/02.png": true,
+    "pages/03.png": true,
+    "pages/04.png": true,
+    "pages/05.png": true
+  },
+  "mode_probe": {
+    "baseline": {
+      "verify": {
+        "status": "passed",
+        "page_count": 1,
+        "problem_order": [
+          "6"
+        ]
+      },
+      "personal_math_stroke_replacements": 3,
+      "glyph_ink": "fill-only",
+      "math_size": "body-em/full-size-fractions",
+      "text_variant_size": "font-native",
+      "pdf_sha256": "7c8d4e99c7eeae44570eb7a3bc1f33c170dce633b302aa098f4766fc982fc3ec"
+    },
+    "layout-enhanced": {
+      "verify": {
+        "status": "passed",
+        "page_count": 1,
+        "problem_order": [
+          "6"
+        ]
+      },
+      "personal_math_stroke_replacements": 3,
+      "glyph_ink": "fill-only",
+      "math_size": "body-em/full-size-fractions",
+      "text_variant_size": "font-native",
+      "pdf_sha256": "0f08bc697533367fe4f6ab24a41611124c9ddf09914040036fda17accfa52a4c"
+    },
+    "stroke-enhanced": {
+      "verify": {
+        "status": "passed",
+        "page_count": 1,
+        "problem_order": [
+          "6"
+        ]
+      },
+      "personal_math_stroke_replacements": 3,
+      "glyph_ink": "fill-only",
+      "math_size": "body-em/full-size-fractions",
+      "text_variant_size": "character-primary-height-band-95-105pct",
+      "pdf_sha256": "33fef6ad6379b6e65109932b2d90e65365dd256884af896c591d3a6b85a02ff3"
+    },
+    "combined": {
+      "verify": {
+        "status": "passed",
+        "page_count": 1,
+        "problem_order": [
+          "6"
+        ]
+      },
+      "personal_math_stroke_replacements": 3,
+      "glyph_ink": "fill-only",
+      "math_size": "body-em/full-size-fractions",
+      "text_variant_size": "character-primary-height-band-95-105pct",
+      "pdf_sha256": "6c3772bab98a0830a96c4365c825ad4eb1ab2bfc40a9e83bf67e9ddecc686de5"
+    }
+  }
+}

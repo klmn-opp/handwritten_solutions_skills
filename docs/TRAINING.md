@@ -82,3 +82,42 @@ hwsol profiles import --source /path/to/my-handwriting-v2.zip
 个人字体/样本许可默认是未知的本地用途记录；不自动获得分发许可。基底 OFL 和用户提供的许可文本随版本携带，
 合并字体更改 family 名称；`local-only` 是发布策略，不能取消字体本来的许可义务。
 本项目不上传样本、作业或字体。获授权的真实作者笔迹仍待提供，bundled-default 继续明确标为测试字体。
+
+## 单词、整行和整页布局校准
+
+每次 `--kind calibration` 导入一页标注 JSON。坐标原点在左上，x 向右、y 向下；width、height、em、所有坐标统一用原始页像素或平板单位。em 取正文的参考字号尺度，应在同一作者各页使用一致的估计方式。每条基线按书写方向标出若干点，从首词左缘到末词右缘；words 列表可记录每个词的左右墨迹边界。text 与 math 分开标注。traces 支持 glyph、word、line、math，记录原文和分笔段 strokes；每个新段表示一次抬笔后重新落笔。点必有 x、y，time 与 0–1 的 pressure 仅在设备有记录时填写。[合成格式示例](../examples/realism/calibration.json)
+
+对于照片或扫描，先选定每一行的紧致矩形和转写。regions.json 形如 `{"em":24,"lines":[{"kind":"text","text":"Two words","box":[20,40,200,75]}]}`，box 为校正 EXIF 方向后的左、上、右、下像素坐标。PDF 可先用 `hwsol read-page` 转成逐页 PNG。以下命令根据标注区域的前景投影估计基线和词间空白，再核对生成的 JSON。表格线、背景纹理、交叉行和相连的单词需要人工修正。扫描只产生几何观察量。
+
+```bash
+hwsol profile measure-page --source page.png --regions regions.json --output page-layout.json
+hwsol profile import --profile my-handwriting --kind calibration --source page-layout.json
+hwsol profile train --profile my-handwriting --append
+hwsol profile evaluate --profile my-handwriting --version v1
+hwsol profile publish --profile my-handwriting --version v1
+```
+
+原始 JSON 留在 samples 中。训练累积所有 accepted 轮次和基底的校准页，写入摘要绑定的 calibration.json，包括缩进、基线、词距、页面上下文及可用的笔压、下行笔段倾斜统计。校准评估额外生成 combined.pdf 供检查，发布前验证其摘要。自然段轨迹用于校准；生产文字仍由个人字体和多字形轮廓构成。单个数学字符的轮廓训练沿用原有字格模板。若希望把原始在线轨迹随快照迁移，在 train 时显式加 `--include-traces`。之后导出该版本也会导出原始轨迹、转写和相关模板。后续版本可独立选择该选项。
+
+## 本人均值横线与数学横线
+
+当前开发版支持从扫描中测量横线轮廓，经同一 `--kind calibration` 流程累积发布。
+标注 JSON 的 `math_strokes` 可单独存在，或和 `lines` 共存；原页摘要必须与每条横线的
+`source_sha256` 一致，裁剪框必须在页内。字段定义见 [Profile 格式](PROFILE_FORMAT.md)。
+先人工确认裁剪区域并隔离横线墨迹，再取沿 x 方向的上下边界；`measure-page` 尚不自动识别这些横线。
+照片不产生真实 time、pressure 或 pen-up 数据，`has_recorded_strokes` 仍为 false。
+
+Runtime 在 MathText 完成公式布局后，使用 `bar` 轮廓替换 U+0304 均值横线，使用 `rule` 轮廓
+替换水平数学矩形线段（包括分数线，以及根号、overline 的水平部分）。
+它保持线段原有横向范围和中心高度，用相邻字形间隙限制笔画上下起伏，随后以填充轮廓输出。
+这条路径在四种 realism 模式下均使用已发布的个人资产；没有样本的 Profile 保持原有行为。
+报告的 `handwriting.math_strokes` 保存来源、替换前后范围和垂直压缩比例；
+未替换的根号等回退仍会如实记录。这项校准不证明整体风格已达标，也不属于 RL 训练。
+
+用于提取横线的页面应归入训练材料，之后以另一份从未参与校准的手写页做自然度验收。
+
+## CPU 渲染策略强化学习
+
+当前开发版可通过 `hwsol lab rl prepare/train` 学习真实字形选择、笔宽一致性和相关变化的策略分布。
+它复用已发布 Profile，不重写字形、不产生新的笔顺或压感。自动指标预训练与人类偏好训练分别标记；
+数学错误先处理，策略不自动激活。命令、已跑结果与数据要求见 [RL 实验指南](RL_RENDERING.md)。

@@ -1,0 +1,12 @@
+03f3c76b169049879c85220b674749ea2f87eb13610398091c89ecb2f440b85b  docs/CURRENT_STATE_AUDIT.md
+297c3aec927d369b6e26e81a3d7126d146ecdde1d48e47ff47b243904f599626  docs/evidence/audit-2026-11-18/README.md
+ab40e8be93eb253d4ff10459252684a0a1968e9c80156d07e464aae9492775e6  docs/evidence/audit-2026-11-18/additional-checks.json
+c5d97822646326c3c89ea05917b50f453b66708f04eea86c9ce948549ee5c752  docs/evidence/audit-2026-11-18/document-checks.json
+82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18  docs/evidence/audit-2026-11-18/ruff-check.log
+eb27c90aa064a61ea9229c3acedb339696979cc4f1b6d1e8e8dd6eab0c1292a7  docs/evidence/audit-2026-11-18/ruff-format.log
+040fffacc4166b09180aa6d2b21ea310c9e70c78884e08faf43e56b489decd81  docs/evidence/audit-2026-11-18/runtime-checks.json
+a2bbcd53bd5c807f0205f7d8803cff5fbdd178d883105c105f6989aeecf15893  docs/evidence/audit-2026-11-18/snapshot.json
+d95c5c2566ab389383d442dfe86a3c6cf1302272689011988975e777bad18c26  docs/evidence/audit-2026-11-18/tests-py312.log
+56f249599d4753afb9ab61e1ef0355ddc8d30f92006552bf82e26c2ec6d3e85a  docs/evidence/audit-2026-11-18/tests-py312.xml
+2959973102d64c1f8381f881b7c2bce782f9a15ba1b05154a206c902a666dad4  docs/evidence/audit-2026-11-18/tests-py313.log
+b147560af56849debd960ea65e77e92ac002af470d5744dd42e819ea77f03d5f  docs/evidence/audit-2026-11-18/tests-py313.xml

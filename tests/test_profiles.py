@@ -197,10 +197,17 @@ from hwsol.cli import app
 root = Path(sys.argv[1]); src = root / "input.md"; src.write_text("Runtime $x=1$")
 result = CliRunner().invoke(app, ["render-probe", "--input", str(src), "--output", str(root/"out")])
 assert result.exit_code == 0, result.output
+job = Path(sys.argv[2]) / "examples/phase2/euler/job.json"
+result = CliRunner().invoke(app, ["render", "--manifest", str(job), "--output", str(root/"job"),
+                                 "--realism", "combined"])
+assert result.exit_code == 0, (result.output, result.exception)
 assert not any(n.startswith("hwsol.training") for n in sys.modules)
 """
     result = subprocess.run(
-        [sys.executable, "-c", code, str(tmp_path)], capture_output=True, text=True, timeout=30
+        [sys.executable, "-c", code, str(tmp_path), str(Path(__file__).resolve().parents[1])],
+        capture_output=True,
+        text=True,
+        timeout=30,
     )
     assert result.returncode == 0, result.stderr
 
@@ -367,3 +374,22 @@ def test_cff_otf_standalone_and_explicit_merge_limit(tmp_path):
     with pytest.raises(ProfileError, match="CFF OTF can be used alone"):
         train(store, "cff")
     assert store.resolve().manifest.ref == candidate
+
+
+def test_personal_math_cache_and_variants_in_production_job(tmp_path, capture_template):
+    from hwsol.jobs.layout import render_one
+    from hwsol.jobs.schema import Background
+
+    store = ProfileStore(tmp_path / "data")
+    for n in (1, 2):
+        capture(tmp_path, n, capture_template, store)
+    ref = train(store, "personal")["candidate"]
+    release(store, ref)
+    source = r"xx $x+x$ and $x+x$, with $\sigma$."
+    for profile in (store.resolve("bundled-default@v1"), store.resolve(ref)):
+        _, report = render_one(source, "1", profile, RenderConfig(), Background(), None, "combined")
+    uses = [g for g in report["glyph_sources"] if g["codepoint"] == "U+0078"]
+    assert {g["source"] for g in uses} == {"personal"}
+    assert {g["variant"] for g in uses if g["route"] == "math"} == {0, 1}
+    assert sum(g["count"] for g in uses) == 6
+    assert report["math_fallback_glyphs"] == [{"codepoint": "U+03C3", "font": "STIXGeneral.ttf"}]

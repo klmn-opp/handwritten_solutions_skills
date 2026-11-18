@@ -24,7 +24,7 @@ class Sample(FrozenModel):
     schema_version: Literal[1] = 1
     id: str = Field(pattern=r"^s-[a-f0-9]{32}$")
     profile: str
-    kind: Literal["font", "capture", "scan", "archive"]
+    kind: Literal["font", "capture", "scan", "archive", "calibration"]
     created_at: str
     files: tuple[Asset, ...]
     originals: tuple[str, ...]
@@ -126,6 +126,11 @@ def import_sample(
         if state == "accepted":
             try:
                 validate_source(sample, stage)
+                if sample.kind == "calibration":
+                    from hwsol.training.calibration import AnnotatedPage
+
+                    page = AnnotatedPage.model_validate_json((stage / originals[0]).read_bytes())
+                    sample = sample.model_copy(update={"has_recorded_strokes": bool(page.traces)})
             except (ValueError, KeyError, TypeError, OSError, TTLibError) as exc:
                 sample = sample.model_copy(
                     update={
@@ -140,7 +145,10 @@ def import_sample(
 
 
 def validate_source(sample: Sample, folder: Path) -> None:
-    if sample.kind == "font":
+    if sample.kind == "calibration":
+        if len(sample.originals) != 1 or sample.template:
+            raise ProfileError("Import one annotated page JSON per calibration round")
+    elif sample.kind == "font":
         from hwsol.profiles.fonts import inspect_font
 
         if len(sample.originals) != 1:

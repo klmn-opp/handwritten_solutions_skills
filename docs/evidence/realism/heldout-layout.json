@@ -1,0 +1,64 @@
+{
+  "source": "GNHK, Figure 1 (left), Lee, Chung & Lee 2021",
+  "paper_sha256": "db2a2fc37237bf6a1aedcdaef628147423252239989a37cc49ace6f61feddc2d",
+  "crop_xyxy": [
+    0,
+    0,
+    339,
+    452
+  ],
+  "reference_crop_sha256": "0922b49b98b534e9e9ee74fe8ed36acd4530b3c411e0bb461c3da47df80b007e",
+  "train_rows": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "heldout_rows": [
+    6,
+    7
+  ],
+  "annotated_em_px": 28,
+  "profile": {
+    "reference": "reference-layout@v1",
+    "manifest_sha256": "42b9b0733f872c6d2f3d484d165f2837287dac7e11da0c5e0d29d4658a1260db",
+    "source_kind": "personal-assets",
+    "distribution": "local-only"
+  },
+  "heading_excluded": true,
+  "heldout_x_fractions": [
+    0.22418879056047197,
+    0.2359882005899705
+  ],
+  "modes": {
+    "baseline": {
+      "x_fractions": [
+        0.0862207896857373,
+        0.0862207896857373
+      ],
+      "mean_absolute_left_edge_error_page_width": 0.14386770588948392
+    },
+    "layout-enhanced": {
+      "x_fractions": [
+        0.10394842868654311,
+        0.1571313456889605
+      ],
+      "mean_absolute_left_edge_error_page_width": 0.09954860838746943
+    },
+    "stroke-enhanced": {
+      "x_fractions": [
+        0.0854149879129734,
+        0.0862207896857373
+      ],
+      "mean_absolute_left_edge_error_page_width": 0.14427060677586587
+    },
+    "combined": {
+      "x_fractions": [
+        0.1031426269137792,
+        0.1571313456889605
+      ],
+      "mean_absolute_left_edge_error_page_width": 0.09995150927385138
+    }
+  }
+}

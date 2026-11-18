@@ -88,6 +88,19 @@ def make_template(
     return template(output, chars, sets)
 
 
+@studio.command("measure-page")
+@command
+def measure_page(
+    source: Annotated[Path, typer.Option()],
+    regions: Annotated[Path, typer.Option()],
+    output: Annotated[Path, typer.Option()],
+) -> dict:
+    """Measure a scanned page from transcribed line boxes in oriented image pixels."""
+    from hwsol.training.scan_layout import measure_scan
+
+    return measure_scan(source, regions, output)
+
+
 @studio.command("import")
 @command
 def import_samples(
@@ -128,12 +141,14 @@ def samples(profile: Annotated[str, typer.Option()]) -> dict:
 
 @studio.command("train")
 @command
-def train(profile: Annotated[str, typer.Option()], append: bool = True) -> dict:
+def train(
+    profile: Annotated[str, typer.Option()], append: bool = True, include_traces: bool = False
+) -> dict:
     from hwsol.training.studio import train as build
 
     if not append:
         raise ProfileError("Only cumulative --append builds are supported; history is retained")
-    return build(ProfileStore(), profile)
+    return build(ProfileStore(), profile, include_traces=include_traces)
 
 
 @studio.command("evaluate")

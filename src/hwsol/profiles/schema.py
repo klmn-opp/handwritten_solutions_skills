@@ -64,7 +64,7 @@ class FrozenModel(BaseModel):
 class Asset(FrozenModel):
     path: str
     sha256: Digest
-    role: Literal["font", "license", "provenance"]
+    role: Literal["font", "license", "provenance", "calibration", "trajectory"]
 
     @field_validator("path")
     @classmethod
@@ -110,6 +110,8 @@ class ProfileVersion(FrozenModel):
     @model_validator(mode="after")
     def consistency(self) -> "ProfileVersion":
         paths = [asset.path for asset in self.assets]
+        if sum(a.role == "calibration" for a in self.assets) > 1:
+            raise ProfileError("Only one cumulative calibration asset per snapshot")
         if len(set(p.casefold() for p in paths)) != len(paths):
             raise ProfileError("Duplicate asset paths")
         if not any(a.path == self.font and a.role == "font" for a in self.assets):
