@@ -204,3 +204,27 @@ model-evidence路径会被拒绝。保留完整Sol证据，不以代码生成的
 目前评估命令仅支持本次数字1试验。16张固定种子采样、真实Train/Holdout、个人字体和非学习扰动
 对照保存在新run；没有独立身份/风格评分前仍为held。字体对照为Pillow直接渲染personal@v1
 字形，不冒充整页Handnote排版对照。像素不同不证明自然变化或未记忆。
+
+
+## 可选Handnote辅助训练对照
+
+新增独立模块font_auxiliary与neural_study；默认Runtime和原train命令不受影响。
+辅助图通过Handnote轮廓与FontTools度量生成，标为personal-font-derived/auxiliary-train-only，
+保存Profile/font/sources与逐图摘要；不进入真实扫描统计或Holdout。不得把字体标签冒充人工确认。
+
+在CPU环境用`export_personal_font(profile_store().resolve("personal@v1"), new_directory)`
+创建不可覆盖辅助数据。每个新实验由CPU协调器核验后启动现有隔离Torch环境：
+
+```bash
+PYTHONPATH=.:src .venv/bin/python -m research.corpus.neural_study real-prior \
+  --dataset <frozen-dataset> --auxiliary <font-auxiliary> \
+  --initial-run <previous-sealed-training-run> --seed 902
+```
+
+stage包括real-control、real-prior、font-pretrain、font-finetune。最后一项必须读取真实font-pretrain
+封存权重。每阶段保存权重/优化器与协议，优化器显式重置；仅允许已有足够独立真实覆盖的数字1进入
+本次真实微调。73类字体辅助输出不自动取得这些类别的真实训练或生产资格。
+
+先封存候选再运行study_evaluation；模型摘要、测试原页/裁剪字节、Sol标注、边界及重复墨迹均校验。
+评估只读取冻结权重，模型图像、字体派生图、非学习扰动和原始扫描始终区分。
+本轮具体命令、数据、运行路径和结果见[V09_HANDNOTE_TRAINING](V09_HANDNOTE_TRAINING.md)。
