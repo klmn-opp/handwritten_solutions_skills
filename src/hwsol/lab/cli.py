@@ -15,7 +15,9 @@ OptionPath = Annotated[Path, typer.Option()]
 
 def call(function, *args, **kwargs):
     try:
-        return function(*args, **kwargs)
+        from hwsol.workspace import tracked_call
+
+        return tracked_call("lab-" + function.__name__, function, *args, **kwargs)
     except (ValueError, OSError, KeyError, subprocess.SubprocessError) as exc:
         typer.echo(
             json.dumps({"status": "failed", "error": str(exc)}, ensure_ascii=False), err=True

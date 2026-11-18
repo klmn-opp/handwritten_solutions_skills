@@ -1,0 +1,7 @@
+{
+  "engine": "tesseract 4.1.1",
+  "case_count": 10,
+  "micro_cer": 0.07555238774055595,
+  "micro_wer": 0.4270833333333333,
+  "interpretation": "OCR recoverability on English-only crops; not human naturalness or formula accuracy"
+}

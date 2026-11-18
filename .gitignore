@@ -14,6 +14,9 @@ out/
 /training-runs/
 /checkpoints/
 /jobs/
+/workspace/
+/docs/evidence/realism/*.pdf
+/docs/evidence/realism/*.png
 
 # Local execution state, credentials and planning scratchpads.
 /.agents/
