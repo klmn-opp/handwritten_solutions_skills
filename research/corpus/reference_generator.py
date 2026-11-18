@@ -86,6 +86,18 @@ def ink_from_sdf(sdf):
     return torch.sigmoid(sdf * (8 / 0.35))
 
 
+def prior_support_loss(prediction, support):
+    """Differentiable attraction to complete same-class training ink, not pixel copying.
+
+    A min-support regularizer can reduce diversity or increase memorization. Always
+    report those diagnostics; nearest support is not proof of correct new glyphs.
+    Support tensors must contain only TRAIN/font-auxiliary targets of the input class.
+    """
+    weight = 1 + 4 * (support.abs() < 0.35).float()
+    distance = ((prediction[:, None] - support).abs() * weight).mean((2, 3, 4))
+    return distance.min(1).values.mean()
+
+
 def objective(prediction, target_sdf, target_ink, distribution, beta: float):
     ink = ink_from_sdf(prediction)
     boundary = 1 + 4 * (target_sdf.abs() < 0.35).float()

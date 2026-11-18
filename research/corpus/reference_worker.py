@@ -30,7 +30,12 @@ def main(request_path: Path):
     os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
     import torch
 
-    from research.corpus.reference_generator import ReferenceCVAE, ink_from_sdf, objective
+    from research.corpus.reference_generator import (
+        ReferenceCVAE,
+        ink_from_sdf,
+        objective,
+        prior_support_loss,
+    )
 
     if not torch.cuda.is_available():
         raise RuntimeError("Real CUDA device required")
@@ -80,6 +85,13 @@ def main(request_path: Path):
     ]
     templates = target[torch.tensor(arrays["domains"] == 0, device="cuda")]
     template_labels = classes[torch.tensor(arrays["domains"] == 0, device="cuda")]
+    supports = None
+    if config.get("prior_support_weight", 0):
+        # Only optimizer inputs are available here; val is loaded separately below.
+        groups = [np.where(arrays["classes"] == i)[0] for i in range(len(labels))]
+        maximum = max(map(len, groups))
+        indices = [np.pad(g, (0, maximum - len(g)), mode="edge") for g in groups]
+        supports = sdf[torch.tensor(np.stack(indices), device="cuda")]
     noise = torch.randn(
         len(labels) * 4,
         8,
@@ -217,6 +229,11 @@ def main(request_path: Path):
             prediction, distributions = model(ref[y], target[idx], y)
             beta = config["beta"] * min(1, step / config["warmup"])
             loss, parts = objective(prediction, sdf[idx], target[idx], distributions, beta)
+            if supports is not None:
+                prior = model.generate(ref[y], y, torch.randn(len(y), model.latent, device="cuda"))
+                support_loss = prior_support_loss(prior, supports[y])
+                loss = loss + config["prior_support_weight"] * support_loss
+                parts["prior_support"] = support_loss
             if not torch.isfinite(loss):
                 raise FloatingPointError("Nonfinite training objective")
             optimizer.zero_grad(set_to_none=True)

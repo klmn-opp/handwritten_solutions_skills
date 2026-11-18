@@ -39,3 +39,12 @@ PYTHONPATH=.:src .venv/bin/python -m research.corpus.reference_study train NEW_R
 第二轮parent改为第一轮数据/权重，追加另一Train批，不重复加入Validation包，seed2002。
 所有依赖继续隔离；没有OCR/字体构建冒充神经训练，也没有上传私有PDF。
 字体依旧是作者认可的效果基准，训练步数增加不自动意味着质量提升。
+
+## 开发集触发的有界第三轮修正（打开新Holdout之前）
+
+两轮固定600图断裂代理为16/20，上一版6；新Validation形状距离却更低。这是质量维度冲突，
+不能凭距离降低宣称输出更好。额外4000步，seed2003，沿用第二轮best与同一数据版本/优化器，
+新增权重0.5的prior-support项：直接采样条件先验，约束预测距离场接近同类别完整Train视图。
+支持库只含字体辅助和真实Train，Validation/Holdout不能进入；原后验重建与KL仍保留。
+不直接替换或复制像素，网络参数承担全部生成。该约束可能增加记忆或减少变化，必须同步报告。
+所有参数在本轮开始前固定；第三轮后统一冻结旧版和三轮候选，才打开新Holdout。

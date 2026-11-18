@@ -61,9 +61,12 @@ def train(
     real_sampling: str = "balanced",
     all_variant_selection: bool = False,
     allow_data_extension: bool = False,
+    prior_support_weight: float = 0.0,
 ) -> Path:
     if not 1000 <= steps <= 12000 or not 0 < learning_rate <= 0.001:
         raise ValueError("Training bounds violated")
+    if not 0 <= prior_support_weight <= 1:
+        raise ValueError("Prior support weight outside research bounds")
     manifest = validate_views(data)
     if allow_data_extension:
         from research.corpus.dataset_extension import certify_extension
@@ -81,10 +84,16 @@ def train(
         real_per_batch=real_per_batch,
         real_sampling=real_sampling,
         all_variant_selection=all_variant_selection,
+        prior_support_weight=prior_support_weight,
     )
     if real_sampling != "balanced" or real_per_batch != 4 or all_variant_selection:
         config["version"] = "all-personal-reference/2"
         config["sampling"] = f"font classes uniform; real={real_per_batch}/32, {real_sampling}"
+    if prior_support_weight:
+        config["version"] = "all-personal-reference/3"
+        config["prior_support"] = (
+            "nearest complete same-class TRAIN signed-distance view; no val/holdout"
+        )
     request = {
         "data": str(data.resolve()),
         "labels": manifest["labels"],
@@ -149,6 +158,7 @@ if __name__ == "__main__":
     t.add_argument("--real-sampling", choices=["balanced", "proportional"], default="balanced")
     t.add_argument("--all-variant-selection", action="store_true")
     t.add_argument("--allow-data-extension", action="store_true")
+    t.add_argument("--prior-support-weight", type=float, default=0.0)
     args = parser.parse_args()
     if args.command == "prepare":
         print(prepare(args.dataset))
@@ -164,5 +174,6 @@ if __name__ == "__main__":
                 real_sampling=args.real_sampling,
                 all_variant_selection=args.all_variant_selection,
                 allow_data_extension=args.allow_data_extension,
+                prior_support_weight=args.prior_support_weight,
             )
         )
