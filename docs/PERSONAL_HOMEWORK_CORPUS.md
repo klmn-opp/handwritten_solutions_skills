@@ -228,3 +228,14 @@ stage包括real-control、real-prior、font-pretrain、font-finetune。最后一
 先封存候选再运行study_evaluation；模型摘要、测试原页/裁剪字节、Sol标注、边界及重复墨迹均校验。
 评估只读取冻结权重，模型图像、字体派生图、非学习扰动和原始扫描始终区分。
 本轮具体命令、数据、运行路径和结果见[V09_HANDNOTE_TRAINING](V09_HANDNOTE_TRAINING.md)。
+
+## 全个人字符参考条件候选
+
+用户进一步授权全部75个人字符联合实验。独立`reference_study`/`reference_generator`实现
+空间字形条件的小型CVAE，`reference_data`保留178字体派生轮廓及41真实Train/13Validation，
+不覆盖旧`train`与`neural_study`协议。稀疏类进入实验不改变旧生产资格门槛，也不把字体视图记成扫描。
+新Sol验证/留出包各30条单字符，仅作评估；来源为PDF原页与原像素裁剪。Corpus记录保持原样。
+`reference_test`拒绝未冻结的Holdout调用，并重渲染原PDF核对页/裁剪；`reference_evaluate`
+保存600张原始神经图、逐字来源及5页对照，每页15类、每类字体参考+7个展示候选（全部8个PNG另存）。
+全部环境、分阶段真实更新、失败样本和可复现命令见[V09_ALL_CHARACTER_TRAINING](V09_ALL_CHARACTER_TRAINING.md)。
+候选仍held；不激活Profile、不改latest、不把模型图或Sol结论伪装成人工真实样本。

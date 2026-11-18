@@ -1,3 +1,27 @@
+# 当前状态：v0.9 全75个人字符首版神经候选已完成，生产仍No-Go
+
+研究分支`experiment/all-personal-glyphs-v09`，继续原项目，正式font-cpu、personal@v1、latest不变。
+[完整全字符报告](V09_ALL_CHARACTER_TRAINING.md) · [上一轮数字1辅助训练](V09_HANDNOTE_TRAINING.md)。
+
+- 178个人字体派生轮廓覆盖75类；真实Train41仅覆盖0/1/2/x，其他71类仍缺真实作业训练。
+- 新参考条件小型CVAE真实CUDA三轮训练，共16000次更新；最终选中权重祖先累计4500步。
+  579449参数，三轮GPU训练约341秒，峰值分配约428MiB；不是字形随机选择或几何抖动。
+- 根据开发证据修正少量真实样本过度重复；全部类别持续联合学习，保留字体来源和完整下伸/标点。
+- 固定600图：0空白/0越界，6断裂代理，11张二值轮廓同字体，C/m变化小；99.5%是模板代理，非OCR正确率。
+- 新Validation30/25类、新Holdout30/30类由Sol保守清洗，模型冻结后才查看Holdout；从PDF重渲染到裁剪校验通过。
+  最终Holdout形状距离0.1821，字体0.1869、几何0.1736，仍未胜几何；未据测试结果换模型。
+- 全196测试通过；同权重/种子600张真实GPU生成PNG逐字节重放一致。单词连笔、作者风格和完整数学未验证。
+- 冻结后Sol无标签盲检150图：120清晰、22歧义、8缺陷；125个非空转写中5个与目标不一致
+  （√→T、5→J、o→σ）。它是模型判断，非人工错误率；内容门禁尚未通过。
+
+主交付：`workspace/runs/20261118T170015253623Z-all-personal-glyph-delivery-3e580c3a/`。
+`rendered/homework_solutions.pdf`为5页全字符研究对照，逐页PNG和全字表对照齐备；不是完整神经作业验收。
+候选`v09-all75-reference-candidate-1`保持held，不激活默认模型；后续重点补真实覆盖和独立内容质量。
+
+---
+
+以下保留上一轮真实状态和历史证据。
+
 # 当前状态：v0.9 Handnote辅助真实训练完成，数字1过淡改善，整体生成仍No-Go
 
 研究分支`experiment/handnote-assisted-glyph-v09`，沿用原项目；正式font-cpu、personal@v1、latest不变。
