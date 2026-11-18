@@ -19,6 +19,7 @@
 <label>备注<textarea id="notes" rows="2"></textarea></label>
 <label><input type="checkbox" id="privacy">已检查姓名、学号等隐私；此区域可进入本地数据集</label>
 <label class="attest"><input type="checkbox" id="attest">我已对照原图，确认实际转写、完整边界及书写者。公式照实记录，即使原解答有误。</label>
-<div class="actions"><button id="save">保存待复核</button><button id="verify">确认转写</button><button id="reject">排除此区域</button></div>
+<div id="actionStatus" role="alert" aria-live="assertive" hidden></div>
+<div class="actions"><button id="save">保存待复核</button><button id="verify">确认转写并下一条</button><button id="reject">排除此区域</button></div>
 <details><summary>来源与操作历史</summary><pre id="history"></pre></details>
 </div></section></main></body></html>
