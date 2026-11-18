@@ -1,0 +1,13 @@
+{
+  "benchmark_version": "1.0.0",
+  "path": "end-to-end",
+  "case_count": 8,
+  "expectations_passed": 8,
+  "rendered_pages": 8,
+  "expected_rejections": 0,
+  "solver_failures": 0,
+  "renderer_failures": 0,
+  "not_run": 0,
+  "independent_content_style_evaluation": "pending",
+  "solver_evaluation": "same-session author workflow exercise; independent correctness not measured"
+}

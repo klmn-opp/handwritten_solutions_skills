@@ -38,6 +38,7 @@ def main():
             "UV_PROJECT_ENVIRONMENT": str(venv),
             "PYTHONUTF8": "1",
             "HWSOL_DATA_DIR": str(work / "private"),
+            "HWSOL_WORKSPACE": str(work / "workspace"),
             "MPLCONFIGDIR": str(work / "mpl"),
         }
         for key in ("PYTHONPATH", "VIRTUAL_ENV"):
@@ -71,6 +72,9 @@ def main():
         doctor = json.loads(run(cli, "doctor"))
         if doctor["status"] != "passed" or doctor["training_required"]:
             raise ValueError("Unexpected Runtime environment")
+        inventory = json.loads(run(cli, "benchmark", "list", "--suite", "all"))
+        if len(inventory["cases"]) != 60:
+            raise ValueError("Wheel is missing the fixed benchmark corpus")
         if args.profile_archive:
             run(cli, "profiles", "import", "--source", str(args.profile_archive.resolve()))
         run(
@@ -82,6 +86,9 @@ def main():
             "五题",
         )
         result = json.loads(run(cli, "verify", "--job", "五题", "--pixels"))
+        pointer = json.loads(run(cli, "workspace", "latest"))
+        result["workspace_run_id"] = pointer["run_id"]
+        result["packaged_benchmark_cases"] = len(inventory["cases"])
         if result["problem_order"] != ["2", "4", "6", "7", "9"]:
             raise ValueError("Installed wheel lost problem identity")
         report = json.loads((work / "五题/validation_report.json").read_bytes())

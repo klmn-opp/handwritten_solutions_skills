@@ -1,0 +1,9 @@
+{
+  "v04_pdf_png_byte_identical": true,
+  "run": "workspace/runs/v06-five-final",
+  "verification": {
+    "status": "passed",
+    "run_status": "passed",
+    "run_id": "v06-five-final"
+  }
+}

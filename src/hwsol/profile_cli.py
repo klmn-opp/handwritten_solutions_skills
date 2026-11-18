@@ -19,7 +19,18 @@ def command(function):
     @wraps(function)
     def wrapped(*args, **kwargs):
         try:
-            result = function(*args, **kwargs)
+            if function.__name__ in {
+                "train",
+                "evaluate",
+                "measure_page",
+                "make_collection_plan",
+                "import_samples",
+            }:
+                from hwsol.workspace import tracked_call
+
+                result = tracked_call("studio-" + function.__name__, function, *args, **kwargs)
+            else:
+                result = function(*args, **kwargs)
             typer.echo(json.dumps(result, ensure_ascii=False, indent=2))
             if isinstance(result, dict) and result.get("status") == "failed":
                 raise typer.Exit(2)

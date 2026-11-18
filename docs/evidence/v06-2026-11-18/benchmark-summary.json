@@ -1,0 +1,500 @@
+{
+  "benchmark_version": "1.0.0",
+  "path": "render-only",
+  "case_count": 60,
+  "expectations_passed": 60,
+  "rendered_pages": 54,
+  "expected_rejections": 6,
+  "solver_failures": 0,
+  "renderer_failures": 0,
+  "not_run": 0,
+  "independent_content_style_evaluation": "pending",
+  "cases": [
+    {
+      "case_id": "smoke-matrix-inverse",
+      "suite": "smoke",
+      "category": "linear-algebra",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.3218703780003125
+    },
+    {
+      "case_id": "smoke-product-derivative",
+      "suite": "smoke",
+      "category": "calculus",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.3196783860039432
+    },
+    {
+      "case_id": "smoke-integration-parts",
+      "suite": "smoke",
+      "category": "calculus",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.317976482998347
+    },
+    {
+      "case_id": "smoke-normal-ci",
+      "suite": "smoke",
+      "category": "statistics",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.3701862460002303
+    },
+    {
+      "case_id": "smoke-rlc-impedance",
+      "suite": "smoke",
+      "category": "physics",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.4721366640005726
+    },
+    {
+      "case_id": "smoke-thin-lens",
+      "suite": "smoke",
+      "category": "physics",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.3698739749961533
+    },
+    {
+      "case_id": "smoke-english-rhythm",
+      "suite": "smoke",
+      "category": "english",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.0697516630025348
+    },
+    {
+      "case_id": "smoke-equation-chain",
+      "suite": "smoke",
+      "category": "layout",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.367885974003002
+    },
+    {
+      "case_id": "core-elimination",
+      "suite": "core",
+      "category": "linear-algebra",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.4196152920048917
+    },
+    {
+      "case_id": "core-eigenvectors",
+      "suite": "core",
+      "category": "linear-algebra",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.271595106998575
+    },
+    {
+      "case_id": "core-null-space",
+      "suite": "core",
+      "category": "linear-algebra",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.3175869249971583
+    },
+    {
+      "case_id": "core-projection",
+      "suite": "core",
+      "category": "linear-algebra",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.267734269000357
+    },
+    {
+      "case_id": "core-substitution",
+      "suite": "core",
+      "category": "calculus",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.068346683998243
+    },
+    {
+      "case_id": "core-taylor-limit",
+      "suite": "core",
+      "category": "calculus",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.0700211309886072
+    },
+    {
+      "case_id": "core-hessian",
+      "suite": "core",
+      "category": "calculus",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.2689330260036513
+    },
+    {
+      "case_id": "core-improper-integral",
+      "suite": "core",
+      "category": "calculus",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.1193472890008707
+    },
+    {
+      "case_id": "core-t-test",
+      "suite": "core",
+      "category": "statistics",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.2678234479972161
+    },
+    {
+      "case_id": "core-regression",
+      "suite": "core",
+      "category": "statistics",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.3210426890000235
+    },
+    {
+      "case_id": "core-binomial",
+      "suite": "core",
+      "category": "statistics",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.3194861960073467
+    },
+    {
+      "case_id": "core-chi-square",
+      "suite": "core",
+      "category": "statistics",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.3164672349957982
+    },
+    {
+      "case_id": "core-rl-transient",
+      "suite": "core",
+      "category": "physics",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.2674310319998767
+    },
+    {
+      "case_id": "core-lorentz-force",
+      "suite": "core",
+      "category": "physics",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.3176273179997224
+    },
+    {
+      "case_id": "core-interference",
+      "suite": "core",
+      "category": "physics",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.3751423899957445
+    },
+    {
+      "case_id": "core-capacitor-energy",
+      "suite": "core",
+      "category": "physics",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.4708719379996182
+    },
+    {
+      "case_id": "core-punctuation",
+      "suite": "core",
+      "category": "english",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.0687871929985704
+    },
+    {
+      "case_id": "core-long-words",
+      "suite": "core",
+      "category": "english",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.0670924209989607
+    },
+    {
+      "case_id": "core-descenders",
+      "suite": "core",
+      "category": "english",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.0182801260089036
+    },
+    {
+      "case_id": "core-english-paragraph",
+      "suite": "core",
+      "category": "english",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.0182824280054774
+    },
+    {
+      "case_id": "core-fraction-matrix",
+      "suite": "core",
+      "category": "layout",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.2690804039884824
+    },
+    {
+      "case_id": "core-nested-radicals",
+      "suite": "core",
+      "category": "layout",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.1188094550016103
+    },
+    {
+      "case_id": "core-piecewise-lines",
+      "suite": "core",
+      "category": "layout",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.2172211569995852
+    },
+    {
+      "case_id": "core-mixed-units",
+      "suite": "core",
+      "category": "layout",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.3193638599914266
+    },
+    {
+      "case_id": "stress-dense-derivation",
+      "suite": "stress",
+      "category": "layout",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.418140472000232
+    },
+    {
+      "case_id": "stress-long-fraction",
+      "suite": "stress",
+      "category": "layout",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.1680441329954192
+    },
+    {
+      "case_id": "stress-matrix-four",
+      "suite": "stress",
+      "category": "linear-algebra",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.2204988400044385
+    },
+    {
+      "case_id": "stress-vector-identity",
+      "suite": "stress",
+      "category": "physics",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.3177935669955332
+    },
+    {
+      "case_id": "stress-repeated-glyphs",
+      "suite": "stress",
+      "category": "english",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.167130525005632
+    },
+    {
+      "case_id": "stress-long-prose",
+      "suite": "stress",
+      "category": "english",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.0668182730005356
+    },
+    {
+      "case_id": "stress-punctuation-numbers",
+      "suite": "stress",
+      "category": "english",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.0189217849983834
+    },
+    {
+      "case_id": "stress-unsupported-cases",
+      "suite": "stress",
+      "category": "edge",
+      "outcome": "expected_rejection",
+      "expectation_passed": true,
+      "wall_seconds": 0.7673211929941317
+    },
+    {
+      "case_id": "stress-unsupported-align",
+      "suite": "stress",
+      "category": "edge",
+      "outcome": "expected_rejection",
+      "expectation_passed": true,
+      "wall_seconds": 0.8183039569994435
+    },
+    {
+      "case_id": "stress-missing-glyph",
+      "suite": "stress",
+      "category": "edge",
+      "outcome": "expected_rejection",
+      "expectation_passed": true,
+      "wall_seconds": 0.8166743440087885
+    },
+    {
+      "case_id": "stress-vertical-overflow",
+      "suite": "stress",
+      "category": "edge",
+      "outcome": "expected_rejection",
+      "expectation_passed": true,
+      "wall_seconds": 1.017375183000695
+    },
+    {
+      "case_id": "stress-horizontal-overflow",
+      "suite": "stress",
+      "category": "edge",
+      "outcome": "expected_rejection",
+      "expectation_passed": true,
+      "wall_seconds": 1.519630064998637
+    },
+    {
+      "case_id": "stress-image-paper",
+      "suite": "stress",
+      "category": "layout",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.2177869049919536
+    },
+    {
+      "case_id": "stress-pdf-paper",
+      "suite": "stress",
+      "category": "layout",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.2198592089989688
+    },
+    {
+      "case_id": "stress-nested-subscripts",
+      "suite": "stress",
+      "category": "statistics",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.067198927004938
+    },
+    {
+      "case_id": "stress-unknown-command",
+      "suite": "stress",
+      "category": "edge",
+      "outcome": "expected_rejection",
+      "expectation_passed": true,
+      "wall_seconds": 0.8189960580057232
+    },
+    {
+      "case_id": "holdout-rank-factorization",
+      "suite": "holdout",
+      "category": "linear-algebra",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.3180407059990102
+    },
+    {
+      "case_id": "holdout-rotation-eigen",
+      "suite": "holdout",
+      "category": "linear-algebra",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.1186820389993954
+    },
+    {
+      "case_id": "holdout-log-integral",
+      "suite": "holdout",
+      "category": "calculus",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.116966774003231
+    },
+    {
+      "case_id": "holdout-second-limit",
+      "suite": "holdout",
+      "category": "calculus",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.1167916569975205
+    },
+    {
+      "case_id": "holdout-welch-statistic",
+      "suite": "holdout",
+      "category": "statistics",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.2692667709925445
+    },
+    {
+      "case_id": "holdout-weighted-regression",
+      "suite": "holdout",
+      "category": "statistics",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.2678192029998172
+    },
+    {
+      "case_id": "holdout-resonance",
+      "suite": "holdout",
+      "category": "physics",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.218143196994788
+    },
+    {
+      "case_id": "holdout-snell-critical",
+      "suite": "holdout",
+      "category": "physics",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.066738870998961
+    },
+    {
+      "case_id": "holdout-english-generalization",
+      "suite": "holdout",
+      "category": "english",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.01656732900301
+    },
+    {
+      "case_id": "holdout-english-dialogue",
+      "suite": "holdout",
+      "category": "english",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.0173008869896876
+    },
+    {
+      "case_id": "holdout-multi-line-fractions",
+      "suite": "holdout",
+      "category": "layout",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.2679507360007847
+    },
+    {
+      "case_id": "holdout-matrix-root",
+      "suite": "holdout",
+      "category": "layout",
+      "outcome": "rendered",
+      "expectation_passed": true,
+      "wall_seconds": 1.319745011991472
+    }
+  ],
+  "resource_summary": {
+    "median_render_seconds": 0.9694413670076756,
+    "max_render_seconds": 1.2793644040066283,
+    "max_worker_rss_bytes": 179249152,
+    "timing_note": "Observed local timings; some overlap with end-to-end/tests, not isolated throughput."
+  }
+}

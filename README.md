@@ -2,9 +2,9 @@
 
 本地运行的手写作业 Agent Skill。Agent 读取文本、图片或 PDF，按原题号解答并保留验证记录。Runtime 用选定的字迹 Profile 排版，每道顶层题占一页，交付 PDF、逐页 PNG 和可编辑 Markdown。
 
-当前开发发行版为 **v0.4.0**，增加可关闭的字形度量规范化、逐笔画来源、语义公式布局和候选 Profile 资产。Linux x86_64 已验证 Python 3.12 和 3.13。默认字迹可直接使用，附带一道公开题和五题合成作业。阶段 3 添加逐页像素核验与三平台 CI，阶段 4 提供独立的英文笔迹实验工具。[实施状态](docs/IMPLEMENTATION_STATUS.md)
+当前开发发行版为 **v0.6.0**，增加不可变工作区运行记录、60 例基准、端到端评估协议和真实 OCR 测量。Linux x86_64 已验证 Python 3.12 和 3.13。默认字迹可直接使用，附带一道公开题和五题合成作业。阶段 3 添加逐页像素核验与三平台 CI，阶段 4 提供独立的英文笔迹实验工具。[实施状态](docs/IMPLEMENTATION_STATUS.md)
 
-**当前开发交接入口：[Next Development Stage](docs/NEXT_STAGE_DEVELOPMENT.md)**，含对照、测试、新发行包与未完成项。[前置审计](docs/CURRENT_STATE_AUDIT.md)保留为历史基线。CLI 渲染已有解答；新题由外部 Agent 解题。当前 RL 是 CPU 渲染策略学习，未进行神经网络训练。
+**当前开发交接入口：[CURRENT_STATE](docs/CURRENT_STATE.md)**，含对照、测试、新发行包与未完成项。[前置审计](docs/CURRENT_STATE_AUDIT.md)保留为历史基线。CLI 渲染已有解答；新题由外部 Agent 解题。当前 RL 是 CPU 渲染策略学习，未进行神经网络训练。
 
 工作区源码现支持 CPU 手写布局、笔画对照及个人校准。四份实测 PDF、公开手写样本留出结果及本人样本采集说明见[手写真实性报告](docs/HANDWRITING_REALISM.md)。
 
@@ -12,14 +12,14 @@
 
 | 文件 | 用途 |
 |---|---|
-| handwritten-solutions-0.4.0-skill.zip | 解压后有 handwritten-solutions/，内含 SKILL.md、uv.lock、源码和示例。适合安装到 Codex。 |
-| handwritten_solutions-0.4.0-py3-none-any.whl | Python 命令行工具。使用锁定环境时从源码目录安装依赖，再安装 wheel。 |
-| handwritten_solutions-0.4.0.tar.gz | Python 源码发行包，保留 Skill、构建脚本和测试。 |
-| handwritten-solutions-v0.4.0.bundle | 完整本地 Git 历史，可用下方命令克隆。 |
+| handwritten-solutions-0.6.0-skill.zip | 解压后有 handwritten-solutions/，内含 SKILL.md、uv.lock、源码和示例。适合安装到 Codex。 |
+| handwritten_solutions-0.6.0-py3-none-any.whl | Python 命令行工具。使用锁定环境时从源码目录安装依赖，再安装 wheel。 |
+| handwritten_solutions-0.6.0.tar.gz | Python 源码发行包，保留 Skill、构建脚本和测试。 |
+| handwritten-solutions-v0.6.0.bundle | 完整本地 Git 历史，可用下方命令克隆。 |
 | release.json / SHA256SUMS | 发行 commit、lock 摘要及所有发行文件的 SHA-256。 |
 
 ```sh
-git clone ./handwritten-solutions-v0.4.0.bundle handwritten-solutions
+git clone ./handwritten-solutions-v0.6.0.bundle handwritten-solutions
 cd handwritten-solutions
 git log --oneline --decorate
 ```
@@ -33,8 +33,9 @@ git log --oneline --decorate
 ```bash
 uv sync --locked
 uv run --frozen hwsol doctor
-uv run --frozen hwsol render --manifest examples/phase2/euler/job.json --output out/euler
-uv run --frozen hwsol verify --job out/euler --pixels
+uv run --frozen hwsol render --manifest examples/phase2/euler/job.json --workspace workspace
+uv run --frozen hwsol workspace latest
+# 用上一步返回的 run 路径执行 hwsol verify --job <run> --pixels
 uv run --frozen hwsol profiles list
 uv run --frozen hwsol render-probe --input examples/phase0/common.md --output out/common
 uv run --frozen pytest
@@ -53,7 +54,7 @@ uv run --frozen hwsol render-probe --input examples/phase0/common.md --output ou
 ```
 
 配置采用 JSON，尺寸使用 mm、字号使用 pt，未知字段报错。默认 A4 白纸、150 DPI；可设为 300 DPI。
-`HWSOL_DATA_DIR` 可覆盖用户数据目录。默认 Linux 使用 `~/.local/share/handwritten-solutions`，
+`HWSOL_WORKSPACE` 指定新的运行根目录，默认当前目录的 `workspace/`。初始化工作区可连接旧 Profile 库；见[目录契约](docs/WORKSPACE.md)。`HWSOL_DATA_DIR` 仍可优先覆盖用户数据目录。未配置工作区时，Linux 使用 `~/.local/share/handwritten-solutions`，
 macOS 使用 `~/Library/Application Support/handwritten-solutions`，Windows 使用 `%LOCALAPPDATA%/handwritten-solutions`。
 `render-probe` 的交付文件写入指定输出目录；样本、版本、构建记录保存在用户数据目录。
 
@@ -100,6 +101,10 @@ uv run --frozen hwsol render-probe --input examples/phase0/common.md --output ou
 将 Skill ZIP 解压到目标工作区的 `.agents/skills/`（ZIP 自带 handwritten-solutions 目录），或把此 checkout 链接到该位置。在该 Skill 目录运行 `uv sync --locked --no-dev`。在可以发现该 Skill 的 Codex 会话中使用 `$handwritten-solutions` 并提供题目。Agent 按 [SKILL.md](SKILL.md) 读取原始材料，完成解题、验证与交付。单独安装 wheel 可使用 CLI，Skill 指令和示例在源码发行包中。
 
 [Manifest 格式和排版规则](references/jobs.md) 描述输入文件、验证状态、背景优先级、可复算等式和故障恢复。运行五题示例可使用 `hwsol render --manifest examples/phase2/mixed/job.json --output out/mixed`。
+
+## 固定基准
+
+运行 `hwsol benchmark run --suite smoke --profile bundled-default@v1`，完整协议见[60 例基准](docs/BENCHMARK_V1.md)。holdout 只能评估，不能调参或训练。工程通过、独立内容正确率、风格自然度分别报告。
 
 ## 英文生成式笔迹实验
 

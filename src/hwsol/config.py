@@ -1,5 +1,6 @@
 """Strict, backend-independent physical units; no training configuration here."""
 
+import json
 import os
 import sys
 from pathlib import Path
@@ -14,6 +15,12 @@ def data_dir() -> Path:
     """Resolve local user data without creating directories during import."""
     if configured := os.environ.get("HWSOL_DATA_DIR"):
         return Path(configured).expanduser().resolve()
+    workspace = Path(os.environ.get("HWSOL_WORKSPACE", "workspace")).expanduser().resolve()
+    settings = workspace / "workspace.json"
+    if settings.is_file():
+        values = json.loads(settings.read_text("utf-8"))
+        if values.get("profile_store"):
+            return Path(values["profile_store"]).expanduser().resolve()
     if sys.platform == "win32":
         root = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
     elif sys.platform == "darwin":

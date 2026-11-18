@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.0 · 2026-11-18
+
+- Introduce immutable workspace run receipts, atomic latest-deliverable pointers, archive indexes and legacy Profile/output compatibility.
+- Add the fixed 60-case benchmark, separate reference rendering and Agent submissions, resource metrics, independent observations and real Tesseract evaluation.
+- Fix MathText relation aliases and reject unauditable formula fallbacks clearly.
+- Keep font-cpu default and neural models excluded from production pending real CUDA/content/style validation.
+
 ## 0.4.0 · 2026-11-18
 
 - Preserve the audited realism implementation and bind outputs/releases to code, dependency, Profile, policy and seed identities.

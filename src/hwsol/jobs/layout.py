@@ -71,6 +71,17 @@ class MultiplePages(Exception):
 
 
 class SinglePageRenderer(PlannedRendering, ProfileRenderer):
+    def math_image(self, tex, px):
+        result = super().math_image(tex, px)
+        if any(
+            item[0] not in {"path", "stroke"} or (item[0] == "path" and item[1][0] == "math")
+            for item in self._math_vec[(tex, px)]
+        ):
+            raise ValueError(
+                f"Formula fallback is not auditable: {tex}; {'; '.join(self.warnings)}"
+            )
+        return result
+
     def _render_math(self, tex, px):
         # The prefix and both matrix cell routes request different sizes upstream.
         # Body-level math shares the prose em; MathText still sizes scripts itself.
@@ -79,7 +90,8 @@ class SinglePageRenderer(PlannedRendering, ProfileRenderer):
     def _math_path(self, body, size, key, parts=None):
         # Native display-style fractions keep numerator/denominator letters at the
         # surrounding em. This changes presentation only; the source/key stays intact.
-        body = _COMMAND.sub(lambda m: r"\dfrac" if m[1] == "frac" else m[0], body)
+        aliases = {"frac": r"\dfrac", "ge": r"\geq", "le": r"\leq", "ne": r"\neq"}
+        body = _COMMAND.sub(lambda m: aliases.get(m[1], m[0]), body)
         return super()._math_path(body, size, key, parts)
 
     def matrix_metrics(self, rows):

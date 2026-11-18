@@ -28,6 +28,7 @@ def audit_paths(names):
         "training-runs",
         "out",
         "dist",
+        "workspace",
         ".env",
         "__pycache__",
     }
