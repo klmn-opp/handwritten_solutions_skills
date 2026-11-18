@@ -77,3 +77,12 @@ ZIP 包含 profile.json 和登记资产。默认构建只携带字体、校准�
 
 渲染报告记录最终 Profile 引用、快照和字体摘要、配置与依赖；相同快照/种子/已验证环境可复现产物。
 重新训练会有新时间戳与版本标识，不承诺构建字体文件逐字节相同，也不承诺不同平台栅格化逐字节相同。
+
+## 0.4.0 可选扩展
+
+新 CPU 候选包含 `glyph-metrics` 摘要资产，关联原始字体 SHA-256，记录每个真实变体的墨迹、advance、
+重心、基线偏移、类别、参考尺度及异常权重。渲染派生字体不覆盖该原始字体。
+LineStyle 增加可选 role、column 和 equality_inset；旧版本缺字段时继续可读。
+校准可单独包含词/行 traces；origin 区分 recorded-pen、estimated-trajectory、scan-contour。
+Profile 可以登记可选 model-adapter 资产，但只有实际创建并核验后才算具有模型参数。
+本轮模型未成功运行，也没有伪造这些参数。详见 [当前开发阶段](NEXT_STAGE_DEVELOPMENT.md)。

@@ -35,6 +35,9 @@ class LoadedProfile:
             "manifest_sha256": self.manifest_sha256,
             "source_kind": self.manifest.source_kind,
             "distribution": self.manifest.distribution,
+            "font_sha256": next(
+                a.sha256 for a in self.manifest.assets if a.path == self.manifest.font
+            ),
         }
 
 
@@ -48,6 +51,12 @@ def load_snapshot(directory: Path) -> LoadedProfile:
             raise ProfileError(f"Asset integrity check failed: {asset.path}")
         if asset.role == "calibration":
             styles = TypeAdapter(tuple[PageStyle, ...]).validate_json(target.read_bytes())
+        if asset.role == "glyph-metrics":
+            data = json.loads(target.read_bytes())
+            if data.get("font_sha256") != next(
+                a.sha256 for a in manifest.assets if a.path == manifest.font
+            ):
+                raise ProfileError("Glyph metrics do not match the Profile font")
     return LoadedProfile(manifest, directory, sha256(path), styles)
 
 
@@ -278,4 +287,6 @@ def compare(a: LoadedProfile, b: LoadedProfile) -> dict:
         "old_samples": len(a.manifest.samples),
         "new_samples": len(b.manifest.samples),
         "font_changed": sha256(a.font) != sha256(b.font),
+        "old_metric_assets": [x.sha256 for x in a.manifest.assets if x.role == "glyph-metrics"],
+        "new_metric_assets": [x.sha256 for x in b.manifest.assets if x.role == "glyph-metrics"],
     }

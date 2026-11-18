@@ -17,7 +17,7 @@ from hwsol.profiles.store import LoadedProfile
 from hwsol.render_policy import RenderPolicy
 
 
-def fitted_variant(outline, shape: tuple, font: Path, code: int, slot: int):
+def fitted_variant(outline, shape: tuple, font: Path, code: int, slot: int, *, normalized=False):
     points = outline.verts[outline.codes != MplPath.CLOSEPOLY]
     low, high = points.min(axis=0), points.max(axis=0)
     if shape[0] == "glyph":
@@ -28,7 +28,7 @@ def fitted_variant(outline, shape: tuple, font: Path, code: int, slot: int):
         lo, hi = ink.min(axis=0), ink.max(axis=0)
         base_low, base_high = base.min(axis=0), base.max(axis=0)
         base_height, height = base_high[1] - base_low[1], hi[1] - lo[1]
-        if height > 0 and base_height > 0:
+        if height > 0 and base_height > 0 and not normalized:
             # Keep ordinary sample variation and real ascenders/descenders. Bound
             # outliers against this character's primary, not the randomly drawn slot.
             target = np.clip(height, 0.95 * base_height, 1.05 * base_height)
@@ -49,8 +49,11 @@ def fitted_variant(outline, shape: tuple, font: Path, code: int, slot: int):
     ink = vertices[codes != MplPath.CLOSEPOLY]
     lo, hi = ink.min(axis=0), ink.max(axis=0)
     ratios = (high - low) / np.maximum(hi - lo, 1e-8)
-    scale = np.array([min(1.0, ratios[0]), ratios[1]])
-    vertices = (vertices - (lo + hi) / 2) * scale + (low + high) / 2
+    scale = np.array([min(1.0, ratios[0]), 1.0 if normalized else ratios[1]])
+    fitted = (vertices - (lo + hi) / 2) * scale + (low + high) / 2
+    if normalized:
+        fitted[:, 1] = vertices[:, 1]
+    vertices = fitted
     return replace(outline, verts=vertices, codes=codes)
 
 

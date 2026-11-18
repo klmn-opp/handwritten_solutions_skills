@@ -56,19 +56,9 @@ PRIOR = (0.25, 0.15, 0.15, 0.15, 0.15, 0.15)
 
 
 def _renderer_stamp() -> dict:
-    source = Path(__file__).resolve().parents[1]
-    return {
-        name: sha256(source / name)
-        for name in (
-            "config.py",
-            "render_policy.py",
-            "jobs/ink_policy.py",
-            "jobs/handwriting.py",
-            "jobs/layout.py",
-            "adapters/profile_renderer.py",
-            "jobs/math_strokes.py",
-        )
-    }
+    from hwsol.identity import build_identity
+
+    return {"renderer_fingerprint": build_identity()["renderer_fingerprint"]}
 
 
 def proxy_reward(metrics: dict) -> float:

@@ -216,6 +216,30 @@
             }
           ],
           "default": null
+        },
+        "glyph_metrics": {
+          "default": "raw",
+          "enum": [
+            "raw",
+            "normalized",
+            "contextual"
+          ],
+          "title": "Glyph Metrics",
+          "type": "string"
+        },
+        "math_strokes": {
+          "default": "personal",
+          "enum": [
+            "personal",
+            "off"
+          ],
+          "title": "Math Strokes",
+          "type": "string"
+        },
+        "semantic_layout": {
+          "default": false,
+          "title": "Semantic Layout",
+          "type": "boolean"
         }
       },
       "title": "RenderConfig",

@@ -139,6 +139,20 @@ def samples(profile: Annotated[str, typer.Option()]) -> dict:
     }
 
 
+@studio.command("collection-plan")
+@command
+def make_collection_plan(
+    profile: Annotated[str, typer.Option()],
+    source: Annotated[list[Path], typer.Option()],
+    output: Annotated[Path, typer.Option()],
+    sets: int = 4,
+) -> dict:
+    """Analyze historical solution Markdown and generate a separate Handnote symbol queue."""
+    from hwsol.training.coverage import collection_plan
+
+    return collection_plan(ProfileStore().resolve(profile), source, output, sets=sets)
+
+
 @studio.command("train")
 @command
 def train(

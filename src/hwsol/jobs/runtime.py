@@ -14,6 +14,8 @@ from pypdf import PdfReader, PdfWriter
 from pypdf.generic import ContentStream, NameObject, TextStringObject
 
 from hwsol.config import RenderConfig
+from hwsol.identity import build_identity
+from hwsol.identity import digest as identity_digest
 from hwsol.jobs.checks import check_answer
 from hwsol.jobs.paper import PDF_LOCK, pdf_image
 from hwsol.jobs.schema import Background, Job, Realism, Source
@@ -263,6 +265,20 @@ def build(
             "status": "passed",
             "schema_version": 1,
             "profile": selected.provenance(),
+            "build": build_identity(),
+            "render_identity": {
+                "seed": job.render.seed,
+                "mode": job.realism,
+                "config_sha256": identity_digest(job.render.model_dump(mode="json")),
+                "policy_sha256": identity_digest(job.render.policy.model_dump(mode="json"))
+                if job.render.policy
+                else None,
+                "policy_compatibility": "legacy-profile-only-unvalidated-migration"
+                if job.render.policy
+                else "disabled",
+                "font_sha256": sha256(selected.font),
+                "profile_assets": [a.model_dump(mode="json") for a in selected.manifest.assets],
+            },
             "selected_problem_count": len(pages),
             "pages": pages,
             "packages": {

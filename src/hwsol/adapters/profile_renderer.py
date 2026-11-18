@@ -45,6 +45,6 @@ class ProfileRenderer(Renderer):
         fitted[:, 0] += max(left - lo * scale, min(0.0, right - hi * scale))
         bottom, top = base[:, 1].min(), base[:, 1].max()
         low, high = ink[:, 1].min(), ink[:, 1].max()
-        if high > low and top > bottom:
+        if high > low and top > bottom and not getattr(self, "metric_data", None):
             fitted[:, 1] = bottom + (vertices[:, 1] - low) * (top - bottom) / (high - low)
         return fitted, codes

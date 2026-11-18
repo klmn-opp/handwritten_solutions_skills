@@ -3,12 +3,92 @@
 from dataclasses import replace
 
 import numpy as np
+from fontTools.ttLib import TTFont
+from handnote.variants import base_outline, handwritten_outline
+from handnote.vector import Outline
 from matplotlib.path import Path as MplPath
 
+from hwsol.jobs.provenance import item_bounds, structure_kind
 from hwsol.profiles.store import LoadedProfile
 
 
+def personal_delimiters(page, renderer, profile) -> list[dict]:
+    """Reuse collected delimiter contours inside MathText/upstream bounding boxes."""
+    with TTFont(renderer.font_path) as font:
+        cmap = font.getBestCmap()
+        ids = {cp: font.getGlyphID(name) for cp, name in cmap.items()}
+    matrix_items = {}
+    for group in renderer.matrices:
+        strokes = [i for i in range(*group["item_range"]) if page.items[i][0] == "stroke"]
+        pair = {"pmatrix": "()", "bmatrix": "[]", "vmatrix": "||"}.get(group["environment"], "[]")
+        for n, i in enumerate(strokes):
+            matrix_items[i] = ord(pair[min(n, 1)])
+    changes = []
+    renderer.structure_fallbacks = []
+    for i, item in enumerate(page.items):
+        cp = matrix_items.get(i)
+        if item[0] == "path" and item[1][0] == "mglyph":
+            key = item[1]
+            if key[3] in map(ord, "()[]{}|√") and str(renderer.font_path.resolve()) != str(key[1]):
+                cp = key[3]
+        if cp not in profile.manifest.personal_codepoints:
+            continue
+        outline = handwritten_outline(renderer.font_path, cp, 0, 100)
+        if outline is None:
+            vertices, codes, upem = base_outline(renderer.font_path, cp)
+            vertices = vertices * (100 / upem)
+        else:
+            vertices, codes = outline
+        points = vertices[codes != MplPath.CLOSEPOLY]
+        lo, hi = points.min(axis=0), points.max(axis=0)
+        bounds = item_bounds(item, renderer)
+        low, high = np.array(bounds[:2]), np.array(bounds[2:])
+        if cp == ord("√"):
+            stretch = (high[1] - low[1]) / max(1e-8, hi[1] - lo[1])
+            squeeze = (high[0] - low[0]) / max(1e-8, hi[0] - lo[0])
+            if not 0.55 <= stretch / max(squeeze, 1e-8) <= 1.8:
+                renderer.structure_fallbacks.append(
+                    {
+                        "item_index": i,
+                        "structure": "radical-sign",
+                        "reason": "collected contour exceeds aspect distortion limit",
+                        "fallback": "parser-font",
+                        "personal_collected": False,
+                    }
+                )
+                continue
+        # Stroke centerline width is zero for vertical bars; include its actual nib width.
+        if high[0] - low[0] < 1:
+            low[0] -= item[4] / 2
+            high[0] += item[4] / 2
+        placed = vertices.copy()
+        placed[:, 0] = low[0] + (vertices[:, 0] - lo[0]) / max(1e-8, hi[0] - lo[0]) * (
+            high[0] - low[0]
+        )
+        placed[:, 1] = high[1] - (vertices[:, 1] - lo[1]) / max(1e-8, hi[1] - lo[1]) * (
+            high[1] - low[1]
+        )
+        key = ("personal-structure-glyph", cp, ids[cp], i)
+        renderer._outlines[key] = Outline(placed, codes, stroke=False)
+        page.items[i] = ("path", key, (1, 0, 0, 1, 0, 0), item[3], 0)
+        changes.append(
+            {
+                "item_index": i,
+                "codepoint": cp,
+                "glyph_id": ids[cp],
+                "structure": "matrix-bracket"
+                if i in matrix_items
+                else "radical-sign"
+                if cp == ord("√")
+                else "stretchable-delimiter",
+            }
+        )
+    renderer.structure_replacements = changes
+    return changes
+
+
 def apply_math_strokes(page, renderer, profile: LoadedProfile) -> list[dict]:
+    personal_delimiters(page, renderer, profile)
     samples = {
         kind: [
             (style.sample_id, stroke)
@@ -32,6 +112,14 @@ def apply_math_strokes(page, renderer, profile: LoadedProfile) -> list[dict]:
                 points = points @ np.array([[a, b], [c, d]]) + (x, y)
                 bounds[i] = (points.min(axis=0), points.max(axis=0))
     records = []
+    formulas = {
+        i: group["latex"] for group in renderer.formulas for i in range(*group["item_range"])
+    }
+    renderer.structure_radicals = [
+        item_bounds(item, renderer)
+        for item in page.items
+        if item[0] == "path" and item[1][0] == "mglyph" and item[1][3] == 0x221A
+    ]
     for i, (low, high) in bounds.items():
         _, key, matrix, alpha, _ = page.items[i]
         if key[0] == "mglyph" and key[3] == 0x0304:
@@ -88,6 +176,11 @@ def apply_math_strokes(page, renderer, profile: LoadedProfile) -> list[dict]:
         records.append(
             {
                 "kind": kind,
+                "item_index": i,
+                "structure": structure_kind(
+                    key, formulas.get(i, ""), [*low, *high], renderer, page.items[i]
+                )
+                or "math-rule",
                 "sample_id": sample_id,
                 "source_sha256": stroke.source_sha256,
                 "source_box": stroke.source_box,

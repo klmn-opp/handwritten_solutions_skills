@@ -17,6 +17,7 @@ from handnote.variants import SetPicker
 from matplotlib.path import Path as MplPath
 
 from hwsol.jobs.ink_policy import PolicyInk, fitted_variant
+from hwsol.jobs.semantic import SemanticLayout
 from hwsol.profiles.store import LoadedProfile
 from hwsol.profiles.style import LineStyle, PageStyle
 
@@ -61,6 +62,7 @@ class HandwritingLayoutPlanner:
         self.recent = rng.uniform(0.05, 0.35)
         # Per-page cache, discarded with the renderer after each fit attempt.
         self.kern = lru_cache(maxsize=2048)(self._kern)
+        self.semantic = SemanticLayout(renderer, styles, rng, self.left, self.right)
 
     def _kern(self, pair: str, size: int) -> float:
         font = self.renderer.font(size)
@@ -168,6 +170,7 @@ class HandwritingLayoutPlanner:
                     pieces = split_simple_chain(block)
             lines = r.original_layout(pieces)
             for line in lines:
+                line["explicit_position"] = bool({"align", "indent"} & block.payload.keys())
                 kind = line["kind"]
                 if kind in {"matrix", "display"} and not (
                     {"align", "indent"} & block.payload.keys()
@@ -192,6 +195,8 @@ class HandwritingLayoutPlanner:
                     if rhythm.pitch_em:
                         line["h"] = max(line["h"], rhythm.pitch_em * r.cfg.body_size)
             result.extend(lines)
+        if self.renderer.semantic_enabled:
+            self.semantic.place(result)
         return result
 
     def draw_line(self, line, top, state):
@@ -209,7 +214,9 @@ class HandwritingLayoutPlanner:
             return baseline + size * ((1 - f) * knots[i] + f * knots[i + 1])
 
         for kind, word, adjustments, width in line["runs"]:
+            r.begin_word(word)
             if kind == "m":
+                r.current_math_role = "inline-mathematics"
                 px = round(size * r.cfg.math_scale)
                 _, base = r.math_image(word, px)
                 shift, _ = r.math_advance(word, size)
@@ -227,6 +234,7 @@ class HandwritingLayoutPlanner:
             "x": round(origin, 2),
             "baseline": round(baseline, 2),
             "baseline_knots_em": knots,
+            **line.get("semantic", {}),
         }
 
 
@@ -247,7 +255,7 @@ def finish_ink(page, renderer, profile, strokes, seed):
     """Fill the writer's outlines once; fit same-codepoint alternates in their measured box."""
     rng = random.Random(seed)
     picker = SetPicker(1, rng)
-    font_path = profile.font.resolve()
+    font_path = renderer.font_path.resolve()
     lean = renderer.style.pen_lean if renderer.style else None
     # Small shared bias on text letterforms, bounded inside each original ink box.
     lean = rng.uniform(0.055, 0.10) if lean is None else float(np.clip(lean, -0.18, 0.18))
@@ -279,11 +287,13 @@ def finish_ink(page, renderer, profile, strokes, seed):
                 audit[
                     ("personal", shape[1], "U+0304" if shape[1] == "bar" else "", shape[2], 0)
                 ] += 1
+            elif shape[0] == "personal-structure-glyph":
+                audit[("personal", "structure", f"U+{shape[1]:04X}", font_path.name, 0)] += 1
             else:
                 audit[("geometry", shape[0], "", "", 0)] += 1
             continue
         code, source, slot = info
-        if strokes and source != "fallback":
+        if (strokes or renderer.metric_data) and source != "fallback":
             choices = profile.manifest.variants.get(str(code), 1)
             learned = selector is not None and not selector.action.legacy
             slot = (
@@ -291,6 +301,13 @@ def finish_ink(page, renderer, profile, strokes, seed):
                 if learned
                 else picker.pick(code, choices)
             )
+            if renderer.metric_data and source == "personal":
+                rows = [row for row in renderer.metric_data["glyphs"] if row["codepoint"] == code]
+                if rows and sum(row["selection_weight"] for row in rows):
+                    slot = renderer.metric_rng.choices(
+                        [row["slot"] for row in rows],
+                        [row["selection_weight"] for row in rows],
+                    )[0]
             local_lean = selector.lean() if learned else lean
             key = (*shape, "pen", slot)
             if learned and shape[0] == "glyph" and chr(code).isalpha():
@@ -300,8 +317,10 @@ def finish_ink(page, renderer, profile, strokes, seed):
                 points = outline.verts[outline.codes != MplPath.CLOSEPOLY]
                 low, high = points.min(axis=0), points.max(axis=0)
                 if choices > 1:
-                    outline = fitted_variant(outline, shape, font_path, code, slot)
-                if shape[0] == "glyph" and chr(code).isalpha() and high[0] > low[0]:
+                    outline = fitted_variant(
+                        outline, shape, font_path, code, slot, normalized=bool(renderer.metric_data)
+                    )
+                if strokes and shape[0] == "glyph" and chr(code).isalpha() and high[0] > low[0]:
                     vertices = outline.verts.copy()
                     keep = outline.codes != MplPath.CLOSEPOLY
                     tilted = vertices[keep, 0] + (vertices[keep, 1] - low[1]) * local_lean
@@ -328,10 +347,19 @@ def finish_ink(page, renderer, profile, strokes, seed):
 class PlannedRendering:
     """Mixin for the existing one-page vector renderer. Explicit paper grids keep their rulings."""
 
-    def configure(self, mode, profile, identity, policy=None):
+    def configure(self, mode, profile, identity, policy=None, settings=None, metrics=None):
         self.policy_config = policy
         seed = f"{self.cfg.seed}|{identity}"
+        self.metric_data = metrics
+        self.metric_rng = random.Random(seed + "|metric-variants")
+        self.contextual = settings is not None and settings.glyph_metrics == "contextual"
+        self.context_rng = random.Random(seed + "|word-context")
+        self.word_scale = 1.0
+        self.local_scale = 0.0
+        self.previous_char = " "
+        self.semantic_enabled = bool(settings and settings.semantic_layout and not self.grid.snap)
         self.layout_enabled = mode in {"layout-enhanced", "combined"} and not self.grid.snap
+        self.layout_enabled = self.layout_enabled or self.semantic_enabled
         self.stroke_enabled = mode in {"stroke-enhanced", "combined"}
         self.stroke_seed = seed + "|stroke"
         layout_styles = tuple(style for style in profile.styles if style.lines)
@@ -353,6 +381,40 @@ class PlannedRendering:
                 ),
             )
 
+    def begin_word(self, word):
+        if self.contextual:
+            self.word_scale = 0.7 * self.word_scale + 0.3 * self.context_rng.uniform(0.975, 1.025)
+            self.local_scale = 0.0
+
+    def draw_char(self, canvas, x, baseline, ch, size, state, **kwargs):
+        if self.contextual and self.previous_char.isspace() and not ch.isspace():
+            self.begin_word(ch)
+        self.previous_char = ch
+        start = len(self._rec) if self._rec is not None else 0
+        advance = super().draw_char(canvas, x, baseline, ch, size, state, **kwargs)
+        if self.contextual and self._rec is not None and not ch.isspace():
+            self.local_scale = 0.85 * self.local_scale + 0.15 * self.context_rng.uniform(
+                -0.004, 0.004
+            )
+            scale = self.word_scale + self.local_scale
+            for i in range(start, len(self._rec)):
+                kind, shape, (a, b, c, d, e, f), *rest = self._rec[i]
+                # Shared word scale, tiny correlated residual, fixed baseline and advance.
+                self._rec[i] = (
+                    kind,
+                    shape,
+                    (
+                        a * scale,
+                        b * scale,
+                        c * scale,
+                        d * scale,
+                        x + (e - x) * scale,
+                        baseline + (f - baseline) * scale,
+                    ),
+                    *rest,
+                )
+        return advance
+
     def _place_math(self, canvas, tex, px, pos):
         start = len(self._rec)
         super()._place_math(canvas, tex, px, pos)
@@ -373,6 +435,8 @@ class PlannedRendering:
                 "position_px": pos,
                 "items": len(items),
                 "geometry_sha256": digest,
+                "item_range": [start, len(self._rec)],
+                "role": getattr(self, "current_math_role", "unclassified"),
             }
         )
 
@@ -386,6 +450,7 @@ class PlannedRendering:
                 "rows": rows,
                 "items": len(self._rec) - start,
                 "cell_and_matrix_size_px": self.matrix_metrics(rows),
+                "item_range": [start, len(self._rec)],
             }
         )
 
@@ -407,6 +472,7 @@ class PlannedRendering:
                 if "runs" in line:
                     self.rows.append(self.planner.draw_line(line, top, state))
                 elif line["kind"] not in {"gap", "blank"}:
+                    self.current_math_role = line.get("semantic", {}).get("role", "unclassified")
                     self.grid = replace(grid, top=top)
                     super().render_page([line], page_no, total, state)
                     self.rows.append(
@@ -414,6 +480,7 @@ class PlannedRendering:
                             "kind": line["kind"],
                             "top": round(top, 2),
                             "x" if "x" in line else "cx": line.get("x", line.get("cx")),
+                            **line.get("semantic", {}),
                         }
                     )
                 top += line["h"]

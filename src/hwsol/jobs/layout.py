@@ -19,7 +19,9 @@ from hwsol.config import RenderConfig
 from hwsol.jobs.handwriting import PlannedRendering, finish_ink, split_simple_chain
 from hwsol.jobs.math_strokes import apply_math_strokes
 from hwsol.jobs.paper import paper_image, visible_ink
+from hwsol.jobs.provenance import classify_rules, visible_provenance
 from hwsol.jobs.schema import Background, Realism
+from hwsol.profiles.metrics import normalized_asset
 from hwsol.profiles.store import LoadedProfile
 
 COMMANDS = frozenset(
@@ -264,6 +266,13 @@ def render_one(
         if cfg.policy.profile_sha256 != profile.manifest_sha256:
             raise ValueError("Renderer policy belongs to a different Profile snapshot")
     blocks = validate_markdown(source, profile)
+    render_font = profile.font
+    metrics = None
+    if cfg.glyph_metrics != "raw":
+        font_asset = next(a for a in profile.manifest.assets if a.path == profile.manifest.font)
+        render_font, metrics = normalized_asset(
+            str(profile.font.resolve()), font_asset.sha256, profile.manifest.personal_codepoints
+        )
     title = Block("h2", (("t", number),))
     if any(ord(c) not in profile.manifest.coverage for c in number if not c.isspace()):
         raise ValueError(f"Missing glyph in problem number {number}")
@@ -302,7 +311,7 @@ def render_one(
                 paper=bg.kind if asset is None else "plain",
             )
         )
-        upstream = upstream_config(profile.font, settings, bool(profile.manifest.variants))
+        upstream = upstream_config(render_font, settings, bool(profile.manifest.variants))
         upstream = upstream.replace(
             h1_size=upstream.body_size,
             h2_size=upstream.body_size,
@@ -323,7 +332,9 @@ def render_one(
             logger.addHandler(diagnostic)
             try:
                 renderer = SinglePageRenderer(upstream)
-                renderer.configure(realism, profile, identity or number, settings.policy)
+                renderer.configure(
+                    realism, profile, identity or number, settings.policy, settings, metrics
+                )
                 pages = renderer.render_vector([title, *body])
             except MultiplePages as exc:
                 record["page_count"] = exc.count
@@ -336,7 +347,12 @@ def render_one(
             if len(pages) != 1:
                 continue
             page = pages[0]
-            math_strokes = apply_math_strokes(page, renderer, profile)
+            classify_rules(page, renderer)
+            math_strokes = (
+                apply_math_strokes(page, renderer, profile)
+                if cfg.math_strokes == "personal"
+                else []
+            )
             glyphs = finish_ink(
                 page, renderer, profile, renderer.stroke_enabled, renderer.stroke_seed
             )
@@ -354,7 +370,7 @@ def render_one(
             if asset is not None:
                 page.background = paper_image(bg, asset, (page.width, page.height))
                 page.paper = None
-            profile_font = profile.font.resolve()
+            profile_font = render_font.resolve()
             fallback = [
                 {"codepoint": f"U+{cp:04X}", "font": Path(font).name}
                 for cp, font in used
@@ -371,10 +387,18 @@ def render_one(
                 "math_fallback_glyphs": fallback,
                 "coverage": renderer.coverage(body),
                 "glyph_sources": glyphs,
+                "glyph_provenance": visible_provenance(page, renderer, profile, math_strokes),
                 "formula_groups": renderer.formulas,
                 "matrix_groups": renderer.matrices,
                 "handwriting": {
                     "mode": realism,
+                    "factors": {
+                        "glyph_metrics": cfg.glyph_metrics,
+                        "math_strokes": cfg.math_strokes,
+                        "semantic_layout": cfg.semantic_layout,
+                        "layout_applied": renderer.layout_enabled,
+                    },
+                    "metric_references": metrics["references_em"] if metrics else None,
                     "glyph_ink": "fill-only",
                     "math_size": "body-em/full-size-fractions",
                     "text_variant_size": "character-primary-height-band-95-105pct"
@@ -382,6 +406,7 @@ def render_one(
                     else "font-native",
                     "policy": renderer.policy_report,
                     "math_strokes": math_strokes,
+                    "structure_fallbacks": getattr(renderer, "structure_fallbacks", []),
                     "planned_lines": renderer.rows,
                     "paper_grid_locked": bool(renderer.grid.snap),
                     "calibration_sample": renderer.style.sample_id if renderer.style else None,

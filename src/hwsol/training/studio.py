@@ -10,9 +10,11 @@ from pathlib import Path
 from fontTools.ttLib import TTFont
 
 from hwsol.adapters.handnote import HandnoteAdapter
+from hwsol.identity import build_identity
 from hwsol.probe import run_probe
 from hwsol.profiles.fonts import inspect_font
 from hwsol.profiles.io import atomic_json, inside, sha256
+from hwsol.profiles.metrics import measure_font
 from hwsol.profiles.schema import Asset, ProfileError, ProfileVersion, SampleIndex
 from hwsol.profiles.store import ProfileStore, compare, load_snapshot
 from hwsol.training.backend import HandnoteCPU, TrainingBackend, merge_variants
@@ -144,6 +146,11 @@ def train(
                         font["name"].setName(value, field, platform_id, encoding, lang)
                 font.save(final_font)
             assets = [Asset(path=final_font.name, sha256=sha256(final_font), role="font")]
+            metrics_file = stage / "glyph-metrics.json"
+            atomic_json(metrics_file, measure_font(final_font, tuple(sorted(personal))))
+            assets.append(
+                Asset(path=metrics_file.name, sha256=sha256(metrics_file), role="glyph-metrics")
+            )
             rights = [
                 (inside(base.directory, a.path), a.role)
                 for a in base.manifest.assets
@@ -240,6 +247,8 @@ def train(
                 render=base.manifest.render,
                 build={
                     "backend": "handnote-cpu",
+                    "identity": build_identity(),
+                    "operation": "font-build-and-statistical-calibration; no neural training",
                     "handnote": package_version("handnote"),
                     "hwsol": package_version("handwritten-solutions"),
                     "run_id": run_id,

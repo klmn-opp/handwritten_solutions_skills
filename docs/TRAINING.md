@@ -121,3 +121,11 @@ Runtime 在 MathText 完成公式布局后，使用 `bar` 轮廓替换 U+0304 �
 当前开发版可通过 `hwsol lab rl prepare/train` 学习真实字形选择、笔宽一致性和相关变化的策略分布。
 它复用已发布 Profile，不重写字形、不产生新的笔顺或压感。自动指标预训练与人类偏好训练分别标记；
 数学错误先处理，策略不自动激活。命令、已跑结果与数据要求见 [RL 实验指南](RL_RENDERING.md)。
+
+## 0.4.0 候选与补字队列
+
+`hwsol-studio collection-plan --profile profile@vN --source answer.md --output new-directory`
+复用 Handnote 生成独立补字模板。日常 Runtime 不要求为少量数学回退立即重建 Profile。
+CPU `train --append` 仍是全历史字体构建与统计校准；新的候选加入度量资产，不能称为神经训练。
+支持只含词/行轨迹的 calibration；扫描估计必须显式标注 origin，不能标为 recorded-pen。
+新候选没有自动继承旧版的作者验收，默认 Profile 保持原状。见 [本轮实现与未完成项](NEXT_STAGE_DEVELOPMENT.md)。

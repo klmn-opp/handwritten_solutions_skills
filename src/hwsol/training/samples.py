@@ -130,7 +130,13 @@ def import_sample(
                     from hwsol.training.calibration import AnnotatedPage
 
                     page = AnnotatedPage.model_validate_json((stage / originals[0]).read_bytes())
-                    sample = sample.model_copy(update={"has_recorded_strokes": bool(page.traces)})
+                    sample = sample.model_copy(
+                        update={
+                            "has_recorded_strokes": any(
+                                t.origin == "recorded-pen" for t in page.traces
+                            )
+                        }
+                    )
             except (ValueError, KeyError, TypeError, OSError, TTLibError) as exc:
                 sample = sample.model_copy(
                     update={

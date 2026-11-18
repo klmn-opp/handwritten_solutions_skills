@@ -5,6 +5,7 @@ from typing import Annotated, Literal
 
 from pydantic import Field, model_validator
 
+from hwsol.jobs.semantic import ContentRole
 from hwsol.profiles.schema import FrozenModel
 
 Fraction = Annotated[float, Field(ge=0, le=1)]
@@ -39,12 +40,21 @@ class MathStroke(FrozenModel):
 
 class LineStyle(FrozenModel):
     kind: Literal["text", "math"]
+    role: ContentRole | None = None
+    column: tuple[Fraction, Fraction] = (0, 1)
+    equality_inset: Fraction | None = None
     # Position in the spare horizontal space. 0 = flush left, 0.5 = centred.
     anchor: Fraction
     inset: Fraction
     pitch_em: float | None = Field(None, ge=1.2, le=3)
     baseline_em: tuple[Offset, Offset, Offset, Offset, Offset]
     word_gaps_em: tuple[Gap, ...] = Field(default=(), max_length=256)
+
+    @model_validator(mode="after")
+    def column_bounds(self):
+        if self.column[0] >= self.column[1]:
+            raise ValueError("Column must have positive width")
+        return self
 
 
 class PageStyle(FrozenModel):
@@ -55,9 +65,12 @@ class PageStyle(FrozenModel):
     pen_lean: float | None = Field(None, ge=-0.65, le=0.65)
     median_pressure: Fraction | None = None
     math_strokes: tuple[MathStroke, ...] = Field(default=(), max_length=64)
+    trace_inventory: dict[Literal["recorded-pen", "estimated-trajectory", "scan-contour"], int] = (
+        Field(default_factory=dict)
+    )
 
     @model_validator(mode="after")
     def observations(self):
-        if not self.lines and not self.math_strokes:
+        if not self.lines and not self.math_strokes and not any(self.trace_inventory.values()):
             raise ValueError("A style needs line observations or measured math strokes")
         return self

@@ -8,6 +8,7 @@ from typing import Annotated, Literal
 import numpy as np
 from pydantic import Field, model_validator
 
+from hwsol.jobs.semantic import ContentRole, content_role
 from hwsol.profiles.schema import Digest, FrozenModel, ProfileError
 from hwsol.profiles.style import LineStyle, MathStroke, PageStyle
 
@@ -24,6 +25,7 @@ class PenPoint(FrozenModel):
 
 class Trace(FrozenModel):
     kind: Literal["glyph", "word", "line", "math"]
+    origin: Literal["recorded-pen", "estimated-trajectory", "scan-contour"] = "recorded-pen"
     text: str = Field(min_length=1)
     # Each new stroke starts after a pen-up. Omitted time/pressure means unknown.
     strokes: tuple[Annotated[tuple[PenPoint, ...], Field(min_length=1)], ...] = Field(min_length=1)
@@ -31,6 +33,9 @@ class Trace(FrozenModel):
 
 class AnnotatedLine(FrozenModel):
     kind: Literal["text", "math"]
+    role: ContentRole | None = None
+    column: tuple[float, float] | None = None
+    equality_x: float | None = None
     text: str = Field(min_length=1)
     baseline: tuple[Point, ...] = Field(min_length=2)
     # Ink spans in reading order, in the same coordinates as the page.
@@ -49,8 +54,8 @@ class AnnotatedPage(FrozenModel):
 
     @model_validator(mode="after")
     def geometry(self):
-        if not self.lines and not self.math_strokes:
-            raise ProfileError("Supply annotated lines or measured math strokes")
+        if not self.lines and not self.math_strokes and not self.traces:
+            raise ProfileError("Supply annotated lines, measured math strokes or traces")
         for stroke in self.math_strokes:
             if stroke.source_sha256 != self.source_sha256:
                 raise ProfileError("Math stroke must identify the annotated source")
@@ -58,6 +63,10 @@ class AnnotatedPage(FrozenModel):
                 raise ProfileError("Math stroke crop outside page")
         previous = -1.0
         for line in self.lines:
+            if line.column is not None and not (0 <= line.column[0] < line.column[1] <= self.width):
+                raise ProfileError("Column outside page")
+            if line.equality_x is not None and not 0 <= line.equality_x <= self.width:
+                raise ProfileError("Equality anchor outside page")
             if any(not (0 <= x <= self.width and 0 <= y <= self.height) for x, y in line.baseline):
                 raise ProfileError("Baseline outside page")
             if any(a[0] >= b[0] for a, b in pairwise(line.baseline)):
@@ -91,6 +100,14 @@ def measure(path: Path, sample_id: str) -> PageStyle:
         lines.append(
             LineStyle(
                 kind=line.kind,
+                role=line.role
+                or content_role(
+                    line.text, line.kind, index > 0 and page.lines[index - 1].kind == "math"
+                ),
+                column=tuple(x / page.width for x in line.column) if line.column else (0, 1),
+                equality_inset=line.equality_x / page.width
+                if line.equality_x is not None
+                else None,
                 anchor=float(xs[0] / max(1, page.width - (xs[-1] - xs[0]))),
                 inset=float(xs[0] / page.width),
                 pitch_em=None
@@ -103,6 +120,7 @@ def measure(path: Path, sample_id: str) -> PageStyle:
     pressures = [
         p.pressure
         for trace in page.traces
+        if trace.origin == "recorded-pen"
         for stroke in trace.strokes
         for p in stroke
         if p.pressure is not None
@@ -128,4 +146,8 @@ def measure(path: Path, sample_id: str) -> PageStyle:
         pen_lean=median(leans) if leans else None,
         median_pressure=median(pressures) if pressures else None,
         math_strokes=page.math_strokes,
+        trace_inventory={
+            origin: sum(t.origin == origin for t in page.traces)
+            for origin in ("recorded-pen", "estimated-trajectory", "scan-contour")
+        },
     )

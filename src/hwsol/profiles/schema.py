@@ -64,7 +64,15 @@ class FrozenModel(BaseModel):
 class Asset(FrozenModel):
     path: str
     sha256: Digest
-    role: Literal["font", "license", "provenance", "calibration", "trajectory"]
+    role: Literal[
+        "font",
+        "license",
+        "provenance",
+        "calibration",
+        "trajectory",
+        "glyph-metrics",
+        "model-adapter",
+    ]
 
     @field_validator("path")
     @classmethod
