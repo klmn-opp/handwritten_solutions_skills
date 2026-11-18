@@ -1,6 +1,17 @@
 # 实施状态
 
-更新于 2026-11-18。Phase 0 和 Phase 1 的基座已复验，Phase 2 的本地作业流程已在 Linux x86_64 跑通。当前包版本为 0.2.0。
+更新于 2026-11-18。当前发行版本为 **v0.3.0**。完整 v1 尚待原生平台验收。
+
+## Phase 3 与 Phase 4
+
+| 范围 | 已实现并实测 | 待验证 |
+|---|---|---|
+| Runtime 和 Studio | Linux x86_64，Python 3.12.16 与 3.13.18，逐页像素核验、复杂公式、多种纸张、真实变体的种子重放、长解答拒绝、冷/热 CPU 与内存记录。 | Windows、macOS 原生运行结果与真实作者字迹的人评。 |
+| 三平台自动化 | Ubuntu、macOS、Windows 各两个 Python 版本的 CI 工作流。Linux 另执行可选 MarkdownToHandwrite 用例。 | 本仓库尚未推送到远端，其他平台工作流尚无运行证据。 |
+| 神经实验 | 固定三个上游提交。One-DM / DiffBrush 本地采样命令，三模型图像导入，固定语料盲评、字符错误率、样本级匹配、风格及来源门槛。 | 未用真实授权模型和样本推理、训练或测量质量；没有生产神经后端。 |
+| 发行 | 本地 Git 历史，打包脚本从指定版本生成 Skill ZIP、wheel、sdist、Git bundle 和 SHA-256 清单。Skill ZIP 解压到新工作区，Codex 0.166.0 本地 skills/list 返回已启用。 | 真实作者字体发布授权。 |
+
+[质量与基准](PHASE3.md) · [生成式笔迹实验](PHASE4.md) · [验证记录](VERIFICATION.md)
 
 ## Phase 2 作业交付
 
@@ -31,7 +42,7 @@
 | Profile 迁移 | ZIP 仅含 Runtime 资产、字体、许可证和来源；新数据目录无历史样本也可渲染 |
 | Skill 原型入口与边界说明 | `SKILL.md`、`agents/openai.yaml`；格式校验通过 |
 
-## 验证结果
+## Phase 0–2 历史验证结果
 
 - 项目自动化：**49 passed**，含前两阶段 29 项和本阶段 20 项，测试执行时包含两个隔离兼容环境用例。
 - Phase 1 D/E/I/J 工程门槛：切换改变像素；v1/v2 历史/轮廓保留；禁用 Studio/神经模块仍可渲染；构建时旧版持续渲染。
@@ -51,9 +62,9 @@
 | 阶段 | 尚未交付的功能 |
 |---|---|
 | Profile 后续增强 | 自动风格/缺笔画识别、按权重的变体采样、CFF 累积合并、任意 PDF/照片自动标注；真实作者样本与字体分发授权 |
-| 作业流程的验证边界 | Agent 负责识别原稿与判断推导。Runtime 自动验证给出的精确数值等式和产物结构。复杂图示、一般符号证明、任意 LaTeX、真实扫描作业识别准确率及新 Codex 会话发现流程仍待进一步验证。 |
-| Phase 3 | 跨平台 A–J 回归、真实样本质量验证、完整图示支持、性能/内存基准、macOS/Windows 验证、发布级许可证与安全审计 |
-| Phase 4 | 神经微调与 DiffusionPen/DiffBrush/One-DM 等生成式 Adapter |
+| 作业流程的验证边界 | Agent 负责识别原稿与判断推导。Runtime 自动验证给出的精确数值等式和产物结构。复杂图示、一般符号证明、任意 LaTeX、真实扫描作业识别准确率仍待进一步验证。 |
+| Phase 3 后续 | macOS/Windows 原生结果、真实样本与复杂图示、平台依赖再分发审计 |
+| Phase 4 后续 | 权利清晰的真实模型样本、大规模留出集、GPU/MPS 推理和风格微调验证 |
 
 已存在 `doctor`、`profiles list/activate/rollback/compare/export/import`、
 `profile create/template/import/samples/train/evaluate/publish` 和 `hwsol-studio`。
@@ -65,4 +76,4 @@ CPU Studio 复用主包已有依赖，普通渲染不需要 Studio 导入、训�
 
 ## 下一步
 
-下一阶段按 [ROADMAP](ROADMAP.md) 扩展复杂公式/排版回归、真实扫描输入与 macOS/Windows 验收。
+剩余验收包括原生 CI、真实扫描输入与授权样本研究。详见[后续计划](ROADMAP.md)。

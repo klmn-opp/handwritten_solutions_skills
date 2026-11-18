@@ -1,5 +1,16 @@
 # 验证记录
 
+## v0.3.0 · Phase 3 / 4（2026-11-18）
+
+| 检查 | Linux x86_64 结果 |
+|---|---|
+| 全量 pytest | Python 3.12.16 和 3.13.18 各 **65 passed**，均启用独立的 MTH 解释器。[3.12 JUnit](evidence/phase3/tests-py312.xml) · [3.13 JUnit](evidence/phase3/tests-py313.xml) |
+| 干净 wheel 安装 | 两个 Python 版本均从本地锁定缓存安装仅 Runtime 依赖，离开源码树执行 doctor，输出五题并逐页比对 PDF / PNG。 |
+| 发行材料 | Git 标签、Skill ZIP、sdist、wheel、可克隆 Git bundle 和 SHA-256 清单。可用贡献指南中的打包命令从标签重建。 |
+| 代码、格式、Skill | Ruff 检查、格式检查、compileall、git diff --check，Skill 通过 quick_validate.py。将打包的 Skill 解压至新 Git 工作区的 .agents/skills，Codex CLI 0.166.0 的本地 app-server skills/list 扫描到 handwritten-solutions，scope=repo，enabled=true。 |
+| 样本与后端 | 无个人样本参与回归。GPU 驱动识别结果与模型输入限制见[实验报告](PHASE4.md)。 |
+| 平台 | macOS / Windows 工作流已配置。两者原生执行结果尚待记录。 |
+
 ## Phase 2（2026-11-18）
 
 Linux x86_64、Python 3.12。复查前 29 项基线通过。扩展后 49 项通过，包括两个 MTH 兼容环境用例。[JUnit](evidence/phase2/tests.xml)

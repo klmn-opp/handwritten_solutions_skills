@@ -2,17 +2,35 @@
 
 本地运行的手写作业 Agent Skill。Agent 读取文本、图片或 PDF，按原题号解答并保留验证记录。Runtime 用选定的字迹 Profile 排版，每道顶层题占一页，交付 PDF、逐页 PNG 和可编辑 Markdown。
 
-Phase 2 已在 Linux 验证，内置 Profile 可直接运行，也支持导入已发布的个人字迹。示例中分别有公开题目和五题合成测试作业。真实作者字迹质量和三平台验收进度见 [实施状态](docs/IMPLEMENTATION_STATUS.md)。
+当前版本 **v0.3.0**。Linux x86_64 已验证 Python 3.12 和 3.13。默认字迹可直接使用，附带一道公开题和五题合成作业。阶段 3 添加逐页像素核验与三平台 CI，阶段 4 提供独立的英文笔迹实验工具。[实施状态](docs/IMPLEMENTATION_STATUS.md)
+
+## 选择发行文件
+
+| 文件 | 用途 |
+|---|---|
+| handwritten-solutions-0.3.0-skill.zip | 解压后有 handwritten-solutions/，内含 SKILL.md、uv.lock、源码和示例。适合安装到 Codex。 |
+| handwritten_solutions-0.3.0-py3-none-any.whl | Python 命令行工具。使用锁定环境时从源码目录安装依赖，再安装 wheel。 |
+| handwritten_solutions-0.3.0.tar.gz | Python 源码发行包，保留 Skill、构建脚本和测试。 |
+| handwritten-solutions-v0.3.0.bundle | 完整本地 Git 历史，可用下方命令克隆。 |
+| SHA256SUMS | 上述四个文件的 SHA-256。 |
+
+```sh
+git clone ./handwritten-solutions-v0.3.0.bundle handwritten-solutions
+cd handwritten-solutions
+git log --oneline --decorate
+```
+
+在 Linux 或 macOS 可分别用 `sha256sum -c SHA256SUMS` 或 `shasum -a 256 -c SHA256SUMS` 核对文件。Windows PowerShell 可使用 `Get-FileHash -Algorithm SHA256 <文件>` 对照清单。
 
 ## 安装与运行
 
-需要 Python 3.12/3.13、Git 和 [uv](https://docs.astral.sh/uv/)。当前实测环境为 Linux x86_64 / Python 3.12。
+需要 Python 3.12/3.13、Git 和 [uv](https://docs.astral.sh/uv/)。日常安装可用 `uv sync --locked --no-dev`。以下为包含测试的开发安装。
 
 ```bash
 uv sync --locked
 uv run --frozen hwsol doctor
 uv run --frozen hwsol render --manifest examples/phase2/euler/job.json --output out/euler
-uv run --frozen hwsol verify --job out/euler
+uv run --frozen hwsol verify --job out/euler --pixels
 uv run --frozen hwsol profiles list
 uv run --frozen hwsol render-probe --input examples/phase0/common.md --output out/common
 uv run --frozen pytest
@@ -75,6 +93,14 @@ uv run --frozen hwsol render-probe --input examples/phase0/common.md --output ou
 
 ## 在 Codex 中使用
 
-将源码发行包解压到目标工作区的 `.agents/skills/handwritten-solutions/`，或把此 checkout 链接到该位置。在该 Skill 目录运行 `uv sync --locked --no-dev`。在可以发现该 Skill 的 Codex 会话中使用 `$handwritten-solutions` 并提供题目。Agent 按 [SKILL.md](SKILL.md) 读取原始材料，完成解题、验证与交付。单独安装 wheel 可使用 CLI，Skill 指令和示例在源码发行包中。
+将 Skill ZIP 解压到目标工作区的 `.agents/skills/`（ZIP 自带 handwritten-solutions 目录），或把此 checkout 链接到该位置。在该 Skill 目录运行 `uv sync --locked --no-dev`。在可以发现该 Skill 的 Codex 会话中使用 `$handwritten-solutions` 并提供题目。Agent 按 [SKILL.md](SKILL.md) 读取原始材料，完成解题、验证与交付。单独安装 wheel 可使用 CLI，Skill 指令和示例在源码发行包中。
 
 [Manifest 格式和排版规则](references/jobs.md) 描述输入文件、验证状态、背景优先级、可复算等式和故障恢复。运行五题示例可使用 `hwsol render --manifest examples/phase2/mixed/job.json --output out/mixed`。
+
+## 英文生成式笔迹实验
+
+运行 `hwsol lab models` 查看固定上游版本，`hwsol lab prepare --model one-dm --output out/trial` 创建本地实验。研究工具可以导入和盲评词图或行图。执行神经采样需要独立环境、获授权的风格样本、检查点和本地 VAE。[阶段 4 操作及许可](docs/PHASE4.md)
+
+## 开源与贡献
+
+项目代码使用 MIT，内附 Patrick Hand 字体使用 SIL OFL 1.1。第三方运行依赖按其各自许可安装。打包过程保留字体来源及完整许可。仓库内的样例、源解答及 AI 生成记录供核查，课程要求独立完成或亲笔书写时应遵循课程规范。[许可清单](docs/LICENSES.md) · [贡献与打包](CONTRIBUTING.md) · [版本记录](CHANGELOG.md)

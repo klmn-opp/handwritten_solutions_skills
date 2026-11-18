@@ -29,3 +29,5 @@ out/
 *.pth
 *.safetensors
 /.release-work/
+*.pt
+*.pkl
