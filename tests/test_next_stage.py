@@ -94,6 +94,8 @@ def test_actual_paths_have_complete_provenance_and_replay(collected, metrics):
     assert not any(r["procedural_geometry"] and r["personal_collected"] for r in rows)
     structures = {r["structure"] for r in rows if r["structure"]}
     assert {"radical-overbar", "fraction-bar", "overline-accent"} <= structures
+    cells = [row for row in rows if row.get("matrix_environment") and row.get("codepoint")]
+    assert cells and all(row["context"] == "mathematics" for row in cells)
 
 
 def style(inset=0.12, role=None, column=(0, 1)):

@@ -92,6 +92,8 @@ def visible_provenance(page, renderer, profile, replacements: list[dict]) -> lis
             "procedural_geometry": True,
             "bounds_px": bounds[i],
             "latex": formulas.get(i),
+            "context": "mathematics" if i in formulas or i in matrices else "text",
+            "matrix_environment": matrices.get(i),
             "structure": None,
         }
         if kind == "path" and key[0] in {"glyph", "mglyph"}:

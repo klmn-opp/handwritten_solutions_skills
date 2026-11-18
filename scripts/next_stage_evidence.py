@@ -44,7 +44,7 @@ def prepare_input(source: Path, target: Path) -> dict:
 
 def coverage(report: dict) -> dict:
     rows = [r for page in report["pages"] for r in page["glyph_provenance"]]
-    math = [r for r in rows if r.get("latex") or r.get("structure")]
+    math = [r for r in rows if r["context"] == "mathematics"]
     return {
         "visible_items": len(rows),
         "math_items": len(math),

@@ -28,7 +28,7 @@ def collection_plan(profile, sources: list[Path], output: Path, *, sets: int = 4
                 if row.get("codepoint"):
                     cp = int(row["codepoint"][2:], 16)
                     counts[cp] += 1
-                    if row.get("latex") or row.get("structure"):
+                    if row["context"] == "mathematics":
                         maths[cp] += 1
                 if row.get("structure"):
                     structures[row["structure"]] += 1
