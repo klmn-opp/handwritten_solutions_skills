@@ -6,6 +6,12 @@ from collections import Counter
 from pathlib import Path
 
 from hwsol.profiles.io import atomic_json, sha256
+from research.corpus.label_admission import (
+    POLICY_ID,
+    accepted_label,
+    label_text,
+    validate_model_evidence,
+)
 from research.corpus.store import Corpus, digest, now
 
 CATEGORIES = {
@@ -73,6 +79,9 @@ def export_dataset(corpus: Corpus, destination: Path, *, seed: int = 902) -> dic
     plan = frozen_splits(corpus, documents, seed)
     pages = snapshot.get("page", [])
     samples = snapshot.get("sample", [])
+    label_policy = next(
+        (p for p in snapshot.get("policy", []) if p.get("policy_id") == POLICY_ID), None
+    )
     # Near-identical pages from different original documents cannot straddle splits.
     duplicate_documents = set()
     duplicate_pairs = []
@@ -96,10 +105,10 @@ def export_dataset(corpus: Corpus, destination: Path, *, seed: int = 902) -> dic
     seen_crops = {}
     for sample in samples:
         reasons = []
-        if sample["review_status"] != "verified" or not (
-            sample.get("review_attestation") or {}
-        ).get("human_review"):
+        if not accepted_label(sample, label_policy):
             reasons.append("unverified-transcription")
+        elif sample["review_status"] == "model-accepted":
+            validate_model_evidence(sample)
         if (
             sample["writer_provenance"]["domain"] != "personal-real"
             or sample["writer_provenance"]["is_generated"]
@@ -146,9 +155,10 @@ def export_dataset(corpus: Corpus, destination: Path, *, seed: int = 902) -> dic
     records.write_text("".join(json.dumps(s, ensure_ascii=False) + "\n" for s in eligible))
     atomic_json(destination / "review-snapshot.json", snapshot)
     atomic_json(destination / "split-plan.json", plan)
+    atomic_json(destination / "label-policy.json", label_policy)
     atomic_json(destination / "pending.json", pending)
     atomic_json(destination / "near-duplicates.json", duplicate_pairs)
-    labels = [s.get("verified_text") or s.get("verified_latex") or "" for s in eligible]
+    labels = [label_text(s) for s in eligible]
     report = {
         "schema": "personal-homework-dataset/1",
         "review_event_sequence": snapshot["event_sequence"],
@@ -157,9 +167,17 @@ def export_dataset(corpus: Corpus, destination: Path, *, seed: int = 902) -> dic
         "split_policy": plan["policy"],
         "split_plan_version": plan["version"],
         "sample_manifest_sha256": sha256(records),
+        "label_policy_sha256": sha256(destination / "label-policy.json"),
+        "label_sources": dict(Counter(s["label_source"] for s in eligible)),
+        "human_reviewed_samples": sum(s["review_status"] == "verified" for s in eligible),
+        "model_accepted_samples": sum(s["review_status"] == "model-accepted" for s in eligible),
         "documents": len(documents),
         "pages": len(pages),
         "verified_pages": len({s["page_id"] for s in eligible}),
+        "admitted_pages": len({s["page_id"] for s in eligible}),
+        "human_verified_pages": len(
+            {s["page_id"] for s in eligible if s["review_status"] == "verified"}
+        ),
         "eligible_samples": len(eligible),
         "pending_samples": len(pending),
         "statuses": dict(Counter(s["review_status"] for s in samples)),
@@ -176,7 +194,8 @@ def export_dataset(corpus: Corpus, destination: Path, *, seed: int = 902) -> dic
         ),
         "near_duplicate_pairs": len(duplicate_pairs),
         "near_duplicate_document_ratio": len(duplicate_documents) / max(1, len(documents)),
-        "human_verified_ratio": len(eligible) / max(1, len(samples)),
+        "human_verified_ratio": sum(s["review_status"] == "verified" for s in eligible)
+        / max(1, len(samples)),
         "unlabelled_or_ineligible_ratio": len(pending) / max(1, len(samples)),
         "automatic_recognition_results": len(snapshot.get("recognition", [])),
         "corpus_root": str(corpus.root),
@@ -191,7 +210,7 @@ def readiness(samples: list[dict]) -> dict:
     counts = {}
     groups = set()
     for sample in samples:
-        label = sample.get("verified_text") or sample.get("verified_latex") or ""
+        label = label_text(sample)
         if sample["content_type"] not in {"glyph", "math-symbol"} or len(label) != 1:
             continue
         groups.add(sample["split_group"])
@@ -214,9 +233,11 @@ def readiness(samples: list[dict]) -> dict:
         "counts_by_label": {k: dict(c) for k, c in counts.items()},
         "independent_sessions": len(groups),
         "missing": (
-            "Need human-verified glyphs across independent sessions with fixed validation/holdout. "
+            "Need admitted glyphs across independent sessions with fixed validation/holdout. "
             "Lines are not automatically split into glyphs."
         ),
         "sft_rl_ready": False,
         "style_acceptance": "not-assessed",
+        "label_sources": dict(Counter(s.get("label_source", "unspecified") for s in samples)),
+        "independent_human_content_evaluation": "not-performed-for-model-labels",
     }

@@ -26,7 +26,7 @@ TYPES = {
     "unknown",
 }
 ROLES = {"personal-handwriting", "printed", "other-writer", "mixed", "unknown"}
-STATUSES = {"auto-candidate", "needs-review", "verified", "rejected"}
+STATUSES = {"auto-candidate", "needs-review", "verified", "rejected", "model-accepted"}
 
 
 def digest(value: object) -> str:
@@ -162,6 +162,7 @@ class Corpus:
         role="unknown",
         parents=None,
         notes="",
+        derivation=None,
     ) -> dict:
         with self.db() as db:
             return self._propose(
@@ -174,6 +175,7 @@ class Corpus:
                 role=role,
                 parents=parents,
                 notes=notes,
+                derivation=derivation,
             )
 
     def _propose(
@@ -188,6 +190,7 @@ class Corpus:
         role="unknown",
         parents=None,
         notes="",
+        derivation=None,
     ):
         page = self._get(db, "page", page_id)
         bbox = validate_bbox(bbox, page["width"], page["height"])
@@ -230,6 +233,7 @@ class Corpus:
             "dataset_split": None,
             "notes": notes,
             "parents": parents or [],
+            "derivation": derivation,
             "revision": 0,
             "created_at": now(),
             "privacy_checked": False,
@@ -345,6 +349,8 @@ class Corpus:
         }
         if set(changes) - allowed or not actor.strip():
             raise ValueError("Invalid review fields or missing reviewer")
+        if changes.get("review_status") == "model-accepted":
+            raise ValueError("Model labels require explicit policy and model evidence admission")
         with self.db() as db:
             old = self._get(db, "sample", sample_id)
             if old["revision"] != revision:
@@ -368,6 +374,7 @@ class Corpus:
                 raise ValueError("Invalid transcription")
             new["verified_text"] = new["verified_latex"] = None
             new["review_attestation"] = None
+            new["model_text"] = new["model_review"] = None
             if new["review_status"] == "verified":
                 checks = {"actual_transcription", "crop_complete", "writer_checked", "human_review"}
                 if not attestation or not all(attestation.get(k) is True for k in checks):

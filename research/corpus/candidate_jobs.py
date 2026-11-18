@@ -19,7 +19,7 @@ def select_missing(corpus: Corpus, page_id: str) -> list[str]:
         s["sample_id"]
         for s in corpus.rows("sample")
         if s["page_id"] == page_id
-        and s["review_status"] not in {"verified", "rejected"}
+        and s["review_status"] not in {"verified", "rejected", "model-accepted"}
         and s["content_type"] in {"unknown", "math-expression", "math-symbol"}
         and s["sample_id"] not in recognized
     ]

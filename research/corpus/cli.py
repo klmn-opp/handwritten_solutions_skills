@@ -38,6 +38,14 @@ def main():
     recognize.add_argument("--source", type=Path)
     recognize.add_argument("--run-id")
     recognize.add_argument("--candidates", type=int, choices=[1, 2, 3], default=1)
+    symbols = sub.add_parser("prepare-symbols")
+    symbols.add_argument("--parents", type=Path, required=True)
+    symbols.add_argument("--run-id")
+    publish = sub.add_parser("publish-symbols")
+    publish.add_argument("--selection", type=Path, required=True)
+    publish.add_argument("--annotator", required=True)
+    publish.add_argument("--model-evidence", type=Path)
+    publish.add_argument("--run-id")
     sub.add_parser("status")
     args = parser.parse_args()
     corpus = Corpus(args.corpus)
@@ -89,6 +97,36 @@ def main():
         config={k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()},
     )
     try:
+        if args.command in {"prepare-symbols", "publish-symbols"}:
+            from research.corpus.symbols import prepare, publish
+
+            if args.command == "prepare-symbols":
+                result = prepare(
+                    corpus, json.loads(args.parents.read_text()), run.path / "comparisons/proposals"
+                )
+                summary = {"proposals": len(result["proposals"]), "labels_inferred": False}
+            else:
+                result = publish(
+                    corpus,
+                    json.loads(args.selection.read_text()),
+                    batch=run.path.name,
+                    annotator=args.annotator,
+                )
+                if args.model_evidence:
+                    from research.corpus.label_admission import adopt
+
+                    result["adopted"] = adopt(
+                        corpus, [s["sample_id"] for s in result["created"]], args.model_evidence
+                    )
+                summary = {
+                    "created": len(result["created"]),
+                    "adopted_model_labels": len(result.get("adopted", [])),
+                    "human_confirmation": False,
+                }
+            atomic_json(run.path / "reports/symbols.json", result)
+            run.finish("passed", result=summary)
+            print(run.path)
+            return
         if args.command == "import":
             from research.corpus.ingest import EXTENSIONS, import_file, propose_lines
 

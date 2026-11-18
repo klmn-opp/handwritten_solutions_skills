@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 
 from hwsol.profiles.io import atomic_json, sha256
+from research.corpus.label_admission import label_text
 
 
 def admitted_request(request: dict) -> tuple[list[dict], dict]:
@@ -30,10 +31,10 @@ def main():
     rows, gate = admitted_request(request)
     import numpy as np
     import torch
-    from PIL import Image, ImageOps
     from torch.utils.data import DataLoader, TensorDataset
 
     from research.corpus.generator import GlyphCVAE, objective
+    from research.corpus.training_data import ink_view
 
     if not torch.cuda.is_available():
         raise RuntimeError("Real CUDA training required")
@@ -43,26 +44,16 @@ def main():
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.benchmark = False
     labels = sorted(gate["eligible_labels"])
-    train_rows = [
-        r
-        for r in rows
-        if r["dataset_split"] == "train"
-        and (r.get("verified_text") or r.get("verified_latex")) in labels
-    ]
-    val_rows = [
-        r
-        for r in rows
-        if r["dataset_split"] == "validation"
-        and (r.get("verified_text") or r.get("verified_latex")) in labels
-    ]
+    train_rows = [r for r in rows if r["dataset_split"] == "train" and label_text(r) in labels]
+    val_rows = [r for r in rows if r["dataset_split"] == "validation" and label_text(r) in labels]
 
     def tensors(records):
         images, classes = [], []
         for row in records:
-            with Image.open(row["image_crop"]) as im:
-                image = ImageOps.pad(im.convert("L"), (64, 64), color=255)
-                images.append((1 - np.asarray(image, dtype=np.float32) / 255)[None])
-            classes.append(labels.index(row.get("verified_text") or row["verified_latex"]))
+            images.append(
+                ink_view(Path(row["image_crop"]), request.get("preprocessing", "raw-gray"))[None]
+            )
+            classes.append(labels.index(label_text(row)))
         return TensorDataset(torch.tensor(np.array(images)), torch.tensor(classes))
 
     loader = DataLoader(
@@ -84,6 +75,7 @@ def main():
             "parameters": sum(p.numel() for p in model.parameters()),
             "labels": labels,
             "context": "zeros until verified context measurements exist",
+            "preprocessing": request.get("preprocessing", "raw-gray"),
         },
     )
     start = time.perf_counter()
@@ -123,6 +115,7 @@ def main():
             "labels": labels,
             "seed": seed,
             "dataset_manifest_sha256": sha256(dataset / "manifest.json"),
+            "preprocessing": request.get("preprocessing", "raw-gray"),
             "torch_rng": torch.get_rng_state(),
             "cuda_rng": torch.cuda.get_rng_state_all(),
         }
