@@ -44,7 +44,7 @@ LINES = (
 
 
 def catalog():
-    return {
+    entries = {
         key: {
             "repository": f"https://github.com/{repo}",
             "revision": rev,
@@ -54,6 +54,16 @@ def catalog():
         }
         for key, (repo, rev, scope) in MODELS.items()
     }
+    entries["diffink"] = {
+        "repository": "https://github.com/awei669/DiffInk",
+        "revision": "65055545fbef5e22fbee0811a1ef3855ca242c22",
+        "scope": "aligned online continuation, vocabulary-limited",
+        "code_license": "MIT",
+        "weights_license": "CASIA research terms",
+        "runtime_enabled": False,
+        "command": "hwsol lab diffink --help",
+    }
+    return entries
 
 
 def prompts(model):

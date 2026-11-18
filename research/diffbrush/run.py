@@ -61,6 +61,8 @@ def main():
             "cache": str(args.cache.resolve()),
             "reference": str(reference),
             "reference_sha256": sha256(reference),
+            "reference_origin": "scanned-line",
+            "reference_has_recorded_trajectory": False,
             "text": args.text,
             "steps": args.steps,
             "seed": args.seed,
