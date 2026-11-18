@@ -57,11 +57,26 @@ def train(
     steps: int = 4000,
     resume: Path | None = None,
     learning_rate: float = 0.0003,
+    real_per_batch: int = 4,
+    real_sampling: str = "balanced",
+    all_variant_selection: bool = False,
 ) -> Path:
     if not 1000 <= steps <= 12000 or not 0 < learning_rate <= 0.001:
         raise ValueError("Training bounds violated")
     manifest = validate_views(data)
-    config = dict(DEFAULT_CONFIG, steps=steps, learning_rate=learning_rate)
+    if real_per_batch not in {0, 1, 2, 4} or real_sampling not in {"balanced", "proportional"}:
+        raise ValueError("Unknown source sampling protocol")
+    config = dict(
+        DEFAULT_CONFIG,
+        steps=steps,
+        learning_rate=learning_rate,
+        real_per_batch=real_per_batch,
+        real_sampling=real_sampling,
+        all_variant_selection=all_variant_selection,
+    )
+    if real_sampling != "balanced" or real_per_batch != 4 or all_variant_selection:
+        config["version"] = "all-personal-reference/2"
+        config["sampling"] = f"font classes uniform; real={real_per_batch}/32, {real_sampling}"
     request = {
         "data": str(data.resolve()),
         "labels": manifest["labels"],
@@ -121,6 +136,9 @@ if __name__ == "__main__":
     t.add_argument("--steps", type=int, default=4000)
     t.add_argument("--resume", type=Path)
     t.add_argument("--learning-rate", type=float, default=0.0003)
+    t.add_argument("--real-per-batch", type=int, default=4)
+    t.add_argument("--real-sampling", choices=["balanced", "proportional"], default="balanced")
+    t.add_argument("--all-variant-selection", action="store_true")
     args = parser.parse_args()
     if args.command == "prepare":
         print(prepare(args.dataset))
@@ -132,5 +150,8 @@ if __name__ == "__main__":
                 steps=args.steps,
                 resume=args.resume,
                 learning_rate=args.learning_rate,
+                real_per_batch=args.real_per_batch,
+                real_sampling=args.real_sampling,
+                all_variant_selection=args.all_variant_selection,
             )
         )

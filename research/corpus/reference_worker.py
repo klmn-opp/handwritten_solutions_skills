@@ -77,6 +77,8 @@ def main(request_path: Path):
         real_indices[arrays["classes"][real_indices] == c]
         for c in np.unique(arrays["classes"][real_indices])
     ]
+    templates = target[torch.tensor(arrays["domains"] == 0, device="cuda")]
+    template_labels = classes[torch.tensor(arrays["domains"] == 0, device="cuda")]
     noise = torch.randn(
         len(labels) * 4,
         8,
@@ -123,16 +125,22 @@ def main(request_path: Path):
             ]
         )
         # Template matching is a development proxy, not OCR or proof of text correctness.
+        comparison = templates if config.get("all_variant_selection") else ref
+        comparison_labels = (
+            template_labels
+            if config.get("all_variant_selection")
+            else torch.arange(len(labels), device="cuda")
+        )
         distances = torch.cat(
             [
                 (
-                    (generated[i : i + 16, None] - ref[None]).abs()
-                    * (1 + 4 * generated[i : i + 16, None] + 4 * ref[None])
+                    (generated[i : i + 16, None] - comparison[None]).abs()
+                    * (1 + 4 * generated[i : i + 16, None] + 4 * comparison[None])
                 ).mean((2, 3, 4))
                 for i in range(0, len(generated), 16)
             ]
         )
-        identity = (distances.argmin(1) == eval_labels).float().mean().item()
+        identity = (comparison_labels[distances.argmin(1)] == eval_labels).float().mean().item()
         mask = generated > 0.5
         blank = (~mask.flatten(1).any(1)).float().mean().item()
         border = (
@@ -195,7 +203,11 @@ def main(request_path: Path):
             chosen_classes = np.random.randint(len(labels), size=config["batch_size"] - n_real)
             indices = [np.random.choice(bins[c]) for c in chosen_classes]
             indices += [
-                np.random.choice(real_bins[np.random.randint(len(real_bins))])
+                np.random.choice(
+                    real_indices
+                    if config.get("real_sampling") == "proportional"
+                    else real_bins[np.random.randint(len(real_bins))]
+                )
                 for _ in range(n_real)
             ]
             idx = torch.tensor(indices, device="cuda")
