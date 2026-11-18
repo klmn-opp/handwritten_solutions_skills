@@ -131,3 +131,13 @@ Holdout只在冻结checkpoint后展示，后续不得围绕它调参；扩大验
 5个本轮已封存run通过verify_run；新数据来源/裁剪/授权摘要检查通过。
 正式latest、默认Profile、生产源码/依赖不改。完整报告位于
 `20261118T145638123801Z-symbol-corpus-preparation-b0dd929e/reports/DELIVERY.md`。
+
+
+## 首次训练质量原因复查
+冻结第119轮checkpoint，仅对Train/Validation运行后验/先验对照，新增训练0。
+随机先验16图9图无深色像素；同种子Train条件后验16图均有深色笔画；模型后验明显偏离标准先验。
+Validation原先只评价重建，不能为无参考生成提供充分验收。输入视图本身均有深色笔画。
+核查Handnote v1/v3/v5：每版75个人码点/178登记形状，v1/v3全部个人轮廓和度量相同；
+v5为尺度派生，不能重复算新数据。可将个人资产用作形状参考或辅助训练，但字体不是神经权重。
+具体数值、原图对照与后续方案见V09_GLYPH_DIAGNOSIS.md及20261118T155716481650Z-glyph-quality-diagnosis-2cf67e41。
+仅诊断和文档，无生产源码改动，未重跑无关全套测试；checkpoint、标签、默认Profile及latest保持不变。
