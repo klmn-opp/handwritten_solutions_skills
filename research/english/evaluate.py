@@ -13,6 +13,10 @@ from .metrics import aggregate, score
 
 def evaluate(args):
     parents = [p.resolve() for p in args.runs]
+    for parent in parents:
+        state = json.loads((parent / "run.json").read_text())
+        if state["status"] not in {"passed", "held"}:
+            raise ValueError("Evaluation requires a sealed source run: " + str(parent))
     run = create(
         "english-independent-evaluation",
         run_id=args.run_id,
@@ -113,6 +117,9 @@ def evaluate(args):
                 )
                 for name in ("tesseract", "htr")
             }
+            groups[parent.name]["source_case_count"] = len(
+                json.loads((parent / "reports/lines.json").read_text())["cases"]
+            )
             groups[parent.name]["recognizer_consensus_count"] = sum(
                 r["recognizers_agree_with_expected"] for r in subset
             )
@@ -132,6 +139,34 @@ def evaluate(args):
                 }
                 for cat in sorted({r["category"] for r in subset})
             }
+        for parent in parents:
+            subset = [r for r in rows if r["parent_run"] == parent.name]
+            for field in ("split", "seed"):
+                groups[parent.name]["by_" + field] = {
+                    str(value): {
+                        name: aggregate(
+                            [
+                                r[name]["score"]
+                                for r in subset
+                                if r.get(field) == value and r.get(name) and "score" in r[name]
+                            ]
+                        )
+                        for name in ("tesseract", "htr")
+                    }
+                    for value in sorted({str(r.get(field)) for r in subset})
+                }
+                # Match serialized labels while preserving numeric seeds in observations.
+                for value in groups[parent.name]["by_" + field]:
+                    groups[parent.name]["by_" + field][value] = {
+                        name: aggregate(
+                            [
+                                r[name]["score"]
+                                for r in subset
+                                if str(r.get(field)) == value and r.get(name) and "score" in r[name]
+                            ]
+                        )
+                        for name in ("tesseract", "htr")
+                    }
         atomic_json(
             run.path / "reports/observations.json",
             {
