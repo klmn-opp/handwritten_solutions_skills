@@ -1,0 +1,105 @@
+{
+  "same_latex": true,
+  "same_formula_geometry": true,
+  "legacy_positions": [
+    [
+      546,
+      183
+    ],
+    [
+      148,
+      270
+    ],
+    [
+      303,
+      362
+    ],
+    [
+      725,
+      414
+    ]
+  ],
+  "fixed_positions": [
+    [
+      159,
+      183
+    ],
+    [
+      154,
+      270
+    ],
+    [
+      176,
+      362
+    ],
+    [
+      148,
+      414
+    ]
+  ],
+  "roles_and_constraints": [
+    {
+      "kind": "h2",
+      "x": 195.24,
+      "baseline": 143.71,
+      "baseline_knots_em": [
+        0.0,
+        -0.10790972368698575,
+        -0.11662633944002762,
+        -0.08648119122257056,
+        -0.03636363636363636
+      ],
+      "role": "ordinary-explanation"
+    },
+    {
+      "kind": "display",
+      "top": 169.58,
+      "x": 159.9577150392304,
+      "role": "initial-equation",
+      "group_id": 1,
+      "start_anchor_px": 148.08583541446765,
+      "equality_anchor_px": 177.25920247523987,
+      "equality_anchor_source": "formula-geometry",
+      "anchor_source": "unlabelled-inset-distribution",
+      "constraint": "aligned"
+    },
+    {
+      "kind": "display",
+      "top": 256.58,
+      "x": 154.44191057460512,
+      "role": "multi-line-derivation",
+      "group_id": 1,
+      "start_anchor_px": 148.08583541446765,
+      "equality_anchor_px": 177.25920247523987,
+      "equality_anchor_source": "formula-geometry",
+      "anchor_source": "unlabelled-inset-distribution",
+      "constraint": "aligned"
+    },
+    {
+      "kind": "display",
+      "top": 348.58,
+      "x": 176.19502180297096,
+      "role": "equation-continuation",
+      "group_id": 1,
+      "start_anchor_px": 148.08583541446765,
+      "equality_anchor_px": 177.25920247523987,
+      "equality_anchor_source": "formula-geometry",
+      "anchor_source": "unlabelled-inset-distribution",
+      "constraint": "aligned"
+    },
+    {
+      "kind": "display",
+      "top": 400.58,
+      "x": 148.08583541446768,
+      "role": "multi-line-derivation",
+      "group_id": 1,
+      "start_anchor_px": 148.08583541446765,
+      "equality_anchor_px": 177.25920247523987,
+      "equality_anchor_source": "formula-geometry",
+      "anchor_source": "unlabelled-inset-distribution",
+      "constraint": "aligned"
+    }
+  ],
+  "page_count": 1,
+  "independent_naturalness_evaluation": false
+}

@@ -135,12 +135,16 @@ def render_probe(
 
 
 @app.command()
-def render(manifest: Annotated[Path, typer.Option()], output: Annotated[Path, typer.Option()]):
+def render(
+    manifest: Annotated[Path, typer.Option()],
+    output: Annotated[Path, typer.Option()],
+    realism: Annotated[str | None, typer.Option(help="Override the job realism mode.")] = None,
+):
     """Render a local assignment and publish all verified pages together."""
     from hwsol.jobs.runtime import render_job
 
     try:
-        typer.echo(json.dumps(render_job(manifest, output), ensure_ascii=False))
+        typer.echo(json.dumps(render_job(manifest, output, realism=realism), ensure_ascii=False))
     except (ValueError, OSError) as exc:
         fail(exc)
 

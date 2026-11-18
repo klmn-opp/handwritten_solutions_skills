@@ -205,9 +205,108 @@
           "pattern": "^#[0-9a-fA-F]{6}$",
           "title": "Ink",
           "type": "string"
+        },
+        "policy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RenderPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "glyph_metrics": {
+          "default": "raw",
+          "enum": [
+            "raw",
+            "normalized",
+            "contextual"
+          ],
+          "title": "Glyph Metrics",
+          "type": "string"
+        },
+        "math_strokes": {
+          "default": "personal",
+          "enum": [
+            "personal",
+            "off"
+          ],
+          "title": "Math Strokes",
+          "type": "string"
+        },
+        "semantic_layout": {
+          "default": false,
+          "title": "Semantic Layout",
+          "type": "boolean"
         }
       },
       "title": "RenderConfig",
+      "type": "object"
+    },
+    "RenderPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "profile_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Profile Sha256",
+          "type": "string"
+        },
+        "reward_source": {
+          "default": "untrained",
+          "enum": [
+            "untrained",
+            "proxy",
+            "human-preference"
+          ],
+          "title": "Reward Source",
+          "type": "string"
+        },
+        "training_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Training Sha256"
+        },
+        "actions": {
+          "items": {
+            "$ref": "#/$defs/StrokeAction"
+          },
+          "maxItems": 12,
+          "minItems": 2,
+          "title": "Actions",
+          "type": "array"
+        },
+        "probabilities": {
+          "items": {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          "title": "Probabilities",
+          "type": "array"
+        }
+      },
+      "required": [
+        "profile_sha256",
+        "actions",
+        "probabilities"
+      ],
+      "title": "RenderPolicy",
       "type": "object"
     },
     "Source": {
@@ -256,6 +355,61 @@
       "title": "Source",
       "type": "object"
     },
+    "StrokeAction": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "pattern": "^[a-z][a-z0-9-]{0,31}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "legacy": {
+          "default": false,
+          "title": "Legacy",
+          "type": "boolean"
+        },
+        "ink_balance": {
+          "default": 0,
+          "maximum": 8,
+          "minimum": 0,
+          "title": "Ink Balance",
+          "type": "number"
+        },
+        "continuity": {
+          "default": 0,
+          "maximum": 4,
+          "minimum": 0,
+          "title": "Continuity",
+          "type": "number"
+        },
+        "repeat_penalty": {
+          "default": 0,
+          "maximum": 3,
+          "minimum": 0,
+          "title": "Repeat Penalty",
+          "type": "number"
+        },
+        "lean": {
+          "default": 0.075,
+          "maximum": 0.15,
+          "minimum": -0.15,
+          "title": "Lean",
+          "type": "number"
+        },
+        "lean_variation": {
+          "default": 0,
+          "maximum": 0.04,
+          "minimum": 0,
+          "title": "Lean Variation",
+          "type": "number"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "StrokeAction",
+      "type": "object"
+    },
     "Verification": {
       "additionalProperties": false,
       "properties": {
@@ -293,6 +447,17 @@
       "const": 1,
       "title": "Schema Version",
       "type": "integer"
+    },
+    "realism": {
+      "default": "baseline",
+      "enum": [
+        "baseline",
+        "layout-enhanced",
+        "stroke-enhanced",
+        "combined"
+      ],
+      "title": "Realism",
+      "type": "string"
     },
     "generated_by": {
       "minLength": 1,

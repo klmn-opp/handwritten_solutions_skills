@@ -1,0 +1,47 @@
+{
+  "schema_matches_runtime": true,
+  "hwsol_module": "/home/klmn/handwritten_solutions_skills/src/hwsol/__init__.py",
+  "lab_catalog": {
+    "diffusionpen": {
+      "repository": "https://github.com/koninik/DiffusionPen",
+      "revision": "059e2f2bcb7372231038719e955597917c1a8783",
+      "scope": "word",
+      "code_license": "MIT",
+      "runtime_enabled": false
+    },
+    "diffbrush": {
+      "repository": "https://github.com/dailenson/DiffBrush",
+      "revision": "da9addc1140bdfec463b2d41a974a0a392f80798",
+      "scope": "line",
+      "code_license": "MIT",
+      "runtime_enabled": false
+    },
+    "one-dm": {
+      "repository": "https://github.com/dailenson/One-DM",
+      "revision": "dde2205a70a2c70d1786503d198a795358c80ee4",
+      "scope": "word",
+      "code_license": "MIT",
+      "runtime_enabled": false
+    }
+  },
+  "old_trial_after_renderer_change": {
+    "rejected": true,
+    "reason": "Renderer changed since this trial; prepare a new comparison"
+  },
+  "gpu": {
+    "exit_code": 9,
+    "stdout": "NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver. Make sure that the latest NVIDIA driver is installed and running.\n\n",
+    "stderr": ""
+  },
+  "python_files": {
+    "src": 39,
+    "tests": 8,
+    "scripts": 7
+  },
+  "python_lines": {
+    "src": 5047,
+    "tests": 1721,
+    "scripts": 693
+  },
+  "neural_weight_files_in_project_data": []
+}

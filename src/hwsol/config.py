@@ -7,6 +7,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from hwsol.render_policy import RenderPolicy
+
 
 def data_dir() -> Path:
     """Resolve local user data without creating directories during import."""
@@ -37,6 +39,10 @@ class RenderConfig(BaseModel):
     seed: int = Field(default=42, ge=0, le=2**31 - 1)
     paper: Literal["plain", "lined", "grid", "dots"] = "plain"
     ink: str = Field(default="#202838", pattern=r"^#[0-9a-fA-F]{6}$")
+    policy: RenderPolicy | None = None
+    glyph_metrics: Literal["raw", "normalized", "contextual"] = "raw"
+    math_strokes: Literal["personal", "off"] = "personal"
+    semantic_layout: bool = False
 
     @model_validator(mode="after")
     def content_area(self) -> "RenderConfig":

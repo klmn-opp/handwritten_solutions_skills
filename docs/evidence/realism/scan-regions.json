@@ -1,0 +1,9 @@
+{"em":28,"lines":[
+ {"kind":"text","text":"beans","box":[31,33,150,74]},
+ {"kind":"text","text":"Tomato pest","box":[28,75,221,111]},
+ {"kind":"text","text":"Onions.","box":[37,111,175,143]},
+ {"kind":"text","text":"fried rice spice","box":[39,143,282,177]},
+ {"kind":"text","text":"Curry powder","box":[58,178,280,225]},
+ {"kind":"text","text":"macaroni","box":[63,225,230,255]},
+ {"kind":"text","text":"spaghetti","box":[64,255,232,301]}
+]}

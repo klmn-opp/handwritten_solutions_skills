@@ -11,12 +11,14 @@ from pathlib import Path
 import pypdfium2 as pdfium
 from PIL import Image, ImageChops
 from pypdf import PdfReader, PdfWriter
-from pypdf.generic import NameObject, TextStringObject
+from pypdf.generic import ContentStream, NameObject, TextStringObject
 
 from hwsol.config import RenderConfig
+from hwsol.identity import build_identity
+from hwsol.identity import digest as identity_digest
 from hwsol.jobs.checks import check_answer
 from hwsol.jobs.paper import PDF_LOCK, pdf_image
-from hwsol.jobs.schema import Background, Job, Source
+from hwsol.jobs.schema import Background, Job, Realism, Source
 from hwsol.profiles.io import atomic_json, inside, lock, sha256
 from hwsol.profiles.store import ProfileStore
 
@@ -96,6 +98,26 @@ def verify_job(root: Path, *, pixels: bool = False) -> dict:
             raise ValueError("Verification evidence mismatch")
         if page.get("/HwsolSolutionSHA256") != sha256(inside(root, p.solution)):
             raise ValueError("Solution source no longer matches PDF page")
+        ink = record.get("handwriting", {}).get("glyph_ink")
+        if page.get("/HwsolGlyphInk") != ink:
+            raise ValueError("PDF and report disagree on glyph ink")
+        if ink is not None:
+            if ink != "fill-only":
+                raise ValueError("Unknown glyph ink policy")
+            # Handnote stores glyphs and filled math rules as Forms. Paper and open
+            # strokes such as matrix brackets are drawn separately on the page.
+            for ref in page["/Resources"].get("/XObject", {}).values():
+                form = ref.get_object()
+                if form["/Subtype"] == "/Form":
+                    ops = [op for _, op in ContentStream(form, reader).operations]
+                    if (
+                        not ops
+                        or ops[-1] not in {b"f", b"f*"}
+                        or any(
+                            op not in {b"m", b"l", b"c", b"v", b"y", b"h", b"re"} for op in ops[:-1]
+                        )
+                    ):
+                        raise ValueError(f"Expected a single un-stroked fill on page {i}")
         for src in p.sources:
             if src.sha256 != sha256(inside(root, src.path)):
                 raise ValueError("Problem source digest mismatch")
@@ -131,10 +153,14 @@ def verify_job(root: Path, *, pixels: bool = False) -> dict:
     return {"status": "passed", "page_count": n, "problem_order": [p.number for p in job.problems]}
 
 
-def build(manifest: Path, stage: Path, store: ProfileStore, progress: dict):
+def build(
+    manifest: Path, stage: Path, store: ProfileStore, progress: dict, realism: Realism | None = None
+):
     from hwsol.jobs.layout import render_one
 
     job = load_job(manifest)
+    if realism is not None:
+        job = Job.model_validate({**job.model_dump(exclude_unset=True), "realism": realism})
     root = manifest.resolve().parent
     selected = store.resolve(job.profile)
     if job.profile_sha256 and job.profile_sha256 != selected.manifest_sha256:
@@ -187,12 +213,22 @@ def build(manifest: Path, stage: Path, store: ProfileStore, progress: dict):
             asset = stage / bg.path
         problem.background = bg
         blob, diagnostics = render_one(
-            target.read_text("utf-8"), problem.number, selected, job.render, bg, asset
+            target.read_text("utf-8"),
+            problem.number,
+            selected,
+            job.render,
+            bg,
+            asset,
+            job.realism,
+            problem.id or problem.number,
         )
         page = writer.add_page(PdfReader(io.BytesIO(blob), strict=True).pages[0])
         page[NameObject("/HwsolID")] = TextStringObject(problem.id or problem.number)
         page[NameObject("/HwsolNumber")] = TextStringObject(problem.number)
         page[NameObject("/HwsolSolutionSHA256")] = TextStringObject(sha256(target))
+        page[NameObject("/HwsolGlyphInk")] = TextStringObject(
+            diagnostics["handwriting"]["glyph_ink"]
+        )
         pages.append(
             {
                 "id": problem.id or problem.number,
@@ -229,6 +265,20 @@ def build(manifest: Path, stage: Path, store: ProfileStore, progress: dict):
             "status": "passed",
             "schema_version": 1,
             "profile": selected.provenance(),
+            "build": build_identity(),
+            "render_identity": {
+                "seed": job.render.seed,
+                "mode": job.realism,
+                "config_sha256": identity_digest(job.render.model_dump(mode="json")),
+                "policy_sha256": identity_digest(job.render.policy.model_dump(mode="json"))
+                if job.render.policy
+                else None,
+                "policy_compatibility": "legacy-profile-only-unvalidated-migration"
+                if job.render.policy
+                else "disabled",
+                "font_sha256": sha256(selected.font),
+                "profile_assets": [a.model_dump(mode="json") for a in selected.manifest.assets],
+            },
             "selected_problem_count": len(pages),
             "pages": pages,
             "packages": {
@@ -251,7 +301,13 @@ def build(manifest: Path, stage: Path, store: ProfileStore, progress: dict):
     return verify_job(stage)
 
 
-def render_job(manifest: Path, output: Path, store: ProfileStore | None = None) -> dict:
+def render_job(
+    manifest: Path,
+    output: Path,
+    store: ProfileStore | None = None,
+    *,
+    realism: Realism | None = None,
+) -> dict:
     from hwsol.jobs.layout import LayoutError
 
     output = output.absolute()
@@ -265,7 +321,7 @@ def render_job(manifest: Path, output: Path, store: ProfileStore | None = None) 
             stage = Path(tmp) / "job"
             stage.mkdir()
             try:
-                result = build(manifest, stage, store or ProfileStore(), progress)
+                result = build(manifest, stage, store or ProfileStore(), progress, realism)
                 if output.exists():
                     output.rmdir()
                 stage.rename(output)

@@ -8,12 +8,14 @@ from typing import Annotated
 import typer
 
 lab = typer.Typer(no_args_is_help=True)
+rl = typer.Typer(no_args_is_help=True)
+lab.add_typer(rl, name="rl")
 OptionPath = Annotated[Path, typer.Option()]
 
 
-def call(function, *args):
+def call(function, *args, **kwargs):
     try:
-        return function(*args)
+        return function(*args, **kwargs)
     except (ValueError, OSError, KeyError, subprocess.SubprocessError) as exc:
         typer.echo(
             json.dumps({"status": "failed", "error": str(exc)}, ensure_ascii=False), err=True
@@ -75,3 +77,38 @@ def evaluate(run: OptionPath):
     emit(record)
     if record["status"] == "held":
         raise typer.Exit(2)
+
+
+@rl.command("prepare")
+def rl_prepare(manifest: OptionPath, output: OptionPath, seed: int = 73):
+    """Render bounded actions, measure proxy rewards, and make a blind preference ballot."""
+    from hwsol.lab.rl import prepare as prepare_rl
+    from hwsol.profiles.store import ProfileStore
+
+    emit(call(prepare_rl, manifest, output, ProfileStore(), seed=seed))
+
+
+@rl.command("train")
+def rl_train(
+    run: OptionPath,
+    output: OptionPath,
+    ratings: Annotated[Path | None, typer.Option()] = None,
+    parent: Annotated[Path | None, typer.Option()] = None,
+    seed: int = 903,
+    steps: int = 800,
+):
+    """Run CPU gradient-bandit training; ratings omitted means proxy-only warm-up."""
+    from hwsol.lab.rl import train as train_rl
+    from hwsol.profiles.store import ProfileStore
+
+    report = call(
+        train_rl,
+        run,
+        output,
+        ProfileStore(),
+        ratings=ratings,
+        parent=parent,
+        seed=seed,
+        steps=steps,
+    )
+    emit({k: v for k, v in report.items() if k not in {"trace", "evaluation"}})

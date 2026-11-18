@@ -3,26 +3,31 @@
 import logging
 import math
 import re
+import unicodedata
 from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
 from handnote.coverage import document_chars
 from handnote.markdown import Block, parse
-from handnote.render import Renderer
 from matplotlib import rc_context
 from matplotlib.path import Path as MplPath
 
 from hwsol.adapters.handnote import RENDER_LOCK, upstream_config
+from hwsol.adapters.profile_renderer import ProfileRenderer
 from hwsol.config import RenderConfig
+from hwsol.jobs.handwriting import PlannedRendering, finish_ink, split_simple_chain
+from hwsol.jobs.math_strokes import apply_math_strokes
 from hwsol.jobs.paper import paper_image, visible_ink
-from hwsol.jobs.schema import Background
+from hwsol.jobs.provenance import classify_rules, visible_provenance
+from hwsol.jobs.schema import Background, Realism
+from hwsol.profiles.metrics import normalized_asset
 from hwsol.profiles.store import LoadedProfile
 
 COMMANDS = frozenset(
     """
 frac sqrt sum prod int iint oint lim to infty sin cos tan log ln exp min max
-vec hat bar overline dot ddot partial nabla mathrm mathbf mathit mathbb
+vec hat bar overline dot ddot partial nabla mathrm mathit mathbb
 alpha beta gamma delta epsilon varepsilon zeta eta theta vartheta iota kappa lambda
 mu nu xi pi rho sigma tau upsilon phi varphi chi psi omega Gamma Delta Theta Lambda
 Xi Pi Sigma Upsilon Phi Psi Omega times cdot div pm mp le leq ge geq ne neq approx
@@ -32,6 +37,32 @@ langle rangle lvert rvert vert Vert ldots cdots dots quad qquad begin end
 )
 _COMMAND = re.compile(r"\\([a-zA-Z]+|.)")
 _ENV = re.compile(r"\\(?:begin|end)\{([^{}]+)\}")
+# Preserve literal code and TeX while removing prose emphasis around inline formulas.
+_LITERAL = re.compile(
+    r"^[ \t]*```[^\n]*\n.*?(?:^[ \t]*```[^\n]*|\Z)"  # fenced code
+    r"|`[^`\n]*`"  # inline code
+    r"|(?<!\\)\$\$.*?(?<!\\)\$\$"  # display math
+    r"|(?<!\\)\$(?:\\.|[^$\\\n])+(?<!\\)\$",  # inline math
+    re.M | re.S,
+)
+_STRONG = re.compile(
+    r"(?:(?<![\\*])(?P<star>\*\*)(?!\*)|(?<![\w\\_])(?P<under>__)(?!_))"
+    r"(?=\S)(?:(?!\n[ \t]*\n).)+?(?<=\S)(?<!\\)(?(star)\*\*(?!\*)|__(?!\w))",
+    re.S,
+)
+
+
+def plain_emphasis(source: str) -> str:
+    if "**" not in source and "__" not in source:
+        return source
+    # Keep offsets (and paragraph boundaries) so only matched delimiters are removed.
+    masked = _LITERAL.sub(lambda m: re.sub(r"[^\n]", "@", m[0]), source)
+    pieces = []
+    start = 0
+    for match in _STRONG.finditer(masked):
+        pieces.extend((source[start : match.start()], source[match.start() + 2 : match.end() - 2]))
+        start = match.end()
+    return "".join((*pieces, source[start:]))
 
 
 class MultiplePages(Exception):
@@ -39,7 +70,34 @@ class MultiplePages(Exception):
         self.count = count
 
 
-class SinglePageRenderer(Renderer):
+class SinglePageRenderer(PlannedRendering, ProfileRenderer):
+    def _render_math(self, tex, px):
+        # The prefix and both matrix cell routes request different sizes upstream.
+        # Body-level math shares the prose em; MathText still sizes scripts itself.
+        return super()._render_math(tex, self.cfg.body_size)
+
+    def _math_path(self, body, size, key, parts=None):
+        # Native display-style fractions keep numerator/denominator letters at the
+        # surrounding em. This changes presentation only; the source/key stays intact.
+        body = _COMMAND.sub(lambda m: r"\dfrac" if m[1] == "frac" else m[0], body)
+        return super()._math_path(body, size, key, parts)
+
+    def matrix_metrics(self, rows):
+        cell_w, row_h, _, _ = super().matrix_metrics(rows)
+        # Full-size fractions need more space than upstream's fixed matrix cells.
+        for row in rows:
+            for cell in row:
+                if len(cell) > 1:
+                    img, baseline = self.math_image(cell, self.cfg.body_size)
+                    cell_w = max(cell_w, img.width + self.cfg.body_size * 0.3)
+                    row_h = max(
+                        row_h,
+                        (baseline + 2) / 0.72,
+                        (img.height - baseline + 2) / 0.28,
+                    )
+        columns = len(rows[0]) if rows else 1
+        return cell_w, row_h, cell_w * columns + self.cfg.body_size * 1.3, row_h * len(rows)
+
     def paginate(self, lines):
         pages = super().paginate(lines)
         if len(pages) != 1:
@@ -66,6 +124,11 @@ def validate_markdown(source: str, profile: LoadedProfile):
         if "$$" in line and not (line.strip().startswith("$$") or line.strip().endswith("$$")):
             raise ValueError("Place display math on separate lines")
     for name in _COMMAND.findall(source):
+        if name in {"mathbf", "boldsymbol", "bm", "bf", "textbf", "pmb", "boldmath"}:
+            raise ValueError(
+                f"Uniform answer weight: remove decorative \\{name}. "
+                r"For a vector use \vec{v}; otherwise define the symbol in words."
+            )
         if name not in COMMANDS and name not in {
             ",",
             ";",
@@ -82,7 +145,12 @@ def validate_markdown(source: str, profile: LoadedProfile):
             raise ValueError(f"Unsupported LaTeX command: {name}")
     if any(env not in {"matrix", "pmatrix", "vmatrix", "bmatrix"} for env in _ENV.findall(source)):
         raise ValueError("Unsupported LaTeX environment")
-    blocks = parse(source)
+    if any(
+        name.startswith("MATHEMATICAL ") and "BOLD" in name
+        for name in (unicodedata.name(ch, "") for ch in source if not ch.isascii())
+    ):
+        raise ValueError("Uniform answer weight: use explicit notation for bold Unicode symbols")
+    blocks = parse(plain_emphasis(source))
     if not any(
         b.kind in {"matrix", "pagebreak"} or any(v.strip() for _, v in b.segments) for b in blocks
     ):
@@ -189,8 +257,22 @@ def render_one(
     cfg: RenderConfig,
     bg: Background,
     asset: Path | None,
+    realism: Realism = "baseline",
+    identity: str | None = None,
 ):
+    if cfg.policy is not None:
+        if realism not in {"stroke-enhanced", "combined"}:
+            raise ValueError("A renderer policy requires stroke-enhanced or combined mode")
+        if cfg.policy.profile_sha256 != profile.manifest_sha256:
+            raise ValueError("Renderer policy belongs to a different Profile snapshot")
     blocks = validate_markdown(source, profile)
+    render_font = profile.font
+    metrics = None
+    if cfg.glyph_metrics != "raw":
+        font_asset = next(a for a in profile.manifest.assets if a.path == profile.manifest.font)
+        render_font, metrics = normalized_asset(
+            str(profile.font.resolve()), font_asset.sha256, profile.manifest.personal_codepoints
+        )
     title = Block("h2", (("t", number),))
     if any(ord(c) not in profile.manifest.coverage for c in number if not c.isspace()):
         raise ValueError(f"Missing glyph in problem number {number}")
@@ -213,7 +295,14 @@ def render_one(
     for trim, rewrap, margin, size, spacing in dict.fromkeys(options):
         body = [b for b in blocks if not trim or b.kind != "blank"]
         if rewrap:
-            body = compact(body)
+            if realism in {"baseline", "stroke-enhanced"}:
+                body = compact(body)
+            else:
+                body = [
+                    part
+                    for b in body
+                    for part in (split_simple_chain(b) if b.kind == "display" else [b])
+                ]
         settings = cfg.model_copy(
             update=dict(
                 margin_mm=margin,
@@ -222,7 +311,13 @@ def render_one(
                 paper=bg.kind if asset is None else "plain",
             )
         )
-        upstream = upstream_config(profile.font, settings, bool(profile.manifest.variants))
+        upstream = upstream_config(render_font, settings, bool(profile.manifest.variants))
+        upstream = upstream.replace(
+            h1_size=upstream.body_size,
+            h2_size=upstream.body_size,
+            h3_size=upstream.body_size,
+            math_scale=1.0,
+        )
         record = {
             "margin_mm": margin,
             "font_size_pt": size,
@@ -237,6 +332,9 @@ def render_one(
             logger.addHandler(diagnostic)
             try:
                 renderer = SinglePageRenderer(upstream)
+                renderer.configure(
+                    realism, profile, identity or number, settings.policy, settings, metrics
+                )
                 pages = renderer.render_vector([title, *body])
             except MultiplePages as exc:
                 record["page_count"] = exc.count
@@ -249,6 +347,15 @@ def render_one(
             if len(pages) != 1:
                 continue
             page = pages[0]
+            classify_rules(page, renderer)
+            math_strokes = (
+                apply_math_strokes(page, renderer, profile)
+                if cfg.math_strokes == "personal"
+                else []
+            )
+            glyphs = finish_ink(
+                page, renderer, profile, renderer.stroke_enabled, renderer.stroke_seed
+            )
             bounds, used = ink_geometry(page, renderer)
             record["ink_bounds_px"] = bounds
             # Allow two pixels of glyph overhang at the requested typesetting margin.
@@ -263,7 +370,7 @@ def render_one(
             if asset is not None:
                 page.background = paper_image(bg, asset, (page.width, page.height))
                 page.paper = None
-            profile_font = profile.font.resolve()
+            profile_font = render_font.resolve()
             fallback = [
                 {"codepoint": f"U+{cp:04X}", "font": Path(font).name}
                 for cp, font in used
@@ -279,5 +386,31 @@ def render_one(
                 "attempts": attempts,
                 "math_fallback_glyphs": fallback,
                 "coverage": renderer.coverage(body),
+                "glyph_sources": glyphs,
+                "glyph_provenance": visible_provenance(page, renderer, profile, math_strokes),
+                "formula_groups": renderer.formulas,
+                "matrix_groups": renderer.matrices,
+                "handwriting": {
+                    "mode": realism,
+                    "factors": {
+                        "glyph_metrics": cfg.glyph_metrics,
+                        "math_strokes": cfg.math_strokes,
+                        "semantic_layout": cfg.semantic_layout,
+                        "layout_applied": renderer.layout_enabled,
+                    },
+                    "metric_references": metrics["references_em"] if metrics else None,
+                    "glyph_ink": "fill-only",
+                    "math_size": "body-em/full-size-fractions",
+                    "text_variant_size": "character-primary-height-band-95-105pct"
+                    if renderer.stroke_enabled
+                    else "font-native",
+                    "policy": renderer.policy_report,
+                    "math_strokes": math_strokes,
+                    "structure_fallbacks": getattr(renderer, "structure_fallbacks", []),
+                    "planned_lines": renderer.rows,
+                    "paper_grid_locked": bool(renderer.grid.snap),
+                    "calibration_sample": renderer.style.sample_id if renderer.style else None,
+                    "line_calibration_samples": renderer.planner.used_sources,
+                },
             }
     raise LayoutError(attempts)

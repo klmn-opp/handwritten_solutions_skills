@@ -13,16 +13,24 @@
 | parent / base | 上一已发布版本及派生基底，固定 `profile@vN` 引用 |
 | created_at / description | 构建时间、用途说明 |
 | source_kind / distribution | `test-font`、`personal-assets` 或 `derived`；`OFL-1.1` 或 `local-only` |
-| assets / font | 字体、许可证、来源文件的相对路径、角色与摘要；字体必须是已登记资产 |
+| assets / font | 字体、许可证、来源、可选 calibration 与 trajectory 资产的相对路径、角色与摘要；字体必须是已登记资产 |
 | coverage / personal_codepoints | 字体总覆盖及参与个人构建的 Unicode 码点；未采集字符仍可来自基底 |
 | variants | 十进制码点字符串到真实形状总数的映射，含首选字形；没有变体的字符不列出 |
-| samples | 原始样本索引 ID、sample.json 摘要及 included；导出中不携带原始笔迹 |
+| samples | 原始样本索引 ID、sample.json 摘要及 included；默认导出保留摘要 |
 | render | 经校验的 RenderConfig：纸张、尺寸、字号、种子等 |
 | build | 后端与软件版本、构建 run_id、全量历史重建策略、首选和变体选择策略 |
 
 首选和变体保存在字体 cmap 与 GSUB `rand` 中。Profile 是资产快照，非可变训练目录；
 应用不覆盖已存在版本，每次加载验证资产。不能用手工编辑 JSON 代替新版本构建。
 这是应用层不可变与摘要检测，不是操作系统防篡改或签名认证。
+
+校准资产的每条页记录可包含 `lines` 和可选 `math_strokes`；至少一类非空。
+横线样本记录 `kind`（`bar` 或 `rule`）、原页 `source_sha256`、像素裁剪框 `source_box`、
+原笔画长度 `width_em` 和 `envelope`。轮廓采样点为 `[x_fraction, centre_y_em, thickness_em]`，
+x 从 0 单调递增至 1，y 向下为正。这是扫描墨迹的测量值，不是笔顺、时间或压感。
+只有横线的校准记录不会参与布局页选择；历史排版样本继续保留。
+横线轮廓随 Profile 导出，运行时无需读取原始照片。此字段需要当前开发版 Runtime，
+旧 v0.3.0 发行包尚不支持。
 
 ## 用户数据布局
 
@@ -60,8 +68,8 @@ parent 指构建时最后发布的版本；回滚仅改变激活指针，不删�
 
 ## 导出与导入
 
-ZIP 仅含 profile.json 和登记资产，**不是训练数据备份**。不会包含样本原文件、checkpoint、作业或绝对路径。
-完整 Studio 迁移应在写入者停止后备份整个数据目录。导出 ZIP 不含私人原始笔迹，但字体本身仍体现个人字迹，按个人数据管理。
+ZIP 包含 profile.json 和登记资产。默认构建只携带字体、校准统计和来源资料；构建时显式使用 `--include-traces` 的快照也包含登记的原始数字轨迹及对应模板。
+完整 Studio 迁移应在写入者停止后备份整个数据目录。字体、校准统计以及显式打包的轨迹均按个人数据管理。
 
 导入验证相对路径、链接、重复条目、128 MiB / 256 文件上限、摘要和字体实际覆盖/变体元数据，
 拒绝同名版本和覆盖 bundled-default。导入是对用户提供的已发布资产的显式信任，不提供作者身份认证。
@@ -69,3 +77,12 @@ ZIP 仅含 profile.json 和登记资产，**不是训练数据备份**。不会�
 
 渲染报告记录最终 Profile 引用、快照和字体摘要、配置与依赖；相同快照/种子/已验证环境可复现产物。
 重新训练会有新时间戳与版本标识，不承诺构建字体文件逐字节相同，也不承诺不同平台栅格化逐字节相同。
+
+## 0.4.0 可选扩展
+
+新 CPU 候选包含 `glyph-metrics` 摘要资产，关联原始字体 SHA-256，记录每个真实变体的墨迹、advance、
+重心、基线偏移、类别、参考尺度及异常权重。渲染派生字体不覆盖该原始字体。
+LineStyle 增加可选 role、column 和 equality_inset；旧版本缺字段时继续可读。
+校准可单独包含词/行 traces；origin 区分 recorded-pen、estimated-trajectory、scan-contour。
+Profile 可以登记可选 model-adapter 资产，但只有实际创建并核验后才算具有模型参数。
+本轮模型未成功运行，也没有伪造这些参数。详见 [当前开发阶段](NEXT_STAGE_DEVELOPMENT.md)。

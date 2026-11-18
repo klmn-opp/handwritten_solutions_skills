@@ -2,20 +2,24 @@
 
 本地运行的手写作业 Agent Skill。Agent 读取文本、图片或 PDF，按原题号解答并保留验证记录。Runtime 用选定的字迹 Profile 排版，每道顶层题占一页，交付 PDF、逐页 PNG 和可编辑 Markdown。
 
-当前版本 **v0.3.0**。Linux x86_64 已验证 Python 3.12 和 3.13。默认字迹可直接使用，附带一道公开题和五题合成作业。阶段 3 添加逐页像素核验与三平台 CI，阶段 4 提供独立的英文笔迹实验工具。[实施状态](docs/IMPLEMENTATION_STATUS.md)
+当前开发发行版为 **v0.4.0**，增加可关闭的字形度量规范化、逐笔画来源、语义公式布局和候选 Profile 资产。Linux x86_64 已验证 Python 3.12 和 3.13。默认字迹可直接使用，附带一道公开题和五题合成作业。阶段 3 添加逐页像素核验与三平台 CI，阶段 4 提供独立的英文笔迹实验工具。[实施状态](docs/IMPLEMENTATION_STATUS.md)
+
+**当前开发交接入口：[Next Development Stage](docs/NEXT_STAGE_DEVELOPMENT.md)**，含对照、测试、新发行包与未完成项。[前置审计](docs/CURRENT_STATE_AUDIT.md)保留为历史基线。CLI 渲染已有解答；新题由外部 Agent 解题。当前 RL 是 CPU 渲染策略学习，未进行神经网络训练。
+
+工作区源码现支持 CPU 手写布局、笔画对照及个人校准。四份实测 PDF、公开手写样本留出结果及本人样本采集说明见[手写真实性报告](docs/HANDWRITING_REALISM.md)。
 
 ## 选择发行文件
 
 | 文件 | 用途 |
 |---|---|
-| handwritten-solutions-0.3.0-skill.zip | 解压后有 handwritten-solutions/，内含 SKILL.md、uv.lock、源码和示例。适合安装到 Codex。 |
-| handwritten_solutions-0.3.0-py3-none-any.whl | Python 命令行工具。使用锁定环境时从源码目录安装依赖，再安装 wheel。 |
-| handwritten_solutions-0.3.0.tar.gz | Python 源码发行包，保留 Skill、构建脚本和测试。 |
-| handwritten-solutions-v0.3.0.bundle | 完整本地 Git 历史，可用下方命令克隆。 |
-| SHA256SUMS | 上述四个文件的 SHA-256。 |
+| handwritten-solutions-0.4.0-skill.zip | 解压后有 handwritten-solutions/，内含 SKILL.md、uv.lock、源码和示例。适合安装到 Codex。 |
+| handwritten_solutions-0.4.0-py3-none-any.whl | Python 命令行工具。使用锁定环境时从源码目录安装依赖，再安装 wheel。 |
+| handwritten_solutions-0.4.0.tar.gz | Python 源码发行包，保留 Skill、构建脚本和测试。 |
+| handwritten-solutions-v0.4.0.bundle | 完整本地 Git 历史，可用下方命令克隆。 |
+| release.json / SHA256SUMS | 发行 commit、lock 摘要及所有发行文件的 SHA-256。 |
 
 ```sh
-git clone ./handwritten-solutions-v0.3.0.bundle handwritten-solutions
+git clone ./handwritten-solutions-v0.4.0.bundle handwritten-solutions
 cd handwritten-solutions
 git log --oneline --decorate
 ```

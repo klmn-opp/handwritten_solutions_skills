@@ -8,9 +8,12 @@ import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 
+from pydantic import TypeAdapter
+
 from hwsol.config import data_dir, test_font
 from hwsol.profiles.io import atomic_json, inside, lock, sha256
 from hwsol.profiles.schema import ProfileError, ProfileVersion, name, reference
+from hwsol.profiles.style import PageStyle
 
 BUNDLED = "bundled-default"
 
@@ -20,6 +23,7 @@ class LoadedProfile:
     manifest: ProfileVersion
     directory: Path
     manifest_sha256: str
+    styles: tuple[PageStyle, ...] = ()
 
     @property
     def font(self) -> Path:
@@ -31,17 +35,29 @@ class LoadedProfile:
             "manifest_sha256": self.manifest_sha256,
             "source_kind": self.manifest.source_kind,
             "distribution": self.manifest.distribution,
+            "font_sha256": next(
+                a.sha256 for a in self.manifest.assets if a.path == self.manifest.font
+            ),
         }
 
 
 def load_snapshot(directory: Path) -> LoadedProfile:
     path = inside(directory, "profile.json")
     manifest = ProfileVersion.model_validate_json(path.read_text("utf-8"))
+    styles = ()
     for asset in manifest.assets:
         target = inside(directory, asset.path)
         if not target.is_file() or sha256(target) != asset.sha256:
             raise ProfileError(f"Asset integrity check failed: {asset.path}")
-    return LoadedProfile(manifest, directory, sha256(path))
+        if asset.role == "calibration":
+            styles = TypeAdapter(tuple[PageStyle, ...]).validate_json(target.read_bytes())
+        if asset.role == "glyph-metrics":
+            data = json.loads(target.read_bytes())
+            if data.get("font_sha256") != next(
+                a.sha256 for a in manifest.assets if a.path == manifest.font
+            ):
+                raise ProfileError("Glyph metrics do not match the Profile font")
+    return LoadedProfile(manifest, directory, sha256(path), styles)
 
 
 def copy_snapshot(loaded: LoadedProfile, destination: Path) -> None:
@@ -211,7 +227,11 @@ class ProfileStore:
             "reference": loaded.manifest.ref,
             "archive": str(output),
             "sha256": sha256(output),
-            "contents": "runtime assets only; no raw samples",
+            "contents": (
+                "includes explicitly packaged pen traces"
+                if any(a.role == "trajectory" for a in loaded.manifest.assets)
+                else "runtime assets only; no raw samples"
+            ),
         }
 
     def import_archive(self, source: Path) -> dict:
@@ -267,4 +287,6 @@ def compare(a: LoadedProfile, b: LoadedProfile) -> dict:
         "old_samples": len(a.manifest.samples),
         "new_samples": len(b.manifest.samples),
         "font_changed": sha256(a.font) != sha256(b.font),
+        "old_metric_assets": [x.sha256 for x in a.manifest.assets if x.role == "glyph-metrics"],
+        "new_metric_assets": [x.sha256 for x in b.manifest.assets if x.role == "glyph-metrics"],
     }

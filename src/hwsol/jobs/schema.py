@@ -7,6 +7,8 @@ from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_vali
 from hwsol.config import RenderConfig
 from hwsol.profiles.schema import Digest, relative
 
+Realism = Literal["baseline", "layout-enhanced", "stroke-enhanced", "combined"]
+
 Text = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 
 
@@ -66,6 +68,7 @@ class Problem(Record):
 
 class Job(Record):
     schema_version: Literal[1]
+    realism: Realism = "baseline"
     generated_by: Text
     language: Text = "en"
     profile: str | None = None

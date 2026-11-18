@@ -73,6 +73,16 @@ def package(tag, output):
         with ZipFile(zip_path) as archive:
             archive.extractall(work)
         source = work / "handwritten-solutions"
+        # The wheel cannot discover a Git checkout. Embed the exact release identity,
+        # while the fingerprint itself is computed from installed code/dependencies.
+        import json
+
+        build_record = {
+            "commit": commit,
+            "lock_sha256": hashlib.sha256((source / "uv.lock").read_bytes()).hexdigest(),
+            "tag": tag,
+        }
+        (source / "src/hwsol/_build.json").write_text(json.dumps(build_record, indent=2) + "\n")
         for name in ("SKILL.md", "uv.lock", "agents/openai.yaml", "LICENSE", FONT):
             if not (source / name).is_file():
                 raise ValueError(f"Missing Skill file: {name}")
@@ -126,6 +136,7 @@ def package(tag, output):
         bundle = stage / f"handwritten-solutions-{tag}.bundle"
         git("bundle", "create", bundle, "HEAD", "refs/heads/main", ref, cwd=mirror)
         git("bundle", "verify", bundle, cwd=mirror)
+        (stage / "release.json").write_text(json.dumps(build_record, indent=2) + "\n")
         checksums = []
         for path in sorted(stage.iterdir()):
             with path.open("rb") as stream:

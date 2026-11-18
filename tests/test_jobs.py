@@ -90,6 +90,24 @@ def test_b_order_replay_and_corruption(assignment, tmp_path):
     assert "order" in invoke("verify", "--job", out, ok=False)["error"]
 
 
+def test_verify_rejects_extra_outline_on_a_result(assignment):
+    path, job, out = assignment
+    job["problems"] = job["problems"][:1]
+    atomic_json(path, job)
+    invoke("render", "--manifest", path, "--output", out)
+    writer = PdfWriter(clone_from=out / PDF)
+    refs = writer.pages[0]["/Resources"]["/XObject"].values()
+    form = next(ref.get_object() for ref in refs if ref.get_object()["/Subtype"] == "/Form")
+    data = form.get_data().rstrip()
+    assert data.endswith(b"\nf")
+    form.set_data(data[:-1] + b"B")
+    writer.write(out / PDF)
+    record = json.loads((out / "validation_report.json").read_bytes())
+    record["artifacts"][PDF] = sha256(out / PDF)
+    atomic_json(out / "validation_report.json", record)
+    assert "single un-stroked fill" in invoke("verify", "--job", out, ok=False)["error"]
+
+
 def test_c_paper_layers_and_input_references(assignment, tmp_path):
     path, job, out = assignment
     paper = Image.new("RGB", (120, 80), (205, 240, 210))

@@ -3,15 +3,18 @@
 import json
 import shutil
 import uuid
+from dataclasses import replace
 from importlib.metadata import version as package_version
 from pathlib import Path
 
 from fontTools.ttLib import TTFont
 
 from hwsol.adapters.handnote import HandnoteAdapter
+from hwsol.identity import build_identity
 from hwsol.probe import run_probe
 from hwsol.profiles.fonts import inspect_font
 from hwsol.profiles.io import atomic_json, inside, sha256
+from hwsol.profiles.metrics import measure_font
 from hwsol.profiles.schema import Asset, ProfileError, ProfileVersion, SampleIndex
 from hwsol.profiles.store import ProfileStore, compare, load_snapshot
 from hwsol.training.backend import HandnoteCPU, TrainingBackend, merge_variants
@@ -53,7 +56,13 @@ def template(output: Path, chars: str | None = None, sets: int = 1) -> dict:
     }
 
 
-def train(store: ProfileStore, profile: str, backend: TrainingBackend | None = None) -> dict:
+def train(
+    store: ProfileStore,
+    profile: str,
+    backend: TrainingBackend | None = None,
+    *,
+    include_traces: bool = False,
+) -> dict:
     backend = backend or HandnoteCPU()
     folder = store.profile_dir(profile, writable=True)
     if not (folder / "definition.json").is_file():
@@ -95,7 +104,14 @@ def train(store: ProfileStore, profile: str, backend: TrainingBackend | None = N
             current = run / "base.ttf"
             shutil.copyfile(base.font, current)
             personal = set(base.manifest.personal_codepoints)
-            for index, (source, sample) in enumerate(accepted):
+            from hwsol.training.calibration import measure
+
+            styles = list(base.styles)
+            font_samples = [(p, s) for p, s in accepted if s.kind != "calibration"]
+            for source, sample in accepted:
+                if sample.kind == "calibration":
+                    styles.append(measure(source / sample.originals[0], sample.id))
+            for index, (source, sample) in enumerate(font_samples):
                 part = run / f"sample-{index:04d}.ttf"
                 result = backend.build(sample, source, part)
                 details = inspect_font(part)
@@ -105,7 +121,7 @@ def train(store: ProfileStore, profile: str, backend: TrainingBackend | None = N
                         f"{details['empty_codepoints']}"
                     )
                 if not details["glyf"]:
-                    if len(accepted) != 1 or base.manifest.personal_codepoints:
+                    if len(font_samples) != 1 or base.manifest.personal_codepoints:
                         raise ProfileError(
                             "CFF OTF can be used alone; cumulative merging needs glyf fonts"
                         )
@@ -130,10 +146,15 @@ def train(store: ProfileStore, profile: str, backend: TrainingBackend | None = N
                         font["name"].setName(value, field, platform_id, encoding, lang)
                 font.save(final_font)
             assets = [Asset(path=final_font.name, sha256=sha256(final_font), role="font")]
+            metrics_file = stage / "glyph-metrics.json"
+            atomic_json(metrics_file, measure_font(final_font, tuple(sorted(personal))))
+            assets.append(
+                Asset(path=metrics_file.name, sha256=sha256(metrics_file), role="glyph-metrics")
+            )
             rights = [
                 (inside(base.directory, a.path), a.role)
                 for a in base.manifest.assets
-                if a.role != "font"
+                if a.role in {"license", "provenance"}
             ]
             rights.extend(
                 (inside(p, a.path), a.role)
@@ -141,6 +162,35 @@ def train(store: ProfileStore, profile: str, backend: TrainingBackend | None = N
                 for a in sample.files
                 if a.role == "license"
             )
+            if styles:
+                calibration = stage / "calibration.json"
+                atomic_json(calibration, [s.model_dump(mode="json") for s in styles])
+                assets.append(
+                    Asset(path=calibration.name, sha256=sha256(calibration), role="calibration")
+                )
+            if include_traces:
+                for item in base.manifest.assets:
+                    if item.role == "trajectory":
+                        dest = inside(stage, item.path)
+                        dest.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.copyfile(inside(base.directory, item.path), dest)
+                        assets.append(item)
+                for directory, sample in accepted:
+                    if sample.has_recorded_strokes:
+                        for filename in [
+                            *sample.originals,
+                            *([sample.template] if sample.template else []),
+                        ]:
+                            dest = inside(stage, f"traces/{sample.id}/{filename}")
+                            dest.parent.mkdir(parents=True, exist_ok=True)
+                            shutil.copyfile(inside(directory, filename), dest)
+                            assets.append(
+                                Asset(
+                                    path=dest.relative_to(stage).as_posix(),
+                                    sha256=sha256(dest),
+                                    role="trajectory",
+                                )
+                            )
             for source, role in rights:
                 filename = f"{role}/{sha256(source)}{source.suffix}"
                 dest = inside(stage, filename)
@@ -197,12 +247,16 @@ def train(store: ProfileStore, profile: str, backend: TrainingBackend | None = N
                 render=base.manifest.render,
                 build={
                     "backend": "handnote-cpu",
+                    "identity": build_identity(),
+                    "operation": "font-build-and-statistical-calibration; no neural training",
                     "handnote": package_version("handnote"),
                     "hwsol": package_version("handwritten-solutions"),
                     "run_id": run_id,
                     "strategy": "full-history-rebuild",
                     "primary": "quality-weight-oldest",
                     "variant_sampling": "uniform-upstream-no-synthetic-warps",
+                    "calibration_pages": len(styles),
+                    "trace_assets_included": any(a.role == "trajectory" for a in assets),
                 },
             )
             atomic_json(stage / "profile.json", manifest.model_dump(mode="json"))
@@ -280,6 +334,26 @@ def evaluate(store: ProfileStore, spec: str) -> dict:
                 candidate.manifest.render,
                 HandnoteAdapter(real_variants=True),
             )
+            if candidate.styles:
+                from hwsol.jobs.layout import render_one
+                from hwsol.jobs.schema import Background
+
+                blob, diagnostics = render_one(
+                    EVALUATION_SOURCE,
+                    "1",
+                    replace(candidate, directory=run),
+                    candidate.manifest.render,
+                    Background(),
+                    None,
+                    "combined",
+                )
+                preview = run / "combined.pdf"
+                preview.write_bytes(blob)
+                report["combined_preview"] = {
+                    "sha256": sha256(preview),
+                    "handwriting": diagnostics["handwriting"],
+                    "math_fallback_glyphs": diagnostics["math_fallback_glyphs"],
+                }
             report.update(
                 status="passed",
                 glyphs=details,
@@ -314,6 +388,12 @@ def publish(store: ProfileStore, spec: str, *, activate: bool = False) -> dict:
         preview = Path(report["run"]) / "preview"
         if not preview.resolve().is_relative_to(store.root):
             raise ProfileError("Evaluation artifacts must be in the local data directory")
+        if candidate.styles:
+            combined = preview.parent / "combined.pdf"
+            if not combined.is_file() or sha256(combined) != report.get("combined_preview", {}).get(
+                "sha256"
+            ):
+                raise ProfileError("Calibrated preview integrity check failed")
         rendering = report.get("rendering", {})
         count = rendering.get("page_count")
         if type(count) is not int or not 1 <= count <= 9999:

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0 · 2026-11-18
+
+- Preserve the audited realism implementation and bind outputs/releases to code, dependency, Profile, policy and seed identities.
+- Add opt-in measured glyph normalization and correlated word scale; preserve raw assets and descenders.
+- Record each visible glyph/structure source, reuse suitable personal strokes, and generate Handnote collection queues.
+- Add role-based formula starts and equality-group constraints, candidate metric assets and trace-origin contracts.
+- Keep neural line generation isolated and explicitly unvalidated; see [current acceptance and limits](docs/NEXT_STAGE_DEVELOPMENT.md).
+
 ## 0.3.0 · 2026-11-18
 
 - Added pixel verification between each delivered PNG and its PDF page, and regression coverage for nested equations, rotated paper sizes and seeded real glyph alternates.

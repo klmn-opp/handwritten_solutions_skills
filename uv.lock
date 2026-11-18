@@ -127,11 +127,13 @@ dependencies = [
 
 [[package]]
 name = "handwritten-solutions"
-version = "0.3.0"
+version = "0.4.0"
 source = { editable = "." }
 dependencies = [
     { name = "fonttools" },
     { name = "handnote" },
+    { name = "matplotlib" },
+    { name = "numpy" },
     { name = "opencv-python-headless" },
     { name = "pillow" },
     { name = "pydantic" },
@@ -152,6 +154,8 @@ dev = [
 requires-dist = [
     { name = "fonttools", specifier = "==4.68.0" },
     { name = "handnote", git = "https://github.com/zh271/handnote.git?rev=114919f183817643c795e47e851ea25b96e3c393" },
+    { name = "matplotlib", specifier = "==3.11.2" },
+    { name = "numpy", specifier = "==2.5.5" },
     { name = "opencv-python-headless", specifier = "==5.0.0.93" },
     { name = "pillow", specifier = "==13.0.0" },
     { name = "pydantic", specifier = "==2.14.3" },
