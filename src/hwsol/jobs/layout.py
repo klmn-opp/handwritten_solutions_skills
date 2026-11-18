@@ -73,7 +73,10 @@ class MultiplePages(Exception):
 class SinglePageRenderer(PlannedRendering, ProfileRenderer):
     def math_image(self, tex, px):
         result = super().math_image(tex, px)
-        if any(item[0] != "path" or item[1][0] == "math" for item in self._math_vec[(tex, px)]):
+        if any(
+            item[0] not in {"path", "stroke"} or (item[0] == "path" and item[1][0] == "math")
+            for item in self._math_vec[(tex, px)]
+        ):
             raise ValueError(
                 f"Formula fallback is not auditable: {tex}; {'; '.join(self.warnings)}"
             )
