@@ -64,8 +64,17 @@ def validate_answers(packet, answers):
 
 def packet(args):
     data = json.loads((args.evaluation / "reports/observations.json").read_text())
+    # Eight fixed development IDs, all model seeds, and eight real scan controls.
+    # Exclude repeated raw samples from the larger development run.
     selected = [
-        r for r in data["rows"] if r.get("smoke") or r["category"] == "real-personal-calibration"
+        r
+        for r in data["rows"]
+        if (
+            r.get("smoke")
+            and r["id"].endswith("-01")
+            and r["parent_run"] != "v08-diffbrush-development"
+        )
+        or (r["category"] == "real-personal-calibration" and int(r["id"][-2:]) <= 4)
     ]
     # Same samples, separate raw/fit variants remain distinct blinded candidates.
     random.Random(805).shuffle(selected)
