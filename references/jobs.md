@@ -1,0 +1,24 @@
+# Job contract v1
+
+Create a job directory containing the original material, one Markdown solution per selected top-level problem, and an input manifest. Relative paths use forward slashes and stay within this directory. Example files are in [examples/phase2](../examples/phase2). A schema for editors is in [job.schema.json](job.schema.json).
+
+| Field | Meaning |
+|---|---|
+| schema_version, generated_by | Use 1 and the actual authoring agent/AI generation record. |
+| problems | Ordered selection. Each row needs a printed number, a transcribed statement, one or more sources and a solution path. Use distinct optional `id` values when the same number occurs on multiple sheets. |
+| sources | Each entry has a local path and optional one-based page, location text and SHA-256. Supported inputs are UTF-8 TXT/MD, PDF and common raster images. Set `complete: false` on the problem when essential information is missing. |
+| verification | Agent status is not_checked, passed, failed or inconclusive. Supply evidence for reported checks. Optional `checks` pairs contain a numeric lhs and rhs. Exact rational evaluation accepts decimal or integer literals, parentheses, +, -, *, / and bounded integer powers using **. A failed check stops publication. |
+| language | Describes the Agent's solution language, default en. The Agent writes the requested language. The selected font must cover its prose. |
+| profile, profile_sha256 | Override the active Profile by name or pinned reference. An optional hash verifies the exact snapshot. The delivered manifest pins both. |
+| render | RenderConfig overrides such as dpi, ink, seed, page_width_mm, page_height_mm, margin_mm, font_size_pt and line_spacing. The default Profile uses A4, 150 DPI and an 18 mm margin. Set dpi to 300 for high-resolution PNG. |
+| background | Job default or per-problem override. Choose plain, lined, grid, dots, image or pdf as kind. For custom paper include path, optional one-based PDF page and fit (contain, cover or stretch). |
+
+Paper precedence is problem, job, user setting, then the Profile's render.paper preset (bundled default uses plain). To set a persistent default, preserve existing keys in the data directory's settings.json and set its background object, for example `{"kind":"lined"}`. A custom paper file in persistent settings may be an absolute path or a path relative to the user data directory. A job-specific paper file is relative to the manifest. The delivered job includes the used assets and resolved per-problem choices. A PDF background is rasterized at page scale and embedded below vector ink. Background content is outside the solution ink bounds check.
+
+Use Markdown paragraphs, headings, and lists. Inline math uses single dollar delimiters. Display math starts on its own line with double dollars. Use separate display blocks for successive derivations. Standalone matrices support matrix, bmatrix, pmatrix and vmatrix. The exact command whitelist is `COMMANDS` in [layout.py](../src/hwsol/jobs/layout.py). Supported groups include fractions, scripts, roots, integrals, sums, limits, vectors, Greek letters, statistics, relations and upright units. Use e.g. `\mathrm{m/s^2}`. Explicit page breaks in an answer fail. Text and one-character matrix entries need Profile coverage. The report lists missing Profile coverage and the fallback fonts observed in recorded math glyphs.
+
+The output directory must be empty or new. The generator stages all artifacts, checks the placed vector ink and page count, then merges and rasterizes the final PDF. Automatic retries remove explicit blank blocks, split eligible equality chains, and adjust margins, size and spacing within the documented Runtime bounds. An agent can further simplify repeated prose while preserving the derivation. Six layout configurations are the maximum per render. Manually specified smaller dimensions or type sizes are respected.
+
+A success contains homework_solutions.pdf, pages/NN.png, solutions/NN.md, inputs/, optional paper/, manifest.json and validation_report.json. Every PDF page carries the problem ID, printed label and solution digest. The report records order, layout attempts, mathematical evidence and file digests. `hwsol verify --job DIR` checks the delivered files locally. The report records Agent checks separately from Runtime arithmetic and file integrity. For a source edit, render the delivered manifest to a new directory. Keep the original solution and grading context together when sharing an edited job. Originals in inputs/ can contain other questions from the supplied material.
+
+After a failed build, the output contains validation_report.json. Read its problem, type, error and any attempts. Existing nonempty destinations are preserved. If a process is killed, a sibling .NAME.hwsol.lock may remain. Confirm its recorded PID has stopped before removing the stale lock.

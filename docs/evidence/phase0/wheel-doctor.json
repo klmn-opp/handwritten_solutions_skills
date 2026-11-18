@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "phase": 0,
+  "packages": {
+    "handnote": "2.0.0.dev0",
+    "pillow": "13.0.0",
+    "fonttools": "4.68.0",
+    "matplotlib": "3.11.2",
+    "pydantic": "2.14.3",
+    "pypdf": "7.1.0",
+    "typer": "0.29.1"
+  },
+  "font": {
+    "path": "/tmp/hwsol-wheel-test/lib/python3.12/site-packages/hwsol/assets/presets/patrick-hand/PatrickHand-Regular.ttf",
+    "name": "Patrick Hand",
+    "license": "OFL-1.1",
+    "role": "test asset, not author handwriting",
+    "codepoints": 515,
+    "sha256": "0f173b3e6cb6d1af25babf7f0057c5ac4ee11f9992b0469bb817e967ef4ad0fc"
+  },
+  "data_dir": "/home/user/.local/share/handwritten-solutions",
+  "training_required": false,
+  "compatibility_backend": "separate environment required; see docs/PHASE0.md"
+}

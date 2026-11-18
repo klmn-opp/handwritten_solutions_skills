@@ -1,0 +1,128 @@
+{
+  "status": "passed",
+  "hwsol": "0.1.0",
+  "module": "/tmp/hwsol-phase1-runtime/lib/python3.12/site-packages/hwsol",
+  "packages": {
+    "kiwisolver": "1.5.1",
+    "pypdf": "7.1.0",
+    "pygments": "2.21.0",
+    "matplotlib": "3.11.2",
+    "numpy": "2.5.5",
+    "annotated-doc": "0.0.6",
+    "handwritten-solutions": "0.1.0",
+    "markdown-it-py": "4.3.0",
+    "typer": "0.29.1",
+    "pyparsing": "3.3.3",
+    "annotated-types": "0.8.0",
+    "packaging": "26.3",
+    "typing-inspection": "0.4.5",
+    "typing_extensions": "4.16.0",
+    "handnote": "2.0.0.dev0",
+    "rich": "15.0.0",
+    "cycler": "0.12.1",
+    "opencv-python-headless": "5.0.0.93",
+    "pydantic_core": "2.50.4",
+    "pydantic": "2.14.3",
+    "contourpy": "1.4.0",
+    "python-dateutil": "4.0.0",
+    "fonttools": "4.68.0",
+    "tzdata": "2026.6",
+    "mdurl": "0.1.2",
+    "pillow": "13.0.0",
+    "shellingham": "1.5.4"
+  },
+  "training_directory_temporarily_removed": true,
+  "raw_samples_present": false,
+  "personal_outputs_byte_identical": true,
+  "commands": [
+    {
+      "command": [
+        "doctor"
+      ],
+      "result": {
+        "status": "passed",
+        "phase": 1,
+        "profile": {
+          "reference": "bundled-default@v1",
+          "manifest_sha256": "4d9d01f3d758479b719c684c2a3602af1b1c6d98b47cf53e7ca7083a07ac6ad4",
+          "source_kind": "test-font",
+          "distribution": "OFL-1.1"
+        },
+        "packages": {
+          "handnote": "2.0.0.dev0",
+          "pillow": "13.0.0",
+          "fonttools": "4.68.0",
+          "matplotlib": "3.11.2",
+          "pydantic": "2.14.3",
+          "pypdf": "7.1.0",
+          "typer": "0.29.1"
+        },
+        "font": {
+          "path": "/tmp/hwsol-phase1-runtime/lib/python3.12/site-packages/hwsol/assets/presets/patrick-hand/PatrickHand-Regular.ttf",
+          "role": "test-font",
+          "codepoints": 515,
+          "sha256": "0f173b3e6cb6d1af25babf7f0057c5ac4ee11f9992b0469bb817e967ef4ad0fc"
+        },
+        "data_dir": "/tmp/hwsol-phase1-wheel-data",
+        "training_required": false,
+        "compatibility_backend": "separate environment required; see docs/PHASE0.md"
+      }
+    },
+    {
+      "command": [
+        "render-probe",
+        "--input",
+        "/workspace/handwritten-solutions/examples/phase0/common.md",
+        "--output",
+        "/workspace/handwritten-solutions/out/phase1-wheel/default"
+      ],
+      "result": {
+        "status": "passed",
+        "backend": "handnote",
+        "page_count": 1,
+        "elapsed_seconds": 1.457,
+        "warnings": [
+          "Math glyphs absent from selected font; upstream uses STIX fallback. See coverage; this is not a per-glyph fallback audit."
+        ]
+      }
+    },
+    {
+      "command": [
+        "profiles",
+        "import",
+        "--source",
+        "/workspace/handwritten-solutions/out/phase1-demo/demo-v2.zip"
+      ],
+      "result": {
+        "imported": "demo@v2",
+        "activated": false
+      }
+    },
+    {
+      "command": [
+        "profiles",
+        "activate",
+        "demo@v2"
+      ],
+      "result": {
+        "active": "demo@v2"
+      }
+    },
+    {
+      "command": [
+        "render-probe",
+        "--input",
+        "/workspace/handwritten-solutions/out/phase1-demo/synthetic.md",
+        "--output",
+        "/workspace/handwritten-solutions/out/phase1-wheel/personal"
+      ],
+      "result": {
+        "status": "passed",
+        "backend": "handnote",
+        "page_count": 1,
+        "elapsed_seconds": 0.48,
+        "warnings": []
+      }
+    }
+  ]
+}

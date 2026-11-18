@@ -1,0 +1,131 @@
+{
+  "runs": [
+    {
+      "label": "handnote-cli-common",
+      "args": [
+        "/workspace/handwritten-solutions/.venv/bin/python",
+        "-m",
+        "handnote",
+        "render",
+        "examples/phase0/common.md",
+        "--font",
+        "/workspace/handwritten-solutions/src/hwsol/assets/presets/patrick-hand/PatrickHand-Regular.ttf",
+        "-o",
+        "/workspace/handwritten-solutions/out/phase0-upstream/handnote-cli.pdf"
+      ],
+      "exit_code": 0,
+      "seconds": 0.648,
+      "stdout": "{\n \"out\": \"/workspace/handwritten-solutions/out/phase0-upstream/handnote-cli.pdf\",\n \"pages\": 1,\n \"font\": \"/workspace/handwritten-solutions/src/hwsol/assets/presets/patrick-hand/PatrickHand-Regular.ttf\",\n \"coverage\": 0.9375,\n \"missing\": \"αβσ→\",\n \"warnings\": []\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "handnote-cli-invalid",
+      "args": [
+        "/workspace/handwritten-solutions/.venv/bin/python",
+        "-m",
+        "handnote",
+        "render",
+        "examples/phase0/unsupported.md",
+        "--font",
+        "/workspace/handwritten-solutions/src/hwsol/assets/presets/patrick-hand/PatrickHand-Regular.ttf",
+        "-o",
+        "/workspace/handwritten-solutions/out/phase0-upstream/handnote-invalid.pdf"
+      ],
+      "exit_code": 0,
+      "seconds": 0.472,
+      "stdout": "{\n \"out\": \"/workspace/handwritten-solutions/out/phase0-upstream/handnote-invalid.pdf\",\n \"pages\": 1,\n \"font\": \"/workspace/handwritten-solutions/src/hwsol/assets/presets/patrick-hand/PatrickHand-Regular.ttf\",\n \"coverage\": 1.0,\n \"missing\": \"\",\n \"warnings\": [\n  \"formula fallback: '\\\\\\\\definitelyUnsupported{x}' (ValueError)\"\n ]\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "handnote-template",
+      "args": [
+        "/workspace/handwritten-solutions/.venv/bin/python",
+        "-m",
+        "handnote",
+        "symbols",
+        "template",
+        "--chars",
+        "Abgiox012+-=",
+        "-o",
+        "/workspace/handwritten-solutions/out/phase0-upstream/template.pdf"
+      ],
+      "exit_code": 0,
+      "seconds": 0.434,
+      "stdout": "{\n \"pdf\": \"/workspace/handwritten-solutions/out/phase0-upstream/template.pdf\",\n \"spec\": \"/workspace/handwritten-solutions/out/phase0-upstream/template.json\",\n \"pages\": 1,\n \"sets\": 1,\n \"cells\": 12,\n \"guide_missing\": \"\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "handnote-simulate",
+      "args": [
+        "/workspace/handwritten-solutions/.venv/bin/python",
+        "-m",
+        "handnote",
+        "symbols",
+        "simulate",
+        "--spec",
+        "/workspace/handwritten-solutions/out/phase0-upstream/template.json",
+        "--font",
+        "/workspace/handwritten-solutions/src/hwsol/assets/presets/patrick-hand/PatrickHand-Regular.ttf",
+        "-o",
+        "/workspace/handwritten-solutions/out/phase0-upstream/scans"
+      ],
+      "exit_code": 0,
+      "seconds": 0.789,
+      "stdout": "{\n \"scans\": [\n  \"/workspace/handwritten-solutions/out/phase0-upstream/scans/scan-1.jpg\"\n ]\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "handnote-build",
+      "args": [
+        "/workspace/handwritten-solutions/.venv/bin/python",
+        "-m",
+        "handnote",
+        "symbols",
+        "build",
+        "--spec",
+        "/workspace/handwritten-solutions/out/phase0-upstream/template.json",
+        "-o",
+        "/workspace/handwritten-solutions/out/phase0-upstream/synthetic-symbols.ttf",
+        "/workspace/handwritten-solutions/out/phase0-upstream/scans/scan-1.jpg"
+      ],
+      "exit_code": 0,
+      "seconds": 0.452,
+      "stdout": "{\n \"font\": \"/workspace/handwritten-solutions/out/phase0-upstream/synthetic-symbols.ttf\",\n \"glyphs\": 12,\n \"missing\": [],\n \"chars\": \"Abgiox012+-=\",\n \"sets\": 1,\n \"alternates\": 0,\n \"scanned_sets\": 1,\n \"warped_pages\": 1\n}\n",
+      "stderr": ""
+    },
+    {
+      "label": "mth-cli-common",
+      "args": [
+        "/tmp/hwsol-mth-venv/bin/python",
+        "-m",
+        "markdown_to_handwrite",
+        "examples/phase0/common.md",
+        "-c",
+        "/workspace/handwritten-solutions/out/phase0-upstream/mth-config.json",
+        "-o",
+        "/workspace/handwritten-solutions/out/phase0-upstream/mth-common.pdf"
+      ],
+      "exit_code": 0,
+      "seconds": 0.494,
+      "stdout": "Generated /workspace/handwritten-solutions/out/phase0-upstream/mth-common.pdf (2 page(s), engine=pillow-fallback, fonts=/workspace/handwritten-solutions/src/hwsol/assets/presets/patrick-hand/PatrickHand-Regular.ttf -> /workspace/handwritten-solutions/.venv/lib/python3.12/site-packages/matplotlib/mpl-data/fonts/ttf/STIXGeneral.ttf)\n",
+      "stderr": "/tmp/hwsol-mth-venv/lib/python3.12/site-packages/fitz/__init__.py:17: FutureWarning: The `fitz` API is deprecated and will be removed in future. Use `import pymupdf` instead.\n  warnings.warn(\n"
+    },
+    {
+      "label": "mth-cli-unsupported",
+      "args": [
+        "/tmp/hwsol-mth-venv/bin/python",
+        "-m",
+        "markdown_to_handwrite",
+        "examples/phase0/unsupported.md",
+        "-c",
+        "/workspace/handwritten-solutions/out/phase0-upstream/mth-config.json",
+        "-o",
+        "/workspace/handwritten-solutions/out/phase0-upstream/mth-unsupported.pdf"
+      ],
+      "exit_code": 0,
+      "seconds": 0.271,
+      "stdout": "Generated /workspace/handwritten-solutions/out/phase0-upstream/mth-unsupported.pdf (1 page(s), engine=pillow-fallback, fonts=/workspace/handwritten-solutions/src/hwsol/assets/presets/patrick-hand/PatrickHand-Regular.ttf -> /workspace/handwritten-solutions/.venv/lib/python3.12/site-packages/matplotlib/mpl-data/fonts/ttf/STIXGeneral.ttf)\n",
+      "stderr": "/tmp/hwsol-mth-venv/lib/python3.12/site-packages/fitz/__init__.py:17: FutureWarning: The `fitz` API is deprecated and will be removed in future. Use `import pymupdf` instead.\n  warnings.warn(\n[latex-render-error] \\definitelyUnsupported{x} (Unsupported command: \\definitelyUnsupported)\n"
+    }
+  ]
+}

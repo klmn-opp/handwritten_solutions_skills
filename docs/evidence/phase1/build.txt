@@ -1,0 +1,283 @@
+Building source distribution...
+running egg_info
+writing src/handwritten_solutions.egg-info/PKG-INFO
+writing dependency_links to src/handwritten_solutions.egg-info/dependency_links.txt
+writing entry points to src/handwritten_solutions.egg-info/entry_points.txt
+writing requirements to src/handwritten_solutions.egg-info/requires.txt
+writing top-level names to src/handwritten_solutions.egg-info/top_level.txt
+reading manifest file 'src/handwritten_solutions.egg-info/SOURCES.txt'
+reading manifest template 'MANIFEST.in'
+warning: no files found matching '*.json' under directory 'examples'
+adding license file 'LICENSE'
+writing manifest file 'src/handwritten_solutions.egg-info/SOURCES.txt'
+running sdist
+running egg_info
+writing src/handwritten_solutions.egg-info/PKG-INFO
+writing dependency_links to src/handwritten_solutions.egg-info/dependency_links.txt
+writing entry points to src/handwritten_solutions.egg-info/entry_points.txt
+writing requirements to src/handwritten_solutions.egg-info/requires.txt
+writing top-level names to src/handwritten_solutions.egg-info/top_level.txt
+reading manifest file 'src/handwritten_solutions.egg-info/SOURCES.txt'
+reading manifest template 'MANIFEST.in'
+warning: no files found matching '*.json' under directory 'examples'
+adding license file 'LICENSE'
+writing manifest file 'src/handwritten_solutions.egg-info/SOURCES.txt'
+running check
+creating handwritten_solutions-0.1.0
+creating handwritten_solutions-0.1.0/agents
+creating handwritten_solutions-0.1.0/config
+creating handwritten_solutions-0.1.0/docs
+creating handwritten_solutions-0.1.0/docs/evidence/phase0
+creating handwritten_solutions-0.1.0/docs/evidence/phase0/reports/handnote-300dpi
+creating handwritten_solutions-0.1.0/docs/evidence/phase0/reports/handnote-aligned
+creating handwritten_solutions-0.1.0/docs/evidence/phase0/reports/handnote-common
+creating handwritten_solutions-0.1.0/docs/evidence/phase0/reports/handnote-empty
+creating handwritten_solutions-0.1.0/docs/evidence/phase0/reports/handnote-font-switch
+creating handwritten_solutions-0.1.0/docs/evidence/phase0/reports/handnote-missing-glyph
+creating handwritten_solutions-0.1.0/docs/evidence/phase0/reports/handnote-multipage
+creating handwritten_solutions-0.1.0/docs/evidence/phase0/reports/handnote-unsupported
+creating handwritten_solutions-0.1.0/docs/evidence/phase0/reports/markdown-to-handwrite-aligned
+creating handwritten_solutions-0.1.0/docs/evidence/phase0/reports/markdown-to-handwrite-common
+creating handwritten_solutions-0.1.0/docs/evidence/phase0/reports/markdown-to-handwrite-empty
+creating handwritten_solutions-0.1.0/docs/evidence/phase0/reports/markdown-to-handwrite-missing-glyph
+creating handwritten_solutions-0.1.0/docs/evidence/phase0/reports/markdown-to-handwrite-multipage
+creating handwritten_solutions-0.1.0/docs/evidence/phase0/reports/markdown-to-handwrite-unsupported
+creating handwritten_solutions-0.1.0/docs/evidence/phase1
+creating handwritten_solutions-0.1.0/examples/phase0
+creating handwritten_solutions-0.1.0/references
+creating handwritten_solutions-0.1.0/scripts
+creating handwritten_solutions-0.1.0/src/handwritten_solutions.egg-info
+creating handwritten_solutions-0.1.0/src/hwsol
+creating handwritten_solutions-0.1.0/src/hwsol/adapters
+creating handwritten_solutions-0.1.0/src/hwsol/assets/presets/patrick-hand
+creating handwritten_solutions-0.1.0/src/hwsol/profiles
+creating handwritten_solutions-0.1.0/src/hwsol/training
+creating handwritten_solutions-0.1.0/tests
+copying files to handwritten_solutions-0.1.0...
+copying LICENSE -> handwritten_solutions-0.1.0
+copying MANIFEST.in -> handwritten_solutions-0.1.0
+copying README.md -> handwritten_solutions-0.1.0
+copying SKILL.md -> handwritten_solutions-0.1.0
+copying pyproject.toml -> handwritten_solutions-0.1.0
+copying requirements-compatibility.lock -> handwritten_solutions-0.1.0
+copying uv.lock -> handwritten_solutions-0.1.0
+copying agents/openai.yaml -> handwritten_solutions-0.1.0/agents
+copying config/defaults.json -> handwritten_solutions-0.1.0/config
+copying docs/IMPLEMENTATION_STATUS.md -> handwritten_solutions-0.1.0/docs
+copying docs/LICENSES.md -> handwritten_solutions-0.1.0/docs
+copying docs/PHASE0.md -> handwritten_solutions-0.1.0/docs
+copying docs/PROFILE_FORMAT.md -> handwritten_solutions-0.1.0/docs
+copying docs/ROADMAP.md -> handwritten_solutions-0.1.0/docs
+copying docs/TRAINING.md -> handwritten_solutions-0.1.0/docs
+copying docs/VERIFICATION.md -> handwritten_solutions-0.1.0/docs
+copying docs/evidence/phase0/compatibility-licenses.json -> handwritten_solutions-0.1.0/docs/evidence/phase0
+copying docs/evidence/phase0/draw-your-font-licenses.json -> handwritten_solutions-0.1.0/docs/evidence/phase0
+copying docs/evidence/phase0/draw-your-font-test.json -> handwritten_solutions-0.1.0/docs/evidence/phase0
+copying docs/evidence/phase0/handnote-upstream-default-font-tests.txt -> handwritten_solutions-0.1.0/docs/evidence/phase0
+copying docs/evidence/phase0/handnote-upstream-tests.txt -> handwritten_solutions-0.1.0/docs/evidence/phase0
+copying docs/evidence/phase0/probe-summary.json -> handwritten_solutions-0.1.0/docs/evidence/phase0
+copying docs/evidence/phase0/project-tests.xml -> handwritten_solutions-0.1.0/docs/evidence/phase0
+copying docs/evidence/phase0/runtime-licenses.json -> handwritten_solutions-0.1.0/docs/evidence/phase0
+copying docs/evidence/phase0/upstream-cli.json -> handwritten_solutions-0.1.0/docs/evidence/phase0
+copying docs/evidence/phase0/upstream-sources.json -> handwritten_solutions-0.1.0/docs/evidence/phase0
+copying docs/evidence/phase0/visual-review.json -> handwritten_solutions-0.1.0/docs/evidence/phase0
+copying docs/evidence/phase0/wheel-doctor.json -> handwritten_solutions-0.1.0/docs/evidence/phase0
+copying docs/evidence/phase0/reports/handnote-300dpi/validation_report.json -> handwritten_solutions-0.1.0/docs/evidence/phase0/reports/handnote-300dpi
+copying docs/evidence/phase0/reports/handnote-aligned/validation_report.json -> handwritten_solutions-0.1.0/docs/evidence/phase0/reports/handnote-aligned
+copying docs/evidence/phase0/reports/handnote-common/validation_report.json -> handwritten_solutions-0.1.0/docs/evidence/phase0/reports/handnote-common
+copying docs/evidence/phase0/reports/handnote-empty/validation_report.json -> handwritten_solutions-0.1.0/docs/evidence/phase0/reports/handnote-empty
+copying docs/evidence/phase0/reports/handnote-font-switch/validation_report.json -> handwritten_solutions-0.1.0/docs/evidence/phase0/reports/handnote-font-switch
+copying docs/evidence/phase0/reports/handnote-missing-glyph/validation_report.json -> handwritten_solutions-0.1.0/docs/evidence/phase0/reports/handnote-missing-glyph
+copying docs/evidence/phase0/reports/handnote-multipage/validation_report.json -> handwritten_solutions-0.1.0/docs/evidence/phase0/reports/handnote-multipage
+copying docs/evidence/phase0/reports/handnote-unsupported/validation_report.json -> handwritten_solutions-0.1.0/docs/evidence/phase0/reports/handnote-unsupported
+copying docs/evidence/phase0/reports/markdown-to-handwrite-aligned/validation_report.json -> handwritten_solutions-0.1.0/docs/evidence/phase0/reports/markdown-to-handwrite-aligned
+copying docs/evidence/phase0/reports/markdown-to-handwrite-common/validation_report.json -> handwritten_solutions-0.1.0/docs/evidence/phase0/reports/markdown-to-handwrite-common
+copying docs/evidence/phase0/reports/markdown-to-handwrite-empty/validation_report.json -> handwritten_solutions-0.1.0/docs/evidence/phase0/reports/markdown-to-handwrite-empty
+copying docs/evidence/phase0/reports/markdown-to-handwrite-missing-glyph/validation_report.json -> handwritten_solutions-0.1.0/docs/evidence/phase0/reports/markdown-to-handwrite-missing-glyph
+copying docs/evidence/phase0/reports/markdown-to-handwrite-multipage/validation_report.json -> handwritten_solutions-0.1.0/docs/evidence/phase0/reports/markdown-to-handwrite-multipage
+copying docs/evidence/phase0/reports/markdown-to-handwrite-unsupported/validation_report.json -> handwritten_solutions-0.1.0/docs/evidence/phase0/reports/markdown-to-handwrite-unsupported
+copying docs/evidence/phase1/build.txt -> handwritten_solutions-0.1.0/docs/evidence/phase1
+copying docs/evidence/phase1/demo-summary.json -> handwritten_solutions-0.1.0/docs/evidence/phase1
+copying docs/evidence/phase1/project-tests.xml -> handwritten_solutions-0.1.0/docs/evidence/phase1
+copying docs/evidence/phase1/wheel-runtime.json -> handwritten_solutions-0.1.0/docs/evidence/phase1
+copying examples/phase0/common.md -> handwritten_solutions-0.1.0/examples/phase0
+copying examples/phase0/unsupported.md -> handwritten_solutions-0.1.0/examples/phase0
+copying references/probe-inputs.md -> handwritten_solutions-0.1.0/references
+copying scripts/license_inventory.py -> handwritten_solutions-0.1.0/scripts
+copying scripts/phase0_probe.py -> handwritten_solutions-0.1.0/scripts
+copying scripts/phase1_demo.py -> handwritten_solutions-0.1.0/scripts
+copying src/handwritten_solutions.egg-info/PKG-INFO -> handwritten_solutions-0.1.0/src/handwritten_solutions.egg-info
+copying src/handwritten_solutions.egg-info/SOURCES.txt -> handwritten_solutions-0.1.0/src/handwritten_solutions.egg-info
+copying src/handwritten_solutions.egg-info/dependency_links.txt -> handwritten_solutions-0.1.0/src/handwritten_solutions.egg-info
+copying src/handwritten_solutions.egg-info/entry_points.txt -> handwritten_solutions-0.1.0/src/handwritten_solutions.egg-info
+copying src/handwritten_solutions.egg-info/requires.txt -> handwritten_solutions-0.1.0/src/handwritten_solutions.egg-info
+copying src/handwritten_solutions.egg-info/top_level.txt -> handwritten_solutions-0.1.0/src/handwritten_solutions.egg-info
+copying src/hwsol/__init__.py -> handwritten_solutions-0.1.0/src/hwsol
+copying src/hwsol/__main__.py -> handwritten_solutions-0.1.0/src/hwsol
+copying src/hwsol/cli.py -> handwritten_solutions-0.1.0/src/hwsol
+copying src/hwsol/config.py -> handwritten_solutions-0.1.0/src/hwsol
+copying src/hwsol/probe.py -> handwritten_solutions-0.1.0/src/hwsol
+copying src/hwsol/profile_cli.py -> handwritten_solutions-0.1.0/src/hwsol
+copying src/hwsol/adapters/__init__.py -> handwritten_solutions-0.1.0/src/hwsol/adapters
+copying src/hwsol/adapters/_mth_worker.py -> handwritten_solutions-0.1.0/src/hwsol/adapters
+copying src/hwsol/adapters/base.py -> handwritten_solutions-0.1.0/src/hwsol/adapters
+copying src/hwsol/adapters/handnote.py -> handwritten_solutions-0.1.0/src/hwsol/adapters
+copying src/hwsol/adapters/markdown_to_handwrite.py -> handwritten_solutions-0.1.0/src/hwsol/adapters
+copying src/hwsol/assets/presets/patrick-hand/METADATA.pb -> handwritten_solutions-0.1.0/src/hwsol/assets/presets/patrick-hand
+copying src/hwsol/assets/presets/patrick-hand/OFL.txt -> handwritten_solutions-0.1.0/src/hwsol/assets/presets/patrick-hand
+copying src/hwsol/assets/presets/patrick-hand/PatrickHand-Regular.ttf -> handwritten_solutions-0.1.0/src/hwsol/assets/presets/patrick-hand
+copying src/hwsol/assets/presets/patrick-hand/profile.json -> handwritten_solutions-0.1.0/src/hwsol/assets/presets/patrick-hand
+copying src/hwsol/assets/presets/patrick-hand/provenance.json -> handwritten_solutions-0.1.0/src/hwsol/assets/presets/patrick-hand
+copying src/hwsol/profiles/__init__.py -> handwritten_solutions-0.1.0/src/hwsol/profiles
+copying src/hwsol/profiles/fonts.py -> handwritten_solutions-0.1.0/src/hwsol/profiles
+copying src/hwsol/profiles/io.py -> handwritten_solutions-0.1.0/src/hwsol/profiles
+copying src/hwsol/profiles/schema.py -> handwritten_solutions-0.1.0/src/hwsol/profiles
+copying src/hwsol/profiles/store.py -> handwritten_solutions-0.1.0/src/hwsol/profiles
+copying src/hwsol/training/__init__.py -> handwritten_solutions-0.1.0/src/hwsol/training
+copying src/hwsol/training/backend.py -> handwritten_solutions-0.1.0/src/hwsol/training
+copying src/hwsol/training/samples.py -> handwritten_solutions-0.1.0/src/hwsol/training
+copying src/hwsol/training/studio.py -> handwritten_solutions-0.1.0/src/hwsol/training
+copying tests/conftest.py -> handwritten_solutions-0.1.0/tests
+copying tests/test_compatibility.py -> handwritten_solutions-0.1.0/tests
+copying tests/test_phase0.py -> handwritten_solutions-0.1.0/tests
+copying tests/test_profiles.py -> handwritten_solutions-0.1.0/tests
+copying src/handwritten_solutions.egg-info/SOURCES.txt -> handwritten_solutions-0.1.0/src/handwritten_solutions.egg-info
+Writing handwritten_solutions-0.1.0/setup.cfg
+Creating tar archive
+removing 'handwritten_solutions-0.1.0' (and everything under it)
+Building wheel from source distribution...
+running egg_info
+writing src/handwritten_solutions.egg-info/PKG-INFO
+writing dependency_links to src/handwritten_solutions.egg-info/dependency_links.txt
+writing entry points to src/handwritten_solutions.egg-info/entry_points.txt
+writing requirements to src/handwritten_solutions.egg-info/requires.txt
+writing top-level names to src/handwritten_solutions.egg-info/top_level.txt
+reading manifest file 'src/handwritten_solutions.egg-info/SOURCES.txt'
+reading manifest template 'MANIFEST.in'
+warning: no files found matching '*.json' under directory 'examples'
+adding license file 'LICENSE'
+writing manifest file 'src/handwritten_solutions.egg-info/SOURCES.txt'
+running bdist_wheel
+running build
+running build_py
+creating build/lib/hwsol
+copying src/hwsol/probe.py -> build/lib/hwsol
+copying src/hwsol/__init__.py -> build/lib/hwsol
+copying src/hwsol/config.py -> build/lib/hwsol
+copying src/hwsol/cli.py -> build/lib/hwsol
+copying src/hwsol/__main__.py -> build/lib/hwsol
+copying src/hwsol/profile_cli.py -> build/lib/hwsol
+creating build/lib/hwsol/training
+copying src/hwsol/training/studio.py -> build/lib/hwsol/training
+copying src/hwsol/training/__init__.py -> build/lib/hwsol/training
+copying src/hwsol/training/samples.py -> build/lib/hwsol/training
+copying src/hwsol/training/backend.py -> build/lib/hwsol/training
+creating build/lib/hwsol/profiles
+copying src/hwsol/profiles/__init__.py -> build/lib/hwsol/profiles
+copying src/hwsol/profiles/store.py -> build/lib/hwsol/profiles
+copying src/hwsol/profiles/fonts.py -> build/lib/hwsol/profiles
+copying src/hwsol/profiles/schema.py -> build/lib/hwsol/profiles
+copying src/hwsol/profiles/io.py -> build/lib/hwsol/profiles
+creating build/lib/hwsol/adapters
+copying src/hwsol/adapters/handnote.py -> build/lib/hwsol/adapters
+copying src/hwsol/adapters/__init__.py -> build/lib/hwsol/adapters
+copying src/hwsol/adapters/_mth_worker.py -> build/lib/hwsol/adapters
+copying src/hwsol/adapters/base.py -> build/lib/hwsol/adapters
+copying src/hwsol/adapters/markdown_to_handwrite.py -> build/lib/hwsol/adapters
+running egg_info
+writing src/handwritten_solutions.egg-info/PKG-INFO
+writing dependency_links to src/handwritten_solutions.egg-info/dependency_links.txt
+writing entry points to src/handwritten_solutions.egg-info/entry_points.txt
+writing requirements to src/handwritten_solutions.egg-info/requires.txt
+writing top-level names to src/handwritten_solutions.egg-info/top_level.txt
+reading manifest file 'src/handwritten_solutions.egg-info/SOURCES.txt'
+reading manifest template 'MANIFEST.in'
+warning: no files found matching '*.json' under directory 'examples'
+adding license file 'LICENSE'
+writing manifest file 'src/handwritten_solutions.egg-info/SOURCES.txt'
+creating build/lib/hwsol/assets/presets/patrick-hand
+copying src/hwsol/assets/presets/patrick-hand/OFL.txt -> build/lib/hwsol/assets/presets/patrick-hand
+copying src/hwsol/assets/presets/patrick-hand/profile.json -> build/lib/hwsol/assets/presets/patrick-hand
+copying src/hwsol/assets/presets/patrick-hand/provenance.json -> build/lib/hwsol/assets/presets/patrick-hand
+copying src/hwsol/assets/presets/patrick-hand/METADATA.pb -> build/lib/hwsol/assets/presets/patrick-hand
+copying src/hwsol/assets/presets/patrick-hand/PatrickHand-Regular.ttf -> build/lib/hwsol/assets/presets/patrick-hand
+copying src/hwsol/assets/presets/patrick-hand/METADATA.pb -> build/lib/hwsol/assets/presets/patrick-hand
+copying src/hwsol/assets/presets/patrick-hand/OFL.txt -> build/lib/hwsol/assets/presets/patrick-hand
+copying src/hwsol/assets/presets/patrick-hand/PatrickHand-Regular.ttf -> build/lib/hwsol/assets/presets/patrick-hand
+copying src/hwsol/assets/presets/patrick-hand/profile.json -> build/lib/hwsol/assets/presets/patrick-hand
+copying src/hwsol/assets/presets/patrick-hand/provenance.json -> build/lib/hwsol/assets/presets/patrick-hand
+installing to build/bdist.linux-x86_64/wheel
+running install
+running install_lib
+creating build/bdist.linux-x86_64/wheel
+creating build/bdist.linux-x86_64/wheel/hwsol
+creating build/bdist.linux-x86_64/wheel/hwsol/training
+copying build/lib/hwsol/training/studio.py -> build/bdist.linux-x86_64/wheel/./hwsol/training
+copying build/lib/hwsol/training/__init__.py -> build/bdist.linux-x86_64/wheel/./hwsol/training
+copying build/lib/hwsol/training/samples.py -> build/bdist.linux-x86_64/wheel/./hwsol/training
+copying build/lib/hwsol/training/backend.py -> build/bdist.linux-x86_64/wheel/./hwsol/training
+copying build/lib/hwsol/probe.py -> build/bdist.linux-x86_64/wheel/./hwsol
+creating build/bdist.linux-x86_64/wheel/hwsol/profiles
+copying build/lib/hwsol/profiles/__init__.py -> build/bdist.linux-x86_64/wheel/./hwsol/profiles
+copying build/lib/hwsol/profiles/store.py -> build/bdist.linux-x86_64/wheel/./hwsol/profiles
+copying build/lib/hwsol/profiles/fonts.py -> build/bdist.linux-x86_64/wheel/./hwsol/profiles
+copying build/lib/hwsol/profiles/schema.py -> build/bdist.linux-x86_64/wheel/./hwsol/profiles
+copying build/lib/hwsol/profiles/io.py -> build/bdist.linux-x86_64/wheel/./hwsol/profiles
+creating build/bdist.linux-x86_64/wheel/hwsol/assets
+creating build/bdist.linux-x86_64/wheel/hwsol/assets/presets
+creating build/bdist.linux-x86_64/wheel/hwsol/assets/presets/patrick-hand
+copying build/lib/hwsol/assets/presets/patrick-hand/OFL.txt -> build/bdist.linux-x86_64/wheel/./hwsol/assets/presets/patrick-hand
+copying build/lib/hwsol/assets/presets/patrick-hand/profile.json -> build/bdist.linux-x86_64/wheel/./hwsol/assets/presets/patrick-hand
+copying build/lib/hwsol/assets/presets/patrick-hand/provenance.json -> build/bdist.linux-x86_64/wheel/./hwsol/assets/presets/patrick-hand
+copying build/lib/hwsol/assets/presets/patrick-hand/METADATA.pb -> build/bdist.linux-x86_64/wheel/./hwsol/assets/presets/patrick-hand
+copying build/lib/hwsol/assets/presets/patrick-hand/PatrickHand-Regular.ttf -> build/bdist.linux-x86_64/wheel/./hwsol/assets/presets/patrick-hand
+copying build/lib/hwsol/__init__.py -> build/bdist.linux-x86_64/wheel/./hwsol
+creating build/bdist.linux-x86_64/wheel/hwsol/adapters
+copying build/lib/hwsol/adapters/handnote.py -> build/bdist.linux-x86_64/wheel/./hwsol/adapters
+copying build/lib/hwsol/adapters/__init__.py -> build/bdist.linux-x86_64/wheel/./hwsol/adapters
+copying build/lib/hwsol/adapters/_mth_worker.py -> build/bdist.linux-x86_64/wheel/./hwsol/adapters
+copying build/lib/hwsol/adapters/base.py -> build/bdist.linux-x86_64/wheel/./hwsol/adapters
+copying build/lib/hwsol/adapters/markdown_to_handwrite.py -> build/bdist.linux-x86_64/wheel/./hwsol/adapters
+copying build/lib/hwsol/config.py -> build/bdist.linux-x86_64/wheel/./hwsol
+copying build/lib/hwsol/cli.py -> build/bdist.linux-x86_64/wheel/./hwsol
+copying build/lib/hwsol/__main__.py -> build/bdist.linux-x86_64/wheel/./hwsol
+copying build/lib/hwsol/profile_cli.py -> build/bdist.linux-x86_64/wheel/./hwsol
+running install_egg_info
+Copying src/handwritten_solutions.egg-info to build/bdist.linux-x86_64/wheel/./handwritten_solutions-0.1.0-py3.12.egg-info
+running install_scripts
+creating build/bdist.linux-x86_64/wheel/handwritten_solutions-0.1.0.dist-info/WHEEL
+creating '/workspace/handwritten-solutions/dist/.tmp-cgs9p5t1/handwritten_solutions-0.1.0-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
+adding 'handwritten_solutions-0.1.0.dist-info/licenses/LICENSE'
+adding 'hwsol/__init__.py'
+adding 'hwsol/__main__.py'
+adding 'hwsol/cli.py'
+adding 'hwsol/config.py'
+adding 'hwsol/probe.py'
+adding 'hwsol/profile_cli.py'
+adding 'hwsol/adapters/__init__.py'
+adding 'hwsol/adapters/_mth_worker.py'
+adding 'hwsol/adapters/base.py'
+adding 'hwsol/adapters/handnote.py'
+adding 'hwsol/adapters/markdown_to_handwrite.py'
+adding 'hwsol/assets/presets/patrick-hand/METADATA.pb'
+adding 'hwsol/assets/presets/patrick-hand/OFL.txt'
+adding 'hwsol/assets/presets/patrick-hand/PatrickHand-Regular.ttf'
+adding 'hwsol/assets/presets/patrick-hand/profile.json'
+adding 'hwsol/assets/presets/patrick-hand/provenance.json'
+adding 'hwsol/profiles/__init__.py'
+adding 'hwsol/profiles/fonts.py'
+adding 'hwsol/profiles/io.py'
+adding 'hwsol/profiles/schema.py'
+adding 'hwsol/profiles/store.py'
+adding 'hwsol/training/__init__.py'
+adding 'hwsol/training/backend.py'
+adding 'hwsol/training/samples.py'
+adding 'hwsol/training/studio.py'
+adding 'handwritten_solutions-0.1.0.dist-info/METADATA'
+adding 'handwritten_solutions-0.1.0.dist-info/WHEEL'
+adding 'handwritten_solutions-0.1.0.dist-info/entry_points.txt'
+adding 'handwritten_solutions-0.1.0.dist-info/top_level.txt'
+adding 'handwritten_solutions-0.1.0.dist-info/RECORD'
+removing build/bdist.linux-x86_64/wheel
+Successfully built dist/handwritten_solutions-0.1.0.tar.gz
+Successfully built dist/handwritten_solutions-0.1.0-py3-none-any.whl

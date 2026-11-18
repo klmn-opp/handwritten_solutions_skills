@@ -1,0 +1,48 @@
+{
+  "package": "0.2.0",
+  "platform": "Linux x86_64",
+  "baseline_tests": 29,
+  "total_tests": 49,
+  "wheel_install": "offline, locked runtime dependencies",
+  "torch_or_pytest_installed": false,
+  "skill_format_valid": true,
+  "sdist_skill_resources_checked": true,
+  "fresh_codex_discovery_tested": false,
+  "jobs": {
+    "euler": {
+      "profile": "bundled-default@v1",
+      "order": [
+        "1"
+      ],
+      "page_count": 1,
+      "pdf_sha256": "c3c012603dd09a193943dd0332ae05e248884113304571b806140818384dfee0"
+    },
+    "mixed": {
+      "profile": "bundled-default@v1",
+      "order": [
+        "2",
+        "4",
+        "6",
+        "7",
+        "9"
+      ],
+      "page_count": 5,
+      "pdf_sha256": "f285fc0744d9d921bcc25b587d85b7f3c4dec864be0eb945dd3985a063be23b2"
+    },
+    "portable-profile": {
+      "profile": "demo@v2",
+      "order": [
+        "2",
+        "4",
+        "6",
+        "7",
+        "9"
+      ],
+      "page_count": 5,
+      "pdf_sha256": "08c02f8d24f285fc8c373ca18f03463847435683be6fc69e28a3552cea0afe5e"
+    }
+  },
+  "public_problem": "https://projecteuler.net/problem=1",
+  "direct_enumeration": 233168,
+  "wheel_sha256": "47ca042b471b321f8315e6cde00c0c83f0375540dc4c7d69c4bb6c03521bfe96"
+}

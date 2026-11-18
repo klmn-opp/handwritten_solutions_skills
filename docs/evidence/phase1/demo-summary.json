@@ -1,0 +1,76 @@
+{
+  "status": "passed",
+  "phase": 1,
+  "sample_kind": "synthetic-strokes",
+  "real_author_handwriting_validated": false,
+  "rollback_byte_identical": true,
+  "portable_byte_identical": true,
+  "commands": 21,
+  "renders": {
+    "bundled": {
+      "profile": {
+        "reference": "bundled-default@v1",
+        "manifest_sha256": "4d9d01f3d758479b719c684c2a3602af1b1c6d98b47cf53e7ca7083a07ac6ad4",
+        "source_kind": "test-font",
+        "distribution": "OFL-1.1"
+      },
+      "artifacts": {
+        "probe.pdf": "686f67d5d2ecce52362d4b39bf98aad7c53ef3c002862f7e11c52b0ec22bbfc4",
+        "pages/01.png": "b89cb79e96a1a4211c26987216bd22f7be30eebd0a0bf7e60aa557f6fbb6aae2"
+      },
+      "page_count": 1
+    },
+    "v1": {
+      "profile": {
+        "reference": "demo@v1",
+        "manifest_sha256": "4bd8b234f5ecd6665bdd8f67ef84f1106404abf36189738930975a81e6b63705",
+        "source_kind": "personal-assets",
+        "distribution": "local-only"
+      },
+      "artifacts": {
+        "probe.pdf": "97ac274adeb1d8163518e64b966b500d48f622f845ef51602ef08aa7e90c41b2",
+        "pages/01.png": "1942047ca6263335c209a3a2b11e22773d0f9c4ea90404b7a619db52f0152c40"
+      },
+      "page_count": 1
+    },
+    "v2": {
+      "profile": {
+        "reference": "demo@v2",
+        "manifest_sha256": "8cd1c862c6a1c2cc0a058f22ef715cbf1c812ab5a277627f755c99d400c4bcd0",
+        "source_kind": "personal-assets",
+        "distribution": "local-only"
+      },
+      "artifacts": {
+        "probe.pdf": "6375a72053b4f42d794aa37a5ac0879fa471e49c25dd6a2edf05ffff4c4a0603",
+        "pages/01.png": "2bd85fd08129948aa392d49f8a51e18e92464f3e169652ed30a465d88c728976"
+      },
+      "page_count": 1
+    },
+    "rollback": {
+      "profile": {
+        "reference": "demo@v1",
+        "manifest_sha256": "4bd8b234f5ecd6665bdd8f67ef84f1106404abf36189738930975a81e6b63705",
+        "source_kind": "personal-assets",
+        "distribution": "local-only"
+      },
+      "artifacts": {
+        "probe.pdf": "97ac274adeb1d8163518e64b966b500d48f622f845ef51602ef08aa7e90c41b2",
+        "pages/01.png": "1942047ca6263335c209a3a2b11e22773d0f9c4ea90404b7a619db52f0152c40"
+      },
+      "page_count": 1
+    },
+    "portable": {
+      "profile": {
+        "reference": "demo@v2",
+        "manifest_sha256": "8cd1c862c6a1c2cc0a058f22ef715cbf1c812ab5a277627f755c99d400c4bcd0",
+        "source_kind": "personal-assets",
+        "distribution": "local-only"
+      },
+      "artifacts": {
+        "probe.pdf": "6375a72053b4f42d794aa37a5ac0879fa471e49c25dd6a2edf05ffff4c4a0603",
+        "pages/01.png": "2bd85fd08129948aa392d49f8a51e18e92464f3e169652ed30a465d88c728976"
+      },
+      "page_count": 1
+    }
+  }
+}

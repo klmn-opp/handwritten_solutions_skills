@@ -1,0 +1,27 @@
+{
+  "review_method": "Assistant visual inspection of upstream PNGs and independently rasterized PDF first pages; not OCR or semantic proof",
+  "accepted": [
+    "out/phase0-final/handnote-common/pages/01.png",
+    "out/phase0-final/handnote-common/pdf-preview.png",
+    "out/phase0/mth-stix/pages/01.png",
+    "out/phase0-final/markdown-to-handwrite-aligned/pdf-preview.png"
+  ],
+  "checks": [
+    "white page and visible ink",
+    "fractions and scripts",
+    "integral/sum/limit/root",
+    "Greek alpha beta sigma and arrow",
+    "matrix brackets and entries",
+    "multi-line equations"
+  ],
+  "initial_issues": [
+    "Handnote transparent-to-RGB black background; fixed with white fill and flatten",
+    "MTH omitted alpha beta sigma arrow when fallback equaled selected font; fixed with explicit STIX"
+  ],
+  "limitations": [
+    "No complete clipping proof",
+    "No real handwriting similarity review",
+    "No full LaTeX whitelist",
+    "No problem-solving correctness verification"
+  ]
+}

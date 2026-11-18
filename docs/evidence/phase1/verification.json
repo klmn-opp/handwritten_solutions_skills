@@ -1,0 +1,28 @@
+{
+  "phase": 1,
+  "status": "passed",
+  "date": "2026-11-18",
+  "tests": 29,
+  "cli_demo_operations": 21,
+  "checks": {
+    "locked_offline_sync": true,
+    "ruff_check": true,
+    "ruff_format": true,
+    "compileall": true,
+    "skill_validate": true,
+    "wheel_and_sdist": true,
+    "fresh_runtime_without_studio_files": true
+  },
+  "not_verified": [
+    "macOS",
+    "Windows",
+    "real_author_handwriting_quality",
+    "full_homework_workflow"
+  ],
+  "sha256": {
+    "pyproject.toml": "5baff37a0251caca23fdae0938b3dc07060566ed5fd9dd817400e93554fec774",
+    "uv.lock": "5fc7d38b88e59eae61c7939885aa6c01ff3ec7bc499a069df8660495120ed049",
+    "dist/handwritten_solutions-0.1.0-py3-none-any.whl": "6ecf1230940a3ebf44ed51b36bd5ebdc9eaa19378759df938ba4837095bda52a",
+    "dist/handwritten_solutions-0.1.0.tar.gz": "1119c80a80bc2795bcb15b374dfec07850c9dcf48091d257dc5b850ea9066f73"
+  }
+}

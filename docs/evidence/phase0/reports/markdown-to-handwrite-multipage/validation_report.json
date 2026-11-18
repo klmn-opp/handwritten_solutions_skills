@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "phase": 0,
+  "status": "passed",
+  "backend": "markdown-to-handwrite",
+  "source_path": "/workspace/handwritten-solutions/out/phase0-final/multipage.md",
+  "font_path": "/workspace/handwritten-solutions/src/hwsol/assets/presets/patrick-hand/PatrickHand-Regular.ttf",
+  "config": {
+    "dpi": 150,
+    "page_width_mm": 210,
+    "page_height_mm": 297,
+    "margin_mm": 18,
+    "font_size_pt": 13,
+    "line_spacing": 1.6,
+    "seed": 42,
+    "paper": "plain",
+    "ink": "#202838"
+  },
+  "environment": {
+    "python": "3.12.16",
+    "platform": "Linux-6.8.0-110-generic-x86_64-with-glibc2.35",
+    "packages": {
+      "kiwisolver": "1.5.1",
+      "pypdf": "7.1.0",
+      "Pygments": "2.21.0",
+      "matplotlib": "3.11.2",
+      "numpy": "2.5.5",
+      "annotated-doc": "0.0.6",
+      "pyproject_hooks": "1.3.3",
+      "markdown-it-py": "4.3.0",
+      "typer": "0.29.1",
+      "pyparsing": "3.3.3",
+      "annotated-types": "0.8.0",
+      "packaging": "26.3",
+      "typing-inspection": "0.4.5",
+      "typing_extensions": "4.16.0",
+      "handnote": "2.0.0.dev0",
+      "rich": "15.0.0",
+      "cycler": "0.12.1",
+      "opencv-python-headless": "5.0.0.93",
+      "pydantic_core": "2.50.4",
+      "pydantic": "2.14.3",
+      "build": "1.6.1",
+      "contourpy": "1.4.0",
+      "iniconfig": "2.3.1",
+      "pluggy": "1.7.0",
+      "python-dateutil": "4.0.0",
+      "pytest": "9.2.0",
+      "fonttools": "4.68.0",
+      "tzdata": "2026.6",
+      "mdurl": "0.1.2",
+      "ruff": "0.17.5",
+      "handwritten-solutions": "0.0.1",
+      "pillow": "13.0.0",
+      "shellingham": "1.5.4"
+    },
+    "dependency_sources": {
+      "handnote": {
+        "url": "https://github.com/zh271/handnote.git",
+        "vcs_info": {
+          "vcs": "git",
+          "commit_id": "114919f183817643c795e47e851ea25b96e3c393",
+          "requested_revision": "114919f183817643c795e47e851ea25b96e3c393"
+        }
+      },
+      "handwritten-solutions": {
+        "url": "file:///workspace/handwritten-solutions",
+        "dir_info": {
+          "editable": true
+        }
+      }
+    }
+  },
+  "validation_scope": "PDF/PNG structure and upstream diagnostics; NOT solution correctness",
+  "semantic_validation": "not_performed",
+  "one_problem_per_page": "not_implemented",
+  "source_sha256": "bde07fe202f5154e7c91cab666f4b978e66558cc8d4fae94da59d4bd1ec9175a",
+  "font_sha256": "0f173b3e6cb6d1af25babf7f0057c5ac4ee11f9992b0469bb817e967ef4ad0fc",
+  "page_count": 4,
+  "png_dimensions": [
+    [
+      1240,
+      1754
+    ],
+    [
+      1240,
+      1754
+    ],
+    [
+      1240,
+      1754
+    ],
+    [
+      1240,
+      1754
+    ]
+  ],
+  "warnings": [
+    "Experimental compatibility backend: glyph fallback is not fully audited."
+  ],
+  "coverage": {
+    "font_path": "/workspace/handwritten-solutions/src/hwsol/assets/presets/patrick-hand/PatrickHand-Regular.ttf",
+    "missing": [
+      {
+        "char": "α",
+        "code": "U+03B1",
+        "name": "GREEK SMALL LETTER ALPHA"
+      },
+      {
+        "char": "β",
+        "code": "U+03B2",
+        "name": "GREEK SMALL LETTER BETA"
+      },
+      {
+        "char": "σ",
+        "code": "U+03C3",
+        "name": "GREEK SMALL LETTER SIGMA"
+      },
+      {
+        "char": "→",
+        "code": "U+2192",
+        "name": "RIGHTWARDS ARROW"
+      }
+    ],
+    "coverage": 0.9375,
+    "total": 64,
+    "unknown_commands": [
+      "lim",
+      "sin"
+    ]
+  },
+  "backend_details": {
+    "version": "0.1.0",
+    "pdf_mode": "raster",
+    "sdt_trajectories_enabled": false,
+    "font_chain": [
+      "/workspace/handwritten-solutions/src/hwsol/assets/presets/patrick-hand/PatrickHand-Regular.ttf",
+      "/workspace/handwritten-solutions/.venv/lib/python3.12/site-packages/matplotlib/mpl-data/fonts/ttf/STIXGeneral.ttf"
+    ],
+    "fallback_font": "/workspace/handwritten-solutions/.venv/lib/python3.12/site-packages/matplotlib/mpl-data/fonts/ttf/STIXGeneral.ttf"
+  },
+  "artifacts": {
+    "probe.pdf": "23c463a05dcb00ad0f68425433141384047ddfb769099939f2a7d3b4ceafa295",
+    "pages/01.png": "e7a260a79ef1ad2c74f35db0cf1d7de67b15f22d54c5cd860be1df47f82c127c",
+    "pages/02.png": "0bd773ae6f290b80bd62b5caa4cb26d78568d317950c2724646d7715e9b93004",
+    "pages/03.png": "077381e07a8e9de9fba887c353a31674769cb43dafb4ac5d0bc95acf2777ed3a",
+    "pages/04.png": "92f3cdaeaf1444c794de3c8cee76f0ef1f8a56beea68f82c2b53a7ab0220031c"
+  },
+  "elapsed_seconds": 0.903
+}

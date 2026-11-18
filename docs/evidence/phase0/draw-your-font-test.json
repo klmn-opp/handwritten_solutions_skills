@@ -1,0 +1,21 @@
+{
+  "commit": "ef367bb2193b523a03e313b9219e31055558ae70",
+  "command": "npm test (node test/e2e.js)",
+  "observed_exit_code": 0,
+  "fixture": "upstream synthetic photo; not personal handwriting",
+  "glyphs": "Abgiox",
+  "assertions": "glyph coverage, metrics, descender, bowl winding, TTF/WOFF/WOFF2/CSS and preview artifacts",
+  "artifacts": {
+    "glyphs.png": "b022e562baf05b4a64beacccbfeb1a829b1a21d6b58dd4fdea5b5d27d14c8190",
+    "manifest.json": "59a65f5c935c46feba953d5d645633dcd4dceaf72c0a730678127b9e82c2286d",
+    "contact-1.png": "de4d8ac28af4860a92c2a1e5f5c0883149ec38ec9b498ba5ba5e5afae58e4c1a",
+    "TestHand.woff": "5616afe4b3bc7184970336336e0332294ec4b154055f7e204ead59de0faca8ab",
+    "TestHand.css": "3769e626e977d20fb7a0430a93a78d354f8914c8a5ddb9d44a3e98640ac69fbe",
+    "blobs.json": "8ccc92b33b582b6a47431515b6d351898b848c305cf6e74327f720253d0bec85",
+    "preview.png": "7c67913874d691f57368e7c2b82c64f292e8f297abff84bde974103bdcfe3fcf",
+    "TestHand.ttf": "9602325028fbf0b605a9bff10a55d11a0a5b9998ba990da2d3c72a3b56a63fed",
+    "TestHand.woff2": "f02c33da626ccf859e0f2e7199cfcb0f5fce40d4181129d9d4cd761e933be5fd"
+  },
+  "template_command": "node src/cli.js template -o /tmp/hwsol-dyf-template.pdf --charset minimal",
+  "template_sha256": "1216a316a499b96d71401f5b5b00d02ed15845c1fe645964ed4e8f58466b3f60"
+}

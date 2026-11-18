@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "generated_by": "Codex, engineering walkthrough of Project Euler problem 1",
+  "problems": [{
+    "number": "1", "sources": [{"path": "problem.md", "location": "Project Euler 1"}],
+    "statement": "Sum the integers below 1000 divisible by 3 or 5.",
+    "solution": "answer.md",
+    "verification": {
+      "status": "passed",
+      "evidence": "Independent enumeration of integers from 1 through 999 gave 233168.",
+      "checks": [{"lhs": "(3*333*334 + 5*199*200 - 15*66*67)/2", "rhs": "233168"}]
+    }
+  }]
+}

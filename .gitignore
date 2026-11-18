@@ -1,0 +1,31 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+out/
+.DS_Store
+# Personal data belongs outside this source tree.
+/profiles/
+/samples/
+/training-runs/
+/checkpoints/
+/jobs/
+
+# Local execution state, credentials and planning scratchpads.
+/.agents/
+/.aws/
+/.codex/
+/notes.md
+/task_plan.md
+.env
+.env.*
+*.pem
+*.key
+*.ckpt
+*.pth
+*.safetensors
+/.release-work/

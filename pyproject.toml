@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools==82.0.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "handwritten-solutions"
+version = "0.2.0"
+description = "Local handwriting Profiles, cumulative CPU Studio, and rendering adapters"
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = [
+  "handnote @ git+https://github.com/zh271/handnote.git@114919f183817643c795e47e851ea25b96e3c393",
+  "fonttools==4.68.0",
+  "pillow==13.0.0",
+  "pydantic==2.14.3",
+  "pypdf==7.1.0",
+  "typer==0.29.1",
+  # Upstream's unbounded range otherwise resolves to a Windows-only release.
+  "opencv-python-headless==5.0.0.93",
+  "pypdfium2==5.15.2",
+  "sympy==1.14.0",
+]
+
+[project.scripts]
+hwsol = "hwsol.cli:app"
+hwsol-studio = "hwsol.profile_cli:studio"
+
+[dependency-groups]
+dev = ["pytest==9.2.0", "ruff==0.17.5", "build==1.6.1"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+hwsol = ["assets/presets/patrick-hand/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]

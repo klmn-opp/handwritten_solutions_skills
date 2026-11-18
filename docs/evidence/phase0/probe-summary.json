@@ -1,0 +1,177 @@
+{
+  "scope": "phase0, synthetic fixtures",
+  "probes": [
+    {
+      "case": "common",
+      "backend": "handnote",
+      "status": "passed",
+      "expected_status": "passed",
+      "expectation_met": true,
+      "page_count": 1,
+      "elapsed_seconds": 0.694,
+      "error": null,
+      "report": "reports/handnote-common/validation_report.json"
+    },
+    {
+      "case": "multipage",
+      "backend": "handnote",
+      "status": "passed",
+      "expected_status": "passed",
+      "expectation_met": true,
+      "page_count": 3,
+      "elapsed_seconds": 0.536,
+      "error": null,
+      "report": "reports/handnote-multipage/validation_report.json"
+    },
+    {
+      "case": "unsupported",
+      "backend": "handnote",
+      "status": "failed",
+      "expected_status": "failed",
+      "expectation_met": true,
+      "page_count": null,
+      "elapsed_seconds": 0.058,
+      "error": {
+        "type": "RenderError",
+        "message": "Upstream degraded rendering: formula fallback: '\\\\definitelyUnsupported{x}' (ValueError)"
+      },
+      "report": "reports/handnote-unsupported/validation_report.json"
+    },
+    {
+      "case": "aligned",
+      "backend": "handnote",
+      "status": "failed",
+      "expected_status": "failed",
+      "expectation_met": true,
+      "page_count": null,
+      "elapsed_seconds": 0.059,
+      "error": {
+        "type": "RenderError",
+        "message": "Upstream degraded rendering: formula fallback: '\\\\begin{aligned}2x+3&=7\\\\\\\\2x&=4\\\\\\\\x&=2\\\\end{aligned}' (ValueError)"
+      },
+      "report": "reports/handnote-aligned/validation_report.json"
+    },
+    {
+      "case": "missing-glyph",
+      "backend": "handnote",
+      "status": "failed",
+      "expected_status": "failed",
+      "expectation_met": true,
+      "page_count": null,
+      "elapsed_seconds": 0.013,
+      "error": {
+        "type": "RenderError",
+        "message": "Text glyphs missing from selected font: 汉"
+      },
+      "report": "reports/handnote-missing-glyph/validation_report.json"
+    },
+    {
+      "case": "empty",
+      "backend": "handnote",
+      "status": "failed",
+      "expected_status": "failed",
+      "expectation_met": true,
+      "page_count": null,
+      "elapsed_seconds": 0.012,
+      "error": {
+        "type": "RenderError",
+        "message": "No Markdown input; refusing to generate a blank answer PDF"
+      },
+      "report": "reports/handnote-empty/validation_report.json"
+    },
+    {
+      "case": "common",
+      "backend": "markdown-to-handwrite",
+      "status": "passed",
+      "expected_status": "passed",
+      "expectation_met": true,
+      "page_count": 1,
+      "elapsed_seconds": 0.489,
+      "error": null,
+      "report": "reports/markdown-to-handwrite-common/validation_report.json"
+    },
+    {
+      "case": "multipage",
+      "backend": "markdown-to-handwrite",
+      "status": "passed",
+      "expected_status": "passed",
+      "expectation_met": true,
+      "page_count": 4,
+      "elapsed_seconds": 0.903,
+      "error": null,
+      "report": "reports/markdown-to-handwrite-multipage/validation_report.json"
+    },
+    {
+      "case": "unsupported",
+      "backend": "markdown-to-handwrite",
+      "status": "failed",
+      "expected_status": "failed",
+      "expectation_met": true,
+      "page_count": null,
+      "elapsed_seconds": 0.225,
+      "error": {
+        "type": "RenderError",
+        "message": "Compatibility backend failed: /tmp/hwsol-mth-venv/lib/python3.12/site-packages/fitz/__init__.py:17: FutureWarning: The `fitz` API is deprecated and will be removed in future. Use `import pymupdf` instead.\n  warnings.warn(\nTraceback (most recent call last):\n  File \"/workspace/handwritten-solutions/src/hwsol/adapters/_mth_worker.py\", line 91, in <module>\n    main()\n  File \"/workspace/handwritten-solutions/src/hwsol/adapters/_mth_worker.py\", line 65, in main\n    raise ValueError(diagnostics)\nValueError: [latex-render-error] \\definitelyUnsupported{x} (Unsupported command: \\definitelyUnsupported)\n\n"
+      },
+      "report": "reports/markdown-to-handwrite-unsupported/validation_report.json"
+    },
+    {
+      "case": "aligned",
+      "backend": "markdown-to-handwrite",
+      "status": "passed",
+      "expected_status": "passed",
+      "expectation_met": true,
+      "page_count": 1,
+      "elapsed_seconds": 0.319,
+      "error": null,
+      "report": "reports/markdown-to-handwrite-aligned/validation_report.json"
+    },
+    {
+      "case": "missing-glyph",
+      "backend": "markdown-to-handwrite",
+      "status": "failed",
+      "expected_status": "failed",
+      "expectation_met": true,
+      "page_count": null,
+      "elapsed_seconds": 0.015,
+      "error": {
+        "type": "RenderError",
+        "message": "Glyphs missing from selected and fallback fonts: 汉"
+      },
+      "report": "reports/markdown-to-handwrite-missing-glyph/validation_report.json"
+    },
+    {
+      "case": "empty",
+      "backend": "markdown-to-handwrite",
+      "status": "failed",
+      "expected_status": "failed",
+      "expectation_met": true,
+      "page_count": null,
+      "elapsed_seconds": 0.012,
+      "error": {
+        "type": "RenderError",
+        "message": "No Markdown input; refusing to generate a blank answer PDF"
+      },
+      "report": "reports/markdown-to-handwrite-empty/validation_report.json"
+    },
+    {
+      "case": "font-switch",
+      "backend": "handnote",
+      "status": "passed",
+      "expected_status": "passed",
+      "expectation_met": true,
+      "page_count": 1,
+      "elapsed_seconds": 0.278
+    },
+    {
+      "case": "300dpi",
+      "backend": "handnote",
+      "status": "passed",
+      "expected_status": "passed",
+      "expectation_met": true,
+      "page_count": 1,
+      "elapsed_seconds": 0.574
+    }
+  ],
+  "expected_behavior_verified": true
+}

@@ -1,0 +1,32 @@
+{
+  "repositories": [
+    {
+      "name": "handnote",
+      "url": "https://github.com/zh271/handnote",
+      "commit": "114919f183817643c795e47e851ea25b96e3c393",
+      "license_sha256": "9324b41b1785babd7da174afbce37ef0659b469c3c5ccac05c361f61d27666e0",
+      "source_changes": ""
+    },
+    {
+      "name": "markdown-to-handwrite",
+      "url": "https://github.com/lyc07/MarkdownToHandwrite",
+      "commit": "634cf07987a9c84c59f808e03f879c9d93485374",
+      "license_sha256": "d47aa24e54c9232004802cd1831af79078c9f51d863ac935990f1fe3e7a7f322",
+      "source_changes": ""
+    },
+    {
+      "name": "handwriting-to-font",
+      "url": "https://github.com/obsrvgmi/handwriting-to-font",
+      "commit": "27c048a3de2315bd896ecf7b6836dcd007bceeed",
+      "license_sha256": "5aec05a50356f20fb6556913391ed764e15c452a01baeda9987aefe9dc44d251",
+      "source_changes": ""
+    },
+    {
+      "name": "draw-your-font",
+      "url": "https://github.com/danilo-znamerovszkij/draw-your-font",
+      "commit": "ef367bb2193b523a03e313b9219e31055558ae70",
+      "license_sha256": "addaf68849bf068d42f7e90d98e6b0f8d400dccb3e7e1f8dfb872e9764aaf008",
+      "source_changes": ""
+    }
+  ]
+}

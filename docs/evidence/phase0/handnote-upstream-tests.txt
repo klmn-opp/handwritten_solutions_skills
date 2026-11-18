@@ -1,0 +1,63 @@
+....................F.........F....F.......                              [100%]
+=================================== FAILURES ===================================
+_____________________________ test_scan_round_trip _____________________________
+
+template = ([<PIL.Image.Image image mode=RGB size=1240x1754 at 0x71C3E1838BF0>, <PIL.Image.Image image mode=RGB size=1240x1754 at...16], [1149, 1716]]}, {'id': 11, 'sheet': 2, 'corner': 3, 'points': [[38, 1663], [91, 1663], [91, 1716], [38, 1716]]}]))
+dejavu_path = PosixPath('/workspace/handwritten-solutions/.venv/lib/python3.12/site-packages/matplotlib/mpl-data/fonts/ttf/DejaVuSans.ttf')
+font_path = PosixPath('/tmp/hwsol-handnote-cache/fonts/PatrickHand-Regular.ttf')
+tmp_path = PosixPath('/tmp/pytest-of-user/pytest-1/test_scan_round_trip0')
+
+    def test_scan_round_trip(template, dejavu_path, font_path, tmp_path):
+        pages, spec = template
+        scans = simulate_scan(pages, spec, dejavu_path,
+                              [tmp_path / f"scan-{i}.jpg" for i in range(len(pages))])
+        report = build_font(scans, spec, tmp_path / "symbols.ttf")
+        assert report["glyphs"] == len(spec.cells)
+        assert report["missing"] == []
+    
+        merged = merge_fonts(font_path, tmp_path / "symbols.ttf", tmp_path / "merged.ttf")
+>       assert merged["added"] > 90
+E       assert 84 > 90
+
+/tmp/hwsol-upstream-handnote/tests/test_symbols.py:68: AssertionError
+______________________ test_merged_font_keeps_alternates _______________________
+
+merged = ({'font': '/tmp/pytest-of-user/pytest-1/sets0/cap.ttf', 'glyphs': 2, 'missing': ['A', 'B', 'C', 'D', 'E', 'F', ...], '...merged.ttf', 'added': 2, 'skipped': 0, 'chars': '∈⊆', ...}, PosixPath('/tmp/pytest-of-user/pytest-1/sets0/merged.ttf'))
+font_path = PosixPath('/tmp/hwsol-handnote-cache/fonts/PatrickHand-Regular.ttf')
+
+    def test_merged_font_keeps_alternates(merged, font_path):
+        _report, _result, path = merged
+        font = TTFont(str(path))
+        cmap = font.getBestCmap()
+        alts = read_alternates(font)
+        assert len(alts[cmap[ord("∈")]]) == 2
+        assert len(alts[cmap[ord("⊆")]]) == 1
+        # Merging only adds: every original code point still maps to its own glyph.
+        base = TTFont(str(font_path)).getBestCmap()
+>       assert all(cmap[code] == name for code, name in base.items())
+E       assert False
+E        +  where False = all(<generator object test_merged_font_keeps_alternates.<locals>.<genexpr> at 0x71c3e1958ac0>)
+
+/tmp/hwsol-upstream-handnote/tests/test_sets.py:86: AssertionError
+_____________________ test_renderer_uses_handwritten_sets ______________________
+
+merged = ({'font': '/tmp/pytest-of-user/pytest-1/sets0/cap.ttf', 'glyphs': 2, 'missing': ['A', 'B', 'C', 'D', 'E', 'F', ...], '...merged.ttf', 'added': 2, 'skipped': 0, 'chars': '∈⊆', ...}, PosixPath('/tmp/pytest-of-user/pytest-1/sets0/merged.ttf'))
+cfg = RenderConfig(font_path='/tmp/hwsol-handnote-cache/fonts/PatrickHand-Regular.ttf', page_width=620, page_height=877, mar...ol_spacing=0.08, punct_squeeze=1.0, math_gap=0.25, glyph_sets=4, glyph_strength=1.0, seed=11, dpi=150, vector_pdf=True)
+
+    def test_renderer_uses_handwritten_sets(merged, cfg):
+        _report, _result, path = merged
+        assert handwritten_sets(path, ord("∈")) == 3
+        assert handwritten_sets(path, ord("的")) == 0
+        sets = GlyphSets(path, "∈⊆的", 4, 1.0, 11)
+        assert sets.choices("∈") == 3
+        assert sets.choices("⊆") == 2
+>       assert sets.choices("的") == 4
+E       AssertionError: assert 1 == 4
+E        +  where 1 = choices('的')
+E        +    where choices = <handnote.variants.GlyphSets object at 0x71c3e1a21df0>.choices
+
+/tmp/hwsol-upstream-handnote/tests/test_sets.py:152: AssertionError
+=========================== short test summary info ============================
+FAILED ../../../tmp/hwsol-upstream-handnote/tests/test_symbols.py::test_scan_round_trip
+FAILED ../../../tmp/hwsol-upstream-handnote/tests/test_sets.py::test_merged_font_keeps_alternates
+FAILED ../../../tmp/hwsol-upstream-handnote/tests/test_sets.py::test_renderer_uses_handwritten_sets
