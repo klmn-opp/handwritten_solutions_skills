@@ -63,6 +63,9 @@ def validate_answers(packet, answers):
 
 
 def packet(args):
+    state = json.loads((args.evaluation / "run.json").read_text())
+    if state["status"] not in {"held", "passed"}:
+        raise ValueError("Evaluation must be sealed before blind review")
     data = json.loads((args.evaluation / "reports/observations.json").read_text())
     # Eight fixed development IDs, all model seeds, and eight real scan controls.
     # Exclude repeated raw samples from the larger development run.

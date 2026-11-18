@@ -94,3 +94,20 @@ def test_edge_ink_is_suspicion_not_proven_error(tmp_path):
     assert result["border_ink"]
     assert "not proof" in result["border_interpretation"]
     assert result["ink_bbox"] == [19, 10, 20, 11]
+
+
+def test_sealed_analysis_cannot_be_overwritten(tmp_path):
+    import json
+
+    from research.english.summarize import summarize
+
+    (tmp_path / "run.json").write_text(json.dumps({"status": "held"}))
+    with pytest.raises(ValueError, match="sealed analysis"):
+        summarize(tmp_path / "absent-evaluation", tmp_path)
+    (tmp_path / "run.json").write_text(json.dumps({"status": "running"}))
+    (tmp_path / "reports").mkdir()
+    existing = tmp_path / "reports/summary.json"
+    existing.write_text("existing evidence")
+    with pytest.raises(FileExistsError, match="already exists"):
+        summarize(tmp_path / "absent-evaluation", tmp_path)
+    assert existing.read_text() == "existing evidence"

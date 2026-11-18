@@ -15,6 +15,14 @@ from .metrics import aggregate
 
 
 def summarize(evaluation, root):
+    state = json.loads((root / "run.json").read_text())
+    if state["status"] != "running":
+        raise ValueError("Cannot modify a sealed analysis run")
+    if (root / "reports/summary.json").exists():
+        raise FileExistsError("Analysis already exists; allocate a new run ID")
+    parent = json.loads((evaluation / "run.json").read_text())
+    if parent["status"] not in {"held", "passed"}:
+        raise ValueError("Evaluation must be sealed before summarizing")
     data = json.loads((evaluation / "reports/observations.json").read_text())
     rows = data["rows"]
     summary = {"human_scores": None, "model_training_executed": False, "groups": data["groups"]}
