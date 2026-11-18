@@ -50,3 +50,47 @@ def test_lossless_preview_retains_edge_pixels(tmp_path):
     assert normalize(path, tmp_path / "normalized.png")["border_ink"]
     result = lossless_pdf([path], tmp_path / "preview.pdf")
     assert result["pages"][0]["pixel_identical"]
+
+
+def test_review_requires_actual_content_gate():
+    from research.english.review import AXES, validate_answers
+
+    packet = {"run_id": "p", "items": [{"blind_id": "B01", "expected": "Good work."}]}
+    answers = {
+        "packet_run_id": "p",
+        "reviewer": "test reviewer",
+        "reviewer_type": "human",
+        "answers": [
+            {
+                "blind_id": "B01",
+                "transcription": "Good work.",
+                "content": "incorrect",
+                "style": dict.fromkeys(AXES, 4),
+            }
+        ],
+    }
+    with pytest.raises(ValueError, match="Style requires"):
+        validate_answers(packet, answers)
+    answers["answers"][0]["content"] = "complete"
+    assert validate_answers(packet, answers)["remaining"] == 0
+    answers["answers"][0]["transcription"] = "Good."
+    with pytest.raises(ValueError, match="disagrees"):
+        validate_answers(packet, answers)
+    answers["reviewer_type"] = "model"
+    with pytest.raises(ValueError, match="Named human"):
+        validate_answers(packet, answers)
+
+
+def test_edge_ink_is_suspicion_not_proven_error(tmp_path):
+    from PIL import Image
+
+    from research.english.artifacts import normalize
+
+    image = Image.new("L", (20, 20), 255)
+    image.putpixel((19, 10), 0)
+    path = tmp_path / "raw.png"
+    image.save(path)
+    result = normalize(path, tmp_path / "normalized.png")
+    assert result["border_ink"]
+    assert "not proof" in result["border_interpretation"]
+    assert result["ink_bbox"] == [19, 10, 20, 11]

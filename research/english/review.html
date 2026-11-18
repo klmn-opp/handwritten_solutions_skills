@@ -1,0 +1,38 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><title>English handwriting blind review</title>
+<style>body{font:16px system-ui;max-width:1200px;margin:30px auto;padding:20px;background:#eee}
+article{padding:20px;margin:20px 0;background:white}img{display:block;max-width:100%;margin:15px 0}
+textarea{width:95%;height:55px}label{margin:8px;display:inline-block}button{padding:8px}small{color:#555}</style>
+<h1>英文笔迹盲评：先校核内容，再评风格</h1>
+<p>先独立转写图中全部内容，再揭示目标文本。漏字、重复、标点或截断都应记录。识别器结果和后端名称已隐藏。
+只给内容完整且转写一致的样本评分。1=很差，5=很好；不确定时不评分。本人真实样本也是扫描图，不代表在线轨迹。</p>
+<label>评审人（必填）<input id="reviewer"></label><button id="save">导出人工评审 JSON</button>
+<h2>本人真实扫描参考</h2><div id="author"></div><p id="status"></p><div id="items"></div>
+<script>
+const packet=PACKET; const states={};
+(packet.author_references||[]).forEach(src=>{
+ const image=document.createElement('img');image.src=src;
+ document.querySelector('#author').append(image);
+});
+const labels={connections:'连笔自然程度',letter_proportions:'字母比例与一致性',spacing_rhythm:'间距与节奏',personal_similarity:'本人相似性',legibility:'清晰度'};
+const normalize=s=>s.trim().replace(/\s+/g,' ');
+packet.items.forEach(item=>{
+ const a=document.createElement('article');const title=document.createElement('h3');title.textContent=item.blind_id;a.append(title);
+ const image=document.createElement('img');image.src=item.image;a.append(image);
+ const input=document.createElement('textarea');input.placeholder='先盲转写；不能辨认处用 [?]';a.append(input);
+ const reveal=document.createElement('button');reveal.textContent='锁定转写并揭示目标';a.append(reveal);
+ const expected=document.createElement('p');a.append(expected);
+ const select=document.createElement('select');select.disabled=true;
+ [['','请选择内容结论'],['complete','内容完整'],['incorrect','有内容错误'],['uncertain','无法确定']].forEach(([v,t])=>{const o=new Option(t,v);select.add(o)});a.append(select);
+ const notes=document.createElement('textarea');notes.placeholder='遗漏/重复/替换/截断/标点或识别歧义记录';a.append(notes);
+ const fs=document.createElement('fieldset');fs.disabled=true;const controls={};
+ Object.entries(labels).forEach(([k,t])=>{const l=document.createElement('label');l.textContent=t;const s=document.createElement('select');s.add(new Option('未评分',''));[1,2,3,4,5].forEach(v=>s.add(new Option(v,v)));l.append(s);fs.append(l);controls[k]=s});a.append(fs);
+ reveal.onclick=()=>{if(!input.value.trim())return;input.disabled=true;reveal.disabled=true;expected.textContent='目标：'+item.expected;select.disabled=false};
+ select.onchange=()=>{const ok=select.value==='complete'&&normalize(input.value)===normalize(item.expected);fs.disabled=!ok;if(!ok)Object.values(controls).forEach(s=>s.value='');if(select.value==='complete'&&!ok){select.value='uncertain';alert('转写与目标不一致，请将其保留为待复核，不能评分。')}};
+ states[item.blind_id]=()=>({blind_id:item.blind_id,transcription:input.value,content:select.value,notes:notes.value,
+ style:!fs.disabled&&Object.values(controls).every(s=>s.value)?Object.fromEntries(Object.entries(controls).map(([k,s])=>[k,Number(s.value)])):null});
+ document.querySelector('#items').append(a);
+});
+document.querySelector('#save').onclick=()=>{const reviewer=document.querySelector('#reviewer').value.trim();if(!reviewer){alert('请填写评审人');return}
+ const data={packet_run_id:packet.run_id,reviewer,reviewer_type:'human',timestamp:new Date().toISOString(),answers:Object.values(states).map(f=>f()).filter(r=>r.content)};
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='human-review.json';a.click();URL.revokeObjectURL(a.href)};
+</script></html>

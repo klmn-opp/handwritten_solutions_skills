@@ -15,7 +15,7 @@ from hwsol.workspace import Run
 
 def create(kind: str, *, run_id: str, config: dict, **kwargs) -> Run:
     source = Path(__file__).parent
-    files = {str(p): sha256(p) for p in source.glob("*.py")}
+    files = {str(p): sha256(p) for p in source.iterdir() if p.suffix in {".py", ".html"}}
     run = Run.create(
         kind,
         run_id=run_id,

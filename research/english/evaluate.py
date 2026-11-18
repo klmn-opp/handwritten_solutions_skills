@@ -143,21 +143,7 @@ def evaluate(args):
             subset = [r for r in rows if r["parent_run"] == parent.name]
             for field in ("split", "seed"):
                 groups[parent.name]["by_" + field] = {
-                    str(value): {
-                        name: aggregate(
-                            [
-                                r[name]["score"]
-                                for r in subset
-                                if r.get(field) == value and r.get(name) and "score" in r[name]
-                            ]
-                        )
-                        for name in ("tesseract", "htr")
-                    }
-                    for value in sorted({str(r.get(field)) for r in subset})
-                }
-                # Match serialized labels while preserving numeric seeds in observations.
-                for value in groups[parent.name]["by_" + field]:
-                    groups[parent.name]["by_" + field][value] = {
+                    value: {
                         name: aggregate(
                             [
                                 r[name]["score"]
@@ -167,6 +153,8 @@ def evaluate(args):
                         )
                         for name in ("tesseract", "htr")
                     }
+                    for value in sorted({str(r.get(field)) for r in subset})
+                }
         atomic_json(
             run.path / "reports/observations.json",
             {
