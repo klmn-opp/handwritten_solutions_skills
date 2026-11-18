@@ -2,6 +2,7 @@
 
 import argparse
 import hashlib
+import importlib
 import importlib.metadata
 import json
 import os
@@ -36,6 +37,9 @@ def main():
         import torch
         from handnote.linegen import style, weights
         from handnote.linegen.generate import LineGenerator
+
+        # diffusers 0.32.2 accesses this submodule without importing it on this path.
+        importlib.import_module("safetensors.torch")
 
         installed = {d.metadata["Name"]: d.version for d in importlib.metadata.distributions()}
         (run / "reports/installed-dependencies.json").write_text(json.dumps(installed, indent=2))
