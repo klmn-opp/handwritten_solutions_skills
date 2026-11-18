@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "handwritten-solutions"
-version = "0.2.0"
+version = "0.3.0"
 description = "Local handwriting Profiles, cumulative CPU Studio, and rendering adapters"
 readme = "README.md"
 requires-python = ">=3.12,<3.14"

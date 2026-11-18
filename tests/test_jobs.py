@@ -243,3 +243,44 @@ def test_read_scanned_pdf_original(tmp_path):
             "error"
         ]
     )
+
+
+@pytest.mark.parametrize("width,height", [(215.9, 279.4), (297, 210), (180, 180)])
+def test_complex_notation_multiple_paper_sizes(assignment, width, height):
+    path, job, out = assignment
+    job["problems"] = job["problems"][:1]
+    job["render"] = {"page_width_mm": width, "page_height_mm": height, "dpi": 96, "seed": 217}
+    source = r"""The limit equals one.
+
+$$\lim_{x\to0}\frac{\sin{x}}{x}=1$$
+
+$$r=\sqrt{\frac{1}{n}\sum_{i=1}^{n}(x_i-\mu)^2}$$
+
+$$A=\begin{pmatrix}1&-2\\3&4\end{pmatrix}$$
+
+The vector is $\vec{v}=\frac{d\vec{r}}{dt}$ in $\mathrm{m/s}$.
+"""
+    (path.parent / "01.md").write_text(source, encoding="utf-8")
+    report = run(assignment)
+    assert (out / "solutions/01.md").read_text("utf-8") == source
+    assert report["pages"][0]["math_fallback_glyphs"]
+    assert invoke("verify", "--job", out, "--pixels")["page_count"] == 1
+
+
+def test_independent_pixel_verification(assignment):
+    _, job, out = assignment
+    job["problems"] = job["problems"][:2]
+    report = run(assignment)
+    first = "pages/01.png"
+    shutil.copyfile(out / "pages/02.png", out / first)
+    report["artifacts"][first] = sha256(out / first)
+    atomic_json(out / "validation_report.json", report)
+    assert "PDF page 1" in invoke("verify", "--job", out, "--pixels", ok=False)["error"]
+
+
+@pytest.mark.parametrize("path", ["NUL.png", "paper/COM1.jpg", "a./b", "a /b", "a|b", "a?b"])
+def test_portable_asset_paths(path):
+    from hwsol.profiles.schema import ProfileError, relative
+
+    with pytest.raises(ProfileError, match="asset path"):
+        relative(path)

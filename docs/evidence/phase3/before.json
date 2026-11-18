@@ -1,0 +1,30 @@
+{
+  "platform": "Linux",
+  "arch": "x86_64",
+  "python": "3.12.16",
+  "package": "0.2.0",
+  "fixture": "job.json",
+  "runs": [
+    {
+      "cache": "fresh",
+      "pages": 5,
+      "wall_s": 1.2567,
+      "cpu_s": 7.9407,
+      "peak_process_bytes": 193331200
+    },
+    {
+      "cache": "warm",
+      "pages": 5,
+      "wall_s": 0.3786,
+      "cpu_s": 0.3762,
+      "peak_process_bytes": 205103104
+    },
+    {
+      "cache": "warm",
+      "pages": 5,
+      "wall_s": 0.4141,
+      "cpu_s": 0.3762,
+      "peak_process_bytes": 206663680
+    }
+  ]
+}

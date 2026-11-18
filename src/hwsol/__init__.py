@@ -1,3 +1,3 @@
 """Handwritten Solutions: local Profiles and CPU Studio; solving is Agent-owned."""
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"

@@ -132,8 +132,16 @@ def ink_geometry(page, renderer):
     lo = np.array([math.inf, math.inf])
     hi = -lo
     math_fonts = set()
+    outline_bounds = {}
     for item in page.items:
         kind, shape, matrix = item[:3]
+        a, b, c, d, e, f = matrix
+        cache_key = (shape, a, b, c, d, item[4]) if kind == "path" else None
+        if cache_key in outline_bounds:
+            low, high = outline_bounds[cache_key]
+            lo = np.minimum(lo, low + (e, f))
+            hi = np.maximum(hi, high + (e, f))
+            continue
         if kind == "path":
             outline = renderer._outlines[shape]
             points = outline.verts[outline.codes != MplPath.CLOSEPOLY]
@@ -156,11 +164,13 @@ def ink_geometry(page, renderer):
             raise ValueError(f"Unsupported ink recording: {kind}")
         if not len(points):
             continue
-        a, b, c, d, e, f = matrix
-        coords = points @ np.array([[a, b], [c, d]]) + [e, f]
+        coords = points @ np.array([[a, b], [c, d]])
         padding = width * np.array([math.hypot(a, c), math.hypot(b, d)]) / 2
-        lo = np.minimum(lo, coords.min(axis=0) - padding)
-        hi = np.maximum(hi, coords.max(axis=0) + padding)
+        low, high = coords.min(axis=0) - padding, coords.max(axis=0) + padding
+        if cache_key is not None:
+            outline_bounds[cache_key] = low, high
+        lo = np.minimum(lo, low + (e, f))
+        hi = np.maximum(hi, high + (e, f))
     if not np.isfinite([lo, hi]).all():
         raise ValueError("Empty or invalid ink bounds")
     return [*lo.tolist(), *hi.tolist()], sorted(math_fonts)
@@ -253,15 +263,18 @@ def render_one(
             if asset is not None:
                 page.background = paper_image(bg, asset, (page.width, page.height))
                 page.paper = None
+            profile_font = profile.font.resolve()
             fallback = [
                 {"codepoint": f"U+{cp:04X}", "font": Path(font).name}
                 for cp, font in used
-                if Path(font).resolve() != profile.font.resolve()
+                if Path(font).resolve() != profile_font
             ]
             pdf = renderer.to_vector_pdf(pages)
-            paper_only = renderer.to_vector_pdf([replace(page, items=[])])
-            if not visible_ink(pdf, paper_only):
-                raise ValueError("Ink is not visible against the selected paper")
+            # Plain paper is checked on the actual full-resolution export in build().
+            if bg.kind != "plain":
+                paper_only = renderer.to_vector_pdf([replace(page, items=[])])
+                if not visible_ink(pdf, paper_only):
+                    raise ValueError("Ink is not visible against the selected paper")
             return pdf, {
                 "attempts": attempts,
                 "math_fallback_glyphs": fallback,

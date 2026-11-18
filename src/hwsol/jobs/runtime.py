@@ -9,7 +9,7 @@ from importlib.metadata import version
 from pathlib import Path
 
 import pypdfium2 as pdfium
-from PIL import Image
+from PIL import Image, ImageChops
 from pypdf import PdfReader, PdfWriter
 from pypdf.generic import NameObject, TextStringObject
 
@@ -59,7 +59,17 @@ def snapshot(path: Path, stage: Path, area: str, cache: dict) -> str:
     return cache[key]
 
 
-def verify_job(root: Path) -> dict:
+def export_raster(doc, index: int, config: RenderConfig) -> Image.Image:
+    image = pdf_image(doc, index, config.dpi / 72)
+    size = (config.mm(config.page_width_mm), config.mm(config.page_height_mm))
+    if image.size != size:
+        if any(abs(a - b) > 1 for a, b in zip(image.size, size, strict=True)):
+            raise ValueError("Unexpected raster dimensions")
+        image = image.resize(size, Image.Resampling.LANCZOS)
+    return image
+
+
+def verify_job(root: Path, *, pixels: bool = False) -> dict:
     """Check files, order, page/source identities and dimensions independently of Profile state."""
     report = json.loads(inside(root, REPORT).read_text("utf-8"))
     if report.get("status") != "passed":
@@ -111,6 +121,13 @@ def verify_job(root: Path) -> dict:
     for path, digest in inventory.items():
         if sha256(inside(root, path)) != digest:
             raise ValueError(f"Artifact digest mismatch: {path}")
+    if pixels:
+        with PDF_LOCK, closing(pdfium.PdfDocument(root / PDF)) as doc:
+            for i in range(n):
+                with Image.open(root / f"pages/{i + 1:02d}.png") as png:
+                    actual = export_raster(doc, i, job.render)
+                    if png.mode != "RGB" or ImageChops.difference(actual, png).getbbox():
+                        raise ValueError(f"PNG pixels differ from PDF page {i + 1}")
     return {"status": "passed", "page_count": n, "problem_order": [p.number for p in job.problems]}
 
 
@@ -129,6 +146,7 @@ def build(manifest: Path, stage: Path, store: ProfileStore, progress: dict):
     default_paper = store.settings().get("background")
     cache = {}
     validated = set()
+    input_digests = {}
     pages = []
     writer = PdfWriter()
     (stage / "solutions").mkdir()
@@ -140,7 +158,9 @@ def build(manifest: Path, stage: Path, store: ProfileStore, progress: dict):
         for src in problem.sources:
             src.path = snapshot(inside(root, src.path), stage, "inputs", cache)
             path = stage / src.path
-            digest = sha256(path)
+            if path not in input_digests:
+                input_digests[path] = sha256(path)
+            digest = input_digests[path]
             if src.sha256 and src.sha256 != digest:
                 raise ValueError(f"Input digest mismatch for {src.path}")
             src.sha256 = digest
@@ -190,15 +210,14 @@ def build(manifest: Path, stage: Path, store: ProfileStore, progress: dict):
         if len(doc) != len(pages):
             raise ValueError("Merged PDF lost a problem")
         for index in range(len(doc)):
-            image = pdf_image(doc, index, job.render.dpi / 72)
-            size = (
-                job.render.mm(job.render.page_width_mm),
-                job.render.mm(job.render.page_height_mm),
-            )
-            if image.size != size:
-                if any(abs(a - b) > 1 for a, b in zip(image.size, size, strict=True)):
-                    raise ValueError("Unexpected raster dimensions")
-                image = image.resize(size, Image.Resampling.LANCZOS)
+            problem = job.problems[index]
+            progress["problem"] = problem.number
+            image = export_raster(doc, index, job.render)
+            if (
+                problem.background.kind == "plain"
+                and min(lo for lo, _ in image.getextrema()) >= 247
+            ):
+                raise ValueError("Ink is not visible against the selected paper")
             image.save(stage / f"pages/{index + 1:02d}.png", dpi=(job.render.dpi, job.render.dpi))
     atomic_json(stage / "manifest.json", job.model_dump(mode="json"))
     artifacts = {

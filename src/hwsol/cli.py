@@ -51,7 +51,7 @@ def doctor() -> None:
             json.dumps(
                 {
                     "status": "passed",
-                    "phase": 2,
+                    "phase": 3,
                     "profile": selected.provenance(),
                     "packages": packages,
                     "font": {
@@ -144,12 +144,17 @@ def render(manifest: Annotated[Path, typer.Option()], output: Annotated[Path, ty
 
 
 @app.command()
-def verify(job: Annotated[Path, typer.Option()]):
+def verify(
+    job: Annotated[Path, typer.Option()],
+    pixels: Annotated[
+        bool, typer.Option(help="Compare PNG pixels with newly rasterized PDF pages.")
+    ] = False,
+):
     """Verify a delivered assignment without needing its original Profile or Studio."""
     from hwsol.jobs.runtime import verify_job
 
     try:
-        typer.echo(json.dumps(verify_job(job), ensure_ascii=False))
+        typer.echo(json.dumps(verify_job(job, pixels=pixels), ensure_ascii=False))
     except Exception as exc:
         fail(exc)
 

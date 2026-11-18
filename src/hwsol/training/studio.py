@@ -269,10 +269,14 @@ def evaluate(store: ProfileStore, spec: str) -> dict:
                 report["comparison"] = compare(load_snapshot(folder / "base"), candidate)
             source = run / "standard.md"
             source.write_text(EVALUATION_SOURCE, encoding="utf-8")
+            # Upstream caches open font handles. Keep them outside the directory
+            # that publish() renames, including on Windows.
+            preview_font = run / candidate.font.name
+            shutil.copyfile(candidate.font, preview_font)
             render = run_probe(
                 source,
                 run / "preview",
-                candidate.font,
+                preview_font,
                 candidate.manifest.render,
                 HandnoteAdapter(real_variants=True),
             )

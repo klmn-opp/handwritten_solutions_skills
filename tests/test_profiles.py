@@ -64,7 +64,7 @@ def release(store, candidate, activate=False):
     publish(store, candidate, activate=activate)
 
 
-def render(root, store, ref=None):
+def render(root, store, ref=None, seed=42):
     selected = store.resolve(ref)
     root.mkdir()
     source = root / "input.md"
@@ -73,7 +73,7 @@ def render(root, store, ref=None):
         source,
         root / "result",
         selected.font,
-        RenderConfig(),
+        RenderConfig(seed=seed),
         HandnoteAdapter(real_variants=bool(selected.manifest.variants)),
         profile=selected.provenance(),
     )
@@ -322,6 +322,11 @@ def test_more_than_eight_rounds_retain_real_variants(tmp_path, capture_template)
     ref = train(store, "personal")["candidate"]
     shapes = outline_fingerprints(store.resolve(ref, candidate=True).font, 120)
     assert len(shapes) == len(set(shapes)) == 9
+    release(store, ref, activate=True)
+    first = render(tmp_path / "seed-first", store, seed=17)["artifacts"]
+    assert render(tmp_path / "seed-repeat", store, seed=17)["artifacts"] == first
+    changed = render(tmp_path / "seed-different", store, seed=18)["artifacts"]
+    assert first["pages/01.png"] != changed["pages/01.png"]
 
 
 def test_cff_otf_standalone_and_explicit_merge_limit(tmp_path):

@@ -37,7 +37,12 @@ def relative(value: str) -> str:
         not value
         or path.is_absolute()
         or "\\" in value
-        or ":" in value
+        or re.search(r'[<>:"|?*\x00-\x1f]', value)
+        or any(
+            part.endswith((".", " "))
+            or re.fullmatch(r"(?:CON|PRN|AUX|NUL|COM[0-9¹²³]|LPT[0-9¹²³])(?:\..*)?", part, re.I)
+            for part in value.split("/")
+        )
         or any(p in {"", ".", ".."} for p in value.split("/"))
     ):
         raise ProfileError(f"Unsafe asset path: {value}")
