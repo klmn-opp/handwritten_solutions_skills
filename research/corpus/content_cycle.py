@@ -336,7 +336,9 @@ def worker(path: Path) -> None:
                 ii = evaluated[k : k + 4]
                 noise = torch.randn(refcode[ii].shape, device="cuda", generator=gen)
                 im, _ = generate(
-                    lambda x, ref, token, time, pos=positions[ii]: predict(x, ref, token, time, pos),
+                    lambda x, ref, token, time, pos=positions[ii]: predict(
+                        x, ref, token, time, pos
+                    ),
                     codec,
                     refcode[ii],
                     tokens[ii],
