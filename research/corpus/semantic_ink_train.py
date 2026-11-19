@@ -30,7 +30,12 @@ def launch(data: Path, arm="initial", resume: Path | None = None, warmup: Path |
     if (arm == "identity-extended") != (resume is not None):
         raise ValueError("Only the registered capacity extension restores an optimizer")
     real = arm in {
-        "real-only", "real-mixed", "real-capacity", "anchor-font", "anchor-real", "raw-real"
+        "real-only",
+        "real-mixed",
+        "real-capacity",
+        "anchor-font",
+        "anchor-real",
+        "raw-real",
     }
     if real != (warmup is not None):
         raise ValueError("Real supervision requires the frozen content model")

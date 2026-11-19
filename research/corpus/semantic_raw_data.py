@@ -9,11 +9,7 @@ from pathlib import Path
 
 import numpy as np
 
-from hwsol.workspace import verify_run
 from research.corpus.context_content_train import digest, write
-from research.corpus.experiment import create
-from research.corpus.ink_geometry import signed_distance
-from research.corpus.semantic_anchors import validate
 
 
 def class_metrics(tokens: np.ndarray, boxes: np.ndarray, indices: list[int]) -> dict:
@@ -48,6 +44,11 @@ def apply_metrics(tokens: np.ndarray, boxes: np.ndarray, metrics: dict) -> np.nd
 
 
 def prepare(parent: Path, raw: Path) -> Path:
+    from hwsol.workspace import verify_run
+    from research.corpus.experiment import create
+    from research.corpus.ink_geometry import signed_distance
+    from research.corpus.semantic_anchors import validate
+
     for p in [parent, raw]:
         verify_run(p)
     with np.load(parent / "reports/arrays.npz") as archive:

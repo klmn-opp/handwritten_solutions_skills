@@ -31,6 +31,36 @@ class SemanticGeometry(unittest.TestCase):
 
 @unittest.skipUnless(importlib.util.find_spec("torch"), "Torch remains optional")
 class SemanticLearning(unittest.TestCase):
+    def test_optimized_training_codes_are_not_required_by_decoder_at_generation(self):
+        import torch
+
+        from research.corpus.semantic_ink_model import AutoDecodedSemanticInk, SemanticInk
+
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        base = SemanticInk(context_scale=0).to(device)
+        model = AutoDecodedSemanticInk().to(device)
+        model.load_identity(base.state_dict())
+        codes = torch.nn.Parameter(torch.randn(2, 2, device=device))
+        tokens = torch.tensor([[[102, 0, 0]], [[102, 0, 0]]], device=device)
+        boxes = torch.tensor([[[10, 10, 30, 40]], [[10, 10, 30, 40]]], device=device).float()
+        points = torch.tensor([[[20, 22]], [[20, 22]]], device=device).float()
+        initial = model(tokens, boxes, points, style=codes)[0]
+        self.assertTrue(torch.equal(initial, base(tokens, boxes, points)[0]))
+        opt = torch.optim.Adam([*model.parameters(), codes], lr=0.01)
+        old = codes.detach().clone()
+        for _ in range(3):
+            value = model(tokens, boxes, points, style=codes)[0]
+            loss = (value - torch.tensor([[1.0], [-1.0]], device=device)).square().mean()
+            opt.zero_grad()
+            loss.backward()
+            opt.step()
+        self.assertGreater(float((codes - old).abs().sum().detach()), 0)
+        self.assertFalse(any("code" in k for k in model.state_dict()))
+        z = torch.randn(2, 2, device=device)
+        a = model(tokens, boxes, points, style=z)[0]
+        b = model(tokens, boxes, points, style=-z)[0]
+        self.assertFalse(torch.equal(a, b))
+
     def test_content_and_context_are_learnable_without_any_reference_pixels(self):
         import torch
 

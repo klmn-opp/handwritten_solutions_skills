@@ -121,6 +121,36 @@ class ContextualSemanticInk(SemanticInk):
             raise ValueError("Only the new zero context gate may be absent")
 
 
+class AutoDecodedSemanticInk(ContextualSemanticInk):
+    """Training-only optimized word codes; generation takes a sampled 2-D code.
+
+    The decoder has no sample-ID table, posterior image input or stored outlines.
+    Fitting training codes alone cannot establish a useful prior or personal style.
+    """
+
+    architecture = "semantic-word-autodecoder/1"
+    latent = 2
+
+    def __init__(self):
+        super().__init__()
+        self.style_projection = nn.Linear(self.latent, 16, bias=False)
+        nn.init.zeros_(self.style_projection.weight)
+
+    def load_identity(self, state):
+        result = self.load_state_dict(state, strict=False)
+        if (
+            set(result.missing_keys) != {"context_gate", "style_projection.weight"}
+            or result.unexpected_keys
+        ):
+            raise ValueError("Only the new code projection and context gate may be absent")
+
+    def writer_features(self, xy, style):
+        if style is None or style.shape != (xy.shape[0], self.latent):
+            raise ValueError("Explicit two-dimensional shared word code required")
+        writer = self.writer[None] + self.style_projection(style)
+        return writer[:, None, None].expand(*xy.shape[:-1], -1)
+
+
 class WordLatentSemanticInk(ContextualSemanticInk):
     """A whole-word latent shared by all character fields; posterior is training-only.
 
