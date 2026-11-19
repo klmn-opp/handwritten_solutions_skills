@@ -40,6 +40,8 @@ def report(
     review_title: str = "去灰影对照",
     review_seed: int = 1207,
     footer: str | None = None,
+    overview_indices: list[int] | None = None,
+    metric_size: tuple[int, int] | None = None,
 ) -> None:
     require_running(main)
     verify_run(comparison)
@@ -53,6 +55,10 @@ def report(
         selected += sorted({r["row_index"] for r in rows if r["split"] == split})[
             : 2 if split == "train" else 4
         ]
+    if overview_indices is not None:
+        if not set(overview_indices) <= set(indices):
+            raise ValueError("Overview contains absent region")
+        selected = list(overview_indices)
     index = []
     metric_rows = []
     with (
@@ -68,7 +74,10 @@ def report(
                 ax.imshow(im, cmap="gray", vmin=0, vmax=255)
                 ax.set_title(label, fontsize=9, loc="left")
                 ax.axis("off")
-                ink = 1 - np.asarray(im.convert("L"), dtype=np.float32) / 255
+                metric_image = im.convert("L")
+                if metric_size is not None:
+                    metric_image = metric_image.resize(metric_size, Image.Resampling.LANCZOS)
+                ink = 1 - np.asarray(metric_image, dtype=np.float32) / 255
                 mask = ink > 0.5
                 outside = cv2.distanceTransform((~mask).astype("uint8"), cv2.DIST_L2, 5)
                 halo = (ink > 0.1) & (outside > 1.5)
@@ -134,6 +143,7 @@ def report(
         {
             "summary": summary,
             "rows": metric_rows,
+            "metric_size": metric_size,
             "interpretation": "Descriptive only; removal of genuine thin strokes can lower haze. "
             "Check content independently.",
         },
@@ -155,14 +165,23 @@ def report(
         ev = json.loads((Path(p) / "reports/evaluations.json").read_text())
         validation = [r.get("validation", r) for r in ev]
         axes[0].plot([r["step"] for r in curve], [r["loss"] for r in curve], label=name)
-        axes[1].plot([r["step"] for r in ev], [r["soft_fraction"] for r in validation], label=name)
-        axes[2].plot([r["step"] for r in ev], [r["ink_mass"] for r in validation], label=name)
+        contour = "binary_dice" in validation[0] and "soft_fraction" not in validation[0]
+        axes[1].plot(
+            [r["step"] for r in ev],
+            [r["binary_dice" if contour else "soft_fraction"] for r in validation],
+            label=name,
+        )
+        axes[2].plot(
+            [r["step"] for r in ev],
+            [r["correction_abs" if contour else "ink_mass"] for r in validation],
+            label=name,
+        )
     for ax, title in zip(
         axes,
         [
             "Different objectives: losses not directly comparable",
-            "Val soft pixels / visible pixels",
-            "Val total ink: not a content score",
+            "Val shape Dice (not content)" if contour else "Val soft pixels / visible pixels",
+            "Val mean learned correction" if contour else "Val total ink: not a content score",
         ],
         strict=True,
     ):
