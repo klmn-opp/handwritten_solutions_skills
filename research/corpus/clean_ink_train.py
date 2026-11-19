@@ -126,6 +126,17 @@ def worker(path: Path) -> None:
         k: torch.tensor(data[k][:, None], device="cuda")
         for k in ["reference", "aligned", "aligned_sdf", "reference_sdf"]
     }
+    masks = None
+    if r.get("opacity_weight", 0) or r.get("component_weight", 0):
+        from research.corpus.stroke_opacity import supervision_masks
+
+        masks = {
+            name: {
+                k: torch.tensor(v, device="cuda")
+                for k, v in supervision_masks(data[name][:, None]).items()
+            }
+            for name in ["aligned", "reference"]
+        }
     model = ContentInk().cuda()
     model.load_state_dict(
         torch.load(r["initial_checkpoint"], map_location="cuda", weights_only=True)["model"]
@@ -186,6 +197,8 @@ def worker(path: Path) -> None:
         distance = torch.zeros((), device="cuda")
         mass = torch.zeros((), device="cuda")
         content = torch.zeros((), device="cuda")
+        opacity = torch.zeros((), device="cuda")
+        component = torch.zeros((), device="cuda")
         if r["distance_weight"]:
             re, valid = redistance_batch(prediction.detach().cpu().numpy())
             re = torch.tensor(re, device="cuda")
@@ -198,6 +211,15 @@ def worker(path: Path) -> None:
                 (ink.sum((1, 2, 3)) - target.sum((1, 2, 3))).abs() / (target.sum((1, 2, 3)) + 1)
             ).mean()
             loss = loss + r["mass_weight"] * mass
+        if masks is not None:
+            from research.corpus.stroke_opacity import opacity_losses
+
+            selected_masks = {k: v[chosen].clone() for k, v in masks["aligned"].items()}
+            for k, v in selected_masks.items():
+                v[3:] = masks["reference"][k][chosen[3:]]
+            opacity, component = opacity_losses(prediction, selected_masks)
+            loss = loss + r.get("opacity_weight", 0) * opacity
+            loss = loss + r.get("component_weight", 0) * component
         if step % r["content_every"] == 0:
             content = teacher(ink[:2], labels[chosen[:2]])
             if r["dual_content_view"]:
@@ -224,6 +246,8 @@ def worker(path: Path) -> None:
                             ("distance", distance),
                             ("mass", mass),
                             ("content", content),
+                            ("opacity", opacity),
+                            ("component", component),
                         ]
                     },
                 }
