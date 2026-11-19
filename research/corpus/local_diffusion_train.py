@@ -8,23 +8,29 @@ from pathlib import Path
 from research.corpus.context_content_train import digest, write
 
 
-def launch(data: Path) -> Path:
+def launch(data: Path, arm: str = "initial", base: Path | None = None) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
     verify_run(data)
+    if arm not in ["initial", "endpoint", "background"]:
+        raise ValueError("Fixed experimental arm required")
+    if (base is None) != (arm == "initial"):
+        raise ValueError("Follow-up arms require the same frozen initial model")
     config = {
+        "arm": arm,
         "data": str(data.resolve()),
         "data_sha256": digest(data / "run.json"),
         "arrays_sha256": digest(data / "reports/arrays.npz"),
-        "steps": 6000,
+        "steps": 6000 if arm == "initial" else 4000,
         "batch": 8,
         "lr": 0.0002,
-        "seed": 3014,
+        "seed": 3014 if arm == "initial" else 3114,
         "generation_seeds": [2012, 2013],
         "reverse_steps": 64,
         "architecture": "local-full-resolution-ink-diffusion/1",
-        "endpoint_probability": 0.02,
+        "endpoint_probability": 0.02 if arm == "initial" else 0.5,
+        "uniform_center_fraction": 0.5 if arm == "background" else 0.0,
         "input_patch": 128,
         "loss_patch": 64,
         "receptive_field_per_step": 63,
@@ -35,6 +41,16 @@ def launch(data: Path) -> Path:
         "C_used": False,
         "protocol_sha256": digest(Path("docs/V01014_PROTOCOL.md")),
     }
+    if base is not None:
+        verify_run(base)
+        old = json.loads((base / "reports/request.json").read_text())
+        if (
+            old["data_sha256"] != config["data_sha256"]
+            or old["architecture"] != config["architecture"]
+        ):
+            raise ValueError("Changed dataset or architecture in controlled continuation")
+        checkpoint = base / f"logs/checkpoint-{old['steps']:05d}.pt"
+        config.update(base=str(checkpoint.resolve()), base_sha256=digest(checkpoint))
     run = create("local-stochastic-ink", config=config, seed=config["seed"])
     write(run.path / "reports/request.json", {**config, "run": str(run.path)})
     print(run.path, flush=True)
@@ -94,6 +110,12 @@ def worker(request: Path):
     points = [np.argwhere(x > 0.5) for x in raw["reference"][train]]
     all_ref = torch.tensor(raw["reference"][:, None], device="cuda")
     model = LocalInkDiffusion().cuda()
+    if r.get("base"):
+        if digest(Path(r["base"])) != r["base_sha256"]:
+            raise ValueError("Changed frozen initialization")
+        model.load_state_dict(
+            torch.load(r["base"], map_location="cuda", weights_only=False)["model"]
+        )
     initial = {k: v.detach().clone() for k, v in model.state_dict().items()}
     torch.save(initial, run / "logs/initial-state.pt")
     optimizer = torch.optim.AdamW(model.parameters(), lr=r["lr"])
@@ -112,6 +134,16 @@ def worker(request: Path):
         ii = rng.choice(len(train), r["batch"], replace=True)
         np.add.at(counts, ii, 1)
         centers = [(int(i), *map(int, points[i][rng.integers(len(points[i]))])) for i in ii]
+        if r.get("arm", "initial") != "initial":
+            # Both continuation arms consume exactly the same RNG draws. Only
+            # this registered factor changes selected spatial centers.
+            choices = rng.random(len(ii))
+            yy = rng.integers(0, targets.shape[-2], len(ii))
+            xx = rng.integers(0, targets.shape[-1], len(ii))
+            centers = [
+                (i, int(y), int(x)) if choice < r["uniform_center_fraction"] else old
+                for i, y, x, choice, old in zip(ii, yy, xx, choices, centers, strict=True)
+            ]
         traces.append(centers)
         ref = word_patches(reference, centers, 64)
         target = word_patches(targets, centers, 64)
@@ -213,7 +245,7 @@ def worker(request: Path):
             "seconds": time.perf_counter() - begin,
             "peak_cuda_allocated": torch.cuda.max_memory_allocated(),
             "gpu": torch.cuda.get_device_name(),
-            "checkpoint_sha256": digest(run / "logs/checkpoint-06000.pt"),
+            "checkpoint_sha256": digest(run / f"logs/checkpoint-{r['steps']:05d}.pt"),
             "blank": sum(q["blank"] for q in metrics),
             "edge": sum(q["edge"] for q in metrics),
             "C_used": False,
@@ -225,10 +257,11 @@ def worker(request: Path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("mode", choices=["launch", "worker"])
+    parser.add_argument("mode", choices=["launch", "worker", "endpoint", "background"])
     parser.add_argument("path", type=Path)
+    parser.add_argument("--base", type=Path)
     args = parser.parse_args()
     if args.mode == "worker":
         worker(args.path)
     else:
-        print(launch(args.path))
+        print(launch(args.path, "initial" if args.mode == "launch" else args.mode, args.base))
