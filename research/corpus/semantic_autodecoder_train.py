@@ -8,11 +8,23 @@ from pathlib import Path
 from research.corpus.context_content_train import digest, write
 
 
-def launch(data: Path, warmup: Path, resume: Path | None = None) -> Path:
+def launch(
+    data: Path,
+    warmup: Path,
+    resume: Path | None = None,
+    support: Path | None = None,
+    support_weight: float = 0.0,
+) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
     verify_run(data)
+    if support:
+        verify_run(support)
+        if resume is None or support_weight not in {0.0, 0.5}:
+            raise ValueError("Registered prior comparison requires frozen 20k source")
+    elif support_weight:
+        raise ValueError("Real support data required")
     r = {
         "data": str(data.resolve()),
         "data_sha256": digest(data / "run.json"),
@@ -20,9 +32,12 @@ def launch(data: Path, warmup: Path, resume: Path | None = None) -> Path:
         "warmup": str(warmup.resolve()),
         "warmup_sha256": digest(warmup),
         "seed": 3015,
-        "steps": 16000 if resume else 4000,
+        "steps": 16000 if resume and not support else 4000,
         "resume": str(resume.resolve()) if resume else None,
         "resume_sha256": digest(resume) if resume else None,
+        "support": str(support.resolve()) if support else None,
+        "support_sha256": digest(support / "run.json") if support else None,
+        "support_weight": support_weight,
         "batch": 4,
         "points": 2048,
         "model_lr": 0.0001,
@@ -38,7 +53,13 @@ def launch(data: Path, warmup: Path, resume: Path | None = None) -> Path:
     }
     run = create("semantic-word-autodecoder", seed=r["seed"], config=r)
     write(run.path / "reports/request.json", {**r, "run": str(run.path)})
-    name = "autodecoder-extended" if resume else "autodecoder"
+    name = (
+        ("prior-real" if support_weight else "prior-control")
+        if support
+        else "autodecoder-extended"
+        if resume
+        else "autodecoder"
+    )
     Path(f"/tmp/context-v01016-{name}").write_text(str(run.path))
     print(run.path, flush=True)
     try:
@@ -111,7 +132,7 @@ def worker(request: Path) -> None:
     if r.get("resume"):
         assert digest(r["resume"]) == r["resume_sha256"]
         previous = torch.load(r["resume"], map_location="cuda", weights_only=False)
-        assert previous["step"] == 4000
+        assert previous["step"] == (20000 if r.get("support") else 4000)
         assert previous["config"]["arrays_sha256"] == r["arrays_sha256"]
         assert previous["training_indices"] == train
         model.load_state_dict(previous["model"])
@@ -122,6 +143,25 @@ def worker(request: Path) -> None:
         torch.set_rng_state(previous["torch_rng"].cpu())
         torch.cuda.set_rng_state_all([q.cpu() for q in previous["cuda_rng"]])
         start = previous["step"]
+    support_rng = np.random.default_rng(3216)
+    support_groups = None
+    if r.get("support"):
+        from research.corpus.real_ink_support import nearest_real_loss
+
+        path = Path(r["support"])
+        assert digest(path / "run.json") == r["support_sha256"]
+        with np.load(path / "reports/arrays.npz") as lib:
+            support_groups = {
+                int(c): torch.tensor(lib["ink"][lib["labels"] == c], device="cuda").flatten(1)
+                for c in np.unique(lib["labels"])
+            }
+        support_classes = sorted(support_groups)
+        # Fixed prior from the common 20k source; no target- or label-specific code.
+        with torch.no_grad():
+            support_mu = codes.mean(0)
+            support_chol = torch.linalg.cholesky(
+                torch.cov(codes.T) + torch.eye(2, device="cuda") * 1e-4
+            )
     initial_codes = codes.detach().clone()
     initial = {k: v.detach().clone() for k, v in model.state_dict().items()}
     torch.save({"model": initial, "codes": initial_codes}, run / "logs/initial-state.pt")
@@ -161,6 +201,36 @@ def worker(request: Path) -> None:
         reconstruction = reconstruction + 0.2 * (distance - sdf).abs().mean()
         penalty = codes.square().mean()
         loss = reconstruction + r["code_l2_weight"] * penalty
+        prior_loss = torch.zeros((), device="cuda")
+        if support_groups is not None:
+            selected = support_rng.choice(support_classes, 4)
+            # Random legal neighbour identities prevent the code from disabling a
+            # character in an unfamiliar word. These are conditions, not fake ink.
+            neighbours = support_rng.choice([0] + support_classes, (4, 2))
+            tt = torch.zeros(4, 2, 3, dtype=torch.long, device="cuda")
+            tt[:, 0, 0] = torch.tensor(selected, device="cuda")
+            tt[:, 0, 1:] = torch.tensor(neighbours, device="cuda")
+            bb = torch.zeros(4, 2, 4, device="cuda")
+            bb[:, 0] = torch.tensor([16, 16, 80, 80], device="cuda")
+            xy = support_rng.integers(8, 88, (4, 768, 2))
+            xy = np.concatenate([xy, support_rng.integers(0, 96, (4, 256, 2))], 1)
+            pp = torch.tensor(xy, device="cuda").float()
+            zz = (
+                torch.tensor(
+                    support_rng.standard_normal((4, 2)), device="cuda", dtype=torch.float32
+                )
+                @ support_chol.T
+                + support_mu
+            )
+            prior_logits = model(tt, bb, pp, style=zz)[0]
+            pixel_ids = torch.tensor(xy[..., 1] * 96 + xy[..., 0], device="cuda")
+            prior_loss = torch.stack(
+                [
+                    nearest_real_loss(prior_logits[j], support_groups[int(c)][:, pixel_ids[j]])
+                    for j, c in enumerate(selected)
+                ]
+            ).mean()
+            loss = loss + r["support_weight"] * prior_loss
         if not torch.isfinite(loss):
             raise ValueError("Nonfinite auto-decoder loss")
         optimizer.zero_grad(set_to_none=True)
@@ -173,6 +243,7 @@ def worker(request: Path) -> None:
                 "loss": float(loss.detach()),
                 "reconstruction": float(reconstruction.detach()),
                 "code_l2": float(penalty.detach()),
+                "real_prior_loss": float(prior_loss.detach()),
                 "seconds": time.perf_counter() - begin,
             }
             curve.append(q)
@@ -190,6 +261,7 @@ def worker(request: Path) -> None:
                     "numpy_rng": rng.bit_generator.state,
                     "torch_rng": torch.get_rng_state(),
                     "cuda_rng": torch.cuda.get_rng_state_all(),
+                    "support_rng": support_rng.bit_generator.state,
                 },
                 run / f"logs/checkpoint-{step:05d}.pt",
             )
@@ -280,6 +352,7 @@ def worker(request: Path) -> None:
             "novel_draws": int(counts[idx["novel"]].sum()),
             "C_used": False,
             "style_quality_passed": False,
+            "support_loss_weight": r.get("support_weight", 0),
         },
     )
 
