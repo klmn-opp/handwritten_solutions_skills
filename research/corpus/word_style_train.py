@@ -5,12 +5,14 @@ import json
 import subprocess
 from pathlib import Path
 
-from hwsol.profiles.io import atomic_json, sha256
-from hwsol.workspace import verify_run
-from research.corpus.experiment import create
+from research.corpus.context_content_train import digest as sha256
+from research.corpus.context_content_train import write as atomic_json
 
 
 def train(data: Path, mode: str, steps: int) -> Path:
+    from hwsol.workspace import verify_run
+    from research.corpus.experiment import create
+
     if mode not in {"capacity", "deterministic", "variational"} or steps <= 0:
         raise ValueError("Finite registered mode required")
     verify_run(data)
