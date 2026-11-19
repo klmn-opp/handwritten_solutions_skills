@@ -83,14 +83,26 @@ def launch(
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
-    if arm not in ["uniform", "endpoint"]:
+    if arm not in ["uniform", "endpoint", "spatial"]:
         raise ValueError("Only fixed equal-budget noise arms enabled")
     for p in [DATA, admission, BASE.parent.parent, CODEC.parent.parent]:
         verify_run(p)
     base = BASE
     train_key = "capacity"
     gate_hash = None
-    if continuation is not None:
+    if arm == "spatial":
+        if continuation is None or gate is None:
+            raise ValueError("Expanded failure evidence required")
+        verify_run(continuation)
+        decision = json.loads(gate.read_text())
+        if not decision.get("spatial_diagnosis_allowed") or decision[
+            "expanded_run_sha256"
+        ] != digest(continuation / "run.json"):
+            raise ValueError("Wrong frozen diagnosis")
+        base = continuation / "logs/checkpoint-06000.pt"
+        train_key = "expanded"
+        gate_hash = digest(gate)
+    elif continuation is not None:
         if gate is None:
             raise ValueError("Frozen content gate required for expansion")
         verify_run(continuation)
@@ -119,7 +131,7 @@ def launch(
         "batch": 8,
         "lr": 0.0002,
         "seed": 2414,
-        "endpoint_probability": 0.02 if arm == "uniform" else 0.50,
+        "endpoint_probability": 0.50 if arm == "endpoint" else 0.02,
         "font_dropout": 0,
         "detail_weight": 0.35,
         "generation_seeds": [2012, 2013],
@@ -224,8 +236,21 @@ def worker(path: Path) -> None:
     codec.load_state_dict(torch.load(r["codec"], map_location="cuda", weights_only=False)["model"])
     base = torch.load(r["base"], map_location="cuda", weights_only=False)
     mean, std = base["mean"], base["std"]
-    model = LatentInk().cuda()
-    model.load_state_dict(base["model"])
+    positions = torch.tensor(a["positions"], device="cuda")
+    if r["arm"] == "spatial":
+        from research.corpus.spatial_ink_model import SpatialInk
+
+        model = SpatialInk().cuda()
+        model.warm_start(base["model"], tokens[train])
+    else:
+        model = LatentInk().cuda()
+        model.load_state_dict(base["model"])
+
+    def predict(x, ref, token, time, pos):
+        return (
+            model(x, ref, token, time, pos) if r["arm"] == "spatial" else model(x, ref, token, time)
+        )
+
     initial = {k: v.detach().clone() for k, v in model.state_dict().items()}
     torch.save(initial, run / "logs/initial-state.pt")
     with torch.no_grad():
@@ -235,7 +260,7 @@ def worker(path: Path) -> None:
         refcode = (
             torch.cat([codec.encode(ref[k : k + 16]) for k in range(0, len(rows), 16)]) - mean
         ) / std
-    optimizer = torch.optim.AdamW(model.parameters(), lr=r["lr"])
+    optimizer = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=r["lr"])
     rng = np.random.default_rng(r["seed"])
     ng = torch.Generator(device="cuda").manual_seed(r["seed"])
     curve = []
@@ -259,7 +284,7 @@ def worker(path: Path) -> None:
         alpha, sigma = schedule(t)
         noise = torch.randn(code[ii].shape, device="cuda", generator=ng)
         x = alpha * code[ii] + sigma * noise
-        pred = model(x, refcode[jj], tokens[jj], t)
+        pred = predict(x, refcode[jj], tokens[jj], t, positions[jj])
         velocity = alpha * noise - sigma * code[ii]
         vl = ((pred - velocity).square() * (1 + 3 * F.avg_pool2d(target[ii], 8))).mean()
         clean = bounded_code(alpha * x - sigma * pred, mean, std)
@@ -311,11 +336,24 @@ def worker(path: Path) -> None:
                 ii = evaluated[k : k + 4]
                 noise = torch.randn(refcode[ii].shape, device="cuda", generator=gen)
                 im, _ = generate(
-                    model, codec, refcode[ii], tokens[ii], noise, mean, std, r["reverse_steps"]
+                    lambda x, ref, token, time, pos=positions[ii]: predict(x, ref, token, time, pos),
+                    codec,
+                    refcode[ii],
+                    tokens[ii],
+                    noise,
+                    mean,
+                    std,
+                    r["reverse_steps"],
                 )
                 chunks.append(im[:, 0].cpu().numpy())
                 z = bounded_code(
-                    -model(noise, refcode[ii], tokens[ii], torch.ones(len(ii), device="cuda")),
+                    -predict(
+                        noise,
+                        refcode[ii],
+                        tokens[ii],
+                        torch.ones(len(ii), device="cuda"),
+                        positions[ii],
+                    ),
                     mean,
                     std,
                 )
@@ -380,7 +418,7 @@ def worker(path: Path) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("mode", choices=["prepare", "uniform", "endpoint", "worker"])
+    parser.add_argument("mode", choices=["prepare", "uniform", "endpoint", "spatial", "worker"])
     parser.add_argument("path", type=Path)
     parser.add_argument("--continuation", type=Path)
     parser.add_argument("--gate", type=Path)
