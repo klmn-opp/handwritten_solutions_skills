@@ -10,7 +10,9 @@ from hwsol.jobs.paper import pdf_image
 from research.corpus.context_composer import layout
 
 
-def render(text: str, profile):
+def render(text: str, profile, *, raster_scale: int = 1):
+    if type(raster_scale) is not int or not 1 <= raster_scale <= 8:
+        raise ValueError("Reference raster scale must be integer 1 through 8")
     config = RenderConfig(seed=1010, font_size_pt=12, ink="#000000", semantic_layout=True, dpi=300)
     page, renderer, provenance = layout(text, "Reference", profile, config)
     body = provenance[len("Reference") :]
@@ -45,10 +47,12 @@ def render(text: str, profile):
         raise ValueError("Reference wraps or word bounds overlap")
     blob = renderer.to_vector_pdf([page])
     with pdfium.PdfDocument(blob) as doc:
-        image = pdf_image(doc, 0, config.dpi / 72).crop(crop)
+        image = pdf_image(doc, 0, config.dpi / 72 * raster_scale).crop(
+            [v * raster_scale for v in crop]
+        )
     return (
         image,
-        cuts,
+        [v * raster_scale for v in cuts],
         {
             "backend": "handnote-vector-reference/1",
             "seed": 1010,
@@ -58,5 +62,14 @@ def render(text: str, profile):
             "word_bounds_page": word_boxes,
             "personal_profile_unchanged": True,
             "zero_neural_updates": True,
+            **(
+                {
+                    "raster_scale": raster_scale,
+                    "raster_dpi": config.dpi * raster_scale,
+                    "bounds_coordinate_dpi": config.dpi,
+                }
+                if raster_scale != 1
+                else {}
+            ),
         },
     )
