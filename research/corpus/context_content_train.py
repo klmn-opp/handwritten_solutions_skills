@@ -37,6 +37,7 @@ def train(views: Path, arm: str, warmup: Path | None = None, resume: Path | None
         "lr": 0.0003,
         "real_per_batch": 0 if arm == "font-warmup" else 3,
         "content_weight": 0.15 if arm == "aligned-content" else 0,
+        "content_label_protocol": "content-then-eos/no-predicted-bos/1",
         "content_every": 4,
         "teacher": str(teacher),
         "warmup": str(warmup.resolve()) if warmup else None,
@@ -143,8 +144,13 @@ def worker(request_path: Path):
             "real_per_batch",
             "content_weight",
             "content_every",
+            "content_label_protocol",
+            "teacher_sha256",
+            "warmup_sha256",
+            "seed",
+            "batch",
         ]:
-            if restored["request"][key] != r[key]:
+            if restored["request"].get(key) != r[key]:
                 raise ValueError("Resume protocol differs: " + key)
         model.load_state_dict(restored["model"])
     initial = {k: v.clone() for k, v in model.state_dict().items()}

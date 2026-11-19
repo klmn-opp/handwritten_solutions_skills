@@ -70,10 +70,16 @@ class FrozenTranscriptionLoss:
         self.device = device
 
     def labels(self, texts: list[str]):
-        labels = self.processor.tokenizer(texts, padding=True, return_tensors="pt").input_ids.to(
-            self.device
+        # This frozen checkpoint generates [decoder_start=EOS, content..., EOS],
+        # without a predicted BOS. Default tokenizer special tokens add a wrong BOS.
+        sequences = self.processor.tokenizer(texts, add_special_tokens=False)["input_ids"]
+        sequences = [tokens + [self.processor.tokenizer.eos_token_id] for tokens in sequences]
+        labels = torch.full(
+            (len(sequences), max(map(len, sequences))), -100, device=self.device, dtype=torch.long
         )
-        return labels.masked_fill(labels == self.processor.tokenizer.pad_token_id, -100)
+        for index, tokens in enumerate(sequences):
+            labels[index, : len(tokens)] = torch.tensor(tokens, device=self.device)
+        return labels
 
     def __call__(self, ink, labels):
         # Match local preprocessor: white RGB, bilinear 384 square, mean/std=.5.
