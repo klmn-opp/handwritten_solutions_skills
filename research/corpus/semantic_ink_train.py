@@ -8,13 +8,21 @@ from pathlib import Path
 from research.corpus.context_content_train import digest, write
 
 
-def launch(data: Path, arm="initial"):
+def launch(data: Path, arm="initial", resume: Path | None = None):
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
     verify_run(data)
-    if arm not in {"initial", "local-sampling", "identity-capacity", "smooth-identity"}:
+    if arm not in {
+        "initial",
+        "local-sampling",
+        "identity-capacity",
+        "smooth-identity",
+        "identity-extended",
+    }:
         raise ValueError("Unknown preregistered arm")
+    if (arm == "identity-extended") != (resume is not None):
+        raise ValueError("Only the registered capacity extension restores an optimizer")
     r = {
         "data": str(data.resolve()),
         "data_sha256": digest(data / "run.json"),
@@ -23,9 +31,13 @@ def launch(data: Path, arm="initial"):
         "seed": 3015,
         "arm": arm,
         "sampler": "foreground-uniform" if arm == "initial" else "glyph-bounds-uniform",
-        "context_scale": 0.0 if arm in {"identity-capacity", "smooth-identity"} else 1.0,
+        "context_scale": 0.0
+        if arm in {"identity-capacity", "smooth-identity", "identity-extended"}
+        else 1.0,
         "smooth_coordinates": arm == "smooth-identity",
-        "steps": 6000,
+        "steps": 18000 if resume else 6000,
+        "resume": str(resume.resolve()) if resume else None,
+        "resume_sha256": digest(resume) if resume else None,
         "lr": 0.0005,
         "batch": 4,
         "points": 2048,
@@ -90,10 +102,22 @@ def worker(request: Path):
         context_scale=r.get("context_scale", 1),
         smooth_coordinates=r.get("smooth_coordinates", False),
     ).cuda()
-    initial = {k: v.detach().clone() for k, v in model.state_dict().items()}
-    torch.save(initial, run / "logs/initial-state.pt")
     optimizer = torch.optim.AdamW(model.parameters(), lr=r["lr"])
     rng = np.random.default_rng(r["seed"])
+    start = 0
+    if r.get("resume"):
+        assert digest(r["resume"]) == r["resume_sha256"]
+        saved = torch.load(r["resume"], map_location="cuda", weights_only=False)
+        assert saved["config"]["arm"] == "identity-capacity" and saved["step"] == 6000
+        assert saved["config"]["arrays_sha256"] == r["arrays_sha256"]
+        model.load_state_dict(saved["model"])
+        optimizer.load_state_dict(saved["optimizer"])
+        rng.bit_generator.state = saved["numpy_rng"]
+        torch.set_rng_state(saved["torch_rng"].cpu())
+        torch.cuda.set_rng_state_all([q.cpu() for q in saved["cuda_rng"]])
+        start = saved["step"]
+    initial = {k: v.detach().clone() for k, v in model.state_dict().items()}
+    torch.save(initial, run / "logs/initial-state.pt")
     foreground = {i: np.flatnonzero(arrays["ink"][i].ravel() > 0.1) for i in train}
     counts = np.zeros(len(rows), np.int64)
     curve = []
@@ -103,7 +127,7 @@ def worker(request: Path):
         run / "reports/dependencies.json",
         {k: importlib.metadata.version(k) for k in ["torch", "numpy", "pillow"]},
     )
-    for step in range(1, r["steps"] + 1):
+    for step in range(start + 1, start + r["steps"] + 1):
         ii = rng.choice(train, r["batch"])
         np.add.at(counts, ii, 1)
         pixel = []
@@ -195,7 +219,8 @@ def worker(request: Path):
             "seconds_including_generation": time.perf_counter() - begin,
             "peak_cuda_allocated": torch.cuda.max_memory_allocated(),
             "gpu": torch.cuda.get_device_name(),
-            "checkpoint_sha256": digest(run / "logs/checkpoint-06000.pt"),
+            "checkpoint_sha256": digest(run / f"logs/checkpoint-{start + r['steps']:05d}.pt"),
+            "total_model_updates": start + r["steps"],
             "mean_dice_to_font": float(np.mean([q["dice_to_font"] for q in metrics])),
             "blank": sum(q["blank"] for q in metrics),
             "edge": sum(q["edge"] for q in metrics),
@@ -211,8 +236,9 @@ if __name__ == "__main__":
     parser.add_argument("mode", choices=["train", "worker"])
     parser.add_argument("path", type=Path)
     parser.add_argument("--arm", default="initial")
+    parser.add_argument("--resume", type=Path)
     args = parser.parse_args()
     if args.mode == "train":
-        launch(args.path, args.arm)
+        launch(args.path, args.arm, args.resume)
     else:
         worker(args.path)
