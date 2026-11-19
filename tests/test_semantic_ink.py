@@ -102,3 +102,34 @@ class SemanticLearning(unittest.TestCase):
         self.assertGreater(float(model.context_gate.grad.abs()), 0)
         with self.assertRaises(ValueError):
             model.load_identity({})
+
+    def test_word_latent_has_separate_posterior_and_image_free_generation(self):
+        import torch
+
+        from research.corpus.semantic_ink_model import SemanticInk, WordLatentSemanticInk
+
+        base = SemanticInk(context_scale=0)
+        model = WordLatentSemanticInk()
+        model.load_identity(base.state_dict())
+        tokens = torch.tensor([[[102, 0, 0]]])
+        boxes = torch.tensor([[[10, 10, 30, 40]]]).float()
+        points = torch.tensor([[[20, 20]]]).float()
+        z = torch.randn(1, 8)
+        initial = model(tokens, boxes, points, style=z)[0]
+        self.assertTrue(torch.equal(base(tokens, boxes, points)[0], initial))
+        initial.sum().backward()
+        self.assertGreater(float(model.style_projection.weight.grad.abs().sum()), 0)
+        with torch.no_grad():
+            model.style_projection.weight.normal_(0, 0.2)
+        self.assertFalse(
+            torch.equal(
+                model(tokens, boxes, points, style=z)[0],
+                model(tokens, boxes, points, style=-z)[0],
+            )
+        )
+        with self.assertRaises(ValueError):
+            model(tokens, boxes, points)
+        mu, lv = model.posterior(torch.rand(1, 1, 128, 512), torch.rand(1, 1, 128, 512))
+        self.assertEqual(tuple(mu.shape), (1, 8))
+        (mu.square().mean() + lv.square().mean()).backward()
+        self.assertTrue(all(p.grad is not None for p in model.posterior_encoder.parameters()))

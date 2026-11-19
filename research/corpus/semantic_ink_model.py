@@ -34,7 +34,14 @@ class SemanticInk(nn.Module):
     def neighbour_features(self, ids):
         return self.neighbour(ids) * self.context_scale
 
-    def forward(self, tokens: torch.Tensor, boxes: torch.Tensor, points: torch.Tensor):
+    def writer_features(self, xy, style):
+        if style is not None:
+            raise ValueError("This deterministic model has no random word variable")
+        return self.writer.expand(*xy.shape[:-1], -1)
+
+    def forward(
+        self, tokens: torch.Tensor, boxes: torch.Tensor, points: torch.Tensor, *, style=None
+    ):
         """B×L×3 token IDs, B×L×4 boxes, B×P×2 pixel centres → logits/SDF.
 
         Layout bounds are metrics, not contours. Two nearby glyph fields permit
@@ -66,7 +73,7 @@ class SemanticInk(nn.Module):
                 self.character(local[..., 0]),
                 self.neighbour_features(local[..., 1]),
                 self.neighbour_features(local[..., 2]),
-                self.writer.expand(*xy.shape[:-1], -1),
+                self.writer_features(xy, style),
                 pe,
             ],
             -1,
@@ -78,7 +85,7 @@ class SemanticInk(nn.Module):
         return logits, sdf
 
     @torch.inference_mode()
-    def image(self, tokens, boxes, height=128, width=512, chunk=8192):
+    def image(self, tokens, boxes, height=128, width=512, chunk=8192, *, style=None):
         y, x = torch.meshgrid(
             torch.arange(height, device=boxes.device),
             torch.arange(width, device=boxes.device),
@@ -88,7 +95,7 @@ class SemanticInk(nn.Module):
         pieces = []
         for part in points.split(chunk):
             p = part[None].expand(len(tokens), -1, -1)
-            pieces.append(self(tokens, boxes, p)[0].sigmoid())
+            pieces.append(self(tokens, boxes, p, style=style)[0].sigmoid())
         return torch.cat(pieces, 1).reshape(len(tokens), height, width)
 
 
@@ -108,3 +115,49 @@ class ContextualSemanticInk(SemanticInk):
         result = self.load_state_dict(state, strict=False)
         if result.missing_keys != ["context_gate"] or result.unexpected_keys:
             raise ValueError("Only the new zero context gate may be absent")
+
+
+class WordLatentSemanticInk(ContextualSemanticInk):
+    """A whole-word latent shared by all character fields; posterior is training-only.
+
+    Its variation is not automatically personal style: content leakage and prior
+    generation must be checked separately. The output is still offline ink.
+    """
+
+    architecture = "semantic-word-latent-ink/1"
+    latent = 8
+
+    def __init__(self):
+        from research.corpus.reference_generator import block
+
+        super().__init__()
+        self.style_projection = nn.Linear(self.latent, 16, bias=False)
+        nn.init.zeros_(self.style_projection.weight)
+        self.posterior_encoder = nn.Sequential(
+            nn.AvgPool2d(2),
+            block(2, 16, 2),
+            block(16, 32, 2),
+            nn.AdaptiveAvgPool2d((2, 4)),
+            nn.Flatten(),
+            nn.Linear(32 * 2 * 4, self.latent * 2),
+        )
+
+    def load_identity(self, state):
+        result = self.load_state_dict(state, strict=False)
+        allowed = {"context_gate", "style_projection.weight"} | {
+            "posterior_encoder." + k for k in self.posterior_encoder.state_dict()
+        }
+        if set(result.missing_keys) != allowed or result.unexpected_keys:
+            raise ValueError("Only new latent/context components may be absent")
+
+    def writer_features(self, xy, style):
+        if style is None or style.shape != (xy.shape[0], self.latent):
+            raise ValueError("Explicit shared word latent required; no image input")
+        writer = self.writer[None] + self.style_projection(style)
+        return writer[:, None, None].expand(*xy.shape[:-1], -1)
+
+    def posterior(self, target, semantic_base):
+        if target.shape != semantic_base.shape or target.shape[1:] != (1, 128, 512):
+            raise ValueError("Training-only whole-word target and neural base required")
+        mu, logvar = self.posterior_encoder(torch.cat([target, semantic_base], 1)).chunk(2, 1)
+        return mu, logvar.clamp(-8, 4)
