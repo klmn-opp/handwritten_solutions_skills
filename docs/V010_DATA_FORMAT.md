@@ -70,3 +70,15 @@ target-transforms记录黑白点，原图及训练阈值不变。识别模块用
 关闭时省略该项。它不修改模型权重、生产渲染、原始图或Profile。
 作者JSON沿用`context-human-review/1`，匿名id与图片SHA绑定，导出存放`source_pdf/review_exports/`，
 后续复核另建新run，禁止把评分写回已封存交付目录。
+
+
+## 作者导出接收
+
+```bash
+PYTHONPATH=.:src .venv/bin/python -m research.corpus.context_review_import DELIVERY_RUN REVIEW_JSON
+```
+
+仅接收`context-human-review/1`，核验轮次、候选集合、目标文字、图片SHA和终态交付摘要；新建run保存原始字节与规范化评分。
+不修改源导出或旧run。不同维度分别汇总，只在同组内容correct且有有效评分时生成偏好关系。
+原始split保留，派生偏好`optimization_eligible=false`；用户评分不把生成图转换成真实书写训练样本。
+未来`balanced_candidate_orders`使用固定种子与均衡轮换，旧页面不回写。
