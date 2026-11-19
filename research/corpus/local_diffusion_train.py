@@ -8,7 +8,9 @@ from pathlib import Path
 from research.corpus.context_content_train import digest, write
 
 
-def launch(data: Path, arm: str = "initial", base: Path | None = None) -> Path:
+def launch(
+    data: Path, arm: str = "initial", base: Path | None = None, resume: Path | None = None
+) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
@@ -51,6 +53,23 @@ def launch(data: Path, arm: str = "initial", base: Path | None = None) -> Path:
             raise ValueError("Changed dataset or architecture in controlled continuation")
         checkpoint = base / f"logs/checkpoint-{old['steps']:05d}.pt"
         config.update(base=str(checkpoint.resolve()), base_sha256=digest(checkpoint))
+    if resume is not None:
+        verify_run(resume.parent.parent)
+        old = json.loads((resume.parent.parent / "reports/request.json").read_text())
+        for key in [
+            "arm",
+            "data_sha256",
+            "arrays_sha256",
+            "base_sha256",
+            "steps",
+            "seed",
+            "lr",
+            "endpoint_probability",
+            "uniform_center_fraction",
+        ]:
+            if old.get(key) != config.get(key):
+                raise ValueError(f"Resume changes experiment: {key}")
+        config.update(resume=str(resume.resolve()), resume_sha256=digest(resume))
     run = create("local-stochastic-ink", config=config, seed=config["seed"])
     write(run.path / "reports/request.json", {**config, "run": str(run.path)})
     print(run.path, flush=True)
@@ -123,6 +142,49 @@ def worker(request: Path):
     noise_rng = torch.Generator(device="cuda").manual_seed(r["seed"])
     counts = np.zeros(len(train), dtype=np.int64)
     traces, curve = [], []
+
+    def next_centers():
+        ii = rng.choice(len(train), r["batch"], replace=True)
+        np.add.at(counts, ii, 1)
+        centers = [(int(i), *map(int, points[i][rng.integers(len(points[i]))])) for i in ii]
+        if r.get("arm", "initial") != "initial":
+            choices = rng.random(len(ii))
+            yy = rng.integers(0, targets.shape[-2], len(ii))
+            xx = rng.integers(0, targets.shape[-1], len(ii))
+            centers = [
+                (int(i), int(y), int(x)) if choice < r["uniform_center_fraction"] else old
+                for i, y, x, choice, old in zip(ii, yy, xx, choices, centers, strict=True)
+            ]
+        traces.append(centers)
+        return centers
+
+    start_step = 0
+    if r.get("resume"):
+        if digest(Path(r["resume"])) != r["resume_sha256"]:
+            raise ValueError("Changed recovery checkpoint")
+        saved = torch.load(r["resume"], map_location="cuda", weights_only=False)
+        start_step = saved["step"]
+        assert 0 < start_step < r["steps"]
+        model.load_state_dict(saved["model"])
+        optimizer.load_state_dict(saved["optimizer"])
+        for _ in range(start_step):
+            next_centers()
+        if rng.bit_generator.state != saved["numpy_rng"]:
+            raise ValueError("Sampling receipt does not reproduce checkpoint RNG")
+        noise_rng.set_state(saved["noise_rng"].cpu())
+        torch.set_rng_state(saved["torch_rng"].cpu())
+        torch.cuda.set_rng_state_all([q.cpu() for q in saved["cuda_rng"]])
+        initial = {k: v.detach().clone() for k, v in model.state_dict().items()}
+        torch.save(initial, run / "logs/initial-state.pt")
+        write(
+            run / "reports/resume.json",
+            {
+                "start_step": start_step,
+                "sampling_rng_exact": True,
+                "optimizer_restored": True,
+                "noise_rng_restored": True,
+            },
+        )
     write(run / "reports/indices.json", {**idx, "evaluated": evaluated})
     write(
         run / "reports/dependencies.json",
@@ -130,26 +192,13 @@ def worker(request: Path):
     )
     begin = time.perf_counter()
     torch.cuda.reset_peak_memory_stats()
-    for step in range(1, r["steps"] + 1):
-        ii = rng.choice(len(train), r["batch"], replace=True)
-        np.add.at(counts, ii, 1)
-        centers = [(int(i), *map(int, points[i][rng.integers(len(points[i]))])) for i in ii]
-        if r.get("arm", "initial") != "initial":
-            # Both continuation arms consume exactly the same RNG draws. Only
-            # this registered factor changes selected spatial centers.
-            choices = rng.random(len(ii))
-            yy = rng.integers(0, targets.shape[-2], len(ii))
-            xx = rng.integers(0, targets.shape[-1], len(ii))
-            centers = [
-                (i, int(y), int(x)) if choice < r["uniform_center_fraction"] else old
-                for i, y, x, choice, old in zip(ii, yy, xx, choices, centers, strict=True)
-            ]
-        traces.append(centers)
+    for step in range(start_step + 1, r["steps"] + 1):
+        centers = next_centers()
         ref = word_patches(reference, centers, 64)
         target = word_patches(targets, centers, 64)
-        timepoint = 0.005 + 0.99 * torch.rand(len(ii), device="cuda", generator=noise_rng)
+        timepoint = 0.005 + 0.99 * torch.rand(len(centers), device="cuda", generator=noise_rng)
         timepoint[
-            torch.rand(len(ii), device="cuda", generator=noise_rng) < r["endpoint_probability"]
+            torch.rand(len(centers), device="cuda", generator=noise_rng) < r["endpoint_probability"]
         ] = 1
         alpha, sigma = noise_schedule(timepoint)
         noise = torch.randn(target.shape, device="cuda", generator=noise_rng)
@@ -163,7 +212,7 @@ def worker(request: Path):
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 5)
         optimizer.step()
-        if step == 1 or step % 100 == 0:
+        if step == start_step + 1 or step % 100 == 0:
             curve.append(
                 {"step": step, "loss": float(loss.detach()), "seconds": time.perf_counter() - begin}
             )
@@ -237,7 +286,9 @@ def worker(request: Path):
         run / "reports/result.json",
         {
             "actual_parameter_training": True,
-            "generator_updates": r["steps"],
+            "generator_updates": r["steps"] - start_step,
+            "start_step": start_step,
+            "cumulative_optimizer_steps": r["steps"],
             "parameters": sum(p.numel() for p in model.parameters()),
             "parameter_l1_change": sum(
                 float((v - initial[k]).abs().sum()) for k, v in model.state_dict().items()
@@ -260,8 +311,13 @@ if __name__ == "__main__":
     parser.add_argument("mode", choices=["launch", "worker", "endpoint", "background"])
     parser.add_argument("path", type=Path)
     parser.add_argument("--base", type=Path)
+    parser.add_argument("--resume", type=Path)
     args = parser.parse_args()
     if args.mode == "worker":
         worker(args.path)
     else:
-        print(launch(args.path, "initial" if args.mode == "launch" else args.mode, args.base))
+        print(
+            launch(
+                args.path, "initial" if args.mode == "launch" else args.mode, args.base, args.resume
+            )
+        )
