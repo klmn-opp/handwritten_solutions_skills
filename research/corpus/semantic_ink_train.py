@@ -21,11 +21,12 @@ def launch(data: Path, arm="initial", resume: Path | None = None, warmup: Path |
         "identity-extended",
         "real-only",
         "real-mixed",
+        "real-capacity",
     }:
         raise ValueError("Unknown preregistered arm")
     if (arm == "identity-extended") != (resume is not None):
         raise ValueError("Only the registered capacity extension restores an optimizer")
-    real = arm in {"real-only", "real-mixed"}
+    real = arm in {"real-only", "real-mixed", "real-capacity"}
     if real != (warmup is not None):
         raise ValueError("Real supervision requires the frozen content model")
     r = {
@@ -108,6 +109,9 @@ def worker(request: Path):
     idx = json.loads((data / "reports/indices.json").read_text())
     rows = json.loads((data / "reports/samples.json").read_text())
     train = idx["train"]
+    if r["arm"] == "real-capacity":
+        train = train[:4]
+    write(run / "reports/actual-training-indices.json", train)
     assert not set(train) & set(idx["development"] + idx["novel"])
     assert all(rows[i]["split"] == "train" for i in train)
     x = {k: torch.tensor(v, device="cuda") for k, v in arrays.items()}
