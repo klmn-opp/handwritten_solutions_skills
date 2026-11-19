@@ -113,7 +113,7 @@ def character_metrics(
         "border_count": int(border.sum()),
         "fragment_proxy_count": sum(fragment),
         "unique_binary_outputs": len({m.tobytes() for m in masks}),
-        "mean_pairwise_ink_xor": float(np.mean(pairwise)),
+        "mean_pairwise_ink_xor": float(np.mean(pairwise)) if pairwise else None,
         "exact_font_mask_copies": int(sum(x == 0 for x in nearest_binary)),
         "nearest_font_differing_pixels_min": int(min(nearest_binary)),
         "nearest_font_shape_mae": float(
