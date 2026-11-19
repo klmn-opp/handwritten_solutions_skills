@@ -20,9 +20,8 @@ def launch(
         verify_run(control)
     if modulated and control is None:
         raise ValueError("Layer modulation requires the registered hierarchical control")
-    class_coordinates = json.loads((data / "run.json").read_text())["config"].get(
-        "per_class_coordinates", False
-    )
+    data_config = json.loads((data / "run.json").read_text())["config"]
+    class_coordinates = data_config.get("per_class_coordinates", False)
     density_normalized = any(
         "density_gain" in q for q in json.loads((data / "reports/samples.json").read_text())
     )
@@ -52,6 +51,8 @@ def launch(
         "modulated": bool(modulated),
         "class_coordinates": class_coordinates,
         "density_normalized": density_normalized,
+        "capacity_diagnostic": data_config.get("capacity_diagnostic_only", False),
+        "initial_code_groups": data_config.get("initial_code_groups"),
         "control_initial": str(control / "logs/initial-state.pt") if control else None,
         "control_initial_sha256": digest(control / "logs/initial-state.pt") if control else None,
         "local_seed_offsets": {"glyph": 100000, "word": 200000} if control else None,
@@ -63,7 +64,9 @@ def launch(
     run = create("verified-local-ink-training", seed=cfg["seed"], config=cfg)
     write(run.path / "reports/request.json", {**cfg, "run": str(run.path)})
     name = (
-        "modulated"
+        "ft-capacity"
+        if cfg["capacity_diagnostic"]
+        else "modulated"
         if modulated
         else "density-hierarchical"
         if density_normalized
@@ -152,9 +155,12 @@ def worker(path: Path) -> None:
     if hierarchical:
         assert digest(cfg["control_initial"]) == cfg["control_initial_sha256"]
         previous = torch.load(cfg["control_initial"], map_location="cuda", weights_only=False)
-        assert previous["codes"].shape == codes.shape
+        initial_word_codes = previous["codes"]
+        if cfg.get("initial_code_groups") is not None:
+            initial_word_codes = initial_word_codes[cfg["initial_code_groups"]]
+        assert initial_word_codes.shape == codes.shape
         with torch.no_grad():
-            codes.copy_(previous["codes"])
+            codes.copy_(initial_word_codes)
         local_priors = {
             int(k): {
                 name: torch.tensor(q[name], device="cuda", dtype=torch.float32)
