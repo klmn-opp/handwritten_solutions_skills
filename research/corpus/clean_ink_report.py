@@ -39,6 +39,7 @@ def report(
     review_methods: list[str] | None = None,
     review_title: str = "去灰影对照",
     review_seed: int = 1207,
+    footer: str | None = None,
 ) -> None:
     require_running(main)
     verify_run(comparison)
@@ -91,8 +92,11 @@ def report(
             fig.text(
                 0.055,
                 0.015,
-                "Same text and display scale. New neural rows use unchanged output conversion. "
-                "No post-hoc cleaning.",
+                footer
+                or (
+                    "Same text and display scale. New neural rows use unchanged output conversion. "
+                    "No post-hoc cleaning."
+                ),
                 fontsize=7,
             )
             fig.subplots_adjust(top=0.92, bottom=0.05, hspace=0.5)
@@ -110,7 +114,7 @@ def report(
             summary[method][split] = {
                 "n": len(subset),
                 **{
-                    key: float(np.mean([r[key] for r in subset]))
+                    key: float(np.mean([r[key] for r in subset])) if subset else None
                     for key in [
                         "ink_mass",
                         "soft_fraction",
@@ -149,9 +153,10 @@ def report(
     for name, p in paths.items():
         curve = json.loads((Path(p) / "reports/curve.json").read_text())
         ev = json.loads((Path(p) / "reports/evaluations.json").read_text())
+        validation = [r.get("validation", r) for r in ev]
         axes[0].plot([r["step"] for r in curve], [r["loss"] for r in curve], label=name)
-        axes[1].plot([r["step"] for r in ev], [r["soft_fraction"] for r in ev], label=name)
-        axes[2].plot([r["step"] for r in ev], [r["ink_mass"] for r in ev], label=name)
+        axes[1].plot([r["step"] for r in ev], [r["soft_fraction"] for r in validation], label=name)
+        axes[2].plot([r["step"] for r in ev], [r["ink_mass"] for r in validation], label=name)
     for ax, title in zip(
         axes,
         [
@@ -175,6 +180,8 @@ def report(
     review_indices = []
     for split in ["validation", "holdout"]:
         review_indices += sorted({r["row_index"] for r in rows if r["split"] == split})[:2]
+    if not any(r["split"] == "holdout" for r in rows):
+        review_indices = sorted({r["row_index"] for r in rows if r["split"] == "validation"})[:4]
     if review_methods is None:
         review_methods = [
             "handnote",
