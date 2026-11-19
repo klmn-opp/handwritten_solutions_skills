@@ -116,7 +116,7 @@ def report(main: Path, comparison: Path) -> None:
         {
             "summary": summary,
             "rows": metric_rows,
-            "interpretation": "Descriptive only; removal of genuine thin strokes can also lower haze. "
+            "interpretation": "Descriptive only; removal of genuine thin strokes can lower haze. "
             "Check content independently.",
         },
     )
