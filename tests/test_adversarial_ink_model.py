@@ -50,7 +50,9 @@ class AdversarialInkContracts(unittest.TestCase):
         ref = t.rand(1, 1, 128, 192, device=self.device)
         centers = [(0, 64, 96)]
         patch = word_patches(ref, centers, 64)
-        with t.inference_mode():
+        # Different convolution sizes select different TF32 kernels. Test the
+        # mathematical locality contract in float32, independent of that rounding.
+        with t.inference_mode(), t.backends.cudnn.flags(allow_tf32=False):
             crop = model(patch).sigmoid()[..., 32:96, 32:96]
             full = generate_local(model, ref)[..., 32:96, 64:128]
         self.assertTrue(t.allclose(crop, full, atol=1e-6, rtol=1e-6))
