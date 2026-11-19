@@ -106,3 +106,14 @@ holdout 是固定、可审计的隔离集合，不是保密考试。CLI 拒绝�
 不以识别器CER当真实文本错误，不以页数/形状距离/软件测试通过当自然度提高。
 区域Holdout来自旧文档，fresh_document=false；不可宣称新文档级测试或在其上继续调参。
 详见 [v0.10报告](V010_GO_NO_GO.md)。
+
+
+## v0.10.1 对齐/内容冻结比较
+
+主报告[V0101_GO_NO_GO.md](V0101_GO_NO_GO.md)。同一171真实Train、同字体预热、三臂各2000次更新；等步数不等算力。
+固定8 Train/全部25 Val/21新区域Holdout，9方法486张图、Tesseract/TrOCR972观察。
+TrOCR为内容臂训练教师，显式`teacher_used=true`、`recognizer_independence.trocr=false`；不作独立成功证据。
+Sol xhigh另看63匿名图，分母含partial/unreadable；相同内容多候选可能提示识读，非人工真值。
+原始标签、完整OCR编辑分类、真实原图、盲转写、统一对照保留。所有候选冻结后才打开新区域，没有随后再训练。
+21测试区域仍来自旧曝光文档；新架构不可把它们再次当全新Holdout。新网络不替换60题数学Benchmark。
+10页速览固定选样、54页完整对照、6组作者UI；作者评分0，未报自然度提升百分比。

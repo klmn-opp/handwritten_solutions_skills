@@ -47,3 +47,15 @@ TrOCR使用本机完整`trocr-base-handwritten-v08-xet`，请求只有id/image/h
 CER/WER为识别观察；空结果/弃答与真实错误分开。每个生成PNG有固定seed和模型摘要。
 `context_review.build_review`生成离线匿名HTML：内容准确后才允许风格评分，浏览器本地保存、JSON导出/恢复。
 匿名key只在私有reports，不嵌入HTML。导出评分不得当作真实手写训练样本。
+
+
+## v0.10.1 扩展（不修改旧版本）
+
+`context_aligned_data.prepare`保留原始300DPI裁剪及`raw_transform`，新增`alignment`/`alignment_rejected_reason`。
+完整词对齐只生成派生视图；`arrays.npz`含reference/raw/aligned及对应SDF、split、admitted。
+三个训练臂共用admitted Train，所有Val都保留；reference评估布局不使用真实目标坐标。
+`context_content_train`保存content标签协议、教师/data/sample/warmup/resume摘要和每500步优化器/RNG。
+恢复必须匹配标签协议，不允许将错误BOS训练的优化器混入修正实验。
+`context_content_evaluate.freeze`先封候选再读取新区域；`context_evaluation_ink`的浅色回退仅用于评估显示，
+target-transforms记录黑白点，原图及训练阈值不变。识别模块用`--teacher-used`显式区分TrOCR独立性。
+`aligned-content-ink/1`是确定性整块SDF解码器，不声称在线轨迹、随机风格、自由词距或数学生成。
