@@ -61,3 +61,15 @@ UV_CACHE_DIR=/tmp/hwsol-eval-cache uv pip install \
 `reports/lines.json`记录原始生成；`reports/request.json`固定源码/权重/Profile或参考样本/seed；`logs/source/`保存实际研究代码；`reports/pdf-integrity.json`记录PDF像素一致性。评测的 `reports/observations.json` 包含两识别器逐项对齐和汇总，`reports/htr.json`保留原始转写/token/耗时/显存。盲评HTML及未填写答卷模板在独立review run，真实答卷导入另建新run，不修改封存历史。
 
 正式结果、失败样例与训练决策见 [v0.8 Go/No-Go](V08_GO_NO_GO.md)。
+
+## v0.10.3 区域训练评估补充（独立于固定120条基准）
+
+[本轮报告](V0103_GO_NO_GO.md)使用历史真实作业的215开发区域及6新留出区域，
+不是重新跑完本页120条英文基准。6区域仅来自旧文档，曾有缩略总览曝光；不称全新文档测试。
+所有候选先冻结，再评估；已打开区域后续仅作历史对照，不复用为新测试。
+
+原512×64模型图与固定L<230包围框+8px白边视图并列保留，434输入/868识别观察。
+TrOCR已作为冻结内容教师，因此不独立；Tesseract和50图Sol匿名观察另列，均不冒充作者核验。
+作者4组20图候选位置均衡、先内容后风格，本轮尚无新评分。
+新增核心墨色、外围灰墨和细笔/重影观察，发现加深不等于去影；三臂结果未获发布资格。
+全部原图、转写、失败案例、SHA绑定和多维报告在本轮run内，正式基准数据及CPU路径未改。
