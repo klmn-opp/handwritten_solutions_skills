@@ -16,7 +16,11 @@ from research.corpus.experiment import create
 from research.corpus.reference_data import signed_distance
 
 
-def prepare(dataset: Path, *, size: tuple[int, int] = (512, 64)) -> Path:
+def prepare(
+    dataset: Path, *, size: tuple[int, int] = (512, 64), reference_backend: str = "pillow"
+) -> Path:
+    if reference_backend not in {"pillow", "handnote"}:
+        raise ValueError("Unknown exact-content reference backend")
     verify_run(dataset)
     profile = profile_store().resolve("personal@v1")
     rows = [json.loads(s) for s in (dataset / "reports/samples.jsonl").read_text().splitlines()]
@@ -29,6 +33,7 @@ def prepare(dataset: Path, *, size: tuple[int, int] = (512, 64)) -> Path:
             "profile": profile.provenance(),
             "raw_preserved": True,
             "size": list(size),
+            "reference_backend": reference_backend,
             "training_geometry": "natural word gaps, uniform word scale; no character cutting",
             "evaluation_reference_uses_target_geometry": False,
         },
@@ -53,8 +58,16 @@ def prepare(dataset: Path, *, size: tuple[int, int] = (512, 64)) -> Path:
                 raise ValueError("Changed crop")
             image = Image.open(row["crop"])
             raw, raw_transform = whole_ink(image, size)
+            handnote_image, cuts, glyphs = None, None, None
+            if reference_backend == "handnote":
+                from research.corpus.context_handnote_reference import render
+
+                handnote_image, cuts, glyphs = render(row["normalized_label"], profile)
             ref, ref_transform = whole_ink(
-                reference_image(row["normalized_label"], profile.font, size[1]), size
+                reference_image(row["normalized_label"], profile.font, size[1])
+                if handnote_image is None
+                else handnote_image,
+                size,
             )
             reason = None
             try:
@@ -70,6 +83,8 @@ def prepare(dataset: Path, *, size: tuple[int, int] = (512, 64)) -> Path:
                     profile.font,
                     size,
                     reviewed_word_boxes=boxes,
+                    reference_raw=handnote_image,
+                    reference_word_boundaries=cuts,
                 )
                 if not np.array_equal(ref, aligned_ref):
                     raise ValueError("reference mismatch")
@@ -94,6 +109,7 @@ def prepare(dataset: Path, *, size: tuple[int, int] = (512, 64)) -> Path:
                     "alignment": transform,
                     "raw_transform": raw_transform,
                     "reference_transform": ref_transform,
+                    "reference_glyph_provenance": glyphs,
                     "alignment_rejected_reason": reason,
                     "reference_fallback_codepoints": sorted(
                         set(row["normalized_label"])

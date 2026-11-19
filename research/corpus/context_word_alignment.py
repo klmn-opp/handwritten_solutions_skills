@@ -62,12 +62,16 @@ def aligned_view(
     size: tuple[int, int] = (512, 64),
     *,
     reviewed_word_boxes: list[list[int]] | None = None,
+    reference_raw: Image.Image | None = None,
+    reference_word_boundaries: list[float] | None = None,
 ) -> tuple[np.ndarray, np.ndarray, dict]:
     tokens = text.split()
     if not tokens or len(tokens) > 6:
         raise ValueError("limited word-group pilot supports 1–6 words")
     real, transform = whole_ink(raw, size)
-    reference, ref_transform = whole_ink(reference_image(text, font_path, size[1]), size)
+    reference, ref_transform = whole_ink(
+        reference_image(text, font_path, size[1]) if reference_raw is None else reference_raw, size
+    )
     source_boxes = natural_words(real, tokens) if reviewed_word_boxes is None else []
     if reviewed_word_boxes is not None:
         if len(reviewed_word_boxes) != len(tokens):
@@ -102,6 +106,16 @@ def aligned_view(
             )
         )
         prefix += " "
+    if reference_raw is not None:
+        if reference_word_boundaries is None or len(reference_word_boundaries) != len(tokens) - 1:
+            raise ValueError("Handnote semantic word bounds required")
+        cuts = [
+            round(
+                (x - ref_transform["ink_bbox"][0]) * ref_transform["scale"]
+                + ref_transform["translation"][0]
+            )
+            for x in reference_word_boundaries
+        ]
     edges = [0] + cuts + [size[0]]
     slots = []
     for a, b in zip(edges, edges[1:], strict=False):
@@ -149,5 +163,6 @@ def aligned_view(
             "ink_repair": False,
             "derived_view_not_original_sample": True,
             "word_spacing_canonicalized_not_learned": True,
+            "reference_backend": "handnote" if reference_raw is not None else "pillow",
         },
     )

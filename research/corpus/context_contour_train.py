@@ -15,11 +15,15 @@ def train(views: Path, mode: str, *, steps: int = 1500) -> Path:
     if mode not in {"local", "context", "flow"} or steps <= 0:
         raise ValueError("Invalid finite contour experiment")
     verify_run(views)
+    reference_backend = json.loads((views / "run.json").read_text())["config"].get(
+        "reference_backend", "pillow"
+    )
     config = {
         "views": str(views.resolve()),
         "arrays_sha256": digest(views / "reports/arrays.npz"),
         "samples_sha256": digest(views / "reports/samples.json"),
         "mode": mode,
+        "reference_backend": reference_backend,
         "steps": steps,
         "seed": 1501,
         "lr": 0.0003,
@@ -45,6 +49,8 @@ def train(views: Path, mode: str, *, steps: int = 1500) -> Path:
             flow_bounds=[8.0, 5.0],
             scope="learned smooth contextual deformation; strong font topology prior",
         )
+        if reference_backend == "handnote":
+            config["protocol_sha256"] = digest("docs/V0105_REFERENCE_PROTOCOL.md")
     run = create("context-contour-training", config=config, seed=config["seed"])
     write(run.path / "reports/request.json", {**config, "run": str(run.path)})
     try:
