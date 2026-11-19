@@ -94,7 +94,7 @@ def worker(request: Path) -> None:
     from torch.nn import functional as F
 
     from research.corpus.aligned_style_experiment import setup
-    from research.corpus.semantic_ink_model import AutoDecodedSemanticInk
+    from research.corpus.semantic_ink_model import AutoDecodedSemanticInk, CoupledDistanceInk
     from research.corpus.semantic_raw_data import apply_metrics
 
     r = json.loads(request.read_text())
@@ -123,7 +123,7 @@ def worker(request: Path) -> None:
     x = {k: torch.tensor(v, device="cuda") for k, v in arrays.items()}
     saved = torch.load(r["warmup"], map_location="cuda", weights_only=False)
     assert saved["step"] == 24000 and saved["config"]["arm"] == "identity-extended"
-    model = AutoDecodedSemanticInk().cuda()
+    model = (CoupledDistanceInk() if r.get("distance_head") else AutoDecodedSemanticInk()).cuda()
     model.load_identity(saved["model"])
     codes = torch.nn.Parameter(torch.randn(len(train), r["latent"], device="cuda"))
     teacher = None

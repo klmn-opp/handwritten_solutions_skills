@@ -179,6 +179,18 @@ class MetricSemanticInk(ContextualSemanticInk):
         return self.character(ids) + self.metric_projection(metrics.clamp(-5, 5))
 
 
+class CoupledDistanceInk(AutoDecodedSemanticInk):
+    """One learned distance field determines both ink occupancy and contour support."""
+
+    architecture = "semantic-distance-word-ink/1"
+
+    def forward(self, tokens, boxes, points, *, style=None):
+        _, distance = super().forward(tokens, boxes, points, style=style)
+        # signed_distance uses 8px units: sigmoid(16*d) has a 0.5px transition.
+        # This is part of the trainable output contract, not image cleanup.
+        return 16 * distance, distance
+
+
 class WordLatentSemanticInk(ContextualSemanticInk):
     """A whole-word latent shared by all character fields; posterior is training-only.
 

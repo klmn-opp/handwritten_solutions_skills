@@ -31,6 +31,22 @@ class SemanticGeometry(unittest.TestCase):
 
 @unittest.skipUnless(importlib.util.find_spec("torch"), "Torch remains optional")
 class SemanticLearning(unittest.TestCase):
+    def test_coupled_distance_head_has_one_contour_and_a_learning_gradient(self):
+        import torch
+
+        from research.corpus.semantic_ink_model import CoupledDistanceInk
+
+        model = CoupledDistanceInk()
+        t = torch.tensor([[[112, 0, 0]]])
+        b = torch.tensor([[[10, 10, 30, 40]]]).float()
+        points = torch.tensor([[[20, 20], [150, 100]]]).float()
+        logits, sdf = model(t, b, points, style=torch.zeros(1, 2))
+        self.assertTrue(torch.equal(logits, 16 * sdf))
+        self.assertEqual(float(sdf[0, 1].detach()), -1)
+        logits[0, 0].backward()
+        self.assertGreater(float(model.field[-1].weight.grad[1].abs().sum()), 0)
+        self.assertEqual(float(model.field[-1].weight.grad[0].abs().sum()), 0)
+
     def test_metric_conditioning_exposes_scale_without_reference_pixels(self):
         import torch
 

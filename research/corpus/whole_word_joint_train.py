@@ -9,7 +9,9 @@ from research.corpus.context_content_train import digest, write
 from research.corpus.experiment import create
 
 
-def launch(data: Path, source: Path, font_teacher: Path, support: Path, geometry: str) -> Path:
+def launch(
+    data: Path, source: Path, font_teacher: Path, support: Path, geometry: str, distance_head=False
+) -> Path:
     for p in [data, source.parent.parent, font_teacher.parent.parent, support]:
         verify_run(p)
     if geometry not in {"initial", "fitted"}:
@@ -37,9 +39,15 @@ def launch(data: Path, source: Path, font_teacher: Path, support: Path, geometry
         "model_lr": 0.0001,
         "code_lr": 0.001,
         "code_l2_weight": 0.01,
-        "architecture": "semantic-word-autodecoder/1",
+        "architecture": "semantic-distance-word-ink/1"
+        if distance_head
+        else "semantic-word-autodecoder/1",
+        "distance_head": bool(distance_head),
         "optimizer": "reset AdamW at new dataset",
-        "teacher": "frozen font-auxiliary neural field; retain entire original training alphabet without real glyph support",
+        "teacher": (
+            "frozen font-auxiliary neural field; retain entire original training alphabet "
+            "without real glyph support"
+        ),
         "target_at_generation": False,
         "target_geometry_at_generation": False,
         "training_geometry_is_manual_truth": False,
@@ -48,7 +56,8 @@ def launch(data: Path, source: Path, font_teacher: Path, support: Path, geometry
     }
     run = create("intact-word-joint-learning", seed=r["seed"], config=r)
     write(run.path / "reports/request.json", {**r, "run": str(run.path)})
-    Path(f"/tmp/context-v01017-{geometry}").write_text(str(run.path))
+    name = "distance" if distance_head else geometry
+    Path(f"/tmp/context-v01017-{name}").write_text(str(run.path))
     print(run.path, flush=True)
     try:
         with (run.path / "logs/worker.log").open("w") as log:
