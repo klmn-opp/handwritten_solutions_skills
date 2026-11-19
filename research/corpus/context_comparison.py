@@ -18,7 +18,16 @@ from research.corpus.context_evaluation_ink import evaluation_ink
 from research.corpus.experiment import create
 
 
-def strips(text: str, identity: str, profile, banks: dict) -> tuple[dict, dict]:
+def strips(
+    text: str,
+    identity: str,
+    profile,
+    banks: dict,
+    *,
+    methods: tuple[str, ...] = ("handnote", "round2", "repair"),
+) -> tuple[dict, dict]:
+    if not methods or not set(methods) <= {"handnote", "round2", "repair"}:
+        raise ValueError("Unknown frozen comparison method")
     cfg = RenderConfig(seed=1010, font_size_pt=12, ink="#000000", semantic_layout=True)
     page, renderer, provenance = layout(text, "Reference", profile, cfg)
     original = dict(renderer._outlines)
@@ -32,7 +41,7 @@ def strips(text: str, identity: str, profile, banks: dict) -> tuple[dict, dict]:
         math.ceil(bounds[:, 3].max()) + 8,
     ]
     images, receipts = {}, {}
-    for name in ["handnote", "round2", "repair"]:
+    for name in methods:
         renderer._outlines = dict(original)
         if name == "handnote":
             current, records = page, provenance

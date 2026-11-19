@@ -6,9 +6,9 @@ from PIL import Image
 from research.corpus.context_training_data import whole_ink
 
 
-def evaluation_ink(image: Image.Image):
+def evaluation_ink(image: Image.Image, size: tuple[int, int] = (512, 64)):
     try:
-        return whole_ink(image)
+        return whole_ink(image, size)
     except ValueError as exc:
         if str(exc) != "No dark ink in complete region":
             raise
@@ -17,7 +17,7 @@ def evaluation_ink(image: Image.Image):
     if high - low < 20:
         raise ValueError("Insufficient contrast for evaluation; keep original for review")
     adjusted = np.uint8(np.clip((gray - low) * 255 / (high - low), 0, 255))
-    ink, transform = whole_ink(Image.fromarray(adjusted))
+    ink, transform = whole_ink(Image.fromarray(adjusted), size)
     return ink, {
         **transform,
         "evaluation_only_contrast_fallback": {"black": low, "white": high},
