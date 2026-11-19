@@ -8,12 +8,14 @@ from pathlib import Path
 from research.corpus.context_content_train import digest, write
 
 
-def launch(data: Path, teacher: Path, words: Path) -> Path:
+def launch(data: Path, teacher: Path, words: Path, control: Path | None = None) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
     for p in [data, teacher.parent.parent, words]:
         verify_run(p)
+    if control:
+        verify_run(control)
     cfg = {
         "data": str(data.resolve()),
         "data_sha256": digest(data / "run.json"),
@@ -31,7 +33,13 @@ def launch(data: Path, teacher: Path, words: Path) -> Path:
         "code_l2": 0.01,
         "support_weight": 0.5,
         "inherited_model_updates": 24000,
-        "architecture": "semantic-word-autodecoder/1",
+        "architecture": "semantic-hierarchical-local-ink/1"
+        if control
+        else "semantic-word-autodecoder/1",
+        "hierarchical": control is not None,
+        "control_initial": str(control / "logs/initial-state.pt") if control else None,
+        "control_initial_sha256": digest(control / "logs/initial-state.pt") if control else None,
+        "local_seed_offsets": {"glyph": 100000, "word": 200000} if control else None,
         "no_target_or_reference_at_generation": True,
         "local_component_not_end_to_end": True,
         "C_used": False,
@@ -39,7 +47,8 @@ def launch(data: Path, teacher: Path, words: Path) -> Path:
     }
     run = create("verified-local-ink-training", seed=cfg["seed"], config=cfg)
     write(run.path / "reports/request.json", {**cfg, "run": str(run.path)})
-    Path("/tmp/context-v01018-model").write_text(str(run.path))
+    name = "hierarchical" if control else "model"
+    Path(f"/tmp/context-v01018-{name}").write_text(str(run.path))
     print(run.path, flush=True)
     try:
         with (run.path / "logs/worker.log").open("w") as log:
@@ -74,7 +83,11 @@ def worker(path: Path) -> None:
 
     from research.corpus.aligned_style_experiment import setup
     from research.corpus.real_ink_support import nearest_real_loss
-    from research.corpus.semantic_ink_model import AutoDecodedSemanticInk, SemanticInk
+    from research.corpus.semantic_ink_model import (
+        AutoDecodedSemanticInk,
+        HierarchicalSemanticInk,
+        SemanticInk,
+    )
     from research.corpus.semantic_raw_data import apply_metrics
 
     cfg = json.loads(path.read_text())
@@ -99,9 +112,47 @@ def worker(path: Path) -> None:
     teacher = SemanticInk(context_scale=0).cuda().eval()
     teacher.load_state_dict(saved["model"])
     teacher.requires_grad_(False)
-    model = AutoDecodedSemanticInk().cuda()
+    hierarchical = cfg.get("hierarchical", False)
+    model = (HierarchicalSemanticInk() if hierarchical else AutoDecodedSemanticInk()).cuda()
     model.load_identity(saved["model"])
     codes = torch.nn.Parameter(torch.randn(group_count, 2, device="cuda") * 0.1)
+    local_priors = {}
+    if hierarchical:
+        assert digest(cfg["control_initial"]) == cfg["control_initial_sha256"]
+        previous = torch.load(cfg["control_initial"], map_location="cuda", weights_only=False)
+        assert previous["codes"].shape == codes.shape
+        with torch.no_grad():
+            codes.copy_(previous["codes"])
+        local_priors = {
+            int(k): {
+                name: torch.tensor(q[name], device="cuda", dtype=torch.float32)
+                for name in ["mean", "cholesky"]
+            }
+            for k, q in json.loads((data / "reports/local-priors.json").read_text()).items()
+        }
+
+    def target_style(ii):
+        word_style = codes[x["groups"][ii]]
+        if not hierarchical:
+            return word_style
+        local = torch.zeros(len(ii), 2, 8, device="cuda")
+        local[:, 0] = x["local_codes"][ii]
+        return torch.cat([word_style[:, None].expand(-1, 2, -1), local], -1)
+
+    def sampled_style(tokens, word_style, generator=None):
+        if not hierarchical:
+            return word_style
+        local = torch.zeros(*tokens.shape[:2], 8, device="cuda")
+        for i in range(len(tokens)):
+            for j, c in enumerate(tokens[i, :, 0].tolist()):
+                if c in local_priors:
+                    q = local_priors[c]
+                    local[i, j] = (
+                        q["mean"]
+                        + torch.randn(8, device="cuda", generator=generator) @ q["cholesky"].T
+                    )
+        return torch.cat([word_style[:, None].expand(-1, tokens.shape[1], -1), local], -1)
+
     optimizer = torch.optim.AdamW(
         [
             {"params": model.parameters(), "lr": cfg["model_lr"]},
@@ -148,7 +199,7 @@ def worker(path: Path) -> None:
         xy = np.concatenate([rng.integers(8, 88, (4, 768, 2)), rng.integers(0, 96, (4, 256, 2))], 1)
         pp = torch.tensor(xy, device="cuda").float()
         pi = torch.tensor(xy[..., 1] * 96 + xy[..., 0], device="cuda")
-        logits, distance = model(x["tokens"][ii], x["boxes"][ii], pp, style=codes[x["groups"][ii]])
+        logits, distance = model(x["tokens"][ii], x["boxes"][ii], pp, style=target_style(ii))
         target = x["ink"][ii].flatten(1).gather(1, pi)
         sdf = x["sdf"][ii].flatten(1).gather(1, pi)
         fit = (
@@ -162,7 +213,7 @@ def worker(path: Path) -> None:
         mu, chol = prior()
         zz = torch.tensor(rng.standard_normal((4, 2)), device="cuda", dtype=torch.float32)
         zz = zz @ chol.T + mu
-        ll = model(tt, bb, pp, style=zz)[0]
+        ll = model(tt, bb, pp, style=sampled_style(tt, zz))[0]
         with torch.no_grad():
             ft = teacher(tt, bb, pp)[0].sigmoid()
         terms = []
@@ -244,7 +295,7 @@ def worker(path: Path) -> None:
             f"reconstruction-{i:04d}",
             x["tokens"][i : i + 1],
             x["boxes"][i : i + 1],
-            codes[x["groups"][i : i + 1]],
+            target_style([i]),
             {
                 "mode": "training-code-reconstruction",
                 "index": i,
@@ -262,6 +313,7 @@ def worker(path: Path) -> None:
     wb = torch.tensor(apply_metrics(wa["tokens"], wa["boxes"], metrics), device="cuda")
     wt = torch.tensor(wa["tokens"], device="cuda")
     for seed in range(2012, 2020):
+        local_generator = torch.Generator(device="cuda").manual_seed(seed + 100000)
         z = (
             mu[None]
             + torch.randn(
@@ -275,12 +327,13 @@ def worker(path: Path) -> None:
                 f"prior-{seed}-{c}",
                 tt,
                 x["boxes"][:1],
-                z,
+                sampled_style(tt, z, local_generator),
                 {"mode": "glyph-prior", "seed": seed, "text": chr(c), "target_seen": False},
             )
     np.savez_compressed(run / "reports/glyph-priors.npz", ink=np.stack(images))
     images.clear()
     for seed in [2012, 2013]:
+        local_generator = torch.Generator(device="cuda").manual_seed(seed + 200000)
         z = (
             mu[None]
             + torch.randn(
@@ -293,7 +346,7 @@ def worker(path: Path) -> None:
                 f"word-{seed}-{i:04d}",
                 wt[i : i + 1],
                 wb[i : i + 1],
-                z,
+                sampled_style(wt[i : i + 1], z, local_generator),
                 {
                     "mode": "word-prior",
                     "seed": seed,

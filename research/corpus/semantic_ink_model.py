@@ -45,6 +45,9 @@ class SemanticInk(nn.Module):
     def local_coordinates(self, xy, local, style):
         return xy
 
+    def field_style(self, style, ids):
+        return style
+
     def forward(
         self, tokens: torch.Tensor, boxes: torch.Tensor, points: torch.Tensor, *, style=None
     ):
@@ -81,7 +84,7 @@ class SemanticInk(nn.Module):
                 self.character_features(local[..., 0], local_radii),
                 self.neighbour_features(local[..., 1]),
                 self.neighbour_features(local[..., 2]),
-                self.writer_features(xy, style),
+                self.writer_features(xy, self.field_style(style, ids)),
                 pe,
             ],
             -1,
@@ -153,6 +156,44 @@ class AutoDecodedSemanticInk(ContextualSemanticInk):
             raise ValueError("Explicit two-dimensional shared word code required")
         writer = self.writer[None] + self.style_projection(style)
         return writer[:, None, None].expand(*xy.shape[:-1], -1)
+
+
+class HierarchicalSemanticInk(AutoDecodedSemanticInk):
+    """Shared word condition plus local morphology, without any image input.
+
+    Local conditions are statistical Train residual coordinates, not verified
+    author style factors. Sampling them is not itself neural parameter training.
+    """
+
+    architecture = "semantic-hierarchical-local-ink/1"
+    local_latent = 8
+
+    def __init__(self):
+        super().__init__()
+        self.local_projection = nn.Linear(self.local_latent, 16, bias=False)
+        nn.init.normal_(self.local_projection.weight, std=0.02)
+
+    def load_identity(self, state):
+        result = self.load_state_dict(state, strict=False)
+        if (
+            set(result.missing_keys)
+            != {"context_gate", "style_projection.weight", "local_projection.weight"}
+            or result.unexpected_keys
+        ):
+            raise ValueError("Only the new word/context/local conditions may be absent")
+
+    def field_style(self, style, ids):
+        if style is None or style.ndim != 3 or style.shape[-1] != 10:
+            raise ValueError("Per-token shared word2 plus local8 conditions required")
+        batch = torch.arange(len(ids), device=ids.device)[:, None, None]
+        return style[batch, ids]
+
+    def writer_features(self, xy, style):
+        return (
+            self.writer
+            + self.style_projection(style[..., :2])
+            + self.local_projection(style[..., 2:])
+        )
 
 
 class MetricSemanticInk(ContextualSemanticInk):

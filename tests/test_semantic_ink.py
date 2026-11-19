@@ -31,6 +31,27 @@ class SemanticGeometry(unittest.TestCase):
 
 @unittest.skipUnless(importlib.util.find_spec("torch"), "Torch remains optional")
 class SemanticLearning(unittest.TestCase):
+    def test_local_code_changes_its_own_field_and_retains_shared_word_gradient(self):
+        import torch
+
+        from research.corpus.semantic_ink_model import HierarchicalSemanticInk, SemanticInk
+
+        model = HierarchicalSemanticInk()
+        model.load_identity(SemanticInk(context_scale=0).state_dict())
+        t = torch.tensor([[[97, 0, 98], [98, 97, 0]]])
+        b = torch.tensor([[[10, 10, 30, 40], [100, 10, 120, 40]]]).float()
+        points = torch.tensor([[[20, 20], [110, 20]]]).float()
+        style = torch.zeros(1, 2, 10)
+        first = model(t, b, points, style=style)[0]
+        style[0, 0, 2:] = 1
+        second = model(t, b, points, style=style)[0]
+        self.assertNotEqual(float(first[0, 0].detach()), float(second[0, 0].detach()))
+        self.assertEqual(float(first[0, 1].detach()), float(second[0, 1].detach()))
+        style[:, :, :2] = 1
+        model(t, b, points, style=style)[0].sum().backward()
+        self.assertGreater(float(model.local_projection.weight.grad.abs().sum()), 0)
+        self.assertGreater(float(model.style_projection.weight.grad.abs().sum()), 0)
+
     def test_coupled_distance_head_has_one_contour_and_a_learning_gradient(self):
         import torch
 
