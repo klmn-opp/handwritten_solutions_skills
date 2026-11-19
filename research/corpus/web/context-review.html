@@ -1,0 +1,60 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'none'">
+<title>个人笔迹匿名对照</title><style>
+body{font:16px/1.6 system-ui,sans-serif;color:#182a32;background:#f4f5f3;margin:0}
+header,main{max-width:1450px;margin:auto;padding:20px}header{background:#fff}
+h1{font-size:24px;margin:0}p{margin:10px 0}button,select,textarea{font:inherit;padding:8px;border:1px solid #a4b5b6;border-radius:5px}
+button{background:#174d50;color:white;cursor:pointer}button:disabled{background:#aaa}
+nav{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:15px}
+article{background:white;border:1px solid #d4dcd9;padding:15px;border-radius:8px}article h2{margin:0 0 10px}
+img{width:100%;background:white;cursor:zoom-in}label{display:block;margin:8px 0}select,textarea{width:100%;box-sizing:border-box}
+fieldset{border:0;padding:0}fieldset:disabled{opacity:.45}.status{font-weight:600;color:#174d50}
+pre{white-space:pre-wrap;background:white;padding:15px;border-radius:8px}dialog{width:92vw;max-width:1450px;height:90vh;padding:15px}dialog img{width:100%;cursor:auto}
+.note{color:#4b5d67;font-size:14px}.reference{max-width:850px}.error{color:#a22525}
+</style><header><h1>个人笔迹匿名对照</h1>
+<p>先检查文字、符号和公式是否完整；只有确认内容正确后，再评笔迹。候选名称不表示模型或优劣。</p>
+<p class="note">评分只保存在当前浏览器，不上传。可随时中断；完成后导出 JSON 交回项目复核。未评项目不会记为零分。</p>
+<nav><button id="prev">上一组</button><select id="group" aria-label="对照组"></select><button id="next">下一组</button>
+<button id="export">导出审核数据</button><label>恢复数据 <input id="import" type="file" accept="application/json"></label></nav>
+<p id="save" class="status" role="status"></p></header>
+<main><h2 id="title"></h2><p id="description"></p><details><summary>查看目标文字或公式</summary><pre id="target"></pre></details>
+<details id="reference-wrap" hidden><summary>查看本人原始参考（非生成）</summary><img id="reference" class="reference" alt="本人原始参考"></details>
+<section id="cards" class="cards"></section></main>
+<dialog id="zoom"><button id="close-zoom">关闭放大</button><img id="zoom-image" alt="候选放大"></dialog>
+<script id="payload" type="application/json">__DATA__</script><script>
+'use strict';
+const data=JSON.parse(document.querySelector('#payload').textContent),key='hwsol-context-review:'+data.id;
+let index=0,state={schema:'context-human-review/1',review_id:data.id,ratings:{},updated_at:null};
+const fields={naturalness:'自然程度',similarity:'像本人程度',consistency:'词内协调性',connections:'连接自然度',neatness:'整体工整程度'};
+const el=s=>document.querySelector(s);
+function validateState(value){
+if(!value||value.schema!=='context-human-review/1'||value.review_id!==data.id||!value.ratings||Array.isArray(value.ratings)||typeof value.ratings!=='object')throw Error('不是本轮的审核文件');
+const valid=new Set(data.groups.flatMap(g=>g.candidates.map(c=>c.id)));
+const clean={schema:value.schema,review_id:data.id,ratings:{},updated_at:value.updated_at||null};
+for(const [id,r] of Object.entries(value.ratings)){
+if(!valid.has(id)||!r||!['correct','incorrect','uncertain',null].includes(r.content))throw Error('审核项无效');
+if(r.notes!==undefined&&typeof r.notes!=='string')throw Error('备注无效');
+const scores=r.scores===undefined?{}:r.scores;
+if(!scores||Array.isArray(scores)||typeof scores!=='object')throw Error('评分无效');
+for(const [field,score] of Object.entries(scores))if(!(field in fields)||(score!==null&&(!Number.isInteger(score)||score<1||score>5)))throw Error('评分无效');
+clean.ratings[id]={content:r.content,notes:r.notes||'',scores:r.content==='correct'?{...scores}:{}};
+}return clean;}
+try{const old=JSON.parse(localStorage.getItem(key)||'null');if(old)state=validateState(old);}catch(e){el('#save').textContent='浏览器历史无法读取，可导入之前导出的文件。';}
+function save(){state.updated_at=new Date().toISOString();try{localStorage.setItem(key,JSON.stringify(state));el('#save').textContent='已保存到本机 · 已审核 '+Object.values(state.ratings).filter(r=>r.content).length+' 个候选';}catch(e){el('#save').textContent='浏览器存储不可用，请立即导出保存。';}}
+function option(value,text){const o=document.createElement('option');o.value=value;o.textContent=text;return o;}
+function selection(label,values,selected,change){const wrap=document.createElement('label');wrap.textContent=label;const s=document.createElement('select');for(const [v,t] of values)s.append(option(v,t));s.value=selected??'';s.onchange=()=>change(s.value);wrap.append(s);return wrap;}
+function render(){const group=data.groups[index];el('#group').value=String(index);el('#title').textContent=group.title;el('#description').textContent=group.description||'';el('#target').textContent=group.target||'无额外目标文字';el('#reference-wrap').hidden=!group.reference;if(group.reference)el('#reference').src=group.reference;el('#cards').replaceChildren();
+for(const item of group.candidates){const id=item.id;const r=state.ratings[id]||{content:null,notes:'',scores:{}};state.ratings[id]=r;
+const card=document.createElement('article'),h=document.createElement('h2');h.textContent='候选 '+item.label;card.append(h);
+const image=document.createElement('img');image.src=item.image;image.alt='候选 '+item.label;image.onclick=()=>{el('#zoom-image').src=item.image;el('#zoom').showModal();};card.append(image);
+const fs=document.createElement('fieldset');fs.disabled=r.content!=='correct';
+card.append(selection('内容是否准确、完整？',[['','尚未判断'],['correct','准确且完整'],['incorrect','有错字、缺字或公式错误'],['uncertain','有疑问，无法确定']],r.content,v=>{r.content=v||null;fs.disabled=v!=='correct';if(v!=='correct'){r.scores={};for(const s of fs.querySelectorAll('select'))s.value='';}save();}));
+for(const [field,label] of Object.entries(fields))fs.append(selection(label,[['','未评分'],['1','1 · 很差'],['2','2'],['3','3'],['4','4'],['5','5 · 很好']],r.scores[field],v=>{r.scores[field]=v?Number(v):null;save();}));card.append(fs);
+const label=document.createElement('label');label.textContent='具体问题或偏好';const text=document.createElement('textarea');text.rows=2;text.value=r.notes||'';text.oninput=()=>{r.notes=text.value;save();};label.append(text);card.append(label);el('#cards').append(card);}
+el('#prev').disabled=index===0;el('#next').disabled=index===data.groups.length-1;}
+data.groups.forEach((g,i)=>el('#group').append(option(String(i),g.title)));el('#group').onchange=()=>{index=Number(el('#group').value);render();};el('#prev').onclick=()=>{if(index>0){index--;render();}};el('#next').onclick=()=>{if(index+1<data.groups.length){index++;render();}};el('#close-zoom').onclick=()=>el('#zoom').close();
+el('#export').onclick=()=>{save();const out=structuredClone(state);for(const r of Object.values(out.ratings))if(r.content!=='correct')r.scores={};const blob=new Blob([JSON.stringify(out,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='handwriting-review-'+data.id+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+el('#import').onchange=async()=>{try{const file=el('#import').files[0];if(!file)return;const restored=validateState(JSON.parse(await file.text()));state=restored;save();render();}catch(e){el('#save').textContent='导入失败：'+e.message;}};
+render();
+</script></html>
