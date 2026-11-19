@@ -31,6 +31,9 @@ class SemanticInk(nn.Module):
             nn.Linear(128, 2),
         )
 
+    def neighbour_features(self, ids):
+        return self.neighbour(ids) * self.context_scale
+
     def forward(self, tokens: torch.Tensor, boxes: torch.Tensor, points: torch.Tensor):
         """B×L×3 token IDs, B×L×4 boxes, B×P×2 pixel centres → logits/SDF.
 
@@ -61,8 +64,8 @@ class SemanticInk(nn.Module):
         features = torch.cat(
             [
                 self.character(local[..., 0]),
-                self.neighbour(local[..., 1]) * self.context_scale,
-                self.neighbour(local[..., 2]) * self.context_scale,
+                self.neighbour_features(local[..., 1]),
+                self.neighbour_features(local[..., 2]),
                 self.writer.expand(*xy.shape[:-1], -1),
                 pe,
             ],
@@ -87,3 +90,21 @@ class SemanticInk(nn.Module):
             p = part[None].expand(len(tokens), -1, -1)
             pieces.append(self(tokens, boxes, p)[0].sigmoid())
         return torch.cat(pieces, 1).reshape(len(tokens), height, width)
+
+
+class ContextualSemanticInk(SemanticInk):
+    """Activate learned neighbour influence continuously from a frozen identity field."""
+
+    architecture = "semantic-neighbour-ink-field/2"
+
+    def __init__(self):
+        super().__init__(context_scale=1.0)
+        self.context_gate = nn.Parameter(torch.zeros(()))
+
+    def neighbour_features(self, ids):
+        return self.neighbour(ids) * self.context_gate.tanh()
+
+    def load_identity(self, state):
+        result = self.load_state_dict(state, strict=False)
+        if result.missing_keys != ["context_gate"] or result.unexpected_keys:
+            raise ValueError("Only the new zero context gate may be absent")

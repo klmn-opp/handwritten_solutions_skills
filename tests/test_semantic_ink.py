@@ -84,3 +84,21 @@ class SemanticLearning(unittest.TestCase):
         self.assertTrue(torch.equal(a, model(changed, boxes, points)[0]))
         changed[..., 0] = 100
         self.assertFalse(torch.equal(a, model(changed, boxes, points)[0]))
+
+    def test_real_context_starts_at_exact_identity_and_has_a_learning_gradient(self):
+        import torch
+
+        from research.corpus.semantic_ink_model import ContextualSemanticInk, SemanticInk
+
+        base = SemanticInk(context_scale=0)
+        model = ContextualSemanticInk()
+        model.load_identity(base.state_dict())
+        tokens = torch.tensor([[[102, 97, 98], [98, 102, 0]]])
+        boxes = torch.tensor([[[10, 10, 30, 40], [35, 10, 55, 40]]]).float()
+        points = torch.tensor([[[20, 20], [40, 20]]]).float()
+        result = model(tokens, boxes, points)[0]
+        self.assertTrue(torch.equal(base(tokens, boxes, points)[0], result))
+        result.sum().backward()
+        self.assertGreater(float(model.context_gate.grad.abs()), 0)
+        with self.assertRaises(ValueError):
+            model.load_identity({})

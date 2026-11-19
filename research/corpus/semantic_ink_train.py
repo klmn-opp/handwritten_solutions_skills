@@ -8,7 +8,7 @@ from pathlib import Path
 from research.corpus.context_content_train import digest, write
 
 
-def launch(data: Path, arm="initial", resume: Path | None = None):
+def launch(data: Path, arm="initial", resume: Path | None = None, warmup: Path | None = None):
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
@@ -19,15 +19,22 @@ def launch(data: Path, arm="initial", resume: Path | None = None):
         "identity-capacity",
         "smooth-identity",
         "identity-extended",
+        "real-only",
+        "real-mixed",
     }:
         raise ValueError("Unknown preregistered arm")
     if (arm == "identity-extended") != (resume is not None):
         raise ValueError("Only the registered capacity extension restores an optimizer")
+    real = arm in {"real-only", "real-mixed"}
+    if real != (warmup is not None):
+        raise ValueError("Real supervision requires the frozen content model")
     r = {
         "data": str(data.resolve()),
         "data_sha256": digest(data / "run.json"),
         "arrays_sha256": digest(data / "reports/arrays.npz"),
-        "architecture": "semantic-neighbour-ink-field/1",
+        "architecture": "semantic-neighbour-ink-field/2"
+        if real
+        else "semantic-neighbour-ink-field/1",
         "seed": 3015,
         "arm": arm,
         "sampler": "foreground-uniform" if arm == "initial" else "glyph-bounds-uniform",
@@ -35,13 +42,18 @@ def launch(data: Path, arm="initial", resume: Path | None = None):
         if arm in {"identity-capacity", "smooth-identity", "identity-extended"}
         else 1.0,
         "smooth_coordinates": arm == "smooth-identity",
-        "steps": 18000 if resume else 6000,
+        "steps": 4000 if real else 18000 if resume else 6000,
+        "warmup": str(warmup.resolve()) if warmup else None,
+        "warmup_sha256": digest(warmup) if warmup else None,
         "resume": str(resume.resolve()) if resume else None,
         "resume_sha256": digest(resume) if resume else None,
-        "lr": 0.0005,
+        "lr": 0.0001 if real else 0.0005,
         "batch": 4,
         "points": 2048,
-        "supervision": "personal-font-derived auxiliary, zero real scans",
+        "supervision": "verified real whole words"
+        + (" plus 25% auxiliary" if arm == "real-mixed" else "")
+        if real
+        else "personal-font-derived auxiliary, zero real scans",
         "input": "text identities, neighbours, layout bounds; NO image/outline",
         "stochastic_inference": False,
         "C_used": False,
@@ -84,24 +96,33 @@ def worker(request: Path):
     from torch.nn import functional as F
 
     from research.corpus.aligned_style_experiment import setup
-    from research.corpus.semantic_ink_model import SemanticInk
+    from research.corpus.semantic_ink_model import ContextualSemanticInk, SemanticInk
 
     r = json.loads(request.read_text())
     setup(r["seed"])
     run, data = Path(r["run"]), Path(r["data"])
     assert digest(data / "run.json") == r["data_sha256"]
     assert digest(data / "reports/arrays.npz") == r["arrays_sha256"]
-    arrays = np.load(data / "reports/arrays.npz")
+    with np.load(data / "reports/arrays.npz") as archive:
+        arrays = {key: archive[key] for key in archive.files}
     idx = json.loads((data / "reports/indices.json").read_text())
     rows = json.loads((data / "reports/samples.json").read_text())
     train = idx["train"]
     assert not set(train) & set(idx["development"] + idx["novel"])
     assert all(rows[i]["split"] == "train" for i in train)
-    x = {k: torch.tensor(arrays[k], device="cuda") for k in arrays.files}
-    model = SemanticInk(
-        context_scale=r.get("context_scale", 1),
-        smooth_coordinates=r.get("smooth_coordinates", False),
-    ).cuda()
+    x = {k: torch.tensor(v, device="cuda") for k, v in arrays.items()}
+    real = bool(r.get("warmup"))
+    if real:
+        assert digest(r["warmup"]) == r["warmup_sha256"]
+        saved = torch.load(r["warmup"], map_location="cuda", weights_only=False)
+        assert saved["step"] == 24000 and saved["config"]["arm"] == "identity-extended"
+        model = ContextualSemanticInk().cuda()
+        model.load_identity(saved["model"])
+    else:
+        model = SemanticInk(
+            context_scale=r.get("context_scale", 1),
+            smooth_coordinates=r.get("smooth_coordinates", False),
+        ).cuda()
     optimizer = torch.optim.AdamW(model.parameters(), lr=r["lr"])
     rng = np.random.default_rng(r["seed"])
     start = 0
@@ -128,7 +149,11 @@ def worker(request: Path):
         {k: importlib.metadata.version(k) for k in ["torch", "numpy", "pillow"]},
     )
     for step in range(start + 1, start + r["steps"] + 1):
-        ii = rng.choice(train, r["batch"])
+        ii = (
+            np.concatenate([rng.choice(train, 3), rng.choice(idx["auxiliary"], 1)])
+            if r["arm"] == "real-mixed"
+            else rng.choice(train, r["batch"])
+        )
         np.add.at(counts, ii, 1)
         pixel = []
         for i in ii:
@@ -189,6 +214,7 @@ def worker(request: Path):
         path = run / f"rendered/pages/semantic-{i:04d}.png"
         Image.fromarray(np.uint8((1 - im) * 255)).save(path)
         p, gt = im > 0.5, arrays["ink"][i] > 0.5
+        font = arrays["reference"][i] > 0.5 if real else gt
         images.append(im)
         metrics.append(
             {
@@ -197,7 +223,10 @@ def worker(request: Path):
                 "split": rows[i]["split"],
                 "image": str(path),
                 "sha256": digest(path),
-                "dice_to_font": float(2 * (p & gt).sum() / max(1, p.sum() + gt.sum())),
+                "dice_to_font": float(2 * (p & font).sum() / max(1, p.sum() + font.sum())),
+                "dice_to_target": None
+                if rows[i]["split"] == "novel"
+                else float(2 * (p & gt).sum() / max(1, p.sum() + gt.sum())),
                 "blank": not bool(p.any()),
                 "edge": bool(p[:2].any() or p[-2:].any() or p[:, :2].any() or p[:, -2:].any()),
                 "input_reference_image": False,
@@ -224,7 +253,13 @@ def worker(request: Path):
             "mean_dice_to_font": float(np.mean([q["dice_to_font"] for q in metrics])),
             "blank": sum(q["blank"] for q in metrics),
             "edge": sum(q["edge"] for q in metrics),
-            "real_scan_training": False,
+            "real_scan_training": real,
+            "inherited_model_updates": 24000 if real else start,
+            "context_gate": float(model.context_gate.detach()) if real else None,
+            "real_sample_count": len(train) if real else 0,
+            "sample_draws_by_group": {
+                kind: int(sum(counts[i] for i in ids)) for kind, ids in idx.items()
+            },
             "learned_random_variation": False,
             "C_used": False,
         },
@@ -237,8 +272,9 @@ if __name__ == "__main__":
     parser.add_argument("path", type=Path)
     parser.add_argument("--arm", default="initial")
     parser.add_argument("--resume", type=Path)
+    parser.add_argument("--warmup", type=Path)
     args = parser.parse_args()
     if args.mode == "train":
-        launch(args.path, args.arm, args.resume)
+        launch(args.path, args.arm, args.resume, args.warmup)
     else:
         worker(args.path)
