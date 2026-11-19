@@ -37,9 +37,9 @@ class ContourInk(nn.Module):
         if self.context_enabled:
             sequence = F.avg_pool1d(features.mean(2), 4)
             sequence = self.context(sequence)
-            sequence = F.interpolate(
-                sequence, size=sdf.shape[-1], mode="linear", align_corners=False
-            )
+            # Nearest expansion has deterministic CUDA gradients; the spatial
+            # decoder supplies local smoothing after the shared context signal.
+            sequence = F.interpolate(sequence, size=sdf.shape[-1], mode="nearest")
             features = features + sequence[:, :, None, :]
         correction = self.bound * torch.tanh(self.decoder(features))
         # Only change a narrow neighborhood; remote blank paper cannot become grey.
