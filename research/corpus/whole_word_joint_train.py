@@ -10,7 +10,8 @@ from research.corpus.experiment import create
 
 
 def launch(
-    data: Path, source: Path, font_teacher: Path, support: Path, geometry: str, distance_head=False
+    data: Path, source: Path, font_teacher: Path, support: Path, geometry: str,
+    distance_head=False, partial_support=False,
 ) -> Path:
     for p in [data, source.parent.parent, font_teacher.parent.parent, support]:
         verify_run(p)
@@ -43,6 +44,7 @@ def launch(
         if distance_head
         else "semantic-word-autodecoder/1",
         "distance_head": bool(distance_head),
+        "partial_support": bool(partial_support),
         "optimizer": "reset AdamW at new dataset",
         "teacher": (
             "frozen font-auxiliary neural field; retain entire original training alphabet "
@@ -56,7 +58,7 @@ def launch(
     }
     run = create("intact-word-joint-learning", seed=r["seed"], config=r)
     write(run.path / "reports/request.json", {**r, "run": str(run.path)})
-    name = "distance" if distance_head else geometry
+    name = "partial-support" if partial_support else "distance" if distance_head else geometry
     Path(f"/tmp/context-v01017-{name}").write_text(str(run.path))
     print(run.path, flush=True)
     try:
