@@ -49,6 +49,7 @@ def evaluate(frozen: Path, views: Path, holdout: Path) -> Path:
     from hwsol.profiles.io import atomic_json
     from hwsol.workspace import profile_store, verify_run
     from research.corpus.context_dataset import validate_rows
+    from research.corpus.context_evaluation_ink import evaluation_ink
     from research.corpus.context_training_data import reference_image, whole_ink
     from research.corpus.experiment import create
 
@@ -88,11 +89,13 @@ def evaluate(frozen: Path, views: Path, holdout: Path) -> Path:
         font = profile_store().resolve("personal@v1").font
         refs = []
         targets = []
+        target_transforms = []
         for row in rows:
             if digest(row["crop"]) != row["crop_sha256"]:
                 raise ValueError("Crop mutated")
             ref, _ = whole_ink(reference_image(row["normalized_label"], font))
-            target, _ = whole_ink(Image.open(row["crop"]))
+            target, transform = evaluation_ink(Image.open(row["crop"]))
+            target_transforms.append({"sample_id": row["sample_id"], **transform})
             refs.append(ref)
             targets.append(target)
         np.savez_compressed(
@@ -102,6 +105,7 @@ def evaluate(frozen: Path, views: Path, holdout: Path) -> Path:
             role=np.array([int(len(r["normalized_label"].split()) > 1) for r in rows]),
         )
         atomic_json(run.path / "reports/samples.json", rows)
+        atomic_json(run.path / "reports/target-transforms.json", target_transforms)
         request = {
             "run": str(run.path),
             "models": candidates,

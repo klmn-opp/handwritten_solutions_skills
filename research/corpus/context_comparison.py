@@ -14,7 +14,7 @@ from hwsol.jobs.paper import pdf_image
 from hwsol.profiles.io import atomic_json, sha256
 from hwsol.workspace import profile_store, verify_run
 from research.corpus.context_composer import FrozenBank, layout, replace_ink
-from research.corpus.context_training_data import whole_ink
+from research.corpus.context_evaluation_ink import evaluation_ink
 from research.corpus.experiment import create
 
 
@@ -93,7 +93,7 @@ def prepare(evaluation: Path) -> Path:
             for method, image in images.items():
                 original = run.path / f"comparisons/{method}-{i:03d}-original.png"
                 image.save(original)
-                ink, transform = whole_ink(image)
+                ink, transform = evaluation_ink(image)
                 normalized = Image.fromarray(np.uint8((1 - ink.clip(0, 1)) * 255))
                 key = f"{method}-{i:03d}"
                 path = run.path / f"rendered/pages/{key}.png"
