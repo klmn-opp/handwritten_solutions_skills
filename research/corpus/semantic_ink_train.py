@@ -24,11 +24,14 @@ def launch(data: Path, arm="initial", resume: Path | None = None, warmup: Path |
         "real-capacity",
         "anchor-font",
         "anchor-real",
+        "raw-real",
     }:
         raise ValueError("Unknown preregistered arm")
     if (arm == "identity-extended") != (resume is not None):
         raise ValueError("Only the registered capacity extension restores an optimizer")
-    real = arm in {"real-only", "real-mixed", "real-capacity", "anchor-font", "anchor-real"}
+    real = arm in {
+        "real-only", "real-mixed", "real-capacity", "anchor-font", "anchor-real", "raw-real"
+    }
     if real != (warmup is not None):
         raise ValueError("Real supervision requires the frozen content model")
     r = {
@@ -59,15 +62,19 @@ def launch(data: Path, arm="initial", resume: Path | None = None, warmup: Path |
         else "personal-font-derived auxiliary, zero real scans",
         "input": "text identities, neighbours, layout bounds; NO image/outline",
         "stochastic_inference": False,
-        "target_derived_training_geometry": arm == "anchor-real",
+        "target_derived_training_geometry": arm in {"anchor-real", "raw-real"},
         "target_derived_generation_geometry": False,
         "C_used": False,
-        "protocol_sha256": digest(Path("docs/V01015_PROTOCOL.md")),
+        "protocol_sha256": digest(
+            Path("docs/V01016_PROTOCOL.md" if arm == "raw-real" else "docs/V01015_PROTOCOL.md")
+        ),
+        "real_target_inverse_registered": False if arm == "raw-real" else real,
     }
     run = create("semantic-ink-font-capacity", seed=r["seed"], config=r)
     write(run.path / "reports/request.json", {**r, "run": str(run.path)})
     pointer = "font" if arm == "initial" else arm
-    Path(f"/tmp/context-v01015-{pointer}").write_text(str(run.path))
+    version = "v01016" if arm == "raw-real" else "v01015"
+    Path(f"/tmp/context-{version}-{pointer}").write_text(str(run.path))
     print(run.path, flush=True)
     try:
         with (run.path / "logs/worker.log").open("w") as log:
@@ -110,7 +117,7 @@ def worker(request: Path):
     assert digest(data / "reports/arrays.npz") == r["arrays_sha256"]
     with np.load(data / "reports/arrays.npz") as archive:
         arrays = {key: archive[key] for key in archive.files}
-    if r["arm"] == "anchor-real":
+    if r["arm"] in {"anchor-real", "raw-real"}:
         arrays["inference_boxes"] = arrays["boxes"].copy()
         arrays["boxes"] = arrays["anchor_boxes"]
     idx = json.loads((data / "reports/indices.json").read_text())
@@ -220,7 +227,7 @@ def worker(request: Path):
     model.eval()
     images, metrics = [], []
     evaluated = (
-        (train if r["arm"].startswith("anchor-") else train[:12])
+        (train if r["arm"].startswith("anchor-") or r["arm"] == "raw-real" else train[:12])
         + idx["development"]
         + idx["novel"]
     )
@@ -266,7 +273,7 @@ def worker(request: Path):
             "peak_cuda_allocated": torch.cuda.max_memory_allocated(),
             "gpu": torch.cuda.get_device_name(),
             "checkpoint_sha256": digest(run / f"logs/checkpoint-{start + r['steps']:05d}.pt"),
-            "total_model_updates": start + r["steps"],
+            "total_model_updates": (24000 if real else start) + r["steps"],
             "mean_dice_to_font": float(np.mean([q["dice_to_font"] for q in metrics])),
             "blank": sum(q["blank"] for q in metrics),
             "edge": sum(q["edge"] for q in metrics),
