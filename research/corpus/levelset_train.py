@@ -222,7 +222,10 @@ def worker(path: Path) -> None:
         ink = render_field(field, r["mode"])
         selected_sdf = sdf[chosen].clone()
         if r["stage"] == "full":
-            selected_sdf[3:] = font_sdf[chosen[3:]]
+            real_count = r.get("real_per_batch", 3)
+            if not 0 <= real_count <= 4:
+                raise ValueError("Invalid real/font mixture")
+            selected_sdf[real_count:] = font_sdf[chosen[real_count:]]
         truth = ink_from_sdf(selected_sdf)
         distance = ((field - selected_sdf).abs() * (1 + 4 * (selected_sdf.abs() < 0.35))).mean()
         image = ((ink - truth).square() * (1 + 8 * truth)).mean()
@@ -309,6 +312,8 @@ def worker(path: Path) -> None:
             "stage": r["stage"],
             "mode": r["mode"],
             "renderer": r["mode"],
+            "arm": r.get("arm", r["mode"]),
+            "real_per_batch": r.get("real_per_batch", 4),
             "executed_updates": r["steps"],
             "parameters": sum(p.numel() for p in model.parameters()),
             "parameter_absolute_change": sum(
