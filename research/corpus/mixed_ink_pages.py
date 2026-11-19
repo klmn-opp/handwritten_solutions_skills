@@ -10,7 +10,8 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from hwsol.profiles.io import atomic_json, sha256
+from research.corpus.context_content_train import digest as sha256
+from research.corpus.context_content_train import write as atomic_json
 
 
 def text_groups(source, identity, records, profile):
