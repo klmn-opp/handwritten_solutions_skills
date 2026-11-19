@@ -258,3 +258,9 @@ checkpoint所依赖数据必须精确匹配extension父版本；不能替换旧�
 本轮最终339真实Train/52类+71Validation+178字体辅助/75类，model标签与human标签仍分开。
 `prior_support_weight`默认0，实验可加入同类别完整Train距离场约束，绝不读取Validation/Holdout支持图。
 详见[V09_EXPANDED_CORPUS_TRAINING](V09_EXPANDED_CORPUS_TRAINING.md)；模型输出依旧是offline image generation。
+
+
+## v0.10.5 新配对材料与整词框
+
+见[V0105_DATA](V0105_DATA.md)。新62真实区域保留原件/300DPI坐标/高置信Sol来源，C仅封存。
+独立候选Corpus和版本化dataset不覆盖旧Studio数据库，印刷公式仅作辅助，不会自动修正实际书写标签。
