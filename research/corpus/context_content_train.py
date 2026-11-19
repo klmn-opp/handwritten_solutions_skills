@@ -15,7 +15,7 @@ def write(path, value):
     Path(path).write_text(json.dumps(value, indent=2, ensure_ascii=False))
 
 
-def train(views: Path, arm: str, warmup: Path | None = None) -> Path:
+def train(views: Path, arm: str, warmup: Path | None = None, resume: Path | None = None) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
@@ -41,6 +41,8 @@ def train(views: Path, arm: str, warmup: Path | None = None) -> Path:
         "teacher": str(teacher),
         "warmup": str(warmup.resolve()) if warmup else None,
         "warmup_sha256": digest(warmup) if warmup else None,
+        "resume": str(resume.resolve()) if resume else None,
+        "resume_sha256": digest(resume) if resume else None,
         "checkpoint_selection": "fixed final, no winner selection",
         "stochastic_style": False,
         "teacher_sha256": {
@@ -126,6 +128,25 @@ def worker(request_path: Path):
         model.load_state_dict(
             torch.load(r["warmup"], map_location="cuda", weights_only=True)["model"]
         )
+    restored = None
+    if r.get("resume"):
+        if digest(r["resume"]) != r["resume_sha256"]:
+            raise ValueError("Resume checkpoint mutated")
+        restored = torch.load(r["resume"], map_location="cuda", weights_only=True)
+        for key in [
+            "views_sha256",
+            "arrays_sha256",
+            "samples_sha256",
+            "arm",
+            "steps",
+            "lr",
+            "real_per_batch",
+            "content_weight",
+            "content_every",
+        ]:
+            if restored["request"][key] != r[key]:
+                raise ValueError("Resume protocol differs: " + key)
+        model.load_state_dict(restored["model"])
     initial = {k: v.clone() for k, v in model.state_dict().items()}
     torch.save(initial, run / "logs/initial-state.pt")
     optimizer = torch.optim.AdamW(model.parameters(), lr=r["lr"])
@@ -136,6 +157,12 @@ def worker(request_path: Path):
         if teacher
         else None
     )
+    start_step = restored["step"] if restored else 0
+    if restored:
+        optimizer.load_state_dict(restored["optimizer"])
+        torch.set_rng_state(restored["rng_torch"].cpu())
+        torch.cuda.set_rng_state_all([state.cpu() for state in restored["rng_cuda"]])
+        rng.bit_generator.state = json.loads(restored["rng_numpy"])
     history = []
     evaluations = []
     started = time.perf_counter()
@@ -183,8 +210,8 @@ def worker(request_path: Path):
         write(run / f"reports/validation-{step:04d}.json", metrics)
         model.train()
 
-    evaluate(0)
-    for step in range(1, r["steps"] + 1):
+    evaluate(start_step)
+    for step in range(start_step + 1, r["steps"] + 1):
         chosen = torch.tensor(rng.choice(ids, 4, replace=True), device="cuda")
         ref = x["reference"][chosen]
         target_key = "aligned" if r["arm"].startswith("aligned") else "raw"
@@ -257,6 +284,8 @@ def worker(request_path: Path):
             "actual_parameter_training": True,
             "arm": r["arm"],
             "steps": r["steps"],
+            "executed_updates": r["steps"] - start_step,
+            "resumed_from_step": start_step,
             "train_real_regions": len(ids) if real else 0,
             "font_text_conditions": len(ids),
             "seconds": elapsed,
@@ -282,8 +311,9 @@ if __name__ == "__main__":
     p.add_argument("path", type=Path)
     p.add_argument("--arm")
     p.add_argument("--warmup", type=Path)
+    p.add_argument("--resume", type=Path)
     a = p.parse_args()
     if a.mode == "worker":
         worker(a.path)
     else:
-        print(train(a.path, a.arm, a.warmup))
+        print(train(a.path, a.arm, a.warmup, a.resume))
