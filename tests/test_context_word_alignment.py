@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import cv2
 import numpy as np
 import pytest
 from matplotlib import get_data_path
@@ -30,6 +31,11 @@ def test_word_alignment_keeps_punctuation_and_descenders_without_modifying_sourc
     assert not meta["character_segmentation"] and not meta["ink_repair"]
     assert len(meta["words"]) == 1
     mask = target > 0.3
-    # Dot remains a separate nonempty column group near the right of the word.
-    assert mask.any(0).sum() > 30
+    _, _, components, _ = cv2.connectedComponentsWithStats(mask.astype("uint8"))
+    components = sorted(components[1:], key=lambda item: item[0])
+    assert len(components) == 5
+    assert components[-1][3] < min(item[3] for item in components[:-1])
+    assert (
+        max(item[1] + item[3] for item in components[:-1]) > components[-1][1] + components[-1][3]
+    )
     assert meta["derived_view_not_original_sample"]

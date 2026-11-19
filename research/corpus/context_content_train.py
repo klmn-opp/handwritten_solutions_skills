@@ -29,6 +29,7 @@ def train(views: Path, arm: str, warmup: Path | None = None) -> Path:
         "views": str(views.resolve()),
         "views_sha256": digest(views / "run.json"),
         "arrays_sha256": digest(views / "reports/arrays.npz"),
+        "samples_sha256": digest(views / "reports/samples.json"),
         "arm": arm,
         "steps": 1500 if arm == "font-warmup" else 2000,
         "batch": 4,
@@ -92,8 +93,14 @@ def worker(request_path: Path):
     r = json.loads(request_path.read_text())
     run = Path(r["run"])
     views = Path(r["views"])
-    if digest(views / "reports/arrays.npz") != r["arrays_sha256"]:
+    if (
+        digest(views / "reports/arrays.npz") != r["arrays_sha256"]
+        or digest(views / "reports/samples.json") != r["samples_sha256"]
+    ):
         raise ValueError("Data mutated")
+    for relative, expected in (r["teacher_sha256"] or {}).items():
+        if digest(Path(r["teacher"]) / relative) != expected:
+            raise ValueError("Teacher source mutated")
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA required")
     torch.set_num_threads(2)
