@@ -276,3 +276,9 @@ word_style_data从已审词边界反推原裁剪像素；524候选经Sol逐项�
 512词原数据不变；373Train/268标签通过无折叠/边界/形状准入，坐标监督可反查原词及PDF。
 配准场是derived-registration，配准后字体不是real-personal；两组神经模型只从Train坐标监督学习。
 词级输入保留完整ASCII且拒绝静默截断；60旧开发和C均不进入训练。详见[V0107_GO_NO_GO](V0107_GO_NO_GO.md)。
+
+
+## v0.10.8 数据角色不变
+
+本轮只改变冻结模型的输出采样/局部约束，512真实词及原Corpus不变。4倍字体栅格参考是personal-font派生物，不新增真实样本计数；模型/非学习对照均不得回填real-personal。
+16项作者旧候选评分绑定原图并保留split，仅评价/规划。4句仍为exposed-train-composition；C不阅览、不进入训练/识别。见[V0108_GO_NO_GO](V0108_GO_NO_GO.md)。
