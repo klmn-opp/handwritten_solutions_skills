@@ -61,7 +61,7 @@ def placed_path(item, renderer) -> MplPath:
     return MplPath(outline.verts @ np.array([[a, b], [c, d]]) + (e, f), outline.codes)
 
 
-def join_radicals(page, renderer, provenance: list[dict]) -> list[dict]:
+def join_radicals(page, renderer, provenance: list[dict], *, snug=False) -> list[dict]:
     """Keep MathText radicand slots; join the observed stem to one fitted overbar."""
     signs = [r for r in provenance if r["structure"] == "radical-sign"]
     bars = [r for r in provenance if r["structure"] == "radical-overbar"]
@@ -124,6 +124,22 @@ def join_radicals(page, renderer, provenance: list[dict]) -> list[dict]:
         head = closed.clip_to_bbox(Bbox.from_extents(sx - 1, sy - 1, join + 0.4, sb + 1))
         vertices = head.vertices.copy()
         vertices[:, 1] = top + (vertices[:, 1] - center) * scale
+        # A parser's sign box includes a wide terminal. Measure the actual stem
+        # beside the radicand instead of confusing that box with visible ink.
+        clean_head = MplPath.make_compound_path(
+            *(MplPath(p, closed=True) for p in MplPath(vertices, head.codes).to_polygons())
+        )
+        content_left = min(b[0] for b in contained)
+        content_top = min(b[1] for b in contained)
+        content_bottom = max(b[3] for b in contained)
+        band = clean_head.clip_to_bbox(Bbox.from_extents(sx - 1, content_top, br, content_bottom))
+        real = band.vertices[band.codes != MplPath.CLOSEPOLY]
+        before_gap = float(content_left - real[:, 0].max()) if len(real) else None
+        dx = 0.0
+        if snug and before_gap is not None:
+            dx = max(0.0, min(before_gap - 0.12 * em, br - join - 0.06 * em))
+            vertices[:, 0] += dx
+            join += dx
         thickness = (high - low) * scale
         if thickness < 0.65:
             changes.append({"item_index": si, "applied": False, "reason": "terminal_too_thin"})
@@ -159,6 +175,10 @@ def join_radicals(page, renderer, provenance: list[dict]) -> list[dict]:
                 "stem_source": sign["source_type"],
                 "bar_source": "procedural-extension-matched-to-stem",
                 "new_personal_collection": False,
+                "snug": snug,
+                "horizontal_stem_shift": dx,
+                "stem_to_content_gap_before": before_gap,
+                "stem_to_content_gap_after": before_gap - dx if before_gap is not None else None,
             }
         )
     return changes

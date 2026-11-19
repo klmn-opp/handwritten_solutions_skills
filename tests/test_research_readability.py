@@ -33,7 +33,8 @@ def test_blank_and_single_word_do_not_gain_artificial_ink():
     assert word_positions([30], 5, 50, 40) == ([5.0], 0.0)
 
 
-def test_radical_join_ignores_closepoly_dummy_and_keeps_radicand():
+@pytest.mark.parametrize("snug", [False, True])
+def test_radical_join_ignores_closepoly_dummy_and_keeps_radicand(snug):
     from types import SimpleNamespace
 
     from handnote.vector import Outline
@@ -67,7 +68,7 @@ def test_radical_join_ignores_closepoly_dummy_and_keeps_radicand():
         {**shared, "item_index": 1, "structure": "radical-overbar", "bounds_px": [9, 0, 25, 2]},
         {**shared, "item_index": 2, "structure": None, "bounds_px": [13, 10, 20, 18]},
     ]
-    result = join_radicals(page, renderer, records)
+    result = join_radicals(page, renderer, records, snug=snug)
     assert result[0]["applied"]
     assert page.items[2] == original_digit
     new = renderer._outlines[page.items[0][1]]
@@ -75,6 +76,9 @@ def test_radical_join_ignores_closepoly_dummy_and_keeps_radicand():
     assert new.verts[keep, 0].min() >= 0
     assert new.verts[keep, 0].max() <= result[0]["terminal_join_x"] + 0.41
     assert not result[0]["new_personal_collection"]
+    if snug:
+        assert result[0]["stem_to_content_gap_after"] == pytest.approx(0.12 * 40)
+        assert result[0]["horizontal_stem_shift"] > 0
 
 
 def test_word_spacing_keeps_bounded_existing_rhythm():

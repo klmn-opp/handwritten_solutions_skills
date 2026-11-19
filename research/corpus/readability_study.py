@@ -44,14 +44,16 @@ def image_unit(ink, x, y, em, compact):
     )
 
 
-def repair_page(info, profile, cfg, words, controls, old_records, *, spacing=True, radicals=True):
+def repair_page(
+    info, profile, cfg, words, controls, old_records, *, spacing=True, radicals=True, snug=False
+):
     from hwsol.jobs.provenance import item_bounds
 
     page, renderer, provenance = layout(info["source"], info["identity"], profile, cfg)
     if provenance != info["provenance"]:
         raise ValueError("Frozen source no longer replays")
     original_items = list(page.items)
-    radical_report = join_radicals(page, renderer, provenance) if radicals else []
+    radical_report = join_radicals(page, renderer, provenance, snug=snug) if radicals else []
     groups = text_groups(info["source"], info["identity"], provenance, profile)
     lookup = {tuple(q["items"]): q for q in words}
     old = {q["word_id"]: q for q in old_records}
@@ -208,7 +210,7 @@ def repair_page(info, profile, cfg, words, controls, old_records, *, spacing=Tru
     )
 
 
-def build(source: Path, model_output: Path, *, spacing=True, radicals=True) -> Path:
+def build(source: Path, model_output: Path, *, spacing=True, radicals=True, snug=False) -> Path:
     import pypdfium2 as pdfium
     from pypdf import PdfReader, PdfWriter
 
@@ -234,6 +236,7 @@ def build(source: Path, model_output: Path, *, spacing=True, radicals=True) -> P
             "math_personal_coverage_increased": False,
             "spacing": spacing,
             "radicals": radicals,
+            "snug": snug,
         },
     )
     try:
@@ -257,6 +260,7 @@ def build(source: Path, model_output: Path, *, spacing=True, radicals=True) -> P
                 records,
                 spacing=spacing,
                 radicals=radicals,
+                snug=snug,
             )
             report["page"] = ci
             reports.append(report)
@@ -264,7 +268,7 @@ def build(source: Path, model_output: Path, *, spacing=True, radicals=True) -> P
             pdf.write_bytes(
                 label_pdf(
                     renderer.to_vector_pdf([page]),
-                    f"v01010 spacing={spacing} radicals={radicals}",
+                    f"spacing={spacing} radicals={radicals} snug={snug}",
                     "Handnote + joined radicals" if radicals else "unchanged Handnote",
                 )
             )
@@ -312,6 +316,7 @@ if __name__ == "__main__":
     p.add_argument("model_output", type=Path)
     p.add_argument("--no-spacing", action="store_true")
     p.add_argument("--no-radicals", action="store_true")
+    p.add_argument("--snug-radicals", action="store_true")
     args = p.parse_args()
     print(
         build(
@@ -319,5 +324,6 @@ if __name__ == "__main__":
             args.model_output,
             spacing=not args.no_spacing,
             radicals=not args.no_radicals,
+            snug=args.snug_radicals,
         )
     )
