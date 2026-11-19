@@ -34,6 +34,9 @@ class SemanticInk(nn.Module):
     def neighbour_features(self, ids):
         return self.neighbour(ids) * self.context_scale
 
+    def character_features(self, ids, radii):
+        return self.character(ids)
+
     def writer_features(self, xy, style):
         if style is not None:
             raise ValueError("This deterministic model has no random word variable")
@@ -69,12 +72,13 @@ class SemanticInk(nn.Module):
         xy = uv.gather(2, ids[..., None].expand(-1, -1, -1, 2))
         batch = torch.arange(len(tokens), device=tokens.device)[:, None, None]
         local = tokens[batch, ids]
+        local_radii = radii[batch, ids]
         xy = self.local_coordinates(xy, local, style)
         angle = xy[..., None] * self.frequencies
         pe = torch.cat([xy, angle.sin().flatten(-2), angle.cos().flatten(-2)], -1)
         features = torch.cat(
             [
-                self.character(local[..., 0]),
+                self.character_features(local[..., 0], local_radii),
                 self.neighbour_features(local[..., 1]),
                 self.neighbour_features(local[..., 2]),
                 self.writer_features(xy, style),
@@ -149,6 +153,30 @@ class AutoDecodedSemanticInk(ContextualSemanticInk):
             raise ValueError("Explicit two-dimensional shared word code required")
         writer = self.writer[None] + self.style_projection(style)
         return writer[:, None, None].expand(*xy.shape[:-1], -1)
+
+
+class MetricSemanticInk(ContextualSemanticInk):
+    """Expose actual glyph scale/aspect to avoid contradictory normalized ink targets."""
+
+    architecture = "semantic-metric-ink-field/1"
+
+    def __init__(self):
+        super().__init__()
+        self.metric_projection = nn.Linear(2, 32, bias=False)
+        nn.init.zeros_(self.metric_projection.weight)
+
+    def load_identity(self, state):
+        result = self.load_state_dict(state, strict=False)
+        if (
+            set(result.missing_keys) != {"context_gate", "metric_projection.weight"}
+            or result.unexpected_keys
+        ):
+            raise ValueError("Only new metric projection and context gate may be absent")
+
+    def character_features(self, ids, radii):
+        width, height = radii.unbind(-1)
+        metrics = torch.stack([(width / height).log(), (height / 24).log()], -1)
+        return self.character(ids) + self.metric_projection(metrics.clamp(-5, 5))
 
 
 class WordLatentSemanticInk(ContextualSemanticInk):

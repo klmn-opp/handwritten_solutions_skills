@@ -25,6 +25,7 @@ def launch(data: Path, arm="initial", resume: Path | None = None, warmup: Path |
         "anchor-font",
         "anchor-real",
         "raw-real",
+        "raw-metric",
     }:
         raise ValueError("Unknown preregistered arm")
     if (arm == "identity-extended") != (resume is not None):
@@ -36,6 +37,7 @@ def launch(data: Path, arm="initial", resume: Path | None = None, warmup: Path |
         "anchor-font",
         "anchor-real",
         "raw-real",
+        "raw-metric",
     }
     if real != (warmup is not None):
         raise ValueError("Real supervision requires the frozen content model")
@@ -43,7 +45,9 @@ def launch(data: Path, arm="initial", resume: Path | None = None, warmup: Path |
         "data": str(data.resolve()),
         "data_sha256": digest(data / "run.json"),
         "arrays_sha256": digest(data / "reports/arrays.npz"),
-        "architecture": "semantic-neighbour-ink-field/2"
+        "architecture": "semantic-metric-ink-field/1"
+        if arm == "raw-metric"
+        else "semantic-neighbour-ink-field/2"
         if real
         else "semantic-neighbour-ink-field/1",
         "seed": 3015,
@@ -67,18 +71,19 @@ def launch(data: Path, arm="initial", resume: Path | None = None, warmup: Path |
         else "personal-font-derived auxiliary, zero real scans",
         "input": "text identities, neighbours, layout bounds; NO image/outline",
         "stochastic_inference": False,
-        "target_derived_training_geometry": arm in {"anchor-real", "raw-real"},
+        "target_derived_training_geometry": arm in {"anchor-real", "raw-real", "raw-metric"},
         "target_derived_generation_geometry": False,
         "C_used": False,
         "protocol_sha256": digest(
-            Path("docs/V01016_PROTOCOL.md" if arm == "raw-real" else "docs/V01015_PROTOCOL.md")
+            Path("docs/V01016_PROTOCOL.md" if arm.startswith("raw-") else "docs/V01015_PROTOCOL.md")
         ),
-        "real_target_inverse_registered": False if arm == "raw-real" else real,
+        "real_target_inverse_registered": False if arm.startswith("raw-") else real,
+        "metric_conditioning": arm == "raw-metric",
     }
     run = create("semantic-ink-font-capacity", seed=r["seed"], config=r)
     write(run.path / "reports/request.json", {**r, "run": str(run.path)})
     pointer = "font" if arm == "initial" else arm
-    version = "v01016" if arm == "raw-real" else "v01015"
+    version = "v01016" if arm.startswith("raw-") else "v01015"
     Path(f"/tmp/context-{version}-{pointer}").write_text(str(run.path))
     print(run.path, flush=True)
     try:
@@ -113,7 +118,11 @@ def worker(request: Path):
     from torch.nn import functional as F
 
     from research.corpus.aligned_style_experiment import setup
-    from research.corpus.semantic_ink_model import ContextualSemanticInk, SemanticInk
+    from research.corpus.semantic_ink_model import (
+        ContextualSemanticInk,
+        MetricSemanticInk,
+        SemanticInk,
+    )
 
     r = json.loads(request.read_text())
     setup(r["seed"])
@@ -122,9 +131,17 @@ def worker(request: Path):
     assert digest(data / "reports/arrays.npz") == r["arrays_sha256"]
     with np.load(data / "reports/arrays.npz") as archive:
         arrays = {key: archive[key] for key in archive.files}
-    if r["arm"] in {"anchor-real", "raw-real"}:
+    if r["arm"] in {"anchor-real", "raw-real", "raw-metric"}:
         arrays["inference_boxes"] = arrays["boxes"].copy()
         arrays["boxes"] = arrays["anchor_boxes"]
+    if r["arm"] == "raw-metric":
+        from research.corpus.semantic_raw_data import apply_metrics
+
+        arrays["inference_boxes"] = apply_metrics(
+            arrays["tokens"],
+            arrays["inference_boxes"],
+            json.loads((data / "reports/class-metrics.json").read_text()),
+        )
     idx = json.loads((data / "reports/indices.json").read_text())
     rows = json.loads((data / "reports/samples.json").read_text())
     train = idx["train"]
@@ -139,7 +156,9 @@ def worker(request: Path):
         assert digest(r["warmup"]) == r["warmup_sha256"]
         saved = torch.load(r["warmup"], map_location="cuda", weights_only=False)
         assert saved["step"] == 24000 and saved["config"]["arm"] == "identity-extended"
-        model = ContextualSemanticInk().cuda()
+        model = (
+            MetricSemanticInk() if r["arm"] == "raw-metric" else ContextualSemanticInk()
+        ).cuda()
         model.load_identity(saved["model"])
     else:
         model = SemanticInk(
@@ -232,7 +251,7 @@ def worker(request: Path):
     model.eval()
     images, metrics = [], []
     evaluated = (
-        (train if r["arm"].startswith("anchor-") or r["arm"] == "raw-real" else train[:12])
+        (train if r["arm"].startswith(("anchor-", "raw-")) else train[:12])
         + idx["development"]
         + idx["novel"]
     )

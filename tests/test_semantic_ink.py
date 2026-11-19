@@ -31,6 +31,27 @@ class SemanticGeometry(unittest.TestCase):
 
 @unittest.skipUnless(importlib.util.find_spec("torch"), "Torch remains optional")
 class SemanticLearning(unittest.TestCase):
+    def test_metric_conditioning_exposes_scale_without_reference_pixels(self):
+        import torch
+
+        from research.corpus.semantic_ink_model import MetricSemanticInk, SemanticInk
+
+        base = SemanticInk(context_scale=0)
+        model = MetricSemanticInk()
+        model.load_identity(base.state_dict())
+        tokens = torch.tensor([[[112, 0, 0]]])
+        boxes = torch.tensor([[[10, 10, 30, 40]]]).float()
+        points = torch.tensor([[[18, 20]]]).float()
+        a = model(tokens, boxes, points)[0]
+        self.assertTrue(torch.equal(a, base(tokens, boxes, points)[0]))
+        a.sum().backward()
+        self.assertGreater(float(model.metric_projection.weight.grad.abs().sum()), 0)
+        with torch.no_grad():
+            model.metric_projection.weight.fill_(0.1)
+        small = model(tokens, boxes, points)[0]
+        large = model(tokens, boxes * 2, points * 2)[0]
+        self.assertFalse(torch.equal(small, large))
+
     def test_optimized_training_codes_are_not_required_by_decoder_at_generation(self):
         import torch
 
