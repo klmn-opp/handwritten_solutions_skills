@@ -8,7 +8,7 @@ from pathlib import Path
 from research.corpus.context_content_train import digest, write
 
 
-def launch(data: Path, warmup: Path) -> Path:
+def launch(data: Path, warmup: Path, resume: Path | None = None) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
@@ -20,7 +20,9 @@ def launch(data: Path, warmup: Path) -> Path:
         "warmup": str(warmup.resolve()),
         "warmup_sha256": digest(warmup),
         "seed": 3015,
-        "steps": 4000,
+        "steps": 16000 if resume else 4000,
+        "resume": str(resume.resolve()) if resume else None,
+        "resume_sha256": digest(resume) if resume else None,
         "batch": 4,
         "points": 2048,
         "model_lr": 0.0001,
@@ -36,7 +38,8 @@ def launch(data: Path, warmup: Path) -> Path:
     }
     run = create("semantic-word-autodecoder", seed=r["seed"], config=r)
     write(run.path / "reports/request.json", {**r, "run": str(run.path)})
-    Path("/tmp/context-v01016-autodecoder").write_text(str(run.path))
+    name = "autodecoder-extended" if resume else "autodecoder"
+    Path(f"/tmp/context-v01016-{name}").write_text(str(run.path))
     print(run.path, flush=True)
     try:
         with (run.path / "logs/worker.log").open("w") as log:
@@ -97,9 +100,6 @@ def worker(request: Path) -> None:
     model = AutoDecodedSemanticInk().cuda()
     model.load_identity(saved["model"])
     codes = torch.nn.Parameter(torch.randn(len(train), r["latent"], device="cuda"))
-    initial_codes = codes.detach().clone()
-    initial = {k: v.detach().clone() for k, v in model.state_dict().items()}
-    torch.save({"model": initial, "codes": initial_codes}, run / "logs/initial-state.pt")
     optimizer = torch.optim.AdamW(
         [
             {"params": model.parameters(), "lr": r["model_lr"]},
@@ -107,6 +107,24 @@ def worker(request: Path) -> None:
         ]
     )
     rng = np.random.default_rng(r["seed"])
+    start = 0
+    if r.get("resume"):
+        assert digest(r["resume"]) == r["resume_sha256"]
+        previous = torch.load(r["resume"], map_location="cuda", weights_only=False)
+        assert previous["step"] == 4000
+        assert previous["config"]["arrays_sha256"] == r["arrays_sha256"]
+        assert previous["training_indices"] == train
+        model.load_state_dict(previous["model"])
+        with torch.no_grad():
+            codes.copy_(previous["training_codes"])
+        optimizer.load_state_dict(previous["optimizer"])
+        rng.bit_generator.state = previous["numpy_rng"]
+        torch.set_rng_state(previous["torch_rng"].cpu())
+        torch.cuda.set_rng_state_all([q.cpu() for q in previous["cuda_rng"]])
+        start = previous["step"]
+    initial_codes = codes.detach().clone()
+    initial = {k: v.detach().clone() for k, v in model.state_dict().items()}
+    torch.save({"model": initial, "codes": initial_codes}, run / "logs/initial-state.pt")
     counts = np.zeros(len(rows), np.int64)
     curve = []
     begin = time.perf_counter()
@@ -115,7 +133,7 @@ def worker(request: Path) -> None:
         run / "reports/dependencies.json",
         {k: importlib.metadata.version(k) for k in ["torch", "numpy", "pillow"]},
     )
-    for step in range(1, r["steps"] + 1):
+    for step in range(start + 1, start + r["steps"] + 1):
         positions = rng.choice(len(train), r["batch"])
         ii = np.asarray(train)[positions]
         np.add.at(counts, ii, 1)
@@ -242,8 +260,8 @@ def worker(request: Path) -> None:
         run / "reports/result.json",
         {
             "new_model_updates": r["steps"],
-            "inherited_model_updates": 24000,
-            "model_lineage_updates": 28000,
+            "inherited_model_updates": 24000 + start,
+            "model_lineage_updates": 24000 + start + r["steps"],
             "actual_parameter_training": True,
             "training_code_parameters": codes.numel(),
             "parameters": sum(p.numel() for p in model.parameters()),
@@ -254,7 +272,7 @@ def worker(request: Path) -> None:
             "seconds_training_and_generation": time.perf_counter() - begin,
             "peak_cuda_allocated": torch.cuda.max_memory_allocated(),
             "gpu": torch.cuda.get_device_name(),
-            "checkpoint_sha256": digest(run / "logs/checkpoint-04000.pt"),
+            "checkpoint_sha256": digest(run / f"logs/checkpoint-{start + r['steps']:05d}.pt"),
             "prior_outputs": 84,
             "training_reconstruction_outputs": len(train),
             "real_draws": int(counts[train].sum()),
@@ -271,8 +289,9 @@ if __name__ == "__main__":
     p.add_argument("mode", choices=["train", "worker"])
     p.add_argument("path", type=Path)
     p.add_argument("--warmup", type=Path)
+    p.add_argument("--resume", type=Path)
     args = p.parse_args()
     if args.mode == "worker":
         worker(args.path)
     else:
-        launch(args.path, args.warmup)
+        launch(args.path, args.warmup, args.resume)
