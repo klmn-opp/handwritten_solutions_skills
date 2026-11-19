@@ -53,3 +53,18 @@ def test_all_hard_cases_use_supported_latex_and_exact_text_groups(tmp_path):
         groups = text_groups(source, title, records, profile)
         assert "".join(g["text"] for g in groups) == "".join(r["semantic"] for r in records)
         assert sorted(i for g in groups for i in g["items"]) == list(range(len(records)))
+
+
+def test_changed_neighbours_cannot_meet_inside_an_original_gap():
+    import numpy as np
+
+    from research.corpus.mixed_ink_pages import collision_reason
+
+    original = np.array([[10, 10, 20, 20], [40, 10, 50, 20]], dtype=float)
+    first = np.array([18, 10, 32, 20])
+    second = np.array([30, 10, 43, 20])
+    assert collision_reason(first, original, [0], 100, 100) is None
+    assert collision_reason(second, original, [1], 100, 100) is None
+    occupied = original.copy()
+    occupied[0] = first
+    assert collision_reason(second, occupied, [1], 100, 100) == "would_overlap_neighbour"

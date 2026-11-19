@@ -14,6 +14,16 @@ from research.corpus.context_content_train import digest as sha256
 from research.corpus.context_content_train import write as atomic_json
 
 
+def collision_reason(box, occupied, ignored, width, height):
+    if min(box[:2]) < 3 or box[2] > width - 3 or box[3] > height - 3:
+        return "page_boundary"
+    overlap = (np.minimum(occupied[:, 2:], box[2:]) - np.maximum(occupied[:, :2], box[:2]) > 0).all(
+        1
+    )
+    overlap[ignored] = False
+    return "would_overlap_neighbour" if overlap.any() else None
+
+
 def text_groups(source, identity, records, profile):
     from hwsol.jobs.layout import validate_markdown
 
@@ -246,6 +256,7 @@ def compose(source: Path, models: dict[str, Path]) -> Path:
             for name in methods:
                 page = copy.copy(base)
                 page.items = list(base.items)
+                occupied = all_boxes.copy()
                 replacements = {}
                 removed = set()
                 records = []
@@ -271,16 +282,7 @@ def compose(source: Path, models: dict[str, Path]) -> Path:
                         bb = np.array(
                             [xx.min() + x, yy.min() + y, xx.max() + x + 1, yy.max() + y + 1]
                         )
-                        overlap = (
-                            np.minimum(all_boxes[:, 2:], bb[2:])
-                            - np.maximum(all_boxes[:, :2], bb[:2])
-                            > 0
-                        ).all(1)
-                        overlap[q["items"]] = False
-                        if overlap.any():
-                            reason = "would_overlap_original_neighbour"
-                        if min(bb[:2]) < 3 or bb[2] > base.width - 3 or bb[3] > base.height - 3:
-                            reason = "page_boundary"
+                        reason = collision_reason(bb, occupied, q["items"], base.width, base.height)
                     raw = run.path / f"comparisons/{name}-word-{q['id']:04d}.png"
                     Image.fromarray(np.uint8((1 - ink) * 255)).save(raw)
                     record = {
@@ -297,10 +299,14 @@ def compose(source: Path, models: dict[str, Path]) -> Path:
                         "original_glyph_provenance": [provenance[i] for i in q["items"]],
                         "free_ink_generation": False,
                         "seed": 1910,
+                        "generated_bounds_px": bb.tolist() if len(xx) else None,
                     }
                     records.append(record)
                     if reason:
                         continue
+                    # Check later candidates against accepted placements as well as
+                    # untouched originals; two shifts must not meet inside an old gap.
+                    occupied[q["items"]] = bb
                     rgba = np.zeros((*ink.shape, 4), np.uint8)
                     rgba[:, :, 3] = np.uint8(ink * 255)
                     replacements[q["items"][0]] = (
