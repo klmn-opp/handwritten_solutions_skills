@@ -77,7 +77,9 @@ def prepare(parent: Path) -> Path:
     return r.path
 
 
-def launch(arm: str, admission: Path) -> Path:
+def launch(
+    arm: str, admission: Path, *, continuation: Path | None = None, gate: Path | None = None
+) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
@@ -85,18 +87,35 @@ def launch(arm: str, admission: Path) -> Path:
         raise ValueError("Only fixed equal-budget noise arms enabled")
     for p in [DATA, admission, BASE.parent.parent, CODEC.parent.parent]:
         verify_run(p)
+    base = BASE
+    train_key = "capacity"
+    gate_hash = None
+    if continuation is not None:
+        if gate is None:
+            raise ValueError("Frozen content gate required for expansion")
+        verify_run(continuation)
+        decision = json.loads(gate.read_text())
+        if decision["selected_arm"] != arm or not decision["expansion_allowed"]:
+            raise ValueError("Content gate did not authorize this arm")
+        if digest(continuation / "run.json") != decision["selected_run_sha256"]:
+            raise ValueError("Gate and continuation do not match")
+        base = continuation / "logs/checkpoint-04000.pt"
+        train_key = "expanded"
+        gate_hash = digest(gate)
     r = {
         "arm": arm,
+        "stage": train_key,
+        "gate_sha256": gate_hash,
         "data": str(DATA.resolve()),
         "data_sha256": digest(DATA / "run.json"),
         "arrays_sha256": digest(DATA / "reports/arrays.npz"),
         "admission": str(admission.resolve()),
         "admission_sha256": digest(admission / "run.json"),
-        "base": str(BASE.resolve()),
-        "base_sha256": digest(BASE),
+        "base": str(base.resolve()),
+        "base_sha256": digest(base),
         "codec": str(CODEC.resolve()),
         "codec_sha256": digest(CODEC),
-        "steps": 4000,
+        "steps": 4000 if continuation is None else 6000,
         "batch": 8,
         "lr": 0.0002,
         "seed": 2414,
@@ -108,14 +127,17 @@ def launch(arm: str, admission: Path) -> Path:
         "C_used": False,
         "protocol_sha256": digest(Path("docs/V01014_PROTOCOL.md")),
     }
-    run = create("content-cycle-" + arm, config=r, seed=r["seed"])
+    run = create("content-cycle-" + train_key + "-" + arm, config=r, seed=r["seed"])
     print(run.path, flush=True)
     try:
         import numpy as np
 
+        if gate is not None:
+            (run.path / "reports/admission-gate.json").write_bytes(gate.read_bytes())
+
         from research.corpus.thin_ink_data import component_weights
 
-        ids = json.loads((admission / "reports/indices.json").read_text())["capacity"]
+        ids = json.loads((admission / "reports/indices.json").read_text())[train_key]
         targets = np.load(DATA / "reports/arrays.npz")["target"]
         np.save(
             run.path / "reports/components.npy",
@@ -180,15 +202,15 @@ def worker(path: Path) -> None:
         if digest(p) != h:
             raise ValueError("Changed frozen input")
     indices = json.loads((admission / "reports/indices.json").read_text())
-    train = indices["capacity"]
+    train = indices[r.get("stage", "capacity")]
     evaluated = train + indices["novel"]
     rows = json.loads((data / "reports/samples.json").read_text())
     a = np.load(data / "reports/arrays.npz")
     targets = a["target"]
     references = a["reference"]
     assert (
-        len(train) == 24
-        and len(set(train)) == 24
+        len(train) >= 24
+        and len(set(train)) == len(train)
         and all(rows[i]["dataset_split"] == "train" for i in train)
     )
     target = torch.tensor(targets[train, None], device="cuda")
@@ -208,7 +230,7 @@ def worker(path: Path) -> None:
     torch.save(initial, run / "logs/initial-state.pt")
     with torch.no_grad():
         code = (
-            torch.cat([codec.encode(target[k : k + 16]) for k in range(0, 24, 16)]) - mean
+            torch.cat([codec.encode(target[k : k + 16]) for k in range(0, len(train), 16)]) - mean
         ) / std
         refcode = (
             torch.cat([codec.encode(ref[k : k + 16]) for k in range(0, len(rows), 16)]) - mean
@@ -217,7 +239,7 @@ def worker(path: Path) -> None:
     rng = np.random.default_rng(r["seed"])
     ng = torch.Generator(device="cuda").manual_seed(r["seed"])
     curve = []
-    counts = np.zeros(24, dtype=np.int64)
+    counts = np.zeros(len(train), dtype=np.int64)
     begin = time.perf_counter()
     torch.cuda.reset_peak_memory_stats()
     write(
@@ -229,7 +251,7 @@ def worker(path: Path) -> None:
         {"train": train, "evaluated": evaluated, "novel": indices["novel"]},
     )
     for step in range(1, r["steps"] + 1):
-        ii = rng.choice(24, r["batch"], replace=True)
+        ii = rng.choice(len(train), r["batch"], replace=True)
         np.add.at(counts, ii, 1)
         jj = np.array(train)[ii]
         t = 0.005 + 0.99 * torch.rand(len(ii), device="cuda", generator=ng)
@@ -360,10 +382,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("mode", choices=["prepare", "uniform", "endpoint", "worker"])
     parser.add_argument("path", type=Path)
+    parser.add_argument("--continuation", type=Path)
+    parser.add_argument("--gate", type=Path)
     args = parser.parse_args()
     if args.mode == "prepare":
         print(prepare(args.path))
     elif args.mode == "worker":
         worker(args.path)
     else:
-        print(launch(args.mode, args.path))
+        print(launch(args.mode, args.path, continuation=args.continuation, gate=args.gate))
