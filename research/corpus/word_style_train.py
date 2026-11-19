@@ -14,7 +14,7 @@ def train(data: Path, mode: str, steps: int, *, warmstart: Path | None = None) -
     from research.corpus.experiment import create
 
     if (
-        mode not in {"capacity", "deterministic", "variational", "continue", "content"}
+        mode not in {"capacity", "deterministic", "variational", "continue", "content", "fewword"}
         or steps <= 0
     ):
         raise ValueError("Finite registered mode required")
@@ -29,8 +29,12 @@ def train(data: Path, mode: str, steps: int, *, warmstart: Path | None = None) -
         "seed": 1606,
         "batch": 8,
         "lr": 0.0001 if warmstart else 0.0005,
-        "latent": 32,
-        "kl_max": 0.003 if mode in {"variational", "continue", "content"} else 0,
+        "latent": 4 if mode == "fewword" else 32,
+        "kl_max": 0.03
+        if mode == "fewword"
+        else 0.003
+        if mode in {"variational", "continue", "content"}
+        else 0,
         "teacher_used": mode == "content",
         "font_target_or_anchor": False,
         "C_used": False,
@@ -42,6 +46,8 @@ def train(data: Path, mode: str, steps: int, *, warmstart: Path | None = None) -
     }
     if warmstart:
         config["protocol_sha256"] = sha256(Path("docs/V0106_CONTENT_PROTOCOL.md"))
+    if mode == "fewword":
+        config["protocol_sha256"] = sha256(Path("docs/V0106_FEWWORD_PROTOCOL.md"))
     if mode == "content":
         teacher = Path("workspace/checkpoints/trocr-base-handwritten-v08-xet").resolve()
         config["teacher"] = str(teacher)
