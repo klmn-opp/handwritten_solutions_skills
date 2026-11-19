@@ -172,3 +172,55 @@ def prepare(views: Path) -> Path:
         run.fail(exc)
         raise
     return run.path
+
+
+def accepted_indices(reviews: list[dict], count: int) -> list[int]:
+    decisions = {}
+    for row in reviews:
+        i = row["index"]
+        if type(i) is not int or not 0 <= i < count or i in decisions:
+            raise ValueError("Duplicate or invalid word review index")
+        if row["decision"] not in {"accept", "reject"}:
+            raise ValueError("Unknown word review decision")
+        decisions[i] = row["decision"]
+    if set(decisions) != set(range(count)):
+        raise ValueError("Every derived word requires crop integrity review")
+    return [i for i in range(count) if decisions[i] == "accept"]
+
+
+def filter_reviewed(data: Path, review: Path, decisions: list[dict]) -> Path:
+    verify_run(data)
+    verify_run(review)
+    rows = json.loads((data / "reports/samples.json").read_text())
+    ids = accepted_indices(decisions, len(rows))
+    run = create(
+        "whole-word-reviewed-training-data",
+        config={
+            "source": str(data),
+            "source_sha256": sha256(data / "run.json"),
+            "review": str(review),
+            "review_sha256": sha256(review / "run.json"),
+            "C_used": False,
+            "human_review": False,
+            "labels_changed": False,
+        },
+    )
+    try:
+        arrays = np.load(data / "reports/arrays.npz")
+        np.savez_compressed(run.path / "reports/arrays.npz", **{k: arrays[k][ids] for k in arrays})
+        selected = [{**rows[i], "parent_word_index": i} for i in ids]
+        atomic_json(run.path / "reports/samples.json", selected)
+        atomic_json(run.path / "reports/decisions.json", decisions)
+        result = {
+            "words": len(ids),
+            "excluded": len(rows) - len(ids),
+            "by_split": dict(Counter(r["dataset_split"] for r in selected)),
+            "no_label_repair": True,
+            "originals_untouched": True,
+        }
+        atomic_json(run.path / "reports/audit.json", result)
+        run.finish("prepared", result=result)
+    except Exception as exc:
+        run.fail(exc)
+        raise
+    return run.path

@@ -1,9 +1,10 @@
 """Pixel provenance and whole-word geometry, without importing Torch."""
 
 import numpy as np
+import pytest
 from PIL import Image
 
-from research.corpus.word_style_data import normalize, source_box
+from research.corpus.word_style_data import accepted_indices, normalize, source_box
 
 
 def test_inverse_coordinates_and_margin():
@@ -45,3 +46,13 @@ def test_complete_descender_and_dot_survive_uniform_word_fit():
     assert out[dy : dy + max(1, round(4 * s)), dx:].max() > 0.8
     assert out[dy + round(55 * s) :, dx:].max() > 0.8
     assert not out[:8].any() and not out[-8:].any()
+
+
+def test_review_must_cover_every_crop_without_duplicates():
+    with pytest.raises(ValueError, match="Every"):
+        accepted_indices([{"index": 0, "decision": "accept"}], 2)
+    with pytest.raises(ValueError, match="Duplicate"):
+        accepted_indices([{"index": 0, "decision": "accept"}] * 2, 2)
+    assert accepted_indices(
+        [{"index": 0, "decision": "reject"}, {"index": 1, "decision": "accept"}], 2
+    ) == [1]
