@@ -13,7 +13,7 @@ def launch(data: Path, arm="initial"):
     from research.corpus.experiment import create
 
     verify_run(data)
-    if arm not in {"initial", "local-sampling", "identity-capacity"}:
+    if arm not in {"initial", "local-sampling", "identity-capacity", "smooth-identity"}:
         raise ValueError("Unknown preregistered arm")
     r = {
         "data": str(data.resolve()),
@@ -23,7 +23,8 @@ def launch(data: Path, arm="initial"):
         "seed": 3015,
         "arm": arm,
         "sampler": "foreground-uniform" if arm == "initial" else "glyph-bounds-uniform",
-        "context_scale": 0.0 if arm == "identity-capacity" else 1.0,
+        "context_scale": 0.0 if arm in {"identity-capacity", "smooth-identity"} else 1.0,
+        "smooth_coordinates": arm == "smooth-identity",
         "steps": 6000,
         "lr": 0.0005,
         "batch": 4,
@@ -85,7 +86,10 @@ def worker(request: Path):
     assert not set(train) & set(idx["development"] + idx["novel"])
     assert all(rows[i]["split"] == "train" for i in train)
     x = {k: torch.tensor(arrays[k], device="cuda") for k in arrays.files}
-    model = SemanticInk(context_scale=r.get("context_scale", 1)).cuda()
+    model = SemanticInk(
+        context_scale=r.get("context_scale", 1),
+        smooth_coordinates=r.get("smooth_coordinates", False),
+    ).cuda()
     initial = {k: v.detach().clone() for k, v in model.state_dict().items()}
     torch.save(initial, run / "logs/initial-state.pt")
     optimizer = torch.optim.AdamW(model.parameters(), lr=r["lr"])

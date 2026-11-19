@@ -13,13 +13,14 @@ from torch import nn
 class SemanticInk(nn.Module):
     architecture = "semantic-neighbour-ink-field/1"
 
-    def __init__(self, context_scale=1.0):
+    def __init__(self, context_scale=1.0, smooth_coordinates=False):
         super().__init__()
         self.character = nn.Embedding(128, 32, padding_idx=0)
         self.neighbour = nn.Embedding(128, 12, padding_idx=0)
         self.writer = nn.Parameter(torch.zeros(16))
         self.context_scale = float(context_scale)
-        self.register_buffer("frequencies", torch.tensor([1, 2, 4, 8]) * math.pi)
+        frequencies = [1, 2, 0, 0] if smooth_coordinates else [1, 2, 4, 8]
+        self.register_buffer("frequencies", torch.tensor(frequencies) * math.pi)
         self.field = nn.Sequential(
             nn.Linear(32 + 24 + 16 + 18, 128),
             nn.SiLU(),
