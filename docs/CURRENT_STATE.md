@@ -1,3 +1,23 @@
+# 当前状态：v0.10.2 去灰影训练完成，改善与细笔损失并存，待作者视觉选择
+
+分支`experiment/context-clean-ink-v0102`；[报告和验收](V0102_GO_NO_GO.md) · [研发日志](V0102_DEVELOPMENT_LOG.md)。
+以用户认可的上一轮aligned-content为起点，三臂各1500次真实CUDA更新，原171 Train/25 Val不变。
+
+- 距离场修复使25 Val外围灰墨代理减少约59%；墨量约束总墨量约减52%，但短词局部缺笔增多。
+- 旧模型固定对比度显示方案也明显减灰，明确零训练更新；所有新学习结果保留原始输出。
+- 100图Sol盲转写，主要候选均18/20完整匹配，标点和大小写歧义保留；不把模型观察当人工真实错误率。
+- 新16区域（15单词/1词组）冻结后读取，仍旧文档；短词HTR边距敏感另用固定12图校准，原指标保留。
+- 10页速览、49页全对照、4组20候选作者UI；462图CUDA重放一致，219测试全部通过。
+- 60受保护文件、14原件、原Corpus、正式CPU/Profile/latest不变。当前没有新作者评分、不自动发布。
+
+主交付：`workspace/runs/20261119T035058113853Z-context-clean-ink-v0102-3d8446a7/`。
+打开`comparisons/author-review/index.html`，只需核验内容、评价自然度/本人相似性；JSON导出到`source_pdf/review_exports/`。
+Go：保守清晰化与作者验收；No-Go：直接发布墨量约束模型、扩大当前训练、数学替换或RL。
+
+---
+
+以下保留历史状态。
+
 # 当前状态：v0.10.1 已完成对齐/内容实训，可辨读性改善，清晰度仍未达到Handnote
 
 研究分支 `experiment/context-alignment-v0101`；[完整报告和验收路径](V0101_GO_NO_GO.md) · [研发日志](V0101_DEVELOPMENT_LOG.md)。

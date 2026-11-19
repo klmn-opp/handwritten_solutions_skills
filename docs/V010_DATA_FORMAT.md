@@ -59,3 +59,14 @@ CER/WER为识别观察；空结果/弃答与真实错误分开。每个生成PNG
 `context_content_evaluate.freeze`先封候选再读取新区域；`context_evaluation_ink`的浅色回退仅用于评估显示，
 target-transforms记录黑白点，原图及训练阈值不变。识别模块用`--teacher-used`显式区分TrOCR独立性。
 `aligned-content-ink/1`是确定性整块SDF解码器，不声称在线轨迹、随机风格、自由词距或数学生成。
+
+
+## v0.10.2 去灰影扩展
+
+`ink_geometry.signed_distance`抽出为仅NumPy/OpenCV依赖的同一计算，原`reference_data`继续导出别名。
+`clean_ink_train.train(control|distance|mass)`固定从认可checkpoint起始；自一致mask由当前预测派生，
+不是新真实标签。所有原始/字体/派生正则来源在request中分开，教师保持冻结。
+冻结接口支持显式protocol摘要；评估`contrast_views={name:3}`把零更新显示增益记入每个候选的provenance，
+关闭时省略该项。它不修改模型权重、生产渲染、原始图或Profile。
+作者JSON沿用`context-human-review/1`，匿名id与图片SHA绑定，导出存放`source_pdf/review_exports/`，
+后续复核另建新run，禁止把评分写回已封存交付目录。
