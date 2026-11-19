@@ -22,11 +22,13 @@ def launch(data: Path, arm="initial", resume: Path | None = None, warmup: Path |
         "real-only",
         "real-mixed",
         "real-capacity",
+        "anchor-font",
+        "anchor-real",
     }:
         raise ValueError("Unknown preregistered arm")
     if (arm == "identity-extended") != (resume is not None):
         raise ValueError("Only the registered capacity extension restores an optimizer")
-    real = arm in {"real-only", "real-mixed", "real-capacity"}
+    real = arm in {"real-only", "real-mixed", "real-capacity", "anchor-font", "anchor-real"}
     if real != (warmup is not None):
         raise ValueError("Real supervision requires the frozen content model")
     r = {
@@ -57,6 +59,8 @@ def launch(data: Path, arm="initial", resume: Path | None = None, warmup: Path |
         else "personal-font-derived auxiliary, zero real scans",
         "input": "text identities, neighbours, layout bounds; NO image/outline",
         "stochastic_inference": False,
+        "target_derived_training_geometry": arm == "anchor-real",
+        "target_derived_generation_geometry": False,
         "C_used": False,
         "protocol_sha256": digest(Path("docs/V01015_PROTOCOL.md")),
     }
@@ -106,6 +110,9 @@ def worker(request: Path):
     assert digest(data / "reports/arrays.npz") == r["arrays_sha256"]
     with np.load(data / "reports/arrays.npz") as archive:
         arrays = {key: archive[key] for key in archive.files}
+    if r["arm"] == "anchor-real":
+        arrays["inference_boxes"] = arrays["boxes"].copy()
+        arrays["boxes"] = arrays["anchor_boxes"]
     idx = json.loads((data / "reports/indices.json").read_text())
     rows = json.loads((data / "reports/samples.json").read_text())
     train = idx["train"]
@@ -212,9 +219,14 @@ def worker(request: Path):
             )
     model.eval()
     images, metrics = [], []
-    evaluated = train[:12] + idx["development"] + idx["novel"]
+    evaluated = (
+        (train if r["arm"].startswith("anchor-") else train[:12])
+        + idx["development"]
+        + idx["novel"]
+    )
     for i in evaluated:
-        im = model.image(x["tokens"][i : i + 1], x["boxes"][i : i + 1])[0].cpu().numpy()
+        inference_boxes = x.get("inference_boxes", x["boxes"])
+        im = model.image(x["tokens"][i : i + 1], inference_boxes[i : i + 1])[0].cpu().numpy()
         path = run / f"rendered/pages/semantic-{i:04d}.png"
         Image.fromarray(np.uint8((1 - im) * 255)).save(path)
         p, gt = im > 0.5, arrays["ink"][i] > 0.5
@@ -235,6 +247,7 @@ def worker(request: Path):
                 "edge": bool(p[:2].any() or p[-2:].any() or p[:, :2].any() or p[:, -2:].any()),
                 "input_reference_image": False,
                 "target_read_for_output": False,
+                "target_geometry_read_for_output": False,
             }
         )
     np.savez_compressed(run / "reports/generated.npz", ink=np.array(images))
