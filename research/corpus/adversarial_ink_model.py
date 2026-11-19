@@ -22,6 +22,15 @@ class InkPatchCritic(nn.Module):
         return self.net(ink)
 
 
+def mean_score_gradient_penalty(scores: torch.Tensor, real: torch.Tensor) -> torch.Tensor:
+    """Normalize PatchGAN outputs per image, as in its averaged data loss."""
+    if scores.shape[0] != real.shape[0]:
+        raise ValueError("One critic score map per real image required")
+    per_image = scores.flatten(1).mean(1)
+    gradient = torch.autograd.grad(per_image.sum(), real, create_graph=True)[0]
+    return gradient.square().flatten(1).sum(1).mean()
+
+
 def structure_loss(
     ink: torch.Tensor, reference: torch.Tensor, *, relaxed: bool = False
 ) -> tuple[torch.Tensor, dict]:

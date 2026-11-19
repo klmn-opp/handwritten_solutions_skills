@@ -61,3 +61,22 @@ class AdversarialInkContracts(unittest.TestCase):
             crop = model(patch).sigmoid()[..., 32:96, 32:96]
             full = generate_local(model, ref)[..., 32:96, 64:128]
         self.assertTrue(t.allclose(crop, full, atol=1e-6, rtol=1e-6))
+
+    def test_gradient_penalty_is_invariant_to_repeated_score_grid(self):
+        from research.corpus.adversarial_ink_model import (
+            InkPatchCritic,
+            mean_score_gradient_penalty,
+        )
+
+        t = self.t
+        critic = InkPatchCritic().to(self.device)
+        real = t.rand(2, 1, 64, 64, device=self.device, requires_grad=True)
+        score = critic(real)
+        original = mean_score_gradient_penalty(score, real)
+        repeated = mean_score_gradient_penalty(
+            score.repeat_interleave(2, -1).repeat_interleave(2, -2), real
+        )
+        self.assertTrue(t.allclose(original, repeated, atol=1e-9, rtol=1e-5))
+        original.backward()
+        self.assertTrue(bool(t.isfinite(critic.net[0].weight.grad).all()))
+        self.assertGreater(float(critic.net[0].weight.grad.abs().sum()), 0)

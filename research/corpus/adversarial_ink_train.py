@@ -19,6 +19,7 @@ def launch(arm: str, base: Path, resume: Path | None = None) -> Path:
         "adversarial-relaxed",
         "structure-paired",
         "adversarial-paired",
+        "adversarial-paired-r1",
     ]:
         raise ValueError("Fixed arms required")
     verify_run(base)
@@ -39,12 +40,13 @@ def launch(arm: str, base: Path, resume: Path | None = None) -> Path:
         "critic_lr": 0.0001,
         "adversarial_weight": 0.5 if "-" in arm else 0.05,
         "relaxed_structure": "-" in arm,
-        "paired_real_supervision": arm.endswith("-paired"),
+        "paired_real_supervision": "-paired" in arm,
+        "normalized_r1": arm.endswith("-r1"),
         "input_patch": 128,
         "loss_patch": 64,
         "receptive_field": 63,
         "uses_unpaired_real_original_ink": arm.startswith("adversarial"),
-        "paired_pixel_reconstruction": arm.endswith("-paired"),
+        "paired_pixel_reconstruction": "-paired" in arm,
         "font_structure_is_fixed_constraint": True,
         "C_used": False,
         "protocol_sha256": digest(Path("docs/V01014_PROTOCOL.md")),
@@ -92,6 +94,7 @@ def worker(request: Path) -> None:
     from research.corpus.adversarial_ink_model import (
         InkPatchCritic,
         generate_local,
+        mean_score_gradient_penalty,
         structure_loss,
         word_patches,
     )
@@ -204,8 +207,12 @@ def worker(request: Path) -> None:
             fake_score = critic(fake.detach())
             d_loss = 0.5 * ((real_score - 1).square().mean() + fake_score.square().mean())
             if step % 16 == 0:
-                grad = torch.autograd.grad(real_score.sum(), real_patch, create_graph=True)[0]
-                d_loss = d_loss + 0.05 * grad.square().flatten(1).sum(1).mean()
+                if r.get("normalized_r1"):
+                    penalty = mean_score_gradient_penalty(real_score, real_patch)
+                else:
+                    grad = torch.autograd.grad(real_score.sum(), real_patch, create_graph=True)[0]
+                    penalty = grad.square().flatten(1).sum(1).mean()
+                d_loss = d_loss + 0.05 * penalty
             d_loss.backward()
             torch.nn.utils.clip_grad_norm_(critic.parameters(), 5)
             dopt.step()
@@ -338,6 +345,7 @@ if __name__ == "__main__":
             "adversarial-relaxed",
             "structure-paired",
             "adversarial-paired",
+            "adversarial-paired-r1",
             "worker",
         ],
     )
