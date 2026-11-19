@@ -12,7 +12,14 @@ def launch(arm: str, base: Path, resume: Path | None = None) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
-    if arm not in ["structure", "adversarial", "structure-relaxed", "adversarial-relaxed"]:
+    if arm not in [
+        "structure",
+        "adversarial",
+        "structure-relaxed",
+        "adversarial-relaxed",
+        "structure-paired",
+        "adversarial-paired",
+    ]:
         raise ValueError("Fixed arms required")
     verify_run(base)
     prior = json.loads((base / "reports/request.json").read_text())
@@ -25,18 +32,19 @@ def launch(arm: str, base: Path, resume: Path | None = None) -> Path:
         "data": str(data),
         "data_sha256": digest(data / "run.json"),
         "arrays_sha256": digest(data / "reports/arrays.npz"),
-        "steps": 4000 if arm.endswith("-relaxed") else 2000,
+        "steps": 4000 if "-" in arm else 2000,
         "batch": 8,
         "seed": 2914,
         "generator_lr": 0.0001,
         "critic_lr": 0.0001,
-        "adversarial_weight": 0.5 if arm.endswith("-relaxed") else 0.05,
-        "relaxed_structure": arm.endswith("-relaxed"),
+        "adversarial_weight": 0.5 if "-" in arm else 0.05,
+        "relaxed_structure": "-" in arm,
+        "paired_real_supervision": arm.endswith("-paired"),
         "input_patch": 128,
         "loss_patch": 64,
         "receptive_field": 63,
         "uses_unpaired_real_original_ink": arm.startswith("adversarial"),
-        "paired_pixel_reconstruction": False,
+        "paired_pixel_reconstruction": arm.endswith("-paired"),
         "font_structure_is_fixed_constraint": True,
         "C_used": False,
         "protocol_sha256": digest(Path("docs/V01014_PROTOCOL.md")),
@@ -88,6 +96,7 @@ def worker(request: Path) -> None:
         word_patches,
     )
     from research.corpus.aligned_style_experiment import setup
+    from research.corpus.latent_ink_model import reconstruction_loss
     from research.corpus.local_ink_model import LocalInk
 
     r = json.loads(request.read_text())
@@ -115,6 +124,7 @@ def worker(request: Path) -> None:
     real = torch.tensor(original[train, None], device="cuda")
     all_ref = torch.tensor(reference[:, None], device="cuda")
     canonical = raw["target"]
+    aligned = torch.tensor(canonical[train, None], device="cuda")
     ref_points = [np.argwhere(x > 0.5) for x in reference[train]]
     real_points = [np.argwhere(x > 0.5) for x in original[train]]
     model = LocalInk().cuda()
@@ -182,7 +192,8 @@ def worker(request: Path) -> None:
         traces.append([list(a) + list(b) for a, b in zip(centers, real_centers, strict=True)])
         condition = word_patches(ref, centers, 64)
         real_patch = word_patches(real, real_centers, 32)
-        fake = model(condition).sigmoid()[..., 32:96, 32:96]
+        logits = model(condition)[..., 32:96, 32:96]
+        fake = logits.sigmoid()
         guide = condition[..., 32:96, 32:96]
         d_loss = fake.new_zeros(())
         if r["arm"].startswith("adversarial"):
@@ -200,6 +211,11 @@ def worker(request: Path) -> None:
             dopt.step()
         critic.requires_grad_(False)
         content, parts = structure_loss(fake, guide, relaxed=r.get("relaxed_structure", False))
+        if r.get("paired_real_supervision"):
+            truth = word_patches(aligned, centers, 32)
+            paired = reconstruction_loss(logits, truth)
+            content = 0.1 * content + 0.3 * paired
+            parts["paired_real"] = paired
         adversarial = (
             (critic(fake) - 1).square().mean()
             if r["arm"].startswith("adversarial")
@@ -315,7 +331,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "mode",
-        choices=["structure", "adversarial", "structure-relaxed", "adversarial-relaxed", "worker"],
+        choices=[
+            "structure",
+            "adversarial",
+            "structure-relaxed",
+            "adversarial-relaxed",
+            "structure-paired",
+            "adversarial-paired",
+            "worker",
+        ],
     )
     parser.add_argument("path", type=Path)
     parser.add_argument("--resume", type=Path)
