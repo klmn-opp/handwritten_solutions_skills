@@ -11,7 +11,7 @@ def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def freeze(paths: dict[str, str]) -> Path:
+def freeze(paths: dict[str, str], protocol: Path = Path("docs/V0101_PROTOCOL.md")) -> Path:
     from hwsol.profiles.io import atomic_json
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
@@ -34,7 +34,7 @@ def freeze(paths: dict[str, str]) -> Path:
             "candidates": candidates,
             "selection": "all final fixed-step checkpoints; no winner",
             "holdout_opened": False,
-            "protocol_sha256": digest("docs/V0101_PROTOCOL.md"),
+            "protocol_sha256": digest(protocol),
         },
     )
     atomic_json(run.path / "reports/candidates.json", candidates)
@@ -42,7 +42,14 @@ def freeze(paths: dict[str, str]) -> Path:
     return run.path
 
 
-def evaluate(frozen: Path, views: Path, holdout: Path) -> Path:
+def evaluate(
+    frozen: Path,
+    views: Path,
+    holdout: Path,
+    *,
+    include_legacy_context: bool = True,
+    contrast_views: dict[str, float] | None = None,
+) -> Path:
     import numpy as np
     from PIL import Image
 
@@ -65,11 +72,16 @@ def evaluate(frozen: Path, views: Path, holdout: Path) -> Path:
     old = Path(
         "workspace/runs/20261119T014658153649Z-context-region-training-aaff0d9b/logs/checkpoint-0800.pt"
     )
-    candidates["old-context"] = {
-        "checkpoint": str(old.resolve()),
-        "checkpoint_sha256": digest(old),
-        "architecture": "context-ink-region/1",
-    }
+    if include_legacy_context:
+        candidates["old-context"] = {
+            "checkpoint": str(old.resolve()),
+            "checkpoint_sha256": digest(old),
+            "architecture": "context-ink-region/1",
+        }
+    for name, gain in (contrast_views or {}).items():
+        if name not in candidates or not np.isfinite(gain) or gain <= 0:
+            raise ValueError("Unknown or invalid zero-update contrast view")
+        candidates[name]["zero_update_logit_contrast"] = gain
     run = create(
         "context-content-evaluation",
         seed=1105,
@@ -183,6 +195,10 @@ def worker(path: Path):
                 out.append(ink_from_sdf(prediction))
         torch.cuda.synchronize()
         images = torch.cat(out)[:, 0].cpu().numpy()
+        if c.get("zero_update_logit_contrast"):
+            from research.corpus.clean_ink import sharpen_ink
+
+            images = sharpen_ink(images, c["zero_update_logit_contrast"])
         np.savez_compressed(run / f"reports/generated-{name}.npz", ink=images)
         for i, ink in enumerate(images):
             Image.fromarray(np.uint8((1 - ink.clip(0, 1)) * 255)).save(
@@ -198,6 +214,7 @@ def worker(path: Path):
             "blank": int(np.sum(np.max(images, axis=(1, 2)) < 0.5)),
             "device": torch.cuda.get_device_name(),
             "peak_bytes": torch.cuda.max_memory_allocated(),
+            "zero_update_logit_contrast": c.get("zero_update_logit_contrast"),
         }
         del model
     (run / "reports/inference.json").write_text(json.dumps(results, indent=2))
