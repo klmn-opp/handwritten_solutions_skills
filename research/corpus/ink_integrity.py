@@ -46,21 +46,25 @@ def map_components(controls: np.ndarray, *, guarded: bool) -> dict[str, np.ndarr
         or (scale <= 0).any()
     ):
         raise ValueError("Folded or non-affine vertical map")
-    if guarded:
-        derivative = _blur(np.diff(fx), 12)
-        # Euclidean projection onto bounded slopes with fixed integral; not a
-        # global interpolation of the image back toward the font.
-        low, high = -10.0, 10.0
-        for _ in range(60):
-            mid = (low + high) / 2
-            if np.clip(derivative + mid, 0.8, 1.25).mean() > 1:
-                high = mid
-            else:
-                low = mid
-        derivative = np.clip(derivative + (low + high) / 2, 0.8, 1.25)
-        fx = np.r_[0, np.cumsum(derivative)]
-        scale = np.clip(_lipschitz(_blur(scale, 12), 0.0015), 0.8, 1.2)
-        shift = np.clip(_lipschitz(_blur(shift, 12), 0.06), -8, 8)
+    return _guard(fx, scale, shift) if guarded else {"x": fx, "scale": scale, "shift": shift}
+
+
+def _guard(fx, scale, shift):
+    derivative = _blur(np.diff(fx), 12)
+    # Euclidean projection onto bounded slopes with fixed integral; not a
+    # global interpolation of the image back toward the font.
+    bound = max(10.0, float(np.abs(derivative).max()) + 2)
+    low, high = -bound, bound
+    for _ in range(60):
+        mid = (low + high) / 2
+        if np.clip(derivative + mid, 0.8, 1.25).mean() > 1:
+            high = mid
+        else:
+            low = mid
+    derivative = np.clip(derivative + (low + high) / 2, 0.8, 1.25)
+    fx = np.r_[0, np.cumsum(derivative)]
+    scale = np.clip(_lipschitz(_blur(scale, 12), 0.0015), 0.8, 1.2)
+    shift = np.clip(_lipschitz(_blur(shift, 12), 0.06), -8, 8)
     return {"x": fx, "scale": scale, "shift": shift}
 
 
@@ -158,30 +162,28 @@ def untrained_control(parts: dict, seed: int) -> tuple[dict, dict]:
     raw[1] = np.linspace(-63.5, 63.5, 5)[:, None] * s[None] + b[None]
     random = map_components(raw, guarded=True)
     target = field_metrics(parts)["displacement_rms"]
-    actual = field_metrics(random)["displacement_rms"]
-    factor = target / max(actual, 1e-12)
-    dx = random["x"] - np.arange(WIDTH)
-    a = random["scale"] - 1
-    b = random["shift"]
-    random = {"x": np.arange(WIDTH) + dx * factor, "scale": 1 + a * factor, "shift": b * factor}
-    # If matching amplitude would violate safety, retain the constrained result
-    # and report imperfect matching rather than quietly claim equal amplitude.
-    raw[0] = np.interp(nodes, np.arange(WIDTH), random["x"]) - nodes
-    aa = np.interp(nodes, np.arange(WIDTH), random["scale"])
-    bb = np.interp(nodes, np.arange(WIDTH), random["shift"])
-    raw[1] = np.linspace(-63.5, 63.5, 5)[:, None] * (aa - 1)[None] + bb[None]
-    if (np.diff(nodes + raw[0, 0]) <= 0).any() or (aa <= 0).any():
-        return map_components(np.zeros((2, 5, 17)), guarded=False), {
-            "valid_control": False,
-            "reason": "amplitude matching exceeded valid map",
-            "source": "not usable; do not call this random output",
-        }
-    random = map_components(raw, guarded=True)
+    dx, scale_offset, shift = random["x"] - np.arange(WIDTH), random["scale"] - 1, random["shift"]
+
+    def candidate(factor):
+        return _guard(np.arange(WIDTH) + dx * factor, 1 + scale_offset * factor, shift * factor)
+
+    low, high = 0.0, 1.0
+    while field_metrics(candidate(high))["displacement_rms"] < target and high < 64:
+        high *= 2
+    for _ in range(36):
+        mid = (low + high) / 2
+        if field_metrics(candidate(mid))["displacement_rms"] > target:
+            high = mid
+        else:
+            low = mid
+    random = candidate((low + high) / 2)
     final = field_metrics(random)["displacement_rms"]
+    error = abs(final - target) / max(target, 1e-9)
     return random, {
-        "valid_control": True,
+        "valid_control": error < 0.001,
         "target_rms": target,
         "actual_rms": final,
-        "relative_error": abs(final - target) / max(target, 1e-12),
+        "relative_error": error,
         "neural_updates": 0,
+        "matching_uses_only_scalar_rms": True,
     }

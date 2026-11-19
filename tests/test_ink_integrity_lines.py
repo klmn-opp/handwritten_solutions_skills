@@ -12,11 +12,11 @@ def test_one_pass_line_identity_preserves_coverage_and_does_not_duplicate_neighb
     high = cv2.resize(low, (400, 160), interpolation=cv2.INTER_NEAREST)
     words = [
         {
-            "left": l,
-            "right": l + 50,
+            "left": left,
+            "right": left + 50,
             "transform": {"bbox": [0, 0, 50, 40], "scale": 2.4, "translation": [196, 16]},
         }
-        for l in [0, 50]
+        for left in [0, 50]
     ]
     identity = map_components(np.zeros((2, 5, 17)), guarded=False)
     out = render_line(high, words, [identity, identity], (228, 168))

@@ -73,3 +73,16 @@ def test_effective_resize_scale_and_reject_folded_or_nontriangular_map():
     bad[0, :, 4] = 100
     with pytest.raises(ValueError, match="Folded"):
         map_components(bad, guarded=True)
+
+
+def test_nonlearning_control_matches_rms_after_geometry_projection():
+    from research.corpus.ink_integrity import untrained_control
+
+    raw = np.zeros((2, 5, 17))
+    raw[0] = 12 * np.sin(np.linspace(0, 2 * np.pi, 17))
+    raw[1] = np.linspace(-5, 5, 17)
+    parts = map_components(raw, guarded=True)
+    random, report = untrained_control(parts, 1808)
+    assert report["valid_control"] and report["relative_error"] < 0.001
+    assert not np.allclose(random["x"], parts["x"])
+    assert field_metrics(random)["horizontal_min"] >= 0.8 - 1e-9
