@@ -8,7 +8,7 @@ from pathlib import Path
 from research.corpus.context_content_train import digest, write
 
 
-def launch(data: Path, warmup: Path):
+def launch(data: Path, warmup: Path, spatial=False):
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
@@ -19,7 +19,10 @@ def launch(data: Path, warmup: Path):
         "arrays_sha256": digest(data / "reports/arrays.npz"),
         "warmup": str(warmup.resolve()),
         "warmup_sha256": digest(warmup),
-        "architecture": "semantic-word-latent-ink/1",
+        "architecture": "semantic-spatial-word-latent-ink/1"
+        if spatial
+        else "semantic-word-latent-ink/1",
+        "spatial": spatial,
         "latent": 8,
         "seed": 3115,
         "steps": 8000,
@@ -38,7 +41,8 @@ def launch(data: Path, warmup: Path):
     }
     run = create("semantic-word-latent", config=r, seed=r["seed"])
     write(run.path / "reports/request.json", {**r, "run": str(run.path)})
-    Path("/tmp/context-v01015-word-latent").write_text(str(run.path))
+    suffix = "spatial-latent" if spatial else "word-latent"
+    Path(f"/tmp/context-v01015-{suffix}").write_text(str(run.path))
     print(run.path, flush=True)
     try:
         with (run.path / "logs/worker.log").open("w") as log:
@@ -72,7 +76,11 @@ def worker(request: Path):
     from torch.nn import functional as F
 
     from research.corpus.aligned_style_experiment import setup
-    from research.corpus.semantic_ink_model import SemanticInk, WordLatentSemanticInk
+    from research.corpus.semantic_ink_model import (
+        SemanticInk,
+        SpatialWordLatentInk,
+        WordLatentSemanticInk,
+    )
 
     r = json.loads(request.read_text())
     run, data = Path(r["run"]), Path(r["data"])
@@ -101,13 +109,15 @@ def worker(request: Path):
         run / "reports/posterior-semantic-base.npz", ink=semantic_base.cpu().numpy()
     )
     del base
-    model = WordLatentSemanticInk().cuda()
+    model = (SpatialWordLatentInk() if r.get("spatial") else WordLatentSemanticInk()).cuda()
     model.load_identity(saved["model"])
     initial = {k: v.detach().clone() for k, v in model.state_dict().items()}
     torch.save(initial, run / "logs/initial-state.pt")
     newly_conditioned, body = [], []
     for name, p in model.named_parameters():
-        if name == "context_gate" or name.startswith(("style_projection.", "posterior_encoder.")):
+        if name == "context_gate" or name.startswith(
+            ("style_projection.", "posterior_encoder.", "geometry.")
+        ):
             newly_conditioned.append(p)
         else:
             p.requires_grad_(False)
@@ -294,8 +304,9 @@ if __name__ == "__main__":
     p.add_argument("mode", choices=["train", "worker"])
     p.add_argument("path", type=Path)
     p.add_argument("--warmup", type=Path)
+    p.add_argument("--spatial", action="store_true")
     args = p.parse_args()
     if args.mode == "worker":
         worker(args.path)
     else:
-        launch(args.path, args.warmup)
+        launch(args.path, args.warmup, args.spatial)

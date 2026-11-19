@@ -139,3 +139,20 @@ class SemanticLearning(unittest.TestCase):
         self.assertEqual(tuple(mu.shape), (1, 8))
         (mu.square().mean() + lv.square().mean()).backward()
         self.assertTrue(all(p.grad is not None for p in model.posterior_encoder.parameters()))
+
+    def test_spatial_word_latent_starts_exactly_and_learns_coordinate_changes(self):
+        import torch
+
+        from research.corpus.semantic_ink_model import SemanticInk, SpatialWordLatentInk
+
+        base = SemanticInk(context_scale=0)
+        model = SpatialWordLatentInk()
+        model.load_identity(base.state_dict())
+        tokens = torch.tensor([[[102, 97, 98]]])
+        boxes = torch.tensor([[[10, 10, 30, 40]]]).float()
+        points = torch.tensor([[[18, 21], [22, 32]]]).float()
+        z = torch.randn(1, 8)
+        value = model(tokens, boxes, points, style=z)[0]
+        self.assertTrue(torch.equal(base(tokens, boxes, points)[0], value))
+        value.sum().backward()
+        self.assertGreater(float(model.geometry[-1].weight.grad.abs().sum()), 0)

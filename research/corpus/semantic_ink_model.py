@@ -39,6 +39,9 @@ class SemanticInk(nn.Module):
             raise ValueError("This deterministic model has no random word variable")
         return self.writer.expand(*xy.shape[:-1], -1)
 
+    def local_coordinates(self, xy, local, style):
+        return xy
+
     def forward(
         self, tokens: torch.Tensor, boxes: torch.Tensor, points: torch.Tensor, *, style=None
     ):
@@ -66,6 +69,7 @@ class SemanticInk(nn.Module):
         xy = uv.gather(2, ids[..., None].expand(-1, -1, -1, 2))
         batch = torch.arange(len(tokens), device=tokens.device)[:, None, None]
         local = tokens[batch, ids]
+        xy = self.local_coordinates(xy, local, style)
         angle = xy[..., None] * self.frequencies
         pe = torch.cat([xy, angle.sin().flatten(-2), angle.cos().flatten(-2)], -1)
         features = torch.cat(
@@ -163,3 +167,49 @@ class WordLatentSemanticInk(ContextualSemanticInk):
             raise ValueError("Training-only whole-word target and neural base required")
         mu, logvar = self.posterior_encoder(torch.cat([target, semantic_base], 1)).chunk(2, 1)
         return mu, logvar.clamp(-8, 4)
+
+
+class SpatialWordLatentInk(WordLatentSemanticInk):
+    """Learned word/character-conditioned coordinates plus trainable neural ink.
+
+    This is not bitmap warping: there is no input bitmap to resample. The bounded
+    coordinate component is explicitly geometric; its success alone would not
+    prove new stroke topology or connected-writing learning.
+    """
+
+    architecture = "semantic-spatial-word-latent-ink/1"
+
+    def __init__(self):
+        super().__init__()
+        self.geometry = nn.Sequential(nn.Linear(8 + 32 + 24, 32), nn.SiLU(), nn.Linear(32, 5))
+        nn.init.zeros_(self.geometry[-1].weight)
+        nn.init.zeros_(self.geometry[-1].bias)
+
+    def load_identity(self, state):
+        result = self.load_state_dict(state, strict=False)
+        allowed = {"context_gate", "style_projection.weight"} | {
+            name
+            for name in self.state_dict()
+            if name.startswith(("posterior_encoder.", "geometry."))
+        }
+        if set(result.missing_keys) != allowed or result.unexpected_keys:
+            raise ValueError("Only new word variation components may be absent")
+
+    def local_coordinates(self, xy, local, style):
+        if style is None or style.shape != (xy.shape[0], self.latent):
+            raise ValueError("Explicit word latent required")
+        z = style[:, None, None].expand(*xy.shape[:-1], -1)
+        condition = torch.cat(
+            [
+                z,
+                self.character(local[..., 0]),
+                self.neighbour(local[..., 1]),
+                self.neighbour(local[..., 2]),
+            ],
+            -1,
+        )
+        value = self.geometry(condition).tanh()
+        dx, dy, sx, sy, shear = value.unbind(-1)
+        y = (xy[..., 1] - 0.4 * dy) * (-0.3 * sy).exp()
+        x = (xy[..., 0] - 0.4 * dx - 0.25 * shear * y) * (-0.3 * sx).exp()
+        return torch.stack([x, y], -1)
