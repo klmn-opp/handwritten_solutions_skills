@@ -14,6 +14,20 @@ from research.corpus.experiment import create
 from research.english.metrics import aggregate, score
 
 
+def summarize_scored(scored: list[dict]) -> dict:
+    """Keep explicitly exposed composition splits instead of silently dropping them."""
+    splits = sorted({"train", "validation", "holdout"} | {r["split"] for r in scored})
+    return {
+        method: {
+            split: aggregate(
+                [r["score"] for r in scored if r["method"] == method and r["split"] == split]
+            )
+            for split in splits
+        }
+        for method in sorted({r["method"] for r in scored})
+    }
+
+
 def evaluate(comparison: Path, *, teacher_used: bool = False) -> Path:
     verify_run(comparison)
     rows = json.loads((comparison / "reports/observations-input.json").read_text())
@@ -98,19 +112,7 @@ def evaluate(comparison: Path, *, teacher_used: bool = False) -> Path:
                 for r in rows
             ]
             observations.extend(scored)
-            summaries[recognizer] = {
-                method: {
-                    split: aggregate(
-                        [
-                            r["score"]
-                            for r in scored
-                            if r["method"] == method and r["split"] == split
-                        ]
-                    )
-                    for split in ["train", "validation", "holdout"]
-                }
-                for method in sorted({r["method"] for r in rows})
-            }
+            summaries[recognizer] = summarize_scored(scored)
         atomic_json(run.path / "reports/observations.json", observations)
         atomic_json(run.path / "reports/summary.json", summaries)
         run.finish(
