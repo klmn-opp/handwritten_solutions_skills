@@ -14,7 +14,7 @@ from research.corpus.context_content_train import digest as sha256
 from research.corpus.context_content_train import write as atomic_json
 
 
-def label_pdf(blob: bytes, method: str) -> bytes:
+def label_pdf(blob: bytes, method: str, math_label: str = "unchanged Handnote") -> bytes:
     """Print provenance in page content; annotations disappear in some viewers."""
     from matplotlib.backends.backend_pdf import FigureCanvasPdf
     from matplotlib.figure import Figure
@@ -30,7 +30,7 @@ def label_pdf(blob: bytes, method: str) -> bytes:
     figure.text(
         28 / width,
         14 / height,
-        f"{method} | mathematics: unchanged Handnote | experimental word composition",
+        f"{method} | mathematics: {math_label} | experimental word composition",
         fontsize=7,
     )
     overlay = io.BytesIO()
