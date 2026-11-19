@@ -2,7 +2,6 @@
 
 import argparse
 import json
-import random
 import shutil
 from pathlib import Path
 
@@ -19,7 +18,7 @@ from hwsol.profiles.io import atomic_json, sha256
 from hwsol.workspace import verify_run
 from research.corpus.clean_ink import ink_metrics
 from research.corpus.context_report import require_running
-from research.corpus.context_review import build_review
+from research.corpus.context_review import balanced_candidate_orders, build_review
 
 METHODS = [
     ("real-reference", "YOUR REAL WRITING - original region, normalized display"),
@@ -158,22 +157,25 @@ def report(main: Path, comparison: Path) -> None:
     # Four fixed non-training groups; candidate labels carry no backend hint.
     review = main / "comparisons/author-review"
     (review / "assets").mkdir(parents=True, exist_ok=True)
-    rng = random.Random(1207)
     groups = []
     key = []
     review_indices = []
     for split in ["validation", "holdout"]:
         review_indices += sorted({r["row_index"] for r in rows if r["split"] == split})[:2]
-    for gi, i in enumerate(review_indices):
-        current = {r["method"]: r for r in rows if r["row_index"] == i}
-        methods = [
+    orders = balanced_candidate_orders(
+        [
             "handnote",
             "context-previous",
             "context-previous-sharp",
             "context-distance",
             "context-mass",
-        ]
-        rng.shuffle(methods)
+        ],
+        len(review_indices),
+        1207,
+    )
+    for gi, i in enumerate(review_indices):
+        current = {r["method"]: r for r in rows if r["row_index"] == i}
+        methods = orders[gi]
         candidates = []
         for ci, method in enumerate(methods):
             r = current[method]

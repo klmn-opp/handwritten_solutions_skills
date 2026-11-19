@@ -2,7 +2,26 @@
 
 import html
 import json
+import random
 from pathlib import Path
+
+
+def balanced_candidate_orders(methods: list[str], groups: int, seed: int) -> list[list[str]]:
+    """Seeded rotations balance every backend over positions without changing old reviews."""
+    if not methods or len(methods) != len(set(methods)) or type(groups) is not int or groups < 0:
+        raise ValueError("Unique nonempty methods and a nonnegative group count required")
+    rng = random.Random(seed)
+    base = list(methods)
+    rng.shuffle(base)
+    result = []
+    while len(result) < groups:
+        offsets = list(range(len(base)))
+        rng.shuffle(offsets)
+        for offset in offsets:
+            result.append(base[offset:] + base[:offset])
+            if len(result) == groups:
+                break
+    return result
 
 
 def build_review(destination: Path, groups: list[dict], review_id: str) -> None:
