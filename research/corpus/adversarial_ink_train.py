@@ -8,7 +8,7 @@ from pathlib import Path
 from research.corpus.context_content_train import digest, write
 
 
-def launch(arm: str, base: Path) -> Path:
+def launch(arm: str, base: Path, resume: Path | None = None) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
@@ -41,6 +41,13 @@ def launch(arm: str, base: Path) -> Path:
         "C_used": False,
         "protocol_sha256": digest(Path("docs/V01014_PROTOCOL.md")),
     }
+    if resume is not None:
+        verify_run(resume.parent.parent)
+        old = json.loads((resume.parent.parent / "reports/request.json").read_text())
+        for key in ["arm", "base_sha256", "data_sha256", "arrays_sha256", "steps", "seed"]:
+            if old[key] != r[key]:
+                raise ValueError(f"Resume changes fixed experiment: {key}")
+        r.update(resume=str(resume.resolve()), resume_sha256=digest(resume))
     run = create("ink-distribution-" + arm, config=r, seed=r["seed"])
     write(run.path / "reports/request.json", {**r, "run": str(run.path)})
     print(run.path, flush=True)
@@ -122,6 +129,41 @@ def worker(request: Path) -> None:
     curve = []
     traces = []
     counts = np.zeros(len(train), dtype=np.int64)
+    start_step = 0
+    if r.get("resume"):
+        if digest(Path(r["resume"])) != r["resume_sha256"]:
+            raise ValueError("Changed resume checkpoint")
+        saved = torch.load(r["resume"], map_location="cuda", weights_only=False)
+        model.load_state_dict(saved["model"])
+        critic.load_state_dict(saved["critic"])
+        optimizer.load_state_dict(saved["optimizer"])
+        dopt.load_state_dict(saved["critic_optimizer"])
+        start_step = saved["generator_steps"]
+        if not 0 < start_step < r["steps"]:
+            raise ValueError("Resume must precede the fixed budget")
+        # Reconstruct sampling receipts without running any neural update.
+        for _ in range(start_step):
+            ii = rng.choice(len(train), r["batch"], replace=True)
+            jj = rng.choice(len(train), r["batch"], replace=True)
+            np.add.at(counts, ii, 1)
+            centers = [
+                (int(i), *map(int, ref_points[i][rng.integers(len(ref_points[i]))])) for i in ii
+            ]
+            real_centers = [
+                (int(j), *map(int, real_points[j][rng.integers(len(real_points[j]))])) for j in jj
+            ]
+            traces.append([list(a) + list(b) for a, b in zip(centers, real_centers, strict=True)])
+        if rng.bit_generator.state != saved["numpy_rng"]:
+            raise ValueError("Resume sampling receipt does not reproduce saved RNG")
+        torch.set_rng_state(saved["torch_rng"].cpu())
+        torch.cuda.set_rng_state_all([q.cpu() for q in saved["cuda_rng"]])
+        initial = {k: v.detach().clone() for k, v in model.state_dict().items()}
+        initial_d = {k: v.detach().clone() for k, v in critic.state_dict().items()}
+        torch.save({"model": initial, "critic": initial_d}, run / "logs/initial-state.pt")
+        write(
+            run / "reports/resume.json",
+            {"start_step": start_step, "sampling_rng_exact": True, "optimizer_restored": True},
+        )
     begin = time.perf_counter()
     torch.cuda.reset_peak_memory_stats()
     write(run / "reports/indices.json", {**idx, "evaluated": eval_ids})
@@ -129,7 +171,7 @@ def worker(request: Path) -> None:
         run / "reports/dependencies.json",
         {k: importlib.metadata.version(k) for k in ["torch", "numpy", "pillow"]},
     )
-    for step in range(1, r["steps"] + 1):
+    for step in range(start_step + 1, r["steps"] + 1):
         ii = rng.choice(len(train), r["batch"], replace=True)
         jj = rng.choice(len(train), r["batch"], replace=True)
         np.add.at(counts, ii, 1)
@@ -170,7 +212,7 @@ def worker(request: Path) -> None:
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 5)
         optimizer.step()
-        if step == 1 or step % 100 == 0:
+        if step == start_step + 1 or step % 100 == 0:
             curve.append(
                 {
                     "step": step,
@@ -244,8 +286,10 @@ def worker(request: Path) -> None:
         run / "reports/result.json",
         {
             "actual_parameter_training": True,
-            "generator_updates": r["steps"],
-            "critic_updates": r["steps"] if r["arm"].startswith("adversarial") else 0,
+            "generator_updates": r["steps"] - start_step,
+            "critic_updates": r["steps"] - start_step if r["arm"].startswith("adversarial") else 0,
+            "start_step": start_step,
+            "cumulative_optimizer_steps": r["steps"],
             "generator_parameters": sum(p.numel() for p in model.parameters()),
             "critic_parameters": sum(p.numel() for p in critic.parameters()),
             "parameter_l1_change": sum(
@@ -274,8 +318,9 @@ if __name__ == "__main__":
         choices=["structure", "adversarial", "structure-relaxed", "adversarial-relaxed", "worker"],
     )
     parser.add_argument("path", type=Path)
+    parser.add_argument("--resume", type=Path)
     args = parser.parse_args()
     if args.mode == "worker":
         worker(args.path)
     else:
-        print(launch(args.mode, args.path))
+        print(launch(args.mode, args.path, args.resume))
