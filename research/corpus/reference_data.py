@@ -4,26 +4,15 @@ import json
 from collections import Counter
 from pathlib import Path
 
-import cv2
 import numpy as np
 from PIL import Image
 
 from hwsol.profiles.io import atomic_json, sha256
+from research.corpus.ink_geometry import signed_distance
 from research.corpus.label_admission import label_text
 from research.corpus.train import validate_dataset
 
 SIZE = 96
-
-
-def signed_distance(ink: np.ndarray) -> np.ndarray:
-    mask = (ink > 0.5).astype(np.uint8)
-    if not mask.any() or mask.all():
-        raise ValueError("Empty or solid training image")
-    inside = cv2.distanceTransform(mask, cv2.DIST_L2, 5)
-    outside = cv2.distanceTransform(1 - mask, cv2.DIST_L2, 5)
-    # Subpixel boundary lies halfway between opposite pixel centers.
-    result = np.where(mask, inside - 0.5, -(outside - 0.5))
-    return np.clip(result / 8, -1, 1).astype(np.float32)
 
 
 def ink_box(ink: np.ndarray) -> tuple[int, int, int, int]:
