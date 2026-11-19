@@ -200,7 +200,12 @@ def build_pdf(run: Path, groups: list[dict]):
             fig, axs = plt.subplots(5, 1, figsize=(8.27, 11.69))
             fig.suptitle(group["text"], fontsize=11)
             for ax, (name, label) in zip(axs, methods, strict=True):
-                ax.imshow(Image.open(run / f"comparisons/{name}-{group['group']}.png"))
+                ax.imshow(
+                    Image.open(run / f"comparisons/{name}-{group['group']}.png"),
+                    cmap="gray",
+                    vmin=0,
+                    vmax=255,
+                )
                 ax.set_title(label, loc="left", fontsize=9)
                 ax.axis("off")
             fig.text(
