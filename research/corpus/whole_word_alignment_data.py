@@ -116,3 +116,59 @@ def prepare(parent: Path, reviewed: Path, old_main: Path) -> Path:
         },
     )
     return run.path
+
+
+def prepare_joint(parent: Path, alignment: Path) -> Path:
+    for p in [parent, alignment]:
+        verify_run(p)
+    with np.load(parent / "reports/arrays.npz") as f:
+        arrays = {k: f[k] for k in f.files}
+    with np.load(alignment / "reports/estimated-geometry.npz") as f:
+        estimated = {int(i): b for i, b in zip(f["indices"], f["optimized"], strict=True)}
+    idx = json.loads((parent / "reports/indices.json").read_text())
+    rows = json.loads((parent / "reports/samples.json").read_text())
+    quality = json.loads((alignment / "reports/alignment-quality.json").read_text())
+    assert {q["index"] for q in quality} == set(idx["weak"]) == set(estimated)
+    weak = [q["index"] for q in quality if q["ordered_centers"] and q["boxes_inside_page"]]
+    arrays["fitted_geometry"] = arrays["train_geometry"].copy()
+    for i in weak:
+        arrays["fitted_geometry"][i] = estimated[i]
+        rows[i]["character_positions_source"] = "frozen neural coordinate fit, NOT ground truth"
+    assert len(weak) == 40
+    excluded = sorted(set(idx["weak"]) - set(weak))
+    indices = {
+        **idx,
+        "train": sorted(idx["strong"] + weak),
+        "weak": weak,
+        "excluded_geometry": excluded,
+    }
+    run = create(
+        "aligned-intact-word-study-data",
+        config={
+            "sources": {str(p.resolve()): digest(p / "run.json") for p in [parent, alignment]},
+            "geometry_gate": "ordered centers and boxes inside canvas; no loss threshold selection",
+            "estimated_coordinates_not_verified_labels": True,
+            "C_used": False,
+        },
+    )
+    np.savez_compressed(run.path / "reports/arrays.npz", **arrays)
+    write(run.path / "reports/samples.json", rows)
+    write(run.path / "reports/indices.json", indices)
+    write(
+        run.path / "reports/class-metrics.json",
+        json.loads((parent / "reports/class-metrics.json").read_text()),
+    )
+    run.finish(
+        "held",
+        result={
+            "raw_training_words": 58,
+            "verified_geometry_words": 18,
+            "estimated_geometry_words": 40,
+            "geometry_excluded": 4,
+            "images_changed": False,
+            "new_real_observations": 0,
+            "neural_updates": 0,
+            "C_used": False,
+        },
+    )
+    return run.path
