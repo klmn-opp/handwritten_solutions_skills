@@ -27,6 +27,7 @@ def freeze(paths: dict[str, str], protocol: Path = Path("docs/V0101_PROTOCOL.md"
             "run_sha256": digest(path / "run.json"),
             "checkpoint": str(checkpoint.resolve()),
             "checkpoint_sha256": digest(checkpoint),
+            "renderer": trained.get("renderer", "soft"),
         }
     run = create(
         "context-content-freeze",
@@ -45,10 +46,11 @@ def freeze(paths: dict[str, str], protocol: Path = Path("docs/V0101_PROTOCOL.md"
 def evaluate(
     frozen: Path,
     views: Path,
-    holdout: Path,
+    holdout: Path | None,
     *,
     include_legacy_context: bool = True,
     contrast_views: dict[str, float] | None = None,
+    renderer_views: dict[str, str] | None = None,
 ) -> Path:
     import numpy as np
     from PIL import Image
@@ -60,13 +62,13 @@ def evaluate(
     from research.corpus.context_training_data import reference_image, whole_ink
     from research.corpus.experiment import create
 
-    for p in [frozen, views, holdout]:
+    for p in [frozen, views] + ([holdout] if holdout is not None else []):
         verify_run(p)
     manifest = json.loads((views / "reports/manifest.json").read_text())
     dataset = Path(manifest["dataset"])
     assignments = json.loads((dataset / "reports/manifest.json").read_text())["split_assignments"]
     rows = json.loads((views / "reports/samples.json").read_text())
-    held = validate_rows(holdout, assignments, allowed={"holdout"})
+    held = validate_rows(holdout, assignments, allowed={"holdout"}) if holdout is not None else []
     rows += held
     candidates = json.loads((frozen / "reports/candidates.json").read_text())
     old = Path(
@@ -82,6 +84,11 @@ def evaluate(
         if name not in candidates or not np.isfinite(gain) or gain <= 0:
             raise ValueError("Unknown or invalid zero-update contrast view")
         candidates[name]["zero_update_logit_contrast"] = gain
+    for name, renderer in (renderer_views or {}).items():
+        if name not in candidates or renderer not in {"soft", "projected"}:
+            raise ValueError("Invalid zero-update renderer view")
+        candidates[name]["renderer"] = renderer
+        candidates[name]["zero_update_renderer_view"] = True
     run = create(
         "context-content-evaluation",
         seed=1105,
@@ -89,8 +96,9 @@ def evaluate(
             "frozen": str(frozen),
             "frozen_sha256": digest(frozen / "run.json"),
             "views": str(views),
-            "holdout": str(holdout),
-            "holdout_sha256": digest(holdout / "run.json"),
+            "holdout": str(holdout) if holdout is not None else None,
+            "holdout_sha256": digest(holdout / "run.json") if holdout is not None else None,
+            "evaluation_scope": "development-only" if holdout is None else "development-and-held",
             "fresh_document": False,
             "models": candidates,
             "train_updates": 0,
@@ -163,6 +171,7 @@ def worker(path: Path):
 
     from research.corpus.context_content_model import ContentInk
     from research.corpus.context_model import ContextInk
+    from research.corpus.levelset_ink import render_field
     from research.corpus.reference_generator import ink_from_sdf
 
     r = json.loads(path.read_text())
@@ -192,7 +201,11 @@ def worker(path: Path):
                     if old
                     else model(x)
                 )
-                out.append(ink_from_sdf(prediction))
+                out.append(
+                    ink_from_sdf(prediction)
+                    if old
+                    else render_field(prediction, c.get("renderer", "soft"))
+                )
         torch.cuda.synchronize()
         images = torch.cat(out)[:, 0].cpu().numpy()
         if c.get("zero_update_logit_contrast"):
@@ -215,6 +228,8 @@ def worker(path: Path):
             "device": torch.cuda.get_device_name(),
             "peak_bytes": torch.cuda.max_memory_allocated(),
             "zero_update_logit_contrast": c.get("zero_update_logit_contrast"),
+            "renderer": c.get("renderer", "soft"),
+            "zero_update_renderer_view": c.get("zero_update_renderer_view", False),
         }
         del model
     (run / "reports/inference.json").write_text(json.dumps(results, indent=2))
