@@ -2,10 +2,23 @@ import unittest
 
 import numpy as np
 
-from research.corpus.local_morphology import residual_coordinates
+from research.corpus.local_morphology import class_residual_coordinates, residual_coordinates
 
 
 class MorphologyDataTests(unittest.TestCase):
+    def test_class_coordinates_preserve_rare_variation_without_borrowing_frequent_class(self):
+        rng = np.random.default_rng(31)
+        rare = rng.random((3, 4, 4))
+        common = rng.random((20, 4, 4)) * 100
+        x = np.concatenate([rare, common])
+        labels = np.array([102] * 3 + [105] * 20)
+        codes, priors, _, coverage = class_residual_coordinates(x, labels, dimensions=8)
+        self.assertEqual(coverage["f"]["rank"], 2)
+        self.assertAlmostEqual(coverage["f"]["variance_fraction"], 1.0)
+        isolated, _, _, _ = class_residual_coordinates(rare, labels[:3], dimensions=8)
+        np.testing.assert_array_equal(codes[:3], isolated)
+        self.assertEqual(priors["102"]["count"], 3)
+
     def test_only_within_class_variation_enters_coordinates(self):
         rng = np.random.default_rng(22)
         x = rng.random((12, 4, 4))

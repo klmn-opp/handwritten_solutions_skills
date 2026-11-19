@@ -54,11 +54,70 @@ def residual_coordinates(ink: np.ndarray, labels: np.ndarray, dimensions=8) -> t
     )
 
 
-def prepare(parent: Path) -> Path:
+def class_residual_coordinates(ink: np.ndarray, labels: np.ndarray, dimensions=8) -> tuple:
+    """Give rare classes their own variation directions, still using Train only."""
+    classes = np.unique(labels)
+    flat = ink.reshape(len(ink), -1).astype(np.float64)
+    if len(flat) != len(labels) or not np.isfinite(flat).all():
+        raise ValueError("Finite equally sized targets and labels required")
+    codes = np.zeros((len(flat), dimensions), np.float32)
+    priors, coverage = {}, {}
+    components = np.zeros((len(classes), dimensions, flat.shape[1]))
+    means, captured_total, residual_total = [], 0.0, 0.0
+    for j, c in enumerate(classes):
+        ids = np.flatnonzero(labels == c)
+        mean = flat[ids].mean(0)
+        means.append(mean)
+        residual = flat[ids] - mean
+        values, vectors = np.linalg.eigh(residual @ residual.T)
+        order = [int(k) for k in np.argsort(values)[::-1] if values[k] > 1e-8][:dimensions]
+        total = float(values.clip(0).sum())
+        retained = float(values[order].sum())
+        residual_total += total
+        captured_total += retained
+        if order:
+            comp = vectors[:, order].T @ residual / np.sqrt(values[order, None])
+            signs = np.sign(comp[np.arange(len(order)), np.abs(comp).argmax(1)])
+            comp *= np.where(signs == 0, 1, signs)[:, None]
+            components[j, : len(order)] = comp
+            scale = np.sqrt(values[order] / max(1, len(ids) - 1))
+            codes[np.ix_(ids, np.arange(len(order)))] = residual @ comp.T / scale
+        cc = codes[ids].astype(float)
+        cov = np.cov(cc.T) if len(cc) > 1 else np.zeros((dimensions, dimensions))
+        priors[str(int(c))] = {
+            "count": len(cc),
+            "mean": cc.mean(0).tolist(),
+            "cholesky": np.linalg.cholesky(cov + np.eye(dimensions) * 1e-4).tolist(),
+            "variation_supported": len(cc) > 1,
+        }
+        coverage[chr(c)] = {
+            "rank": len(order),
+            "variance_fraction": retained / total if total > 1e-8 else None,
+        }
+    return (
+        codes,
+        priors,
+        {
+            "classes": classes,
+            "means": np.array(means),
+            "components": components,
+            "variance_fraction": captured_total / max(1e-8, residual_total),
+        },
+        coverage,
+    )
+
+
+def prepare(parent: Path, per_class=False) -> Path:
     verify_run(parent)
     with np.load(parent / "reports/arrays.npz") as f:
         arrays = {k: f[k] for k in f.files}
-    codes, priors, decomposition = residual_coordinates(arrays["ink"], arrays["labels"])
+    if per_class:
+        codes, priors, decomposition, coverage = class_residual_coordinates(
+            arrays["ink"], arrays["labels"]
+        )
+    else:
+        codes, priors, decomposition = residual_coordinates(arrays["ink"], arrays["labels"])
+        coverage = {}
     run = create(
         "train-local-morphology-data",
         config={
@@ -70,11 +129,13 @@ def prepare(parent: Path) -> Path:
             "neural_updates": 0,
             "coordinates_are_not_identified_personal_style_factors": True,
             "PCA_inverse_not_used_by_generator": True,
+            "per_class_coordinates": bool(per_class),
         },
     )
     np.savez_compressed(run.path / "reports/arrays.npz", **arrays, local_codes=codes)
     np.savez_compressed(run.path / "reports/train-decomposition.npz", **decomposition)
     write(run.path / "reports/local-priors.json", priors)
+    write(run.path / "reports/coordinate-coverage.json", coverage)
     for name in ["samples", "coverage", "groups"]:
         write(
             run.path / f"reports/{name}.json",

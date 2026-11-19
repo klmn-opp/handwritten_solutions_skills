@@ -16,6 +16,9 @@ def launch(data: Path, teacher: Path, words: Path, control: Path | None = None) 
         verify_run(p)
     if control:
         verify_run(control)
+    class_coordinates = json.loads((data / "run.json").read_text())["config"].get(
+        "per_class_coordinates", False
+    )
     cfg = {
         "data": str(data.resolve()),
         "data_sha256": digest(data / "run.json"),
@@ -37,6 +40,7 @@ def launch(data: Path, teacher: Path, words: Path, control: Path | None = None) 
         if control
         else "semantic-word-autodecoder/1",
         "hierarchical": control is not None,
+        "class_coordinates": class_coordinates,
         "control_initial": str(control / "logs/initial-state.pt") if control else None,
         "control_initial_sha256": digest(control / "logs/initial-state.pt") if control else None,
         "local_seed_offsets": {"glyph": 100000, "word": 200000} if control else None,
@@ -47,7 +51,7 @@ def launch(data: Path, teacher: Path, words: Path, control: Path | None = None) 
     }
     run = create("verified-local-ink-training", seed=cfg["seed"], config=cfg)
     write(run.path / "reports/request.json", {**cfg, "run": str(run.path)})
-    name = "hierarchical" if control else "model"
+    name = "class-hierarchical" if class_coordinates else "hierarchical" if control else "model"
     Path(f"/tmp/context-v01018-{name}").write_text(str(run.path))
     print(run.path, flush=True)
     try:
