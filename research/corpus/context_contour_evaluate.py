@@ -27,8 +27,10 @@ def evaluate(views: Path, candidates: dict[str, str]) -> Path:
             "run_sha256": digest(p / "run.json"),
             "checkpoint": r["checkpoint"],
             "checkpoint_sha256": r["checkpoint_sha256"],
-            "context": cfg["mode"] == "context",
+            "context": cfg["mode"] in {"context", "flow"},
             "bound": cfg["bound_pixels"],
+            "architecture": r["architecture"],
+            "steps": r["executed_updates"],
         }
     old = Path(
         "workspace/runs/20261119T035904738321Z-context-clean-ink-training-5758634f/logs/checkpoint-1500.pt"
@@ -94,6 +96,7 @@ def evaluate(views: Path, candidates: dict[str, str]) -> Path:
 
 
 def worker(path: Path):
+    import os
     import time
 
     import cv2
@@ -103,14 +106,18 @@ def worker(path: Path):
 
     from research.corpus.context_content_model import ContentInk
     from research.corpus.context_contour_model import ContourInk
+    from research.corpus.context_flow_model import FlowInk
     from research.corpus.reference_generator import ink_from_sdf
 
     r = json.loads(path.read_text())
     run = Path(r["run"])
     views = Path(r["views"])
+    os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA required")
     torch.set_num_threads(2)
+    torch.use_deterministic_algorithms(True)
+    torch.backends.cudnn.benchmark = False
     assert digest(views / "reports/arrays.npz") == r["arrays_sha256"]
     assert digest(run / "reports/legacy-reference.npz") == r["legacy_sha256"]
     data = np.load(views / "reports/arrays.npz")
@@ -129,7 +136,15 @@ def worker(path: Path):
         outputs["font-field"] = torch.sigmoid(sdf / 0.35)[:, 0].cpu().numpy()
         for name, m in r["models"].items():
             assert digest(m["checkpoint"]) == m["checkpoint_sha256"]
-            net = ContourInk(context=m["context"], bound=m["bound"]).cuda().eval()
+            net = (
+                (
+                    FlowInk()
+                    if m.get("architecture") == "font-constrained-context-flow/1"
+                    else ContourInk(context=m["context"], bound=m["bound"])
+                )
+                .cuda()
+                .eval()
+            )
             net.load_state_dict(
                 torch.load(m["checkpoint"], map_location="cuda", weights_only=True)["model"]
             )
@@ -139,7 +154,9 @@ def worker(path: Path):
                 parts.append(net(sdf[i : i + 4])[0][:, 0].cpu().numpy())
             outputs[name] = np.concatenate(parts)
             torch.cuda.synchronize()
-            trained = np.load(Path(m["run"]) / "reports/generated-1500.npz")["ink"]
+            trained = np.load(Path(m["run"]) / f"reports/generated-{m.get('steps', 1500)}.npz")[
+                "ink"
+            ]
             metrics[name] = {
                 "seconds": time.perf_counter() - start,
                 "replay_exact": bool(np.array_equal(outputs[name], trained)),

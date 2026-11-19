@@ -32,7 +32,7 @@ class ContourInk(nn.Module):
         if not context:
             self.context.requires_grad_(False)
 
-    def forward(self, sdf):
+    def features(self, sdf):
         features = self.encoder(sdf.clamp(-12, 12) / 12)
         if self.context_enabled:
             sequence = F.avg_pool1d(features.mean(2), 4)
@@ -41,7 +41,10 @@ class ContourInk(nn.Module):
             # decoder supplies local smoothing after the shared context signal.
             sequence = F.interpolate(sequence, size=sdf.shape[-1], mode="nearest")
             features = features + sequence[:, :, None, :]
-        correction = self.bound * torch.tanh(self.decoder(features))
+        return features
+
+    def forward(self, sdf):
+        correction = self.bound * torch.tanh(self.decoder(self.features(sdf)))
         # Only change a narrow neighborhood; remote blank paper cannot become grey.
         correction = correction * (sdf.abs() < 8).to(sdf.dtype)
         field = sdf + correction

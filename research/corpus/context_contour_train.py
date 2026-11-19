@@ -12,7 +12,7 @@ def train(views: Path, mode: str, *, steps: int = 1500) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
-    if mode not in {"local", "context"} or steps <= 0:
+    if mode not in {"local", "context", "flow"} or steps <= 0:
         raise ValueError("Invalid finite contour experiment")
     verify_run(views)
     config = {
@@ -37,6 +37,14 @@ def train(views: Path, mode: str, *, steps: int = 1500) -> Path:
             "no random style or free-form ligature generation"
         ),
     }
+    if mode == "flow":
+        config.update(
+            architecture="font-constrained-context-flow/1",
+            protocol_sha256=digest("docs/V0105_FLOW_PROTOCOL.md"),
+            bound_pixels=1.0,
+            flow_bounds=[8.0, 5.0],
+            scope="learned smooth contextual deformation; strong font topology prior",
+        )
     run = create("context-contour-training", config=config, seed=config["seed"])
     write(run.path / "reports/request.json", {**config, "run": str(run.path)})
     try:
@@ -73,6 +81,7 @@ def worker(path: Path) -> None:
     from PIL import Image
 
     from research.corpus.context_contour_model import ContourInk
+    from research.corpus.context_flow_model import FlowInk, jacobian_determinant
     from research.corpus.levelset_ink import mask_scores
 
     r = json.loads(path.read_text())
@@ -115,7 +124,11 @@ def worker(path: Path) -> None:
     target_sdf = torch.tensor(
         np.stack([distance(x) for x in data["aligned"]])[:, None], device="cuda"
     )
-    model = ContourInk(context=r["mode"] == "context", bound=r["bound_pixels"]).cuda()
+    model = (
+        FlowInk()
+        if r["mode"] == "flow"
+        else ContourInk(context=r["mode"] == "context", bound=r["bound_pixels"])
+    ).cuda()
     initial = {k: v.detach().clone() for k, v in model.state_dict().items()}
     torch.save(initial, run / "logs/initial-state.pt")
     optimizer = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=r["lr"])
@@ -127,11 +140,13 @@ def worker(path: Path) -> None:
     @torch.inference_mode()
     def evaluate(step):
         model.eval()
-        outputs, deltas = [], []
+        outputs, deltas, flows = [], [], []
         for i in range(0, len(rows), 4):
             ink, delta, _ = model(refs[i : i + 4])
             outputs.append(ink[:, 0].cpu().numpy())
             deltas.append(delta[:, 0].cpu().numpy())
+            if r["mode"] == "flow":
+                flows.append(model.last_flow.cpu().numpy())
         outputs, deltas = np.concatenate(outputs), np.concatenate(deltas)
         result = {"step": step}
         for name, ids in [("train", train_ids), ("validation", val_ids), ("new_train", new_ids)]:
@@ -151,6 +166,16 @@ def worker(path: Path) -> None:
                 Image.fromarray(np.uint8((1 - outputs[i].clip(0, 1)) * 255)).save(
                     run / f"rendered/pages/step-{step}-{i:03d}.png"
                 )
+            if flows:
+                np.savez_compressed(run / f"reports/flow-{step}.npz", flow=np.concatenate(flows))
+        if flows:
+            flow = torch.tensor(np.concatenate(flows), device="cuda")
+            determinant = jacobian_determinant(flow)
+            result["flow"] = {
+                "folded_pixels": int((determinant <= 0).sum()),
+                "minimum_jacobian": float(determinant.min()),
+                "mean_abs_displacement": float(flow.abs().mean()),
+            }
         write(run / "reports/evaluations.json", evals)
         print(json.dumps(result), flush=True)
         model.train()
@@ -177,6 +202,10 @@ def worker(path: Path) -> None:
             delta[..., 1:, :] - delta[..., :-1, :]
         ).square().mean()
         loss = contour + 0.3 * dice.mean() + 0.15 * support + 0.01 * smooth
+        if r["mode"] == "flow":
+            flow = model.last_flow
+            loss = loss + 0.5 * F.relu(0.3 - jacobian_determinant(flow)).square().mean()
+            loss = loss + 0.001 * flow.square().mean()
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 2)
         optimizer.step()
@@ -242,7 +271,7 @@ def worker(path: Path) -> None:
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
-    p.add_argument("mode", choices=["worker", "local", "context"])
+    p.add_argument("mode", choices=["worker", "local", "context", "flow"])
     p.add_argument("path", type=Path)
     a = p.parse_args()
     if a.mode == "worker":
