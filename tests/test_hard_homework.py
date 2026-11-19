@@ -35,3 +35,21 @@ def test_parameter_integral_and_rlc_initial_value_problem():
     assert q.subs(t, 0) == 0 and i.subs(t, 0) == 0
     assert len(cases()) == 4
     assert all(source.count("$$") >= 8 for source in cases().values())
+
+
+def test_all_hard_cases_use_supported_latex_and_exact_text_groups(tmp_path):
+    from hwsol.jobs.layout import validate_markdown
+    from hwsol.profiles.store import ProfileStore
+    from research.corpus.mixed_ink_pages import text_groups
+
+    profile = ProfileStore(tmp_path / "profiles").resolve()
+    for title, source in cases().items():
+        blocks = validate_markdown(source, profile)
+        texts = [title] + [v for b in blocks for kind, v in b.segments if kind == "t"]
+        records = [
+            {"context": "text", "semantic": ch, "item_index": i}
+            for i, ch in enumerate("".join("".join(t.split()) for t in texts))
+        ]
+        groups = text_groups(source, title, records, profile)
+        assert "".join(g["text"] for g in groups) == "".join(r["semantic"] for r in records)
+        assert sorted(i for g in groups for i in g["items"]) == list(range(len(records)))

@@ -6,21 +6,21 @@ def cases() -> dict[str, str]:
     return {
         "Spectral decomposition": r"""Consider the symmetric tridiagonal matrix below. Find an orthonormal eigenbasis and use it to describe the solution of the differential system. Symmetry is useful because eigenvectors belonging to different eigenvalues are orthogonal.
 
-$$A=\begin{pmatrix}2&1&0\\1&2&1\\0&1&2\end{pmatrix},\qquad \frac{d\mathbf{x}}{dt}=-A\mathbf{x}$$
+$$A=\begin{pmatrix}2&1&0\\1&2&1\\0&1&2\end{pmatrix},\qquad \frac{d\vec{x}}{dt}=-A\vec{x}$$
 
 Expanding the determinant along the first row gives the characteristic equation. The three distinct roots are positive, so every component of the solution decays. This conclusion follows from the spectrum rather than from inspection of individual matrix entries.
 
-$$\det(A-\lambda I)=(2-\lambda)\bigl((2-\lambda)^2-2\bigr)=0$$
+$$\mathrm{det}(A-\lambda I)=(2-\lambda)\left((2-\lambda)^2-2\right)=0$$
 
 $$\lambda_1=2-\sqrt{2},\quad\lambda_2=2,\quad\lambda_3=2+\sqrt{2}$$
 
 $$u_1=\frac{1}{2}\begin{pmatrix}1\\-\sqrt{2}\\1\end{pmatrix},\quad u_2=\frac{1}{\sqrt{2}}\begin{pmatrix}1\\0\\-1\end{pmatrix},\quad u_3=\frac{1}{2}\begin{pmatrix}1\\\sqrt{2}\\1\end{pmatrix}$$
 
-Let $Q=(u_1,u_2,u_3)$ and let $c_k=u_k^{\mathsf{T}}\mathbf{x}(0)$. Orthogonality separates the differential equations into three scalar equations. The different exponential factors determine the relative decay of their coefficients.
+Let $Q=(u_1,u_2,u_3)$ and let $c_k=u_k^{\mathrm{T}}\vec{x}(0)$. Orthogonality separates the differential equations into three scalar equations. The different exponential factors determine the relative decay of their coefficients.
 
-$$Q^{\mathsf{T}}Q=I,\qquad A=Q\,\mathrm{diag}(\lambda_1,\lambda_2,\lambda_3)Q^{\mathsf{T}}$$
+$$Q^{\mathrm{T}}Q=I,\qquad A=Q\,\mathrm{diag}(\lambda_1,\lambda_2,\lambda_3)Q^{\mathrm{T}}$$
 
-$$\mathbf{x}(t)=\sum_{k=1}^{3}c_k e^{-\lambda_k t}u_k,\qquad \lim_{t\to\infty}\mathbf{x}(t)=\mathbf{0}$$
+$$\vec{x}(t)=\sum_{k=1}^{3}c_k e^{-\lambda_k t}u_k,\qquad \lim_{t\to\infty}\vec{x}(t)=0$$
 """,
         "Parameter differentiation": r"""For positive a and real b, evaluate the following improper integrals. The exponential factor provides sufficient decay for convergence. We first calculate a simpler integral and then differentiate with respect to the parameter.
 
@@ -48,15 +48,15 @@ $$x=(-2,-1,0,1,2),\qquad y=(-3,-3,4,3,9)$$
 
 The centered explanatory values simplify the normal equations. The sum of the squared x values is ten, and the cross product with y is thirty. The intercept is the sample mean of y because the sample mean of x is zero.
 
-$$X^{\mathsf{T}}X=\begin{pmatrix}5&0\\0&10\end{pmatrix},\qquad X^{\mathsf{T}}y=\begin{pmatrix}10\\30\end{pmatrix}$$
+$$X^{\mathrm{T}}X=\begin{pmatrix}5&0\\0&10\end{pmatrix},\qquad X^{\mathrm{T}}y=\begin{pmatrix}10\\30\end{pmatrix}$$
 
-$$\widehat{\beta}=(X^{\mathsf{T}}X)^{-1}X^{\mathsf{T}}y=\begin{pmatrix}2\\3\end{pmatrix},\qquad \widehat y_i=2+3x_i$$
+$$\hat{\beta}=(X^{\mathrm{T}}X)^{-1}X^{\mathrm{T}}y=\begin{pmatrix}2\\3\end{pmatrix},\qquad \hat y_i=2+3x_i$$
 
 The residuals are not all small, even though their sum and their cross product with x are zero. These orthogonality conditions verify the least squares calculation. They do not establish the normality or independence assumptions.
 
 $$e=(1,-2,2,-2,1),\qquad \sum_{i=1}^{5}e_i=0,\quad\sum_{i=1}^{5}x_i e_i=0$$
 
-$$SSE=14,\qquad s^2=\frac{14}{5-2}=\frac{14}{3},\qquad \mathrm{SE}(\widehat\beta_1)=\sqrt{\frac{7}{15}}$$
+$$SSE=14,\qquad s^2=\frac{14}{5-2}=\frac{14}{3},\qquad \mathrm{SE}(\hat\beta_1)=\sqrt{\frac{7}{15}}$$
 
 The interval uses the Student quantile with three degrees of freedom. The corresponding statistic for a zero slope divides the estimated slope by its standard error. A numerical decision would compare this statistic with the chosen critical value.
 
@@ -70,7 +70,7 @@ The characteristic roots form a complex conjugate pair. A constant particular so
 
 $$r^2+r+1=0,\qquad r=-\frac{1}{2}\pm\frac{\sqrt{3}}{2}\,\mathrm{i},\qquad\omega=\frac{\sqrt{3}}{2}$$
 
-$$q(t)=3+e^{-t/2}\bigl(C_1\cos(\omega t)+C_2\sin(\omega t)\bigr)$$
+$$q(t)=3+e^{-t/2}\left(C_1\cos(\omega t)+C_2\sin(\omega t)\right)$$
 
 Substitution of the initial charge gives the first coefficient. Differentiation and substitution of the initial current give the second. The two terms involving the cosine cancel when the final charge expression is differentiated.
 
