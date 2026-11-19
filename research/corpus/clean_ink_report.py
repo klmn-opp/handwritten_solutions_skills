@@ -31,9 +31,20 @@ METHODS = [
 ]
 
 
-def report(main: Path, comparison: Path) -> None:
+def report(
+    main: Path,
+    comparison: Path,
+    *,
+    methods: list[tuple[str, str]] | None = None,
+    review_methods: list[str] | None = None,
+    review_title: str = "去灰影对照",
+    review_seed: int = 1207,
+) -> None:
     require_running(main)
     verify_run(comparison)
+    methods = METHODS if methods is None else methods
+    if not methods or len({m for m, _ in methods}) != len(methods):
+        raise ValueError("Unique nonempty methods required")
     rows = json.loads((comparison / "reports/observations-input.json").read_text())
     indices = sorted({r["row_index"] for r in rows})
     selected = []
@@ -49,8 +60,8 @@ def report(main: Path, comparison: Path) -> None:
     ):
         for i in indices:
             current = {r["method"]: r for r in rows if r["row_index"] == i}
-            fig, axes = plt.subplots(len(METHODS), 1, figsize=(8.27, 11.69))
-            for ax, (method, label) in zip(axes, METHODS, strict=True):
+            fig, axes = plt.subplots(len(methods), 1, figsize=(8.27, 11.69), squeeze=False)
+            for ax, (method, label) in zip(axes[:, 0], methods, strict=True):
                 r = current[method]
                 im = Image.open(r["image"])
                 ax.imshow(im, cmap="gray", vmin=0, vmax=255)
@@ -69,6 +80,8 @@ def report(main: Path, comparison: Path) -> None:
                         **ink_metrics(ink),
                         "halo_far_pixels": int(halo.sum()),
                         "halo_far_mass": float(ink[halo].sum()),
+                        "core_opacity": float(ink[mask].mean()) if mask.any() else 0,
+                        "dark_pixels": int((ink > 0.8).sum()),
                         "sha256": sha256(Path(r["image"])),
                     }
                 )
@@ -90,7 +103,7 @@ def report(main: Path, comparison: Path) -> None:
             plt.close(fig)
             index.append({"row_index": i, "split": split, "text": text, "overview": i in selected})
     summary = {}
-    for method, _ in METHODS:
+    for method, _ in methods:
         summary[method] = {}
         for split in ["train", "validation", "holdout"]:
             subset = [r for r in metric_rows if r["method"] == method and r["split"] == split]
@@ -105,6 +118,8 @@ def report(main: Path, comparison: Path) -> None:
                         "halo_far_pixels",
                         "halo_far_mass",
                         "components",
+                        "core_opacity",
+                        "dark_pixels",
                     ]
                 },
                 "blank": sum(r["blank"] for r in subset),
@@ -132,8 +147,6 @@ def report(main: Path, comparison: Path) -> None:
     paths = json.loads((main / "reports/training-runs.json").read_text())
     fig, axes = plt.subplots(1, 3, figsize=(13, 4))
     for name, p in paths.items():
-        if name not in {"control", "distance", "mass"}:
-            continue
         curve = json.loads((Path(p) / "reports/curve.json").read_text())
         ev = json.loads((Path(p) / "reports/evaluations.json").read_text())
         axes[0].plot([r["step"] for r in curve], [r["loss"] for r in curve], label=name)
@@ -162,17 +175,17 @@ def report(main: Path, comparison: Path) -> None:
     review_indices = []
     for split in ["validation", "holdout"]:
         review_indices += sorted({r["row_index"] for r in rows if r["split"] == split})[:2]
-    orders = balanced_candidate_orders(
-        [
+    if review_methods is None:
+        review_methods = [
             "handnote",
             "context-previous",
             "context-previous-sharp",
             "context-distance",
             "context-mass",
-        ],
-        len(review_indices),
-        1207,
-    )
+        ]
+    if not set(review_methods) <= {m for m, _ in methods}:
+        raise ValueError("Review methods missing from comparison")
+    orders = balanced_candidate_orders(review_methods, len(review_indices), review_seed)
     for gi, i in enumerate(review_indices):
         current = {r["method"]: r for r in rows if r["row_index"] == i}
         methods = orders[gi]
@@ -189,7 +202,7 @@ def report(main: Path, comparison: Path) -> None:
         groups.append(
             {
                 "id": f"g{gi + 1:02d}",
-                "title": f"去灰影对照 {gi + 1} / {len(review_indices)}",
+                "title": f"{review_title} {gi + 1} / {len(review_indices)}",
                 "description": "先确认文字完整，特别看 i 的点、标点、细笔和下伸。"
                 "自然度评分包含灰影/重影是否消失；备注可写偏好字母及具体缺笔。其他评分可留空。",
                 "target": current["handnote"]["text"],
