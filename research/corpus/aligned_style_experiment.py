@@ -8,7 +8,14 @@ from pathlib import Path
 from research.corpus.context_content_train import digest, write
 
 
-def launch(stage: str, data: Path, *, registration: Path | None = None, mode: str = "mean") -> Path:
+def launch(
+    stage: str,
+    data: Path,
+    *,
+    registration: Path | None = None,
+    mode: str = "mean",
+    monotone: bool = False,
+) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
@@ -19,8 +26,15 @@ def launch(stage: str, data: Path, *, registration: Path | None = None, mode: st
         if registration is None:
             raise ValueError("A frozen registration receipt is required")
         verify_run(registration)
+        receipt = json.loads((registration / "reports/request.json").read_text())
+        if (
+            receipt["data_sha256"] != digest(data / "run.json")
+            or receipt.get("monotone", False) != monotone
+        ):
+            raise ValueError("Registration source or geometry differs from learner")
     config = {
         "stage": stage,
+        "monotone": monotone,
         "data": str(data),
         "data_sha256": digest(data / "run.json"),
         "registration": str(registration) if registration else None,
@@ -28,8 +42,12 @@ def launch(stage: str, data: Path, *, registration: Path | None = None, mode: st
         "mode": mode,
         "seed": 1707,
         "steps": 240 if stage == "registration" else 1000,
-        "protocol_sha256": digest(Path("docs/V0107_PROTOCOL.md")),
-        "architecture": "registered-word-geometry-cvae/1",
+        "protocol_sha256": digest(
+            Path("docs/V0107_MONOTONE_PROTOCOL.md" if monotone else "docs/V0107_PROTOCOL.md")
+        ),
+        "architecture": "monotone-word-geometry-cvae/1"
+        if monotone
+        else "registered-word-geometry-cvae/1",
         "C_used": False,
         "new_ink_topology": False,
         "font_profile": "personal@v1",
@@ -95,7 +113,13 @@ def registration_worker(r, arrays, rows):
     import torch.nn.functional as F
     from PIL import Image
 
-    from research.corpus.aligned_style_model import BOUNDS, GRID, dense_flow, render
+    from research.corpus.aligned_style_model import (
+        BOUNDS,
+        GRID,
+        dense_flow,
+        monotone_controls,
+        render,
+    )
     from research.corpus.context_flow_model import jacobian_determinant
 
     run = Path(r["run"])
@@ -107,7 +131,11 @@ def registration_worker(r, arrays, rows):
     start = time.perf_counter()
     for k in range(0, len(rows), 32):
         ii = list(range(k, min(k + 32, len(rows))))
-        raw = torch.zeros((len(ii), 2, *GRID), device="cuda", requires_grad=True)
+        raw = torch.zeros(
+            (len(ii), 3, 17) if r.get("monotone") else (len(ii), 2, *GRID),
+            device="cuda",
+            requires_grad=True,
+        )
         optimizer = torch.optim.Adam([raw], lr=0.025)
         ref, target = refs[ii], targets[ii]
         base = dice((ref > 0.5).float(), (target > 0.5).float())
@@ -120,7 +148,7 @@ def registration_worker(r, arrays, rows):
         }
         for step in range(r["steps"]):
             s = (8, 4, 2)[min(2, step // 80)]
-            controls = bounds * torch.tanh(raw)
+            controls = monotone_controls(raw) if r.get("monotone") else bounds * torch.tanh(raw)
             flow = dense_flow(controls)
             a, b = cached[s]
             from research.corpus.context_flow_model import sample_fixed_field
@@ -142,7 +170,7 @@ def registration_worker(r, arrays, rows):
             loss.backward()
             optimizer.step()
         with torch.no_grad():
-            controls = bounds * torch.tanh(raw)
+            controls = monotone_controls(raw) if r.get("monotone") else bounds * torch.tanh(raw)
             out = render(ref, controls)
             score = dice((out > 0.5).float(), (target > 0.5).float())
             min_jac = topology(dense_flow(controls))
@@ -234,7 +262,9 @@ def train_worker(r, arrays, rows):
     refs = torch.tensor(arrays["reference"][:, None], device="cuda")
     tokens = torch.tensor(text_tokens([q["text"] for q in rows]), device="cuda")
     fields = torch.tensor(np.load(registration / "reports/controls.npz")["controls"], device="cuda")
-    model = AlignedStyle(stochastic=r["mode"] == "stochastic").cuda()
+    model = AlignedStyle(
+        stochastic=r["mode"] == "stochastic", monotone=r.get("monotone", False)
+    ).cuda()
     if not model.stochastic:
         model.prior.requires_grad_(False)
         model.posterior.requires_grad_(False)

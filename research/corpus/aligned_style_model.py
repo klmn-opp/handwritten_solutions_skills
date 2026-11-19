@@ -16,6 +16,24 @@ def dense_flow(controls, size=(128, 512)):
     return F.interpolate(controls, size=size, mode="bilinear", align_corners=True)
 
 
+def monotone_controls(raw):
+    """Construct a positive-Jacobian triangular map; no learned fold penalty needed."""
+    if raw.shape[1:] != (3, 17):
+        raise ValueError("Expected horizontal increments, vertical scale and shift")
+    intervals = 0.25 + 0.75 * (16 * torch.softmax(raw[:, 0, :16], dim=1))
+    nodes = torch.cat([torch.zeros_like(intervals[:, :1]), intervals.cumsum(1)], dim=1)
+    x = torch.linspace(0, 512 - 1, 17, device=raw.device, dtype=raw.dtype)
+    dx = nodes * ((512 - 1) / 16) - x
+    # Uniform convex blend with identity retains strict monotonicity.
+    dx = dx * (64 / dx.abs().amax(1, keepdim=True).clamp(min=64))
+    yy = torch.linspace(0, 128 - 1, 5, device=raw.device, dtype=raw.dtype) - 63.5
+    dy = (
+        0.2 * torch.tanh(raw[:, 1])[:, None] * yy[None, :, None]
+        + 8 * torch.tanh(raw[:, 2])[:, None]
+    )
+    return torch.stack([dx[:, None].expand(-1, 5, -1), dy], dim=1)
+
+
 def render(reference, controls):
     """Warp continuous source coverage without thresholding or negative ink correction."""
     return sample_fixed_field(reference, dense_flow(controls, reference.shape[-2:]))
@@ -28,9 +46,9 @@ class AlignedStyle(nn.Module):
     target field is confined to the posterior training/oracle path.
     """
 
-    def __init__(self, stochastic=True, latent=4):
+    def __init__(self, stochastic=True, latent=4, monotone=False):
         super().__init__()
-        self.stochastic, self.latent = stochastic, latent
+        self.stochastic, self.latent, self.monotone = stochastic, latent, monotone
         self.visual = nn.Sequential(
             nn.Conv2d(1, 8, 5, stride=2, padding=2),
             nn.SiLU(),
@@ -50,7 +68,10 @@ class AlignedStyle(nn.Module):
             nn.Linear(128 + 170, 128), nn.SiLU(), nn.Linear(128, latent * 2)
         )
         self.decoder = nn.Sequential(
-            nn.Linear(128 + latent, 192), nn.SiLU(), nn.Linear(192, 170), nn.Tanh()
+            nn.Linear(128 + latent, 192),
+            nn.SiLU(),
+            nn.Linear(192, 51 if monotone else 170),
+            nn.Tanh(),
         )
         self.register_buffer("bounds", torch.tensor(BOUNDS)[None, :, None, None])
 
@@ -69,7 +90,12 @@ class AlignedStyle(nn.Module):
         return mu, logvar.clamp(-8, 3)
 
     def decode(self, condition, z):
-        return self.decoder(torch.cat([condition, z], dim=1)).reshape(-1, 2, *GRID) * self.bounds
+        raw = self.decoder(torch.cat([condition, z], dim=1))
+        return (
+            monotone_controls(raw.reshape(-1, 3, 17))
+            if self.monotone
+            else raw.reshape(-1, 2, *GRID) * self.bounds
+        )
 
     def generate(self, reference, tokens, epsilon):
         condition = self.condition(reference, tokens)
