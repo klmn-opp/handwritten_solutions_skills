@@ -12,7 +12,7 @@ def launch(arm: str, base: Path) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
-    if arm not in ["structure", "adversarial"]:
+    if arm not in ["structure", "adversarial", "structure-relaxed", "adversarial-relaxed"]:
         raise ValueError("Fixed arms required")
     verify_run(base)
     prior = json.loads((base / "reports/request.json").read_text())
@@ -25,16 +25,17 @@ def launch(arm: str, base: Path) -> Path:
         "data": str(data),
         "data_sha256": digest(data / "run.json"),
         "arrays_sha256": digest(data / "reports/arrays.npz"),
-        "steps": 2000,
+        "steps": 4000 if arm.endswith("-relaxed") else 2000,
         "batch": 8,
         "seed": 2914,
         "generator_lr": 0.0001,
         "critic_lr": 0.0001,
-        "adversarial_weight": 0.05,
+        "adversarial_weight": 0.5 if arm.endswith("-relaxed") else 0.05,
+        "relaxed_structure": arm.endswith("-relaxed"),
         "input_patch": 128,
         "loss_patch": 64,
         "receptive_field": 63,
-        "uses_unpaired_real_original_ink": arm == "adversarial",
+        "uses_unpaired_real_original_ink": arm.startswith("adversarial"),
         "paired_pixel_reconstruction": False,
         "font_structure_is_fixed_constraint": True,
         "C_used": False,
@@ -142,7 +143,7 @@ def worker(request: Path) -> None:
         fake = model(condition).sigmoid()[..., 32:96, 32:96]
         guide = condition[..., 32:96, 32:96]
         d_loss = fake.new_zeros(())
-        if r["arm"] == "adversarial":
+        if r["arm"].startswith("adversarial"):
             critic.requires_grad_(True)
             dopt.zero_grad(set_to_none=True)
             real_patch.requires_grad_(step % 16 == 0)
@@ -156,9 +157,11 @@ def worker(request: Path) -> None:
             torch.nn.utils.clip_grad_norm_(critic.parameters(), 5)
             dopt.step()
         critic.requires_grad_(False)
-        content, parts = structure_loss(fake, guide)
+        content, parts = structure_loss(fake, guide, relaxed=r.get("relaxed_structure", False))
         adversarial = (
-            (critic(fake) - 1).square().mean() if r["arm"] == "adversarial" else fake.new_zeros(())
+            (critic(fake) - 1).square().mean()
+            if r["arm"].startswith("adversarial")
+            else fake.new_zeros(())
         )
         loss = content + r["adversarial_weight"] * adversarial
         if not torch.isfinite(loss) or not torch.isfinite(d_loss):
@@ -188,7 +191,7 @@ def worker(request: Path) -> None:
                     "optimizer": optimizer.state_dict(),
                     "critic_optimizer": dopt.state_dict(),
                     "generator_steps": step,
-                    "critic_steps": step if r["arm"] == "adversarial" else 0,
+                    "critic_steps": step if r["arm"].startswith("adversarial") else 0,
                     "config": r,
                     "numpy_rng": rng.bit_generator.state,
                     "torch_rng": torch.get_rng_state(),
@@ -242,7 +245,7 @@ def worker(request: Path) -> None:
         {
             "actual_parameter_training": True,
             "generator_updates": r["steps"],
-            "critic_updates": r["steps"] if r["arm"] == "adversarial" else 0,
+            "critic_updates": r["steps"] if r["arm"].startswith("adversarial") else 0,
             "generator_parameters": sum(p.numel() for p in model.parameters()),
             "critic_parameters": sum(p.numel() for p in critic.parameters()),
             "parameter_l1_change": sum(
@@ -256,7 +259,7 @@ def worker(request: Path) -> None:
             "seconds": time.perf_counter() - begin,
             "peak_cuda_allocated": torch.cuda.max_memory_allocated(),
             "gpu": torch.cuda.get_device_name(),
-            "checkpoint_sha256": digest(run / "logs/checkpoint-02000.pt"),
+            "checkpoint_sha256": digest(run / f"logs/checkpoint-{r['steps']:05d}.pt"),
             "C_used": False,
             "stochastic_output": False,
             "RL_or_preference_training": False,
@@ -266,7 +269,10 @@ def worker(request: Path) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("mode", choices=["structure", "adversarial", "worker"])
+    parser.add_argument(
+        "mode",
+        choices=["structure", "adversarial", "structure-relaxed", "adversarial-relaxed", "worker"],
+    )
     parser.add_argument("path", type=Path)
     args = parser.parse_args()
     if args.mode == "worker":

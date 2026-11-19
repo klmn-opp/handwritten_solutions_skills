@@ -28,6 +28,11 @@ class AdversarialInkContracts(unittest.TestCase):
         self.assertGreater(float(blank), 0)
         self.assertGreater(float(extra), 0)
         self.assertGreater(float(parts["outside"]), 0)
+        coarse_blank, _ = structure_loss(t.zeros_like(ref), ref, relaxed=True)
+        coarse_extra, coarse_parts = structure_loss(added, ref, relaxed=True)
+        self.assertGreater(float(coarse_blank), 0)
+        self.assertGreater(float(coarse_extra), 0)
+        self.assertGreater(float(coarse_parts["outside"]), 0)
 
     def test_frozen_critic_updates_generator_without_critic_gradients(self):
         from research.corpus.adversarial_ink_model import InkPatchCritic

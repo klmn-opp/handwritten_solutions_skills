@@ -22,16 +22,20 @@ class InkPatchCritic(nn.Module):
         return self.net(ink)
 
 
-def structure_loss(ink: torch.Tensor, reference: torch.Tensor) -> tuple[torch.Tensor, dict]:
+def structure_loss(
+    ink: torch.Tensor, reference: torch.Tensor, *, relaxed: bool = False
+) -> tuple[torch.Tensor, dict]:
     if ink.shape != reference.shape or ink.ndim != 4:
         raise ValueError("Matching local ink and content guide required")
     structure = ink.new_zeros(())
-    for scale, weight in [(4, 1.0), (8, 1.0), (16, 0.5)]:
+    scales = [(16, 1.0), (32, 1.0)] if relaxed else [(4, 1.0), (8, 1.0), (16, 0.5)]
+    for scale, weight in scales:
         source = F.avg_pool2d(reference, scale)
         prediction = F.avg_pool2d(ink, scale)
         presence = F.max_pool2d(reference, scale)
         structure = structure + weight * ((prediction - source).abs() * (1 + 4 * presence)).mean()
-    support = (F.max_pool2d(reference, 9, 1, 4) > 0.05).to(ink.dtype)
+    radius = 12 if relaxed else 4
+    support = (F.max_pool2d(reference, radius * 2 + 1, 1, radius) > 0.05).to(ink.dtype)
     outside = (ink * (1 - support)).mean()
     entropy = (ink * (1 - ink)).mean()
     return 0.7 * structure + 2 * outside + 0.2 * entropy, {
