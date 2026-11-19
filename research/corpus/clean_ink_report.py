@@ -42,6 +42,7 @@ def report(
     footer: str | None = None,
     overview_indices: list[int] | None = None,
     metric_size: tuple[int, int] | None = None,
+    author_indices: list[int] | None = None,
 ) -> None:
     require_running(main)
     verify_run(comparison)
@@ -201,6 +202,10 @@ def report(
         review_indices += sorted({r["row_index"] for r in rows if r["split"] == split})[:2]
     if not any(r["split"] == "holdout" for r in rows):
         review_indices = sorted({r["row_index"] for r in rows if r["split"] == "validation"})[:4]
+    if author_indices is not None:
+        if not set(author_indices) <= set(indices):
+            raise ValueError("Author review contains absent region")
+        review_indices = list(author_indices)
     if review_methods is None:
         review_methods = [
             "handnote",
@@ -230,7 +235,12 @@ def report(
                 "id": f"g{gi + 1:02d}",
                 "title": f"{review_title} {gi + 1} / {len(review_indices)}",
                 "description": "先确认文字完整，特别看 i 的点、标点、细笔和下伸。"
-                "自然度评分包含灰影/重影是否消失；备注可写偏好字母及具体缺笔。其他评分可留空。",
+                "自然度评分包含灰影/重影是否消失；备注可写偏好字母及具体缺笔。其他评分可留空。"
+                + (
+                    " 本组来自训练样本，仅评风格。"
+                    if current["handnote"]["split"] == "train"
+                    else " 本组来自开发/测试样本，具体划分见证据报告。"
+                ),
                 "target": current["handnote"]["text"],
                 "reference": reference,
                 "candidates": candidates,

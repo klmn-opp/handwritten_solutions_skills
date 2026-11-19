@@ -234,7 +234,12 @@ def compare(evaluation: Path) -> Path:
                 old += 1
             selected.append({"row_index": i, **row})
             images, receipt = strips(
-                row["normalized_label"], row["sample_id"], profile, {}, methods=("handnote",)
+                row["normalized_label"],
+                row["sample_id"],
+                profile,
+                {},
+                methods=("handnote",),
+                dpi=300,
             )
             images["real-reference"] = Image.open(row["crop"]).convert("RGB")
             write(

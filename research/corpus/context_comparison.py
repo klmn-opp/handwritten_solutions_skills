@@ -25,10 +25,13 @@ def strips(
     banks: dict,
     *,
     methods: tuple[str, ...] = ("handnote", "round2", "repair"),
+    dpi: int | None = None,
 ) -> tuple[dict, dict]:
     if not methods or not set(methods) <= {"handnote", "round2", "repair"}:
         raise ValueError("Unknown frozen comparison method")
     cfg = RenderConfig(seed=1010, font_size_pt=12, ink="#000000", semantic_layout=True)
+    if dpi is not None:
+        cfg = RenderConfig(**{**cfg.model_dump(), "dpi": dpi})
     page, renderer, provenance = layout(text, "Reference", profile, cfg)
     original = dict(renderer._outlines)
     # Explicit title contains exactly nine visible letters; crop only body items.
