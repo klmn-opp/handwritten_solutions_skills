@@ -31,6 +31,29 @@ class SemanticGeometry(unittest.TestCase):
 
 @unittest.skipUnless(importlib.util.find_spec("torch"), "Torch remains optional")
 class SemanticLearning(unittest.TestCase):
+    def test_zero_modulation_preserves_field_and_all_hidden_layers_receive_gradients(self):
+        import torch
+
+        from research.corpus.semantic_ink_model import HierarchicalSemanticInk, ModulatedSemanticInk
+
+        base = HierarchicalSemanticInk()
+        model = ModulatedSemanticInk()
+        result = model.load_state_dict(base.state_dict(), strict=False)
+        self.assertEqual(
+            set(result.missing_keys), {"field_modulation.weight", "field_modulation.bias"}
+        )
+        t = torch.tensor([[[102, 0, 0], [0, 0, 0]]])
+        b = torch.tensor([[[16, 16, 80, 80], [0, 0, 0, 0]]]).float()
+        points = torch.tensor([[[25, 34], [45, 65]]]).float()
+        style = torch.ones(1, 2, 10)
+        self.assertTrue(
+            torch.equal(model(t, b, points, style=style)[0], base(t, b, points, style=style)[0])
+        )
+        model(t, b, points, style=style)[0].sum().backward()
+        gradients = model.field_modulation.weight.grad.reshape(3, 2, 128, 10)
+        for j in range(3):
+            self.assertGreater(float(gradients[j].abs().sum()), 0)
+
     def test_local_code_changes_its_own_field_and_retains_shared_word_gradient(self):
         import torch
 

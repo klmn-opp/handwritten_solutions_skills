@@ -48,6 +48,9 @@ class SemanticInk(nn.Module):
     def field_style(self, style, ids):
         return style
 
+    def evaluate_field(self, features, style):
+        return self.field(features)
+
     def forward(
         self, tokens: torch.Tensor, boxes: torch.Tensor, points: torch.Tensor, *, style=None
     ):
@@ -79,17 +82,18 @@ class SemanticInk(nn.Module):
         xy = self.local_coordinates(xy, local, style)
         angle = xy[..., None] * self.frequencies
         pe = torch.cat([xy, angle.sin().flatten(-2), angle.cos().flatten(-2)], -1)
+        field_style = self.field_style(style, ids)
         features = torch.cat(
             [
                 self.character_features(local[..., 0], local_radii),
                 self.neighbour_features(local[..., 1]),
                 self.neighbour_features(local[..., 2]),
-                self.writer_features(xy, self.field_style(style, ids)),
+                self.writer_features(xy, field_style),
                 pe,
             ],
             -1,
         )
-        result = self.field(features)
+        result = self.evaluate_field(features, field_style)
         support = (xy.abs() <= 1.6).all(-1) & (local[..., 0] != 0)
         logits = result[..., 0].masked_fill(~support, -15).amax(-1)
         sdf = result[..., 1].tanh().masked_fill(~support, -1).amax(-1)
@@ -194,6 +198,43 @@ class HierarchicalSemanticInk(AutoDecodedSemanticInk):
             + self.style_projection(style[..., :2])
             + self.local_projection(style[..., 2:])
         )
+
+
+class ModulatedSemanticInk(HierarchicalSemanticInk):
+    """Let learned local conditions affect every hidden layer, not just its input."""
+
+    architecture = "semantic-modulated-local-ink/1"
+
+    def __init__(self):
+        super().__init__()
+        self.field_modulation = nn.Linear(10, 3 * 2 * 128)
+        nn.init.zeros_(self.field_modulation.weight)
+        nn.init.zeros_(self.field_modulation.bias)
+
+    def load_identity(self, state):
+        result = self.load_state_dict(state, strict=False)
+        if (
+            set(result.missing_keys)
+            != {
+                "context_gate",
+                "style_projection.weight",
+                "local_projection.weight",
+                "field_modulation.weight",
+                "field_modulation.bias",
+            }
+            or result.unexpected_keys
+        ):
+            raise ValueError("Only the registered new conditions may be absent")
+
+    def evaluate_field(self, features, style):
+        modulation = self.field_modulation(style).reshape(*style.shape[:-1], 3, 2, 128)
+        hidden = features
+        for j in range(3):
+            hidden = self.field[j * 2](hidden)
+            scale = 1 + 0.5 * modulation[..., j, 0, :].tanh()
+            shift = 0.5 * modulation[..., j, 1, :].tanh()
+            hidden = self.field[j * 2 + 1](hidden * scale + shift)
+        return self.field[-1](hidden)
 
 
 class MetricSemanticInk(ContextualSemanticInk):

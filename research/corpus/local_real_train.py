@@ -8,7 +8,9 @@ from pathlib import Path
 from research.corpus.context_content_train import digest, write
 
 
-def launch(data: Path, teacher: Path, words: Path, control: Path | None = None) -> Path:
+def launch(
+    data: Path, teacher: Path, words: Path, control: Path | None = None, modulated=False
+) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
@@ -16,6 +18,8 @@ def launch(data: Path, teacher: Path, words: Path, control: Path | None = None) 
         verify_run(p)
     if control:
         verify_run(control)
+    if modulated and control is None:
+        raise ValueError("Layer modulation requires the registered hierarchical control")
     class_coordinates = json.loads((data / "run.json").read_text())["config"].get(
         "per_class_coordinates", False
     )
@@ -39,10 +43,13 @@ def launch(data: Path, teacher: Path, words: Path, control: Path | None = None) 
         "code_l2": 0.01,
         "support_weight": 0.5,
         "inherited_model_updates": 24000,
-        "architecture": "semantic-hierarchical-local-ink/1"
+        "architecture": "semantic-modulated-local-ink/1"
+        if modulated
+        else "semantic-hierarchical-local-ink/1"
         if control
         else "semantic-word-autodecoder/1",
         "hierarchical": control is not None,
+        "modulated": bool(modulated),
         "class_coordinates": class_coordinates,
         "density_normalized": density_normalized,
         "control_initial": str(control / "logs/initial-state.pt") if control else None,
@@ -56,7 +63,9 @@ def launch(data: Path, teacher: Path, words: Path, control: Path | None = None) 
     run = create("verified-local-ink-training", seed=cfg["seed"], config=cfg)
     write(run.path / "reports/request.json", {**cfg, "run": str(run.path)})
     name = (
-        "density-hierarchical"
+        "modulated"
+        if modulated
+        else "density-hierarchical"
         if density_normalized
         else "class-hierarchical"
         if class_coordinates
@@ -102,6 +111,7 @@ def worker(path: Path) -> None:
     from research.corpus.semantic_ink_model import (
         AutoDecodedSemanticInk,
         HierarchicalSemanticInk,
+        ModulatedSemanticInk,
         SemanticInk,
     )
     from research.corpus.semantic_raw_data import apply_metrics
@@ -129,7 +139,13 @@ def worker(path: Path) -> None:
     teacher.load_state_dict(saved["model"])
     teacher.requires_grad_(False)
     hierarchical = cfg.get("hierarchical", False)
-    model = (HierarchicalSemanticInk() if hierarchical else AutoDecodedSemanticInk()).cuda()
+    model = (
+        ModulatedSemanticInk()
+        if cfg.get("modulated")
+        else HierarchicalSemanticInk()
+        if hierarchical
+        else AutoDecodedSemanticInk()
+    ).cuda()
     model.load_identity(saved["model"])
     codes = torch.nn.Parameter(torch.randn(group_count, 2, device="cuda") * 0.1)
     local_priors = {}
