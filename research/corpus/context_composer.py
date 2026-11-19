@@ -94,9 +94,11 @@ class FrozenBank:
         return index, variant, self.gates[key]
 
 
-def layout(source: str, identity: str, profile, cfg: RenderConfig):
+def layout(source: str, identity: str, profile, cfg: RenderConfig, *, canonical_glyphs=False):
     blocks = validate_markdown(source, profile)
-    upstream = upstream_config(profile.font, cfg, bool(profile.manifest.variants))
+    upstream = upstream_config(
+        profile.font, cfg, bool(profile.manifest.variants) and not canonical_glyphs
+    )
     upstream = upstream.replace(
         h1_size=upstream.body_size,
         h2_size=upstream.body_size,

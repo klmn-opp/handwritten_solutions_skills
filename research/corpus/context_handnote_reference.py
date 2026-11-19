@@ -10,11 +10,13 @@ from hwsol.jobs.paper import pdf_image
 from research.corpus.context_composer import layout
 
 
-def render(text: str, profile, *, raster_scale: int = 1):
+def render(text: str, profile, *, raster_scale: int = 1, canonical_glyphs: bool = False):
     if type(raster_scale) is not int or not 1 <= raster_scale <= 8:
         raise ValueError("Reference raster scale must be integer 1 through 8")
     config = RenderConfig(seed=1010, font_size_pt=12, ink="#000000", semantic_layout=True, dpi=300)
-    page, renderer, provenance = layout(text, "Reference", profile, config)
+    page, renderer, provenance = layout(
+        text, "Reference", profile, config, canonical_glyphs=canonical_glyphs
+    )
     body = provenance[len("Reference") :]
     expected = "".join(text.split())
     if "".join(r["semantic"] for r in body) != expected or not body:
@@ -62,6 +64,7 @@ def render(text: str, profile, *, raster_scale: int = 1):
             "word_bounds_page": word_boxes,
             "personal_profile_unchanged": True,
             "zero_neural_updates": True,
+            **({"canonical_glyphs": True} if canonical_glyphs else {}),
             **(
                 {
                     "raster_scale": raster_scale,
