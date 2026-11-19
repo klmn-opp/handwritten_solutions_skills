@@ -20,7 +20,13 @@ def load(path):
     return json.loads(Path(path).read_text())
 
 
+def require_running(destination: Path):
+    if load(destination / "run.json")["status"] != "running":
+        raise ValueError("Finalized evidence is immutable; use a new running delivery run")
+
+
 def diagnose(source: Path, destination: Path):
+    require_running(destination)
     verify_run(source)
     images = load(source / "reports/image-diagnostics.json")
     latent = load(source / "reports/latent-diagnostics.json")
@@ -105,6 +111,7 @@ def diagnose(source: Path, destination: Path):
 
 
 def comparisons(source: Path, destination: Path):
+    require_running(destination)
     verify_run(source)
     rows = load(source / "reports/observations-input.json")
     methods = [
@@ -173,6 +180,7 @@ def comparisons(source: Path, destination: Path):
 
 
 def curves(main: Path):
+    require_running(main)
     paths = load(main / "reports/context-training-runs.json")
     fig, axes = plt.subplots(1, 2, figsize=(11, 4))
     for name, path in paths.items():
