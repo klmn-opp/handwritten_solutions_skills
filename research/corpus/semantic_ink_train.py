@@ -8,17 +8,22 @@ from pathlib import Path
 from research.corpus.context_content_train import digest, write
 
 
-def launch(data: Path):
+def launch(data: Path, arm="initial"):
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
     verify_run(data)
+    if arm not in {"initial", "local-sampling", "identity-capacity"}:
+        raise ValueError("Unknown preregistered arm")
     r = {
         "data": str(data.resolve()),
         "data_sha256": digest(data / "run.json"),
         "arrays_sha256": digest(data / "reports/arrays.npz"),
         "architecture": "semantic-neighbour-ink-field/1",
         "seed": 3015,
+        "arm": arm,
+        "sampler": "foreground-uniform" if arm == "initial" else "glyph-bounds-uniform",
+        "context_scale": 0.0 if arm == "identity-capacity" else 1.0,
         "steps": 6000,
         "lr": 0.0005,
         "batch": 4,
@@ -31,7 +36,8 @@ def launch(data: Path):
     }
     run = create("semantic-ink-font-capacity", seed=r["seed"], config=r)
     write(run.path / "reports/request.json", {**r, "run": str(run.path)})
-    Path("/tmp/context-v01015-font").write_text(str(run.path))
+    pointer = "font" if arm == "initial" else arm
+    Path(f"/tmp/context-v01015-{pointer}").write_text(str(run.path))
     print(run.path, flush=True)
     try:
         with (run.path / "logs/worker.log").open("w") as log:
@@ -79,7 +85,7 @@ def worker(request: Path):
     assert not set(train) & set(idx["development"] + idx["novel"])
     assert all(rows[i]["split"] == "train" for i in train)
     x = {k: torch.tensor(arrays[k], device="cuda") for k in arrays.files}
-    model = SemanticInk().cuda()
+    model = SemanticInk(context_scale=r.get("context_scale", 1)).cuda()
     initial = {k: v.detach().clone() for k, v in model.state_dict().items()}
     torch.save(initial, run / "logs/initial-state.pt")
     optimizer = torch.optim.AdamW(model.parameters(), lr=r["lr"])
@@ -99,7 +105,18 @@ def worker(request: Path):
         pixel = []
         for i in ii:
             # Oversample real target foreground only DURING training, never generation.
-            a = rng.choice(foreground[i], r["points"] // 2)
+            if r.get("sampler", "foreground-uniform") == "foreground-uniform":
+                a = rng.choice(foreground[i], r["points"] // 2)
+            else:
+                # Sample both ink and whitespace near EACH glyph using layout only.
+                valid = np.flatnonzero(arrays["tokens"][i, :, 0])
+                boxes = arrays["boxes"][i, rng.choice(valid, r["points"] // 2)]
+                center = (boxes[:, :2] + boxes[:, 2:]) / 2
+                radius = (boxes[:, 2:] - boxes[:, :2]) / 2
+                points_xy = center + rng.uniform(-1.6, 1.6, center.shape) * radius
+                px = np.rint(points_xy[:, 0]).astype(int).clip(0, 511)
+                py = np.rint(points_xy[:, 1]).astype(int).clip(0, 127)
+                a = py * 512 + px
             b = rng.integers(0, 128 * 512, r["points"] - len(a))
             pixel.append(np.concatenate([a, b]))
         pi = torch.tensor(np.array(pixel), device="cuda")
@@ -189,8 +206,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("mode", choices=["train", "worker"])
     parser.add_argument("path", type=Path)
+    parser.add_argument("--arm", default="initial")
     args = parser.parse_args()
     if args.mode == "train":
-        launch(args.path)
+        launch(args.path, args.arm)
     else:
         worker(args.path)

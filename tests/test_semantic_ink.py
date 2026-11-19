@@ -68,3 +68,19 @@ class SemanticLearning(unittest.TestCase):
         padded_b = torch.cat([b, torch.zeros_like(b)], 1)
         c = model.image(padded_t, padded_b, 40, 50, 137)
         self.assertTrue(torch.allclose(a, c, atol=2e-7, rtol=1e-5))
+
+    def test_identity_capacity_disables_only_neighbour_effect(self):
+        import torch
+
+        from research.corpus.semantic_ink_model import SemanticInk
+
+        model = SemanticInk(context_scale=0)
+        t = torch.tensor([[[102, 97, 98]]])
+        boxes = torch.tensor([[[10, 10, 25, 45]]]).float()
+        points = torch.tensor([[[15, 20]]]).float()
+        a = model(t, boxes, points)[0]
+        changed = t.clone()
+        changed[..., 1:] = 99
+        self.assertTrue(torch.equal(a, model(changed, boxes, points)[0]))
+        changed[..., 0] = 100
+        self.assertFalse(torch.equal(a, model(changed, boxes, points)[0]))
