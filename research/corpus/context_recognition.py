@@ -14,16 +14,18 @@ from research.corpus.experiment import create
 from research.english.metrics import aggregate, score
 
 
-def evaluate(comparison: Path) -> Path:
+def evaluate(comparison: Path, *, teacher_used: bool = False) -> Path:
     verify_run(comparison)
     rows = json.loads((comparison / "reports/observations-input.json").read_text())
     checkpoint = Path("workspace/checkpoints/trocr-base-handwritten-v08-xet").resolve()
     run = create(
-        "context-independent-recognition",
+        "context-recognition-observations" if teacher_used else "context-independent-recognition",
         config={
             "comparison": str(comparison.resolve()),
             "comparison_sha256": sha256(comparison / "run.json"),
             "interpretation": "recognizer discrepancies, not human-verified errors",
+            "recognizer_independence": {"tesseract": True, "trocr": not teacher_used},
+            "trocr_used_as_training_teacher": teacher_used,
             "checkpoint": {
                 str(p.relative_to(checkpoint)): sha256(p)
                 for p in checkpoint.rglob("*")
@@ -130,4 +132,6 @@ def evaluate(comparison: Path) -> Path:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("comparison", type=Path)
-    print(evaluate(parser.parse_args().comparison))
+    parser.add_argument("--teacher-used", action="store_true")
+    args = parser.parse_args()
+    print(evaluate(args.comparison, teacher_used=args.teacher_used))
