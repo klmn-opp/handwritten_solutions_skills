@@ -9,12 +9,17 @@ from research.corpus.context_content_train import digest as sha256
 from research.corpus.context_content_train import write as atomic_json
 
 
-def train(data: Path, mode: str, steps: int) -> Path:
+def train(data: Path, mode: str, steps: int, *, warmstart: Path | None = None) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
-    if mode not in {"capacity", "deterministic", "variational"} or steps <= 0:
+    if (
+        mode not in {"capacity", "deterministic", "variational", "continue", "content"}
+        or steps <= 0
+    ):
         raise ValueError("Finite registered mode required")
+    if (mode in {"continue", "content"}) != (warmstart is not None):
+        raise ValueError("Paired continuation needs the same frozen parent checkpoint")
     verify_run(data)
     config = {
         "data": str(data),
@@ -23,15 +28,26 @@ def train(data: Path, mode: str, steps: int) -> Path:
         "steps": steps,
         "seed": 1606,
         "batch": 8,
-        "lr": 0.0005,
+        "lr": 0.0001 if warmstart else 0.0005,
         "latent": 32,
-        "kl_max": 0.003 if mode == "variational" else 0,
-        "teacher_used": False,
+        "kl_max": 0.003 if mode in {"variational", "continue", "content"} else 0,
+        "teacher_used": mode == "content",
         "font_target_or_anchor": False,
         "C_used": False,
         "protocol_sha256": sha256(Path("docs/V0106_PROTOCOL.md")),
         "architecture": "whole-word-direct-field-cvae/1",
+        "warmstart": str(warmstart) if warmstart else None,
+        "warmstart_sha256": sha256(warmstart) if warmstart else None,
+        "optimizer": "fresh AdamW, identical in both continuation arms",
     }
+    if warmstart:
+        config["protocol_sha256"] = sha256(Path("docs/V0106_CONTENT_PROTOCOL.md"))
+    if mode == "content":
+        teacher = Path("workspace/checkpoints/trocr-base-handwritten-v08-xet").resolve()
+        config["teacher"] = str(teacher)
+        config["teacher_sha256"] = {
+            str(p.relative_to(teacher)): sha256(p) for p in teacher.rglob("*") if p.is_file()
+        }
     run = create("word-style-cuda-training", config=config, seed=config["seed"])
     atomic_json(run.path / "reports/request.json", {**config, "run": str(run.path)})
     try:
@@ -112,11 +128,31 @@ def worker(request: Path) -> None:
 
     fields = torch.tensor(np.stack([sdf(a) for a in arrays["target"]])[:, None], device="cuda")
     model = WordStyle(r["latent"]).cuda()
+    if r.get("warmstart"):
+        if sha256(r["warmstart"]) != r["warmstart_sha256"]:
+            raise ValueError("Changed parent checkpoint")
+        model.load_state_dict(
+            torch.load(r["warmstart"], map_location="cuda", weights_only=False)["model"]
+        )
     if r["mode"] == "deterministic":
         model.posterior.requires_grad_(False)
     initial = {k: v.detach().clone() for k, v in model.state_dict().items()}
     torch.save(initial, run / "logs/initial-state.pt")
     optimizer = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=r["lr"])
+    teacher, labels, teacher_initial = None, None, None
+    if r["teacher_used"]:
+        from research.corpus.context_content_model import FrozenTranscriptionLoss
+
+        for rel, expected in r["teacher_sha256"].items():
+            if sha256(Path(r["teacher"]) / rel) != expected:
+                raise ValueError("Changed local teacher weights")
+        os.environ["HF_HUB_OFFLINE"] = "1"
+        before_cpu, before_cuda = torch.get_rng_state(), torch.cuda.get_rng_state()
+        teacher = FrozenTranscriptionLoss(r["teacher"])
+        torch.set_rng_state(before_cpu)
+        torch.cuda.set_rng_state(before_cuda)
+        labels = teacher.labels([q["text"] for q in rows])
+        teacher_initial = {n: p.detach().clone().cpu() for n, p in teacher.model.named_parameters()}
     curve, evaluations = [], []
     start = time.perf_counter()
     torch.cuda.reset_peak_memory_stats()
@@ -133,7 +169,7 @@ def worker(request: Path) -> None:
             logvars.append(lv.cpu().numpy())
         means, logvars = np.concatenate(means), np.concatenate(logvars)
         modes = ["posterior", "prior-0"] if r["mode"] != "deterministic" else ["prior-0"]
-        if final and r["mode"] == "variational":
+        if final and r["mode"] not in {"deterministic", "capacity"}:
             modes += ["prior-1", "prior-2", "prior-3"]
         for mode in modes:
             generator = torch.Generator(device="cuda").manual_seed(
@@ -203,6 +239,19 @@ def worker(request: Path) -> None:
         ink, field = model(refs[ii], z)
         reconstruction = reconstruction_loss(ink, field, targets[ii], fields[ii])
         loss = reconstruction + r["kl_max"] * min(1, step / 500) * kl
+        content = torch.zeros((), device="cuda")
+        if teacher is not None and step % 4 == 0:
+            prior_z = torch.randn(
+                2,
+                r["latent"],
+                device="cuda",
+                generator=torch.Generator(device="cuda").manual_seed(7606 + step),
+            )
+            prior_ink, _ = model(refs[ii[:2]], prior_z)
+            content = teacher(prior_ink, labels[ii[:2]])
+            loss = loss + 0.2 * content
+        if not torch.isfinite(loss):
+            raise ValueError("Nonfinite learning loss")
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 5)
         optimizer.step()
@@ -213,6 +262,7 @@ def worker(request: Path) -> None:
                     "loss": float(loss.detach()),
                     "reconstruction": float(reconstruction.detach()),
                     "kl": float(kl.detach()),
+                    "content": float(content.detach()),
                     "seconds": time.perf_counter() - start,
                 }
             )
@@ -232,6 +282,14 @@ def worker(request: Path) -> None:
                 run / f"logs/checkpoint-{step:04d}.pt",
             )
     torch.cuda.synchronize()
+    teacher_frozen = None
+    if teacher is not None:
+        teacher_frozen = all(
+            torch.equal(p.detach().cpu(), teacher_initial[n]) and p.grad is None
+            for n, p in teacher.model.named_parameters()
+        )
+        if not teacher_frozen:
+            raise ValueError("Frozen teacher mutated")
     result = {
         "actual_parameter_training": True,
         "updates": r["steps"],
@@ -248,6 +306,8 @@ def worker(request: Path) -> None:
         "dependencies": {k: importlib.metadata.version(k) for k in ["numpy", "pillow"]},
         "posterior_is_oracle_not_generation": True,
         "C_used": False,
+        "teacher_parameters_unchanged": teacher_frozen,
+        "warmstart_sha256": r.get("warmstart_sha256"),
     }
     atomic_json(run / "reports/training.json", result)
 
