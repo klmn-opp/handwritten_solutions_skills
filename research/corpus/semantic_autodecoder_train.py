@@ -115,12 +115,36 @@ def worker(request: Path) -> None:
     assert all(rows[i]["split"] == "train" and rows[i]["no_inverse_registration"] for i in train)
     assert not set(train) & set(idx["development"] + idx["novel"])
     arrays["generation_boxes"] = apply_metrics(arrays["tokens"], arrays["boxes"], metrics)
+    intact = r.get("intact_geometry")
+    if intact:
+        arrays["anchor_boxes"] = arrays[
+            "fitted_geometry" if intact == "fitted" else "train_geometry"
+        ]
     x = {k: torch.tensor(v, device="cuda") for k, v in arrays.items()}
     saved = torch.load(r["warmup"], map_location="cuda", weights_only=False)
     assert saved["step"] == 24000 and saved["config"]["arm"] == "identity-extended"
     model = AutoDecodedSemanticInk().cuda()
     model.load_identity(saved["model"])
     codes = torch.nn.Parameter(torch.randn(len(train), r["latent"], device="cuda"))
+    teacher = None
+    if intact:
+        from research.corpus.semantic_ink_model import SemanticInk
+
+        assert digest(r["intact_source"]) == r["intact_source_sha256"]
+        source = torch.load(r["intact_source"], map_location="cuda", weights_only=False)
+        assert source["step"] == 24000 and source["config"]["support_weight"] == 0.5
+        model.load_state_dict(source["model"])
+        with torch.no_grad():
+            source_mu = source["training_codes"].mean(0)
+            source_chol = torch.linalg.cholesky(
+                torch.cov(source["training_codes"].T) + torch.eye(2, device="cuda") * 1e-4
+            )
+            codes.copy_(codes @ source_chol.T + source_mu)
+            for j, i in enumerate(source["training_indices"]):
+                codes[train.index(i)].copy_(source["training_codes"][j])
+        teacher = SemanticInk(context_scale=0).cuda().eval()
+        teacher.load_state_dict(saved["model"])
+        teacher.requires_grad_(False)
     optimizer = torch.optim.AdamW(
         [
             {"params": model.parameters(), "lr": r["model_lr"]},
@@ -143,7 +167,7 @@ def worker(request: Path) -> None:
         torch.set_rng_state(previous["torch_rng"].cpu())
         torch.cuda.set_rng_state_all([q.cpu() for q in previous["cuda_rng"]])
         start = previous["step"]
-    support_rng = np.random.default_rng(3216)
+    support_rng = np.random.default_rng(r.get("prior_seed", 3216))
     support_groups = None
     if r.get("support"):
         from research.corpus.real_ink_support import nearest_real_loss
@@ -156,12 +180,41 @@ def worker(request: Path) -> None:
                 for c in np.unique(lib["labels"])
             }
         support_classes = sorted(support_groups)
+        font_classes = []
+        if intact:
+            training_classes = sorted(set(arrays["tokens"][train, :, 0].ravel()) - {0})
+            teacher_data = Path(saved["config"]["data"])
+            assert digest(teacher_data / "run.json") == saved["config"]["data_sha256"]
+            teacher_train = json.loads((teacher_data / "reports/indices.json").read_text())["train"]
+            with np.load(teacher_data / "reports/arrays.npz") as teacher_arrays:
+                teacher_classes = set(teacher_arrays["tokens"][teacher_train, :, 0].ravel()) - {0}
+            assert set(support_classes) <= teacher_classes
+            font_classes = sorted(teacher_classes - set(support_classes))
+            assert font_classes
+            write(
+                run / "reports/class-supervision.json",
+                {
+                    "real_glyph_support_classes": [chr(c) for c in support_classes],
+                    "whole_word_plus_font_teacher_classes": [
+                        chr(c) for c in font_classes if c in training_classes
+                    ],
+                    "font_auxiliary_retention_only_classes": [
+                        chr(c) for c in font_classes if c not in training_classes
+                    ],
+                    "font_teacher_classes": [chr(c) for c in font_classes],
+                    "font_teacher_sha256": r["warmup_sha256"],
+                    "font_teacher_not_updated": True,
+                    "neural_outputs_are_not_collected_glyphs": True,
+                },
+            )
         # Fixed prior from the common 20k source; no target- or label-specific code.
         with torch.no_grad():
             support_mu = codes.mean(0)
             support_chol = torch.linalg.cholesky(
                 torch.cov(codes.T) + torch.eye(2, device="cuda") * 1e-4
             )
+            if intact:
+                support_mu, support_chol = source_mu, source_chol
     initial_codes = codes.detach().clone()
     initial = {k: v.detach().clone() for k, v in model.state_dict().items()}
     torch.save({"model": initial, "codes": initial_codes}, run / "logs/initial-state.pt")
@@ -174,13 +227,18 @@ def worker(request: Path) -> None:
         {k: importlib.metadata.version(k) for k in ["torch", "numpy", "pillow"]},
     )
     for step in range(start + 1, start + r["steps"] + 1):
-        positions = rng.choice(len(train), r["batch"])
-        ii = np.asarray(train)[positions]
+        if intact:
+            ii = np.concatenate([rng.choice(idx["strong"], 2), rng.choice(idx["weak"], 2)])
+            positions = np.array([train.index(i) for i in ii])
+        else:
+            positions = rng.choice(len(train), r["batch"])
+            ii = np.asarray(train)[positions]
         np.add.at(counts, ii, 1)
         pixel = []
         for i in ii:
             valid = np.flatnonzero(arrays["tokens"][i, :, 0])
-            boxes = arrays["anchor_boxes"][i, rng.choice(valid, r["points"] // 2)]
+            sampling_boxes = arrays["train_geometry"] if intact else arrays["anchor_boxes"]
+            boxes = sampling_boxes[i, rng.choice(valid, r["points"] // 2)]
             center = (boxes[:, :2] + boxes[:, 2:]) / 2
             radius = (boxes[:, 2:] - boxes[:, :2]) / 2
             xy = center + rng.uniform(-1.6, 1.6, center.shape) * radius
@@ -203,10 +261,16 @@ def worker(request: Path) -> None:
         loss = reconstruction + r["code_l2_weight"] * penalty
         prior_loss = torch.zeros((), device="cuda")
         if support_groups is not None:
-            selected = support_rng.choice(support_classes, 4)
+            selected = (
+                np.concatenate(
+                    [support_rng.choice(support_classes, 2), support_rng.choice(font_classes, 2)]
+                )
+                if intact
+                else support_rng.choice(support_classes, 4)
+            )
             # Random legal neighbour identities prevent the code from disabling a
             # character in an unfamiliar word. These are conditions, not fake ink.
-            neighbours = support_rng.choice([0] + support_classes, (4, 2))
+            neighbours = support_rng.choice([0] + support_classes + font_classes, (4, 2))
             tt = torch.zeros(4, 2, 3, dtype=torch.long, device="cuda")
             tt[:, 0, 0] = torch.tensor(selected, device="cuda")
             tt[:, 0, 1:] = torch.tensor(neighbours, device="cuda")
@@ -224,12 +288,26 @@ def worker(request: Path) -> None:
             )
             prior_logits = model(tt, bb, pp, style=zz)[0]
             pixel_ids = torch.tensor(xy[..., 1] * 96 + xy[..., 0], device="cuda")
-            prior_loss = torch.stack(
-                [
-                    nearest_real_loss(prior_logits[j], support_groups[int(c)][:, pixel_ids[j]])
-                    for j, c in enumerate(selected)
-                ]
-            ).mean()
+            if teacher is not None:
+                with torch.no_grad():
+                    teacher_target = teacher(tt, bb, pp)[0].sigmoid()
+            prior_terms = []
+            for j, c in enumerate(selected):
+                if int(c) in support_groups:
+                    prior_terms.append(
+                        nearest_real_loss(prior_logits[j], support_groups[int(c)][:, pixel_ids[j]])
+                    )
+                else:
+                    target = teacher_target[j]
+                    prior_terms.append(
+                        (
+                            F.binary_cross_entropy_with_logits(
+                                prior_logits[j], target, reduction="none"
+                            )
+                            * (1 + 3 * target)
+                        ).mean()
+                    )
+            prior_loss = torch.stack(prior_terms).mean()
             loss = loss + r["support_weight"] * prior_loss
         if not torch.isfinite(loss):
             raise ValueError("Nonfinite auto-decoder loss")
@@ -266,6 +344,8 @@ def worker(request: Path) -> None:
                 run / f"logs/checkpoint-{step:05d}.pt",
             )
     model.eval()
+    if teacher is not None:
+        assert all(torch.equal(v, saved["model"][k]) for k, v in teacher.state_dict().items())
     with torch.no_grad():
         mu = codes.mean(0)
         cov = torch.cov(codes.T)
@@ -332,8 +412,8 @@ def worker(request: Path) -> None:
         run / "reports/result.json",
         {
             "new_model_updates": r["steps"],
-            "inherited_model_updates": 24000 + start,
-            "model_lineage_updates": 24000 + start + r["steps"],
+            "inherited_model_updates": r.get("initial_model_updates", 24000) + start,
+            "model_lineage_updates": r.get("initial_model_updates", 24000) + start + r["steps"],
             "actual_parameter_training": True,
             "training_code_parameters": codes.numel(),
             "parameters": sum(p.numel() for p in model.parameters()),
@@ -345,7 +425,7 @@ def worker(request: Path) -> None:
             "peak_cuda_allocated": torch.cuda.max_memory_allocated(),
             "gpu": torch.cuda.get_device_name(),
             "checkpoint_sha256": digest(run / f"logs/checkpoint-{start + r['steps']:05d}.pt"),
-            "prior_outputs": 84,
+            "prior_outputs": sum(q["mode"] == "prior" for q in records),
             "training_reconstruction_outputs": len(train),
             "real_draws": int(counts[train].sum()),
             "development_draws": int(counts[idx["development"]].sum()),
@@ -353,6 +433,8 @@ def worker(request: Path) -> None:
             "C_used": False,
             "style_quality_passed": False,
             "support_loss_weight": r.get("support_weight", 0),
+            "font_teacher_unchanged": teacher is not None,
+            "intact_geometry": intact,
         },
     )
 
