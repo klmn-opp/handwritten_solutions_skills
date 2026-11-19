@@ -108,13 +108,17 @@ class SemanticLearning(unittest.TestCase):
 
         from research.corpus.semantic_ink_model import SemanticInk, WordLatentSemanticInk
 
-        base = SemanticInk(context_scale=0)
-        model = WordLatentSemanticInk()
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        previous = torch.are_deterministic_algorithms_enabled()
+        torch.use_deterministic_algorithms(True)
+        self.addCleanup(torch.use_deterministic_algorithms, previous)
+        base = SemanticInk(context_scale=0).to(device)
+        model = WordLatentSemanticInk().to(device)
         model.load_identity(base.state_dict())
-        tokens = torch.tensor([[[102, 0, 0]]])
-        boxes = torch.tensor([[[10, 10, 30, 40]]]).float()
-        points = torch.tensor([[[20, 20]]]).float()
-        z = torch.randn(1, 8)
+        tokens = torch.tensor([[[102, 0, 0]]], device=device)
+        boxes = torch.tensor([[[10, 10, 30, 40]]], device=device).float()
+        points = torch.tensor([[[20, 20]]], device=device).float()
+        z = torch.randn(1, 8, device=device)
         initial = model(tokens, boxes, points, style=z)[0]
         self.assertTrue(torch.equal(base(tokens, boxes, points)[0], initial))
         initial.sum().backward()
@@ -129,7 +133,9 @@ class SemanticLearning(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             model(tokens, boxes, points)
-        mu, lv = model.posterior(torch.rand(1, 1, 128, 512), torch.rand(1, 1, 128, 512))
+        mu, lv = model.posterior(
+            torch.rand(1, 1, 128, 512, device=device), torch.rand(1, 1, 128, 512, device=device)
+        )
         self.assertEqual(tuple(mu.shape), (1, 8))
         (mu.square().mean() + lv.square().mean()).backward()
         self.assertTrue(all(p.grad is not None for p in model.posterior_encoder.parameters()))

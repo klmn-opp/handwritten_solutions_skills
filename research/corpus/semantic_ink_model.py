@@ -137,7 +137,9 @@ class WordLatentSemanticInk(ContextualSemanticInk):
             nn.AvgPool2d(2),
             block(2, 16, 2),
             block(16, 32, 2),
-            nn.AdaptiveAvgPool2d((2, 4)),
+            # Input is fixed 128x512 → 16x64 here. Fixed nonoverlapping pooling
+            # has a deterministic CUDA backward, unlike adaptive_avg_pool2d.
+            nn.AvgPool2d((8, 16)),
             nn.Flatten(),
             nn.Linear(32 * 2 * 4, self.latent * 2),
         )
