@@ -6,12 +6,12 @@
 
 ## 先看这些真实产物
 
-- [扩充数据新模型：4题4页](../workspace/runs/20261119T145124431181Z-hard-mixed-page-comparison-032129a3/comparisons/expanded-data-homework.pdf)，包括谱分解/向量微分方程、参数积分、回归推断、受迫 RLC。完整英文解释与公式穿插。
-- [16页四路同内容对照](../workspace/runs/20261119T145124431181Z-hard-mixed-page-comparison-032129a3/rendered/homework_solutions.pdf)。每题连续四页依次为 Handnote、v0108 frozen、旧数据再训3000、扩充数据再训3000；页脚标明方法。
+- [扩充数据新模型：4题4页](../workspace/runs/20261119T140549879925Z-context-diversity-v0109-b00c7c14/comparisons/expanded-data-homework.pdf)，包括谱分解/向量微分方程、参数积分、回归推断、受迫 RLC。完整英文解释与公式穿插。
+- [16页四路同内容对照](../workspace/runs/20261119T140549879925Z-context-diversity-v0109-b00c7c14/rendered/homework_solutions.pdf)。每题连续四页依次为 Handnote、v0108 frozen、旧数据再训3000、扩充数据再训3000；页脚标明方法。
 - [f 与整词局部对照，3页](../workspace/runs/20261119T140549879925Z-context-diversity-v0109-b00c7c14/comparisons/f-word-comparison.pdf)。列为真实历史墨迹、Handnote、v0108、旧数据续训、扩充续训、扩充另一个种子。覆盖公共72词评估集全部9个含f词，不按表现筛选。
 - [直接墨迹模型失败原图，2页](../workspace/runs/20261119T140549879925Z-context-diversity-v0109-b00c7c14/comparisons/failed-new-ink-capacity.pdf)，不可当作交付模型。
 - [四个阶段真实训练曲线](../workspace/runs/20261119T140549879925Z-context-diversity-v0109-b00c7c14/comparisons/training-curves.pdf)；不同架构的 loss 不能横向比较。
-- [逐页 PNG](../workspace/runs/20261119T145124431181Z-hard-mixed-page-comparison-032129a3/rendered/pages)、[全部主证据](../workspace/runs/20261119T140549879925Z-context-diversity-v0109-b00c7c14)、[扩充数据版本](../workspace/runs/20261119T141744249007Z-real-ink-expanded-data-0c499af3)。
+- [逐页 PNG](../workspace/runs/20261119T140549879925Z-context-diversity-v0109-b00c7c14/rendered/pages)、[全部主证据](../workspace/runs/20261119T140549879925Z-context-diversity-v0109-b00c7c14)、[扩充数据版本](../workspace/runs/20261119T141744249007Z-real-ink-expanded-data-0c499af3)。
 
 真实参考列是历史原裁剪经既有归一化后的图，不是模型输出。数学仍为 Handnote/MathText 矢量结构与字形；标题、单字符解释和不适合神经处理的内容保留原渲染。整段英文由逐词结果排版，不是端到端整段神经生成。
 
@@ -75,7 +75,9 @@ Sol先看8张匿名整页，未见整页裁切或遮挡；部分原有数学0/6�
 
 ## 工程检查与保留
 
-261项测试通过（46.55s）；3项实际CUDA模型/梯度性质检查通过。4个训练阶段共672张原始输出PNG独立重放完全一致；864张CPU约束输出重放一致；1527个困难页词控制数组重放一致，最终碰撞修复前后数组也一致。
+262项测试通过（46.41s）；3项实际CUDA模型/梯度性质检查通过。4个训练阶段共672张原始输出PNG独立重放完全一致；864张CPU约束输出重放一致；1527个困难页词控制数组重放一致，最终碰撞修复前后数组也一致。
+最终交付补充了可打印的方法页脚：旧FreeText注释未在PDFium预览中显示，已改为PDF正文中的方法标记；16页页脚之外所有像素与已审核页面完全一致。旧版本保留。
+
 133受保护文件、14归档原件、原Corpus数据库、613条裁剪/来源摘要检查通过。生产src/依赖相对稳定基线未改，CPU无Torch；Profile/latest未改。全部失败run和原稿保留。
 
 ## 判断及下一阶段

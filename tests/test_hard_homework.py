@@ -68,3 +68,38 @@ def test_changed_neighbours_cannot_meet_inside_an_original_gap():
     occupied = original.copy()
     occupied[0] = first
     assert collision_reason(second, occupied, [1], 100, 100) == "would_overlap_neighbour"
+
+
+def test_method_label_is_printable_without_annotation_support():
+    import io
+
+    import numpy as np
+    import pypdfium2 as pdfium
+    from pypdf import PdfReader, PdfWriter
+    from pypdf.generic import DecodedStreamObject
+
+    from research.corpus.mixed_ink_pages import label_pdf
+
+    writer = PdfWriter()
+    page = writer.add_blank_page(595.2, 841.92)
+    content = DecodedStreamObject()
+    content.set_data(b"0 g 100 100 20 20 re f")
+    page.replace_contents(content)
+    raw = io.BytesIO()
+    writer.write(raw)
+    writer.close()
+    labeled = label_pdf(raw.getvalue(), "expanded-data")
+    reader = PdfReader(io.BytesIO(labeled))
+    assert len(reader.pages) == 1
+    assert "expanded-data" in reader.pages[0].extract_text()
+    with pdfium.PdfDocument(raw.getvalue()) as doc:
+        page = doc[0]
+        original = np.asarray(page.render(scale=1).to_pil().convert("L"))
+        page.close()
+    with pdfium.PdfDocument(labeled) as doc:
+        page = doc[0]
+        pixels = np.asarray(page.render(scale=1, draw_annots=False).to_pil().convert("L"))
+        page.close()
+    assert (pixels[-30:] < 100).any()
+    assert (original[:-30] < 100).any()
+    assert np.array_equal(pixels[:-30], original[:-30])

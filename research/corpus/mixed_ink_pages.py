@@ -14,6 +14,36 @@ from research.corpus.context_content_train import digest as sha256
 from research.corpus.context_content_train import write as atomic_json
 
 
+def label_pdf(blob: bytes, method: str) -> bytes:
+    """Print provenance in page content; annotations disappear in some viewers."""
+    from matplotlib.backends.backend_pdf import FigureCanvasPdf
+    from matplotlib.figure import Figure
+    from pypdf import PdfReader, PdfWriter
+
+    reader = PdfReader(io.BytesIO(blob))
+    if len(reader.pages) != 1:
+        raise ValueError("One problem per page required")
+    page = reader.pages[0]
+    width, height = float(page.mediabox.width), float(page.mediabox.height)
+    figure = Figure(figsize=(width / 72, height / 72))
+    figure.patch.set_alpha(0)
+    figure.text(
+        28 / width,
+        14 / height,
+        f"{method} | mathematics: unchanged Handnote | experimental word composition",
+        fontsize=7,
+    )
+    overlay = io.BytesIO()
+    FigureCanvasPdf(figure).print_pdf(overlay)
+    writer = PdfWriter()
+    writer.add_page(page)
+    writer.pages[0].merge_page(PdfReader(overlay).pages[0])
+    output = io.BytesIO()
+    writer.write(output)
+    writer.close()
+    return output.getvalue()
+
+
 def collision_reason(box, occupied, ignored, width, height):
     if min(box[:2]) < 3 or box[2] > width - 3 or box[3] > height - 3:
         return "page_boundary"
@@ -194,8 +224,7 @@ def compose(source: Path, models: dict[str, Path]) -> Path:
     import subprocess
 
     import pypdfium2 as pdfium
-    from pypdf import PdfReader, PdfWriter
-    from pypdf.annotations import FreeText
+    from pypdf import PdfWriter
 
     from hwsol.config import RenderConfig
     from hwsol.jobs.paper import pdf_image
@@ -324,24 +353,8 @@ def compose(source: Path, models: dict[str, Path]) -> Path:
                 assert not removed.intersection(math_ids)
                 assert all(i not in replacements for i in math_ids)
                 blob = renderer.to_vector_pdf([page])
-                writer = PdfWriter()
-                writer.append(PdfReader(io.BytesIO(blob)))
-                writer.add_annotation(
-                    0,
-                    FreeText(
-                        text=(
-                            f"{name} | mathematics: unchanged Handnote | "
-                            "experimental word composition"
-                        ),
-                        rect=(28, 10, 570, 23),
-                        font_size="7pt",
-                        border_color=None,
-                        background_color=None,
-                    ),
-                )
                 dest = run.path / f"comparisons/{name}-page-{ci}.pdf"
-                writer.write(dest)
-                writer.close()
+                dest.write_bytes(label_pdf(blob, name))
                 with pdfium.PdfDocument(dest) as doc:
                     assert len(doc) == 1
                     pdf_image(doc, 0, 200 / 72).save(
