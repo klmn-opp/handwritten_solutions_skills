@@ -39,3 +39,22 @@ def test_word_alignment_keeps_punctuation_and_descenders_without_modifying_sourc
         max(item[1] + item[3] for item in components[:-1]) > components[-1][1] + components[-1][3]
     )
     assert meta["derived_view_not_original_sample"]
+
+
+def test_reviewed_whole_word_boxes_preserve_ink_and_reject_omission():
+    font = Path(get_data_path()) / "fonts/ttf/DejaVuSans.ttf"
+    raw = reference_image("gypq.", font)
+    ref, target, meta = aligned_view(
+        "gypq.",
+        raw,
+        font,
+        (1024, 128),
+        reviewed_word_boxes=[[0, 0, raw.width, raw.height]],
+    )
+    assert target.shape == ref.shape == (128, 1024)
+    assert meta["source_box_coordinate_system"] == "original-crop"
+    assert not meta["character_segmentation"]
+    with pytest.raises(ValueError, match="omit visible ink"):
+        aligned_view("gypq.", raw, font, reviewed_word_boxes=[[0, 0, raw.width // 2, raw.height]])
+    with pytest.raises(ValueError, match="word count"):
+        aligned_view("gypq.", raw, font, reviewed_word_boxes=[])

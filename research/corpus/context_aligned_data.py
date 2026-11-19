@@ -16,7 +16,7 @@ from research.corpus.experiment import create
 from research.corpus.reference_data import signed_distance
 
 
-def prepare(dataset: Path) -> Path:
+def prepare(dataset: Path, *, size: tuple[int, int] = (512, 64)) -> Path:
     verify_run(dataset)
     profile = profile_store().resolve("personal@v1")
     rows = [json.loads(s) for s in (dataset / "reports/samples.jsonl").read_text().splitlines()]
@@ -28,6 +28,7 @@ def prepare(dataset: Path) -> Path:
             "dataset_sha256": sha256(dataset / "run.json"),
             "profile": profile.provenance(),
             "raw_preserved": True,
+            "size": list(size),
             "training_geometry": "natural word gaps, uniform word scale; no character cutting",
             "evaluation_reference_uses_target_geometry": False,
         },
@@ -51,12 +52,24 @@ def prepare(dataset: Path) -> Path:
             if sha256(Path(row["crop"])) != row["crop_sha256"]:
                 raise ValueError("Changed crop")
             image = Image.open(row["crop"])
-            raw, raw_transform = whole_ink(image)
-            ref, ref_transform = whole_ink(reference_image(row["normalized_label"], profile.font))
+            raw, raw_transform = whole_ink(image, size)
+            ref, ref_transform = whole_ink(
+                reference_image(row["normalized_label"], profile.font, size[1]), size
+            )
             reason = None
             try:
+                boxes = row.get("word_boxes_source_crop")
+                if (
+                    boxes is not None
+                    and row.get("word_box_labels") != row["normalized_label"].split()
+                ):
+                    raise ValueError("Reviewed word labels differ from actual line transcription")
                 aligned_ref, aligned, transform = aligned_view(
-                    row["normalized_label"], image, profile.font
+                    row["normalized_label"],
+                    image,
+                    profile.font,
+                    size,
+                    reviewed_word_boxes=boxes,
                 )
                 if not np.array_equal(ref, aligned_ref):
                     raise ValueError("reference mismatch")

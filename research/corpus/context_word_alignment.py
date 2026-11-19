@@ -56,15 +56,38 @@ def natural_words(ink: np.ndarray, tokens: list[str]) -> list[tuple[int, int, in
 
 
 def aligned_view(
-    text: str, raw: Image.Image, font_path: Path
+    text: str,
+    raw: Image.Image,
+    font_path: Path,
+    size: tuple[int, int] = (512, 64),
+    *,
+    reviewed_word_boxes: list[list[int]] | None = None,
 ) -> tuple[np.ndarray, np.ndarray, dict]:
     tokens = text.split()
     if not tokens or len(tokens) > 6:
         raise ValueError("limited word-group pilot supports 1–6 words")
-    real, transform = whole_ink(raw)
-    reference, ref_transform = whole_ink(reference_image(text, font_path))
-    source_boxes = natural_words(real, tokens)
-    font = ImageFont.truetype(str(font_path), 64)
+    real, transform = whole_ink(raw, size)
+    reference, ref_transform = whole_ink(reference_image(text, font_path, size[1]), size)
+    source_boxes = natural_words(real, tokens) if reviewed_word_boxes is None else []
+    if reviewed_word_boxes is not None:
+        if len(reviewed_word_boxes) != len(tokens):
+            raise ValueError("Reviewed word count does not match actual transcription")
+        real = np.clip((190 - np.asarray(raw.convert("L"), dtype=np.float32)) / 140, 0, 1)
+        covered = np.zeros_like(real, dtype=bool)
+        last_right = 0
+        for box in reviewed_word_boxes:
+            x0, y0, x1, y1 = box
+            if not all(type(v) is int for v in box) or not (
+                last_right <= x0 < x1 <= raw.width and 0 <= y0 < y1 <= raw.height
+            ):
+                raise ValueError("Reviewed word boxes must be disjoint, ordered and inside crop")
+            covered[y0:y1, x0:x1] = True
+            a, b, c, d = bounds(real[y0:y1, x0:x1])
+            source_boxes.append((x0 + a, y0 + b, x0 + c, y0 + d))
+            last_right = x1
+        if ((real > 0.3) & ~covered).sum() / max(1, (real > 0.3).sum()) > 0.005:
+            raise ValueError("Reviewed word boxes omit visible ink")
+    font = ImageFont.truetype(str(font_path), size[1])
     left = font.getbbox(text)[0]
     prefix = ""
     cuts = []
@@ -79,7 +102,7 @@ def aligned_view(
             )
         )
         prefix += " "
-    edges = [0] + cuts + [512]
+    edges = [0] + cuts + [size[0]]
     slots = []
     for a, b in zip(edges, edges[1:], strict=False):
         left, t, r, d = bounds(reference[:, a:b])
@@ -111,6 +134,14 @@ def aligned_view(
         target,
         {
             "recipe": "natural-space-word-uniform-alignment/1",
+            "word_boundary_source": (
+                "authorized-model-reviewed-original-crop"
+                if reviewed_word_boxes is not None
+                else "natural-empty-columns"
+            ),
+            "source_box_coordinate_system": (
+                "original-crop" if reviewed_word_boxes is not None else "whole-view"
+            ),
             "original_whole_transform": transform,
             "reference_transform": ref_transform,
             "words": records,

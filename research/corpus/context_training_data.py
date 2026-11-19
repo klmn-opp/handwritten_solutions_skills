@@ -16,7 +16,9 @@ from research.corpus.reference_data import signed_distance
 SIZE = (512, 64)
 
 
-def whole_ink(image: Image.Image) -> tuple[np.ndarray, dict]:
+def whole_ink(image: Image.Image, size: tuple[int, int] = SIZE) -> tuple[np.ndarray, dict]:
+    if size[0] < 64 or size[1] < 32 or size[0] / size[1] != 8:
+        raise ValueError("Whole-region views require a positive 8:1 canvas")
     gray = np.asarray(image.convert("L"), dtype=np.float32)
     ink = np.clip((190 - gray) / 140, 0, 1)
     yy, xx = np.where(ink > 0.5)
@@ -24,13 +26,13 @@ def whole_ink(image: Image.Image) -> tuple[np.ndarray, dict]:
         raise ValueError("No dark ink in complete region")
     box = [int(xx.min()), int(yy.min()), int(xx.max()) + 1, int(yy.max()) + 1]
     x, y, right, bottom = box
-    scale = min(480 / (right - x), 44 / (bottom - y))
+    scale = min(size[0] * (480 / 512) / (right - x), size[1] * (44 / 64) / (bottom - y))
     w, h = max(1, round((right - x) * scale)), max(1, round((bottom - y) * scale))
     crop = Image.fromarray(np.uint8(255 * ink[y:bottom, x:right])).resize(
         (w, h), Image.Resampling.LANCZOS
     )
-    canvas = np.zeros(SIZE[::-1], np.float32)
-    dx, dy = (SIZE[0] - w) // 2, (SIZE[1] - h) // 2
+    canvas = np.zeros(size[::-1], np.float32)
+    dx, dy = (size[0] - w) // 2, (size[1] - h) // 2
     canvas[dy : dy + h, dx : dx + w] = np.asarray(crop) / 255
     return canvas, {
         "recipe": "whole-region-dark-ink-uniform-fit/1",
@@ -43,8 +45,8 @@ def whole_ink(image: Image.Image) -> tuple[np.ndarray, dict]:
     }
 
 
-def reference_image(text: str, font_path: Path) -> Image.Image:
-    font = ImageFont.truetype(str(font_path), 64)
+def reference_image(text: str, font_path: Path, font_size: int = 64) -> Image.Image:
+    font = ImageFont.truetype(str(font_path), font_size)
     left, top, right, bottom = font.getbbox(text)
     canvas = Image.new("RGB", (right - left + 32, bottom - top + 32), "white")
     ImageDraw.Draw(canvas).text((16 - left, 16 - top), text, font=font, fill="black")
