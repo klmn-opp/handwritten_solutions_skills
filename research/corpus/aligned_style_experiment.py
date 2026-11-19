@@ -265,12 +265,20 @@ def train_worker(r, arrays, rows):
     model = AlignedStyle(
         stochastic=r["mode"] == "stochastic", monotone=r.get("monotone", False)
     ).cuda()
+    if r.get("warmstart"):
+        if digest(r["warmstart"]) != r["warmstart_sha256"]:
+            raise ValueError("Frozen continuation weights changed")
+        model.load_state_dict(
+            torch.load(r["warmstart"], map_location="cuda", weights_only=False)["model"]
+        )
     if not model.stochastic:
         model.prior.requires_grad_(False)
         model.posterior.requires_grad_(False)
     initial = {k: v.detach().clone() for k, v in model.state_dict().items()}
     torch.save(initial, run / "logs/initial-state.pt")
-    optimizer = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=0.0007)
+    optimizer = torch.optim.AdamW(
+        [p for p in model.parameters() if p.requires_grad], lr=r.get("lr", 0.0007)
+    )
     rng = np.random.default_rng(r["seed"])
     curve = []
     start = time.perf_counter()
