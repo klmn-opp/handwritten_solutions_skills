@@ -12,7 +12,7 @@ def launch(data: Path, *, mode: str, steps: int, warmstart: Path | None = None) 
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
-    if mode not in {"capacity", "expanded"} or steps not in {1000, 3000, 9000}:
+    if mode not in {"capacity", "expanded"} or steps not in {1000, 2000, 3000, 9000}:
         raise ValueError("Finite predeclared experiment required")
     verify_run(data)
     config = {
