@@ -30,9 +30,13 @@ def image_unit(ink, x, y, em, compact):
         compacted_width=int(trimmed.shape[1]),
         nonzero_pixels_before=int(np.count_nonzero(crop)),
         nonzero_pixels_after=int(np.count_nonzero(trimmed)),
+        image_offset=[0, 0] if compact else [-int(x0), -int(y0)],
     )
-    rgba = np.zeros((*trimmed.shape, 4), np.uint8)
-    rgba[:, :, 3] = np.uint8(trimmed * 255)
+    # Preserve the original full padded image when the switch is off; trimming
+    # changes PDF image interpolation at subpixel page coordinates.
+    drawn = trimmed if compact else ink
+    rgba = np.zeros((*drawn.shape, 4), np.uint8)
+    rgba[:, :, 3] = np.uint8(drawn * 255)
     return (
         Image.fromarray(rgba),
         [float(x + x0), float(y + y0), float(x + x0 + trimmed.shape[1]), float(y + y1)],
@@ -147,8 +151,9 @@ def repair_page(info, profile, cfg, words, controls, old_records, *, spacing=Tru
     for u in units:
         indices = u["items"]
         if "image" in u:
+            ox, oy = u["compact"]["image_offset"]
             replacements[indices[0]] = [
-                ("image", u["image"], (1, 0, 0, 1, u["box"][0], u["box"][1]))
+                ("image", u["image"], (1, 0, 0, 1, u["box"][0] + ox, u["box"][1] + oy))
             ]
         else:
             dx = u["box"][0] - u["original_box"][0]
@@ -263,7 +268,13 @@ def build(source: Path, model_output: Path, *, spacing=True, radicals=True) -> P
                     "Handnote + joined radicals" if radicals else "unchanged Handnote",
                 )
             )
-            baseline = model_output / f"comparisons/expanded-data-page-{ci}.pdf"
+            baseline = run.path / f"comparisons/before-page-{ci}.pdf"
+            baseline.write_bytes(
+                label_pdf(
+                    (model_output / f"comparisons/expanded-data-page-{ci}.pdf").read_bytes(),
+                    "v0109 frozen before",
+                )
+            )
             combined.append(baseline)
             combined.append(pdf)
             repaired.append(pdf)

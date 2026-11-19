@@ -86,3 +86,16 @@ def test_word_spacing_keeps_bounded_existing_rhythm():
     squeezed, _ = word_positions([20, 20, 20], 0, 80, 40, preferred_gaps=[2, 18])
     assert min(np.diff(squeezed) - 20) >= 9.2
     assert squeezed[-1] + 20 == pytest.approx(80)
+
+
+def test_disabled_compaction_keeps_original_padded_image_and_origin():
+    from research.corpus.readability_study import image_unit
+
+    ink = np.zeros((20, 40), np.float32)
+    ink[3:12, 8:14] = 0.8
+    image, box, report = image_unit(ink, 100, 200, 40, False)
+    assert image.size == (40, 20)
+    assert box == [108, 203, 114, 212]
+    assert report["image_offset"] == [-8, -3]
+    assert np.array_equal(np.asarray(image)[:, :, 3], np.uint8(ink * 255))
+    assert [box[0] + report["image_offset"][0], box[1] + report["image_offset"][1]] == [100, 200]
