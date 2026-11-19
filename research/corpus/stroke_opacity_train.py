@@ -31,7 +31,9 @@ def train(arm: str) -> Path:
         component_weight=0.10 if arm == "stroke" else 0,
         protocol_sha256=digest("docs/V0103_PROTOCOL.md"),
         optimizer="new AdamW; same initial weights and schedule in all three arms",
-        target_geometry="real aligned scan unchanged; 1px foreground tolerance, 3px background margin",
+        target_geometry=(
+            "real aligned scan unchanged; 1px foreground tolerance, 3px background margin"
+        ),
         new_training_samples=0,
     )
     run = create("context-stroke-opacity-training", seed=config["seed"], config=config)
