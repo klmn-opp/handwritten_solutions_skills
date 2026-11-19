@@ -319,7 +319,7 @@ def train_worker(r, arrays, rows):
                     "config": r,
                     "torch_rng": torch.get_rng_state(),
                     "cuda_rng": torch.cuda.get_rng_state(),
-                    "numpy_rng": rng.bit_generator.state(),
+                    "numpy_rng": rng.bit_generator.state,
                 },
                 run / f"logs/checkpoint-{step:04d}.pt",
             )
