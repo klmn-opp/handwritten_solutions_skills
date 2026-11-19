@@ -10,7 +10,6 @@ import numpy as np
 from hwsol.profiles.io import atomic_json, sha256
 from hwsol.workspace import verify_run
 from research.corpus.experiment import create
-from research.corpus.reference_data import align_real
 from research.corpus.reference_evaluate import character_metrics, shape_distance
 
 
@@ -104,6 +103,8 @@ def worker(path: Path) -> None:
 
 
 def diagnose(delivery: Path) -> Path:
+    from research.corpus.reference_data import align_real
+
     verify_run(delivery)
     frozen = json.loads((delivery / "reports/candidates.json").read_text())
     data = np.load(Path(frozen["data_version"]) / "arrays.npz", allow_pickle=False)
