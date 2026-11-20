@@ -35,3 +35,6 @@ from public source and release archives. No production activation is authorized.
 M0 verified freeze run: [20261120T102428732053Z-m0-baseline-freeze-ea6ffa5e](../workspace/runs/20261120T102428732053Z-m0-baseline-freeze-ea6ffa5e/run.json).
 The C/D replay has 14 identical page images and 58 unchanged protected assets.
 [Replayed D PDF](../workspace/runs/20261120T102428732053Z-m0-baseline-freeze-ea6ffa5e/rendered/homework_solutions.pdf).
+
+M0 also re-ran the actual frozen checkpoint: 529 word PNG/float/condition arrays exactly match.
+See [M0 evidence and limitations](M0_FREEZE_REPORT.md). No new neural training occurred.

@@ -37,6 +37,84 @@ def git(*args: str) -> str:
     return subprocess.check_output(["git", *args], text=True).strip()
 
 
+def replay_neural(root: Path) -> Path:
+    """Recompute frozen word ink into a new run, without old-run replay writes."""
+    old = root / "runs" / RUNS["english_layout"]
+    verify_run(old)
+    cfg = read(old / "reports/request.json")
+    model = Path(cfg["model"])
+    verify_run(model)
+    protected = {
+        str(p): sha256(p) for p in (old / "run.json", model / "run.json", root / "latest.json")
+    }
+    worker = Path("research/corpus/metric_mixed_homework.py")
+    run = Run.create(
+        "m0-neural-ink-replay",
+        workspace=root,
+        seed=cfg["seed"],
+        config={
+            "source_run": file_ref(old / "run.json"),
+            "model": file_ref(model / "run.json"),
+            "worker_source": file_ref(worker),
+            "new_neural_updates": 0,
+        },
+    )
+    print(run.path, flush=True)
+    try:
+        shutil.copyfile(worker, run.path / "logs/worker-source.py")
+        for p in old.glob("solutions/word-*.npz"):
+            shutil.copyfile(p, run.path / "solutions" / p.name)
+        shutil.copyfile(old / "reports/words.json", run.path / "reports/words.json")
+        atomic_json(run.path / "reports/request.json", {**cfg, "run": str(run.path)})
+        command = [
+            str(root / "environments/english-htr-v08/bin/python"),
+            "-m",
+            "research.corpus.metric_mixed_homework",
+            str(run.path / "reports/request.json"),
+            "generate",
+        ]
+        atomic_json(run.path / "logs/command.json", command)
+        with (run.path / "logs/worker.log").open("w") as log:
+            subprocess.run(command, check=True, stdout=log, stderr=subprocess.STDOUT, timeout=600)
+        original = read(old / "reports/neural-words.json")
+        generated = read(run.path / "reports/neural-words.json")
+        count = 0
+        for a, b in zip(original, generated, strict=True):
+            if {k: v for k, v in a.items() if k != "alpha"} != {
+                k: v for k, v in b.items() if k != "alpha"
+            }:
+                raise ValueError(f"Word provenance differs: {a['word_id']}")
+            if "alpha" not in a:
+                continue
+            if sha256(Path(a["alpha"])) != sha256(Path(b["alpha"])):
+                raise ValueError(f"Neural word PNG differs: {a['word_id']}")
+            name = f"reports/word-{a['word_id']:04d}.npz"
+            with np.load(old / name) as x, np.load(run.path / name) as y:
+                if set(x.files) != set(y.files) or any(
+                    not np.array_equal(x[k], y[k]) for k in x.files
+                ):
+                    raise ValueError(f"Neural word float ink/conditions differ: {a['word_id']}")
+            count += 1
+        for path, expected in protected.items():
+            if sha256(Path(path)) != expected:
+                raise ValueError(f"Original record changed: {path}")
+        atomic_json(run.path / "reports/protected-assets.json", protected)
+        run.finish(
+            "passed",
+            result={
+                "actual_checkpoint_inference": True,
+                "word_png_float_and_conditions_exact": count,
+                "records_equal": len(original),
+                "new_neural_updates": 0,
+                "model_quality_acceptance": "not implied by reproduction",
+            },
+        )
+    except Exception as exc:
+        run.fail(exc)
+        raise
+    return run.path
+
+
 def verify_registry(root: Path) -> dict:
     results = {}
     for name in ("production", "research_best", "candidates"):
@@ -273,11 +351,13 @@ def freeze(root: Path) -> Path:
 
 if __name__ == "__main__":
     cli = argparse.ArgumentParser(description=__doc__)
-    cli.add_argument("command", choices=("freeze", "verify"))
+    cli.add_argument("command", choices=("freeze", "verify", "replay-neural"))
     cli.add_argument("--workspace", type=Path)
     args = cli.parse_args()
     root = workspace_root(args.workspace)
     if args.command == "freeze":
         freeze(root)
+    elif args.command == "replay-neural":
+        replay_neural(root)
     else:
         print(json.dumps(verify_registry(root), indent=2))
