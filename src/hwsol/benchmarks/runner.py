@@ -9,6 +9,7 @@ import textwrap
 import time
 from pathlib import Path
 
+from matplotlib import get_data_path
 from PIL import Image, ImageDraw, ImageFont
 from pypdf import PdfReader, PdfWriter
 
@@ -28,7 +29,9 @@ def question_asset(case, folder: Path):
         lines = textwrap.wrap(text, 80)
         image = Image.new("RGB", (1400, max(240, 80 + 36 * len(lines))), "white")
         draw = ImageDraw.Draw(image)
-        font = ImageFont.truetype("DejaVuSans.ttf", 26)
+        # Use our installed dependency's font, not an OS-specific font search.
+        font_path = Path(get_data_path()) / "fonts" / "ttf" / "DejaVuSans.ttf"
+        font = ImageFont.truetype(str(font_path), 26)
         draw.multiline_text((30, 30), "\n".join(lines), fill="black", font=font, spacing=9)
         path = folder / ("question.png" if case.input_format == "image" else "question.pdf")
         image.save(path)
