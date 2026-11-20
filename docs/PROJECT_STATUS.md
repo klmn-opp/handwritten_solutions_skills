@@ -11,7 +11,7 @@ Historical version reports remain historical evidence, not the current status en
 | English research backbone | v0.10.21 canonical-conditioned-ink/1, 194,513 parameters; component-balanced checkpoint | Experimental |
 | English page calibration | v0.10.22 t/l/r metrics + v0.10.23 measured word gaps | Frozen reference |
 | Math research baseline | v0.10.26 D, original personal glyphs + measured structures + spacing/stem correction | M1 fresh-content evidence now available; explicit remaining fallback/refusals |
-| Current increment | M0/M1 evidence, M2 public packaging and M4 alignment pilot completed; first author revision delivered; second visual correction active | No production promotion |
+| Current increment | M0/M1 evidence, M2 public packaging, M4 alignment pilot and second visual correction delivered | Author review/new ink pending; no production promotion |
 
 The first four D pages contain 526 frozen neural English words. The other three
 use Handnote English. The seven-page D is not a general neural page service.
@@ -63,8 +63,12 @@ Both fresh-content arms use CPU English. These results do not
 establish fresh neural English generalization or arbitrary math coverage.
 The first complete author revision has 2,265 visible math items and 30 font
 fallbacks; the author confirms clear improvement but identifies heavy 2/pi,
-printed-looking fraction/root bars and short/faint f. Those specific defects are
-under isolated second review. No new neural training occurred. The
+printed-looking fraction/root bars and short/faint f. The completed
+[second correction](M1_SECOND_AUTHOR_REVISION.md), run `956bbad6`, changes92 twos,
+129 fraction bars,14 radical roofs and115 f. All20 pages received Agent visual
+review; non-target pixels/geometry/provenance stay unchanged.20 pi,30 f,7 short
+roofs and30 font fallbacks remain explicit. This candidate awaits author review;
+no new neural training occurred. The
 [comprehensive 19-page collection booklet](COMPREHENSIVE_MATH_COLLECTION.md)
 now supersedes the minimum-collection preference and is ready to fill.
 See the reports for PDFs, PNGs, all 173 formula pairs and fallback overlays.

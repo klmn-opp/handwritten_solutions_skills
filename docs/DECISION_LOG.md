@@ -132,3 +132,39 @@ accents, scripts, fractions, delimiters, roots and structured formulas. Previous
 collected symbols may be repeated. Do not claim exhaustive mathematical Unicode
 coverage or use the blank printed prompts as verified handwriting truth. Preserve
 old worksheets and all filled originals; stop further gap-minimization searches.
+
+## 2026-11-20 — repair source scaling and structural mapping before training
+
+Second author feedback identifies heavy2/pi, printed horizontal rules and small f.
+The new20-page benchmark uses CPU glyphs, so a neural update would not address the
+actual path. Small original2 variants become relatively heavy after normalization;
+select an existing lighter real variant. The only reviewed pi original is itself
+heavy; preserve it until new authentic ink is available instead of eroding it.
+
+Old fraction mapping suppresses centre/thickness variation, while radical joining
+overwrites roofs with constant rectangles. Map verified Session N centre/nib data
+within parser-owned ranges and actual neighbor clearance; disclose both real
+source and procedural geometry. Never treat a cut root seam as a free pen endpoint.
+
+The f compiler normalized a long source glyph to ordinary ascender height. Recover
+its relation to h/l/d/a/c/e/o using their common source coordinates, bounded by
+actual neighboring ink. Isolated acceptance of each f produced8 inconsistent
+same-word ff groups; reject that candidate and require atomic group admission.
+The final115 accepted/30 held result is less broad but passes actual word review.
+
+## 2026-11-20 — seal second complete20 without overstating admission
+
+Run956bbad6 integrates92 twos,129 fraction bars,14 radical roofs and115 f.
+Source commits55bacf3/4250f2e/d9391dc and six exact source hashes were approved
+before assembly. All20 pages replay the prior candidate exactly before treatment.
+Root/independent final page review found no new blocking defect. Actual root-join
+preservation and non-target pixel/geometry checks pass; a post-seal record audit
+also confirms unchanged non-target provenance.37 held targets only append explicit
+rejection records. Pi20,30 f,7 short roofs and30 font fallbacks remain disclosed.
+
+Go for author comparison; no author acceptance, production promotion, new neural
+training or fresh holdout result. The comprehensive19-page123-row workbook is
+ready for authentic new ink. Current bounded repair is delivered; subsequent
+style admission and missing-glyph replacement depend on author evaluation/scan.
+M2/M4 retain their documented independent limits. Do not erase the unsuccessful
+mixed-ff/source-role/provenance candidates or interpret tests as style progress.
