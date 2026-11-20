@@ -38,7 +38,7 @@ class SemanticCanvasInk(nn.Module):
         self.output = nn.Conv2d(24, 1, 1)
         nn.init.constant_(self.output.bias, -2)
 
-    def conditions(self, tokens, boxes, height, width, style=None, x_offset=0):
+    def conditions(self, tokens, boxes, height, width, style=None, x_offset=0, *, with_style=False):
         if tokens.ndim != 3 or tokens.shape[-1] != 3:
             raise ValueError("Batched character and neighbour IDs required")
         if boxes.shape != (*tokens.shape[:2], 4) or height <= 0 or width <= 0:
@@ -83,11 +83,15 @@ class SemanticCanvasInk(nn.Module):
         )
         features = features.masked_fill(~supported[..., None], 0).flatten(-2)
         writer = self.writer.expand(*features.shape[:-1], -1)
-        return (
+        canvas = (
             torch.cat([features, writer], -1)
             .transpose(1, 2)
             .reshape(len(tokens), 96, height, width)
         )
+        if with_style:
+            local = style[batch, ids][:, :, 0].masked_fill(~supported[:, :, :1], 0)
+            return canvas, local.transpose(1, 2).reshape(len(tokens), 8, height, width)
+        return canvas
 
     def forward(self, tokens, boxes, height, width, *, style=None, x_offset=0):
         h = self.stem(self.conditions(tokens, boxes, height, width, style, x_offset))
@@ -106,3 +110,36 @@ class SemanticCanvasInk(nn.Module):
             part = self(tokens, boxes, height, right - left, style=style, x_offset=left)
             pieces.append(part[:, :, start - left : end - left].sigmoid())
         return torch.cat(pieces, -1)
+
+
+class ModulatedSemanticCanvasInk(SemanticCanvasInk):
+    """Same content initializer; local shape condition reaches all eight layers."""
+
+    architecture = "semantic-canvas-modulated-ink/1"
+
+    def __init__(self):
+        super().__init__()
+        self.modulation = nn.ModuleList([nn.Conv2d(8, 48, 1) for _ in range(8)])
+        for layer in self.modulation:
+            nn.init.zeros_(layer.weight)
+            nn.init.zeros_(layer.bias)
+
+    def load_base(self, state):
+        result = self.load_state_dict(state, strict=False)
+        expected = {f"modulation.{i}.{key}" for i in range(8) for key in ["weight", "bias"]}
+        if set(result.missing_keys) != expected or result.unexpected_keys:
+            raise ValueError("Only new zero-initialized modulation parameters may be missing")
+
+    def forward(self, tokens, boxes, height, width, *, style=None, x_offset=0):
+        canvas, local = self.conditions(
+            tokens, boxes, height, width, style, x_offset, with_style=True
+        )
+        h = self.stem(canvas)
+        for i, block in enumerate(self.blocks):
+            branch = h
+            for j in range(2):
+                scale, shift = self.modulation[2 * i + j](local).chunk(2, dim=1)
+                branch = block[2 * j](branch)
+                branch = block[2 * j + 1](branch * (1 + 0.5 * scale.tanh()) + 0.5 * shift.tanh())
+            h = h + 0.2 * branch
+        return self.output(h)[:, 0]

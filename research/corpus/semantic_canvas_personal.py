@@ -7,7 +7,7 @@ from pathlib import Path
 from research.corpus.context_content_train import digest, write
 
 
-def launch(source: Path, real_data: Path, gate: Path) -> Path:
+def launch(source: Path, real_data: Path, gate: Path, *, modulated: bool = False) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
@@ -50,13 +50,15 @@ def launch(source: Path, real_data: Path, gate: Path) -> Path:
         "no_image_or_outline_as_generator_input": True,
         "global_writer_shared": True,
         "independent_random_word_code": False,
-        "architecture": "semantic-canvas-ink/1",
+        "architecture": "semantic-canvas-modulated-ink/1" if modulated else "semantic-canvas-ink/1",
+        "modulated": modulated,
         "C_used": False,
         "protocol_sha256": digest("docs/V01020_PROTOCOL.md"),
     }
     run = create("semantic-canvas-personal-training", seed=cfg["seed"], config=cfg)
     write(run.path / "reports/request.json", {**cfg, "run": str(run.path)})
-    Path("/tmp/context-v01020-personal-model").write_text(str(run.path))
+    pointer = "personal-modulated" if modulated else "personal-model"
+    Path(f"/tmp/context-v01020-{pointer}").write_text(str(run.path))
     print(run.path, flush=True)
     try:
         with (run.path / "logs/worker.log").open("w") as log:
@@ -89,7 +91,7 @@ def worker(path):
     from torch.nn import functional as F
 
     from research.corpus.aligned_style_experiment import setup
-    from research.corpus.semantic_canvas_model import SemanticCanvasInk
+    from research.corpus.semantic_canvas_model import ModulatedSemanticCanvasInk, SemanticCanvasInk
     from research.corpus.semantic_raw_data import apply_metrics
 
     cfg = json.loads(Path(path).read_text())
@@ -124,8 +126,12 @@ def worker(path):
     local_std = {c: g["local_codes"][ii].std(0, unbiased=False) for c, ii in by_class.items()}
     saved = torch.load(cfg["checkpoint"], map_location="cuda", weights_only=False)
     assert saved["step"] == 2000
-    model = SemanticCanvasInk().cuda()
-    model.load_state_dict(saved["model"])
+    if cfg.get("modulated"):
+        model = ModulatedSemanticCanvasInk().cuda()
+        model.load_base(saved["model"])
+    else:
+        model = SemanticCanvasInk().cuda()
+        model.load_state_dict(saved["model"])
     initial = {k: v.detach().clone() for k, v in model.state_dict().items()}
     torch.save({"model": initial}, run / "logs/initial-state.pt")
     optimizer = torch.optim.AdamW(model.parameters(), lr=cfg["learning_rate"])

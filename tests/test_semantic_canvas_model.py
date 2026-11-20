@@ -4,6 +4,48 @@ import unittest
 
 @unittest.skipUnless(importlib.util.find_spec("torch"), "Torch remains isolated")
 class SemanticCanvas(unittest.TestCase):
+    def test_modulation_preserves_initializer_and_receives_gradients(self):
+        import torch
+
+        from research.corpus.semantic_canvas_model import (
+            ModulatedSemanticCanvasInk,
+            SemanticCanvasInk,
+        )
+
+        torch.manual_seed(4020)
+        base = SemanticCanvasInk()
+        model = ModulatedSemanticCanvasInk()
+        model.load_base(base.state_dict())
+        t = torch.tensor([[[102, 0, 0], [116, 0, 0]]])
+        b = torch.tensor([[[4, 4, 18, 28], [22, 4, 36, 28]]]).float()
+        style = torch.randn(1, 2, 8)
+        image = model(t, b, 32, 40, style=style)
+        self.assertTrue(torch.equal(image, base(t, b, 32, 40, style=style)))
+        image.square().mean().backward()
+        for layer in model.modulation:
+            self.assertGreater(float(layer.weight.grad.abs().sum()), 0)
+        bad = dict(base.state_dict())
+        bad.pop("writer")
+        with self.assertRaises(ValueError):
+            model.load_base(bad)
+
+    def test_nonzero_modulation_preserves_tiled_output(self):
+        import torch
+
+        from research.corpus.semantic_canvas_model import ModulatedSemanticCanvasInk
+
+        torch.manual_seed(4020)
+        model = ModulatedSemanticCanvasInk().eval()
+        with torch.no_grad():
+            for layer in model.modulation:
+                layer.weight.normal_(std=0.02)
+        t = torch.tensor([[[102, 0, 0], [116, 0, 0], [110, 0, 0]]])
+        b = torch.tensor([[[8, 4, 25, 25], [36, 4, 50, 25], [63, 4, 82, 25]]]).float()
+        style = torch.randn(1, 3, 8)
+        whole = model.image(t, b, 32, 96, style=style, tile_width=96)
+        tiled = model.image(t, b, 32, 96, style=style, tile_width=24)
+        self.assertTrue(torch.allclose(whole, tiled, atol=2e-6, rtol=2e-5))
+
     def test_semantics_style_and_shared_writer_learn_without_reference_pixels(self):
         import torch
 
