@@ -7,6 +7,37 @@ from pathlib import Path
 from research.corpus.context_content_train import digest, write
 
 
+def launch_capacity(source: Path, width: int) -> Path:
+    """Equal-update width comparison; reset both optimizers from the same source."""
+    from hwsol.workspace import verify_run
+    from research.corpus.experiment import create
+
+    verify_run(source)
+    previous = json.loads((source / "reports/request.json").read_text())
+    result = json.loads((source / "reports/result.json").read_text())
+    if width not in {128, 256} or previous["steps"] != 16000:
+        raise ValueError("Registered 128/256 comparison requires the balanced 16k source")
+    if not previous.get("class_balanced") or not previous.get("matched_neighborhood"):
+        raise ValueError("Matched class-balanced source required")
+    if previous.get("capacity_comparison") or result["model_lineage_updates"] != 72000:
+        raise ValueError("Frozen 72k lineage required, not another capacity arm")
+    checkpoint = source / "logs/checkpoint-16000.pt"
+    cfg = {k: v for k, v in previous.items() if k != "run"}
+    cfg.update(
+        steps=4000,
+        continuation=str(checkpoint),
+        continuation_sha256=digest(checkpoint),
+        continuation_step=16000,
+        inherited_model_updates=result["model_lineage_updates"],
+        capacity_comparison=True,
+        hidden_width=width,
+        reset_optimizer=True,
+        protocol_sha256=digest("docs/V01019_PROTOCOL.md"),
+    )
+    run = create("matched-local-capacity-training", seed=cfg["seed"], config=cfg)
+    return execute(run, cfg, f"capacity-{width}")
+
+
 def launch_balanced(source: Path) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create

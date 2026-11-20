@@ -205,13 +205,28 @@ class ModulatedSemanticInk(HierarchicalSemanticInk):
 
     architecture = "semantic-modulated-local-ink/1"
 
-    def __init__(self):
+    def __init__(self, hidden_width=128):
         super().__init__()
-        self.field_modulation = nn.Linear(10, 3 * 2 * 128)
+        if hidden_width not in {128, 256}:
+            raise ValueError("Registered local field widths are 128 and 256")
+        self.hidden_width = hidden_width
+        if hidden_width != 128:
+            self.field = nn.Sequential(
+                nn.Linear(90, hidden_width),
+                nn.SiLU(),
+                nn.Linear(hidden_width, hidden_width),
+                nn.SiLU(),
+                nn.Linear(hidden_width, hidden_width),
+                nn.SiLU(),
+                nn.Linear(hidden_width, 2),
+            )
+        self.field_modulation = nn.Linear(10, 3 * 2 * hidden_width)
         nn.init.zeros_(self.field_modulation.weight)
         nn.init.zeros_(self.field_modulation.bias)
 
     def load_identity(self, state):
+        if self.hidden_width != 128:
+            raise ValueError("Wider fields require the registered function-preserving conversion")
         result = self.load_state_dict(state, strict=False)
         if (
             set(result.missing_keys)
@@ -227,7 +242,9 @@ class ModulatedSemanticInk(HierarchicalSemanticInk):
             raise ValueError("Only the registered new conditions may be absent")
 
     def evaluate_field(self, features, style):
-        modulation = self.field_modulation(style).reshape(*style.shape[:-1], 3, 2, 128)
+        modulation = self.field_modulation(style).reshape(
+            *style.shape[:-1], 3, 2, self.hidden_width
+        )
         hidden = features
         for j in range(3):
             hidden = self.field[j * 2](hidden)

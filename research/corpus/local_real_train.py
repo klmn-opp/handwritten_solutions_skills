@@ -296,7 +296,45 @@ def worker(path: Path) -> None:
         model.load_state_dict(previous["model"])
         with torch.no_grad():
             codes.copy_(previous["training_codes"])
-        optimizer.load_state_dict(previous["optimizer"])
+        if cfg.get("capacity_comparison"):
+            assert cfg.get("reset_optimizer") and cfg["hidden_width"] in {128, 256}
+            assert cfg["steps"] == 4000 and previous["step"] == 16000
+            assert previous["config"].get("class_balanced")
+            conversion = {"width": cfg["hidden_width"], "optimizer_reset": True}
+            if cfg["hidden_width"] == 256:
+                from research.corpus.local_capacity_model import widen_local_field
+
+                probe = torch.arange(0, 96, 3, device="cuda").float()
+                yy, xx = torch.meshgrid(probe, probe, indexing="ij")
+                pp = torch.stack([xx.flatten(), yy.flatten()], -1)[None]
+                with torch.no_grad():
+                    ii = np.arange(len(rows))
+                    style = target_style(ii)
+                    before = model(
+                        x["tokens"], x["boxes"], pp.expand(len(rows), -1, -1), style=style
+                    )
+                    model = widen_local_field(model, seed=3719, noise_ratio=0.01)
+                    after = model(
+                        x["tokens"], x["boxes"], pp.expand(len(rows), -1, -1), style=style
+                    )
+                    errors = [
+                        float((a - b).abs().max()) for a, b in zip(before, after, strict=True)
+                    ]
+                    assert all(
+                        torch.allclose(a, b, atol=1e-4, rtol=2e-5)
+                        for a, b in zip(before, after, strict=True)
+                    )
+                conversion.update(initial_max_errors=errors, checked_real_conditions=len(rows))
+            optimizer = torch.optim.AdamW(
+                [
+                    {"params": model.parameters(), "lr": cfg["model_lr"]},
+                    {"params": [codes], "lr": cfg["code_lr"]},
+                ]
+            )
+            write(run / "reports/capacity-initialization.json", conversion)
+        else:
+            assert not cfg.get("reset_optimizer") and cfg.get("hidden_width", 128) == 128
+            optimizer.load_state_dict(previous["optimizer"])
         rng.bit_generator.state = previous["numpy_rng"]
         torch.set_rng_state(previous["torch_rng"].cpu())
         torch.cuda.set_rng_state_all([q.cpu() for q in previous["cuda_rng"]])
