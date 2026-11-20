@@ -258,7 +258,9 @@ def worker(request: Path, mode: str) -> None:
     print(mode, len(output), flush=True)
 
 
-def assemble(run: Path, source: Path) -> dict:
+def assemble(
+    run: Path, source: Path, *, word_manifest: Path | None = None, rhythm_gap: float | None = None
+) -> dict:
     import pypdfium2 as pdfium
     from PIL import Image
     from pypdf import PdfWriter
@@ -271,7 +273,7 @@ def assemble(run: Path, source: Path) -> dict:
 
     cfg = RenderConfig.model_validate(read(source / "run.json")["config"]["render_config"])
     profile = profile_store().resolve("personal@v1")
-    all_words = read(run / "reports/neural-words.json")
+    all_words = read(word_manifest or run / "reports/neural-words.json")
     reports = []
     neural_pdf, baseline_pdf = PdfWriter(), PdfWriter()
 
@@ -285,7 +287,7 @@ def assemble(run: Path, source: Path) -> dict:
         base, renderer, glyphs = layout(case["source"], case["identity"], profile, cfg)
         assert glyphs == case["provenance"]
         occupied = np.asarray([g["bounds_px"] for g in glyphs])
-        replacements, removed, words = {}, set(), []
+        replacements, removed, words, cores = {}, set(), [], {}
         for row in [q for q in all_words if q["page"] == index]:
             reason = row["fallback_reason"]
             ids = row["items"]
@@ -304,7 +306,31 @@ def assemble(run: Path, source: Path) -> dict:
                     )
                     removed.update(ids)
                     occupied[ids] = bounds
+                    if rhythm_gap is not None:
+                        yy, xx = np.where(rgba[..., 3] > 127)
+                        cores[row["word_id"]] = (
+                            np.array([xx.min(), yy.min(), xx.max() + 1, yy.max() + 1]) + offset
+                        )
             words.append({**row, "fallback_reason": reason})
+        shifts, rhythm = {}, []
+        if rhythm_gap is not None:
+            from research.corpus.line_rhythm_homework import relax
+
+            shifts, rhythm = relax(
+                words,
+                occupied,
+                cores,
+                rhythm_gap,
+                (base.width, base.height),
+                base.width - cfg.margin_mm * cfg.dpi / 25.4,
+            )
+            for word in words:
+                shift = shifts.get(word["word_id"], 0)
+                word["word_shift_x_px"] = shift
+                if shift:
+                    key = word["items"][0]
+                    kind, image, matrix = replacements[key]
+                    replacements[key] = (kind, image, (*matrix[:4], matrix[4] + shift, matrix[5]))
         page = copy.copy(base)
         page.items = [
             replacements.get(i, x)
@@ -318,16 +344,18 @@ def assemble(run: Path, source: Path) -> dict:
         math_pixels = np.asarray(raster(renderer.to_vector_pdf([math_page])).convert("L")) < 255
         baseline = renderer.to_vector_pdf([base])
         result = renderer.to_vector_pdf([page])
-        cpu_pixels, neural_pixels = [
-            np.asarray(raster(blob).convert("RGB")) for blob in [baseline, result]
-        ]
-        assert np.array_equal(cpu_pixels[math_pixels], neural_pixels[math_pixels])
         comparison = run / f"comparisons/handnote-{index + 1}.pdf"
         comparison.write_bytes(baseline)
         deliverable = run / f"comparisons/neural-{index + 1}.pdf"
-        label = label_pdf(result, "Frozen neural English with measured placement")
+        method = "Measured word spacing" if rhythm_gap is not None else "Measured placement"
+        label = label_pdf(result, f"Frozen neural English | {method}")
+        preview = raster(label)
+        cpu_pixels = np.asarray(raster(baseline).convert("RGB"))
+        assert np.array_equal(
+            cpu_pixels[math_pixels], np.asarray(preview.convert("RGB"))[math_pixels]
+        )
         deliverable.write_bytes(label)
-        raster(label).save(run / f"rendered/pages/page-{index + 1:02d}.png")
+        preview.save(run / f"rendered/pages/page-{index + 1:02d}.png")
         baseline_pdf.append(comparison)
         neural_pdf.append(deliverable)
         reports.append(
@@ -340,6 +368,8 @@ def assemble(run: Path, source: Path) -> dict:
                 "math_items": len(math_ids),
                 "neural_words": sum(not q["fallback_reason"] for q in words),
                 "fallback_words": sum(bool(q["fallback_reason"]) for q in words),
+                "word_rhythm": rhythm,
+                "changed_word_placements": len(shifts),
                 "handnote_word_provenance": [
                     glyphs[i] for q in words if q["fallback_reason"] for i in q["items"]
                 ],
