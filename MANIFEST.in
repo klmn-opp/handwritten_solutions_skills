@@ -17,3 +17,8 @@ include tests/test_next_stage.py tests/test_workspace.py tests/test_benchmarks.p
 include tests/test_math_relations.py tests/test_public_distribution.py
 include CHANGELOG.md CONTRIBUTING.md
 include .github/workflows/ci.yml
+
+# Complete the audited public source receipt, including genuine rendered demos.
+include .gitignore .github/workflows/release.yml
+include scripts/verify_release_assets.py tests/test_release_assets.py
+recursive-include public_docs/demo *.pdf *.png
