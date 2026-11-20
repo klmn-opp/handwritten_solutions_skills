@@ -11,7 +11,7 @@ Historical version reports remain historical evidence, not the current status en
 | English research backbone | v0.10.21 canonical-conditioned-ink/1, 194,513 parameters; component-balanced checkpoint | Experimental |
 | English page calibration | v0.10.22 t/l/r metrics + v0.10.23 measured word gaps | Frozen reference |
 | Math research baseline | v0.10.26 D, original personal glyphs + measured structures + spacing/stem correction | M1 fresh-content evidence now available; explicit remaining fallback/refusals |
-| Current increment | Session O imported; 33 reviewed glyphs / 13 roles; original20 + fresh4 pages | Tested24 pages: 0 font fallbacks; author style pending, no production promotion |
+| Current candidate | Portable personal CPU recipe, `personal-cpu-candidate@v2`, installed source8da224f4 | Original24 exact + new6, Linux3.12/3.13 verified; explicit opt-in only, no promotion |
 
 The first four D pages contain 526 frozen neural English words. The other three
 use Handnote English. The seven-page D is not a general neural page service.
@@ -23,16 +23,29 @@ Private machine-readable entries are `workspace/registry/production.json`,
 assets and replay; each references its immutable freeze run. Use
 `python -m research.project_state verify` to verify existing entries.
 
-Latest evidence: [Session O math completion](SESSION_O_MATH_COMPLETION.md) and
-[source audit](SESSION_O_CORPUS_IMPORT.md). Run `e4bc22e8` packages24 reviewed pages,
-2932 visible math items and124 new-source placements. Original20 fallbacks30→0;
-all20 pi use authentic new ink. Existing8509 English records/paths, f variations
-and non-target geometry stay exact. Phi body-height and integral left alignment
-were source-measured and visually reviewed. No new neural training occurred.
-Only33 glyphs are admitted:123 rows are source-reviewed,333 regions remain unlabelled,
-and14 rows have role uncertainties. Seven old procedural short roofs remain.
-Author style acceptance is pending. Candidate manifest and append-only registry
-increment are private; frozen production/research registries remain unchanged.
+Latest evidence: [M2 personal CPU integration](M2_PERSONAL_CPU_INTEGRATION.md).
+The author says the current Session O effect is broadly satisfactory. The accepted
+math/Latin calibration now runs through the ordinary Job/Skill/CLI with an explicit
+`personal-cpu-experimental` backend and version-pinned private candidate. No research
+module, old run lookup or cached per-problem word image is required at runtime.
+
+Final delivery1f0dc09b contains six new complete homework pages and portable private
+Profilev2. Its new three capitalSigma originals extend the O bank33→36 glyphs,
+13→14 roles; old sources remain exact. Regression45a2bcb1 preserves all24 prior
+pages at identical PDF rasterization. New6 have1,165 math items and0 font fallbacks;
+original24 have2,932. Zero is limited to these tested homework pages. DensePhi,
+∀ and ℤ pressure cases retain explicit fallbacks; five unsupported inputs reject.
+Seven old procedural short roofs and previously held f remain unchanged.
+
+Installed8da224f4 passes actual wheel/Skill archive audit and clean Linux
+Python3.12.16/3.13.18 CLI output, source tracing, default controls, profile portability
+and version rollback. Candidate CLI returns held separately from engineering passed.
+Final install7af934f3; stage Go, production/v1.0 No-Go pending native macOS and explicit
+release admission. Main/latest/default stay unchanged. Author broad satisfaction
+is not a formal blind evaluation or production activation. No new neural training;
+new English is CPU outlines. Frozen neural English remains a distinct research asset.
+The [Session O source report](SESSION_O_CORPUS_IMPORT.md) retains broader unadmitted
+regions and role uncertainties; collection does not automatically admit those inks.
 
 History: [2026-11-20 audit](../PROJECT_AUDIT_2026-11-20.md),
 [method retrospective](../workspace/analysis/20261120-font-method-retrospective/retrospective.md),

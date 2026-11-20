@@ -1,5 +1,15 @@
 > Current authoritative entry: [PROJECT_STATUS](PROJECT_STATUS.md). The [master plan](MASTER_EXECUTION_PLAN.md) and [master roadmap](MASTER_ROADMAP.md) govern future execution. Historical entries below retain their original time scope.
 
+2026-11-20 当前：[通用个人 CPU 候选完成报告](M2_PERSONAL_CPU_INTEGRATION.md)。
+作者确认当前效果大致满意。已把数学原迹、英文校准和来源门禁接入普通 Job/CLI，
+可显式选择、迁移并回退候选 Profile v2；不依赖研究目录或 Torch。原24页精确保留，
+新增6页/1165个数学项目无字体回退，Linux Python3.12/3.13实际安装输出一致。
+新增3枚真实大写Σ；密集Φ与未准入∀/ℤ仍明确回退，不支持结构明确拒绝。
+最终交付1f0dc09b、安装7af934f3、运行源码8da224f4。此候选阶段Go；正式发布No-Go，
+尚缺原生macOS验证及明确发布准入。main/latest/default、旧模型和封存C保持原状态。
+后续通过此通用入口继续覆盖验证、已有原迹审查和独立语料研究，不重复已失败训练。
+以下是此前阶段的历史状态，不代表当前仍待重新采集或确认。
+
 最新增量：[O-FULL 原迹已导入](SESSION_O_CORPUS_IMPORT.md)，[完整 24 页已交付](SESSION_O_MATH_COMPLETION.md)。
 原 20 页所有 30 处字体回退及 20 个 π 已由可靠新原迹替换，33 枚字形准入；英文/f
 及布局保持。下一判断为作者对 π/Φ/∮ 与整页风格的验收。新符号继续从已收到的

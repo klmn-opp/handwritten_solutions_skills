@@ -465,6 +465,8 @@ def launch(
             )
             if candidate_render["status"] != "held":
                 raise ValueError("Candidate rendering incorrectly became a production delivery")
+            if candidate_render.get("result_status") != "passed":
+                raise ValueError("Candidate engineering result was not reported separately")
             entry["candidate_verify"] = result(
                 [str(cli), "verify", "--job", str(candidate_output), "--pixels"],
                 cwd=temporary,

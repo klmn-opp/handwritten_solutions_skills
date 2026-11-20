@@ -244,3 +244,34 @@ validde331ba4. Root and independent reviews approve engineering evidence, not au
 style. Candidate registry is append-only, public/default Profile unchanged. Go for
 bounded stage delivery and author comparison; production/v1.0 remains No-Go.
 M4/M5/RL are not unlocked by isolated glyph collection or lower fallback counts.
+
+
+## 2026-11-20 — author accepts current effect; make it a real portable CPU product
+
+The author broadly accepts Session O. Integrate its reviewed source/geometry recipe
+into a version-pinned opt-in Job/CLI backend, retaining normal CPU default and
+immutable production pointers. Asset-only private Profiles carry every runtime
+dependency with SHA checks; public archives carry no personal scans or research
+modules. Per-page research dispatch becomes one ordered content-based pipeline.
+This is source/geometry product engineering, not new neural training. M4's rejected
+residual hypothesis and RL gate remain unchanged.
+
+Final30 homework pages include24 pixel-exact accepted pages and6 fixed new answers.
+New covariance exposes two capitalSigma fonts; review actual O/P2/R5 ink, admit
+three originals and change only those two neighborhoods. DensePhi cannot fit beside
+a fraction rule: its0.157286px gap is below the frozen0.60px threshold. Refuse that
+individual proposal, retain prior ink with a precise source decision and accept the
+complete safe formula. Do not loosen the boundary or claim universal zero fallback.
+
+Actual installed-wheel verification finds a misleading CLI status: result.passed
+shadowed run.held, although receipt/latest admission was safe. Fix result precedence
+and separately expose result_status, with failuree2b566fb retained. Installed8da224f4
+then passes clean Linux3.12/3.13, exact6pages, candidate migration/rollback and default
+controls in7af934f3. Keep macOS untested, not inferred from wheel portability.
+
+Initial delivery02081c59 adds an archive inside a strict Job and fails Job inventory
+verification. Preserve it; final1f0dc09b keeps downloads outside canonical output and
+passes Run and Job checks after sealing. Append a private candidate registry entry,
+never advance production/default/latest. Candidate increment Go; formalv1.0 No-Go
+until platform/release gates. No favorable-seed selection, sealedC use, public upload,
+weight update, author blind-approval claim or olddata overwrite.
