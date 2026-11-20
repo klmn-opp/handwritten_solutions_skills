@@ -20,6 +20,9 @@ class CanonicalCompositionTest(unittest.TestCase):
         unpadded = compose(model, t[:2], b[:2], style[:2], 80, 128)
         self.assertTrue(torch.equal(full, tiled))
         self.assertTrue(torch.equal(full, unpadded))
+        layers = compose(model, t, b, style, 80, 128, return_layers=True)
+        self.assertTrue(torch.equal(full, layers.amax(0)))
+        self.assertEqual(tuple(layers.shape), (2, 80, 128))
         self.assertEqual(tuple(full.shape), (80, 128))
         self.assertEqual(float(full[:, 120:].abs().sum()), 0)
         b[0, 2] = b[0, 0]

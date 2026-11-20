@@ -5,7 +5,7 @@ from torch.nn import functional as F
 
 
 @torch.inference_mode()
-def compose(model, tokens, boxes, style, height, width, *, tile_width=512):
+def compose(model, tokens, boxes, style, height, width, *, tile_width=512, return_layers=False):
     if tokens.ndim != 2 or tokens.shape[-1] != 3:
         raise ValueError("One semantic token sequence required")
     if boxes.shape != (len(tokens), 4) or style.shape != (len(tokens), 8):
@@ -37,5 +37,5 @@ def compose(model, tokens, boxes, style, height, width, *, tile_width=512):
         sampled = F.grid_sample(
             ink, local * (2 / 95) - 1, align_corners=True, padding_mode="zeros", mode="bilinear"
         )[:, 0]
-        pieces.append(sampled.amax(0))
+        pieces.append(sampled if return_layers else sampled.amax(0))
     return torch.cat(pieces, dim=-1)
