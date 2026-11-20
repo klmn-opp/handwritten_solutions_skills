@@ -4,6 +4,9 @@
 `∈` 原色裁剪；其他请求项没有得到可直接接入的可靠新字形。本轮不改 Profile、不训练、
 不写回历史标签，也没有把任何新素材接入当前二十页候选。
 
+后续同日受控提取已经产生 **左侧 ∈ 与两个相邻积分原迹的两页隔离候选**，见文末。
+右侧 ∈ 经工程边界检查发现触边，保持 held；原始二十区域报告与旧审核记录没有改写。
+
 运行：
 [20261120T112651209228Z-missing-math-historical-review-88800d28](../workspace/runs/20261120T112651209228Z-missing-math-historical-review-88800d28/run.json)。
 [候选原迹 PDF](../workspace/runs/20261120T112651209228Z-missing-math-historical-review-88800d28/comparisons/candidate-contact-sheets.pdf) ·
@@ -85,3 +88,73 @@ MPLCONFIGDIR=/tmp/hwsol-missing-math-mpl .venv/bin/python -m research.missing_ma
 prepare 和最终 review 的源码分别留在 logs/source.py 与 logs/final-review-source.py；
 二十项决定保存在运行内，不依赖临时决定文件恢复。两 SQLite 的原 SHA 复核不变。
 这份报告和原迹只在本地研发区，公开包 allowlist 不包含它们。
+
+## 经独立审核后的两页隔离候选
+
+主 Agent 独立目视公式表原页及裁剪后，批准 ∈ 与两个积分原迹进入隔离提取，
+没有批准生产接入。新运行：
+[20261120T113900120096Z-historical-membership-double-integral-candidate-9e6e74a8](../workspace/runs/20261120T113900120096Z-historical-membership-double-integral-candidate-9e6e74a8/run.json)。
+[完整两页 PDF](../workspace/runs/20261120T113900120096Z-historical-membership-double-integral-candidate-9e6e74a8/rendered/homework_solutions.pdf) ·
+[第 6 页局部](../workspace/runs/20261120T113900120096Z-historical-membership-double-integral-candidate-9e6e74a8/comparisons/06-target-166.png) ·
+[第 18 页局部](../workspace/runs/20261120T113900120096Z-historical-membership-double-integral-candidate-9e6e74a8/comparisons/18-target-487.png)。
+
+`research/historical_math_candidate.py` 复用现有 `ScanGlyph`、`MathGlyphResolver`、
+MathText 槽位、combined 的 CPU/数学校准链。只有数学上下文中 ∈/∬ 的 external/inherited
+条目可被替换；所有其他条目、语义、位置、笔墨及来源保持。没有神经训练。
+
+- **∈：** 固定选左侧原迹。右侧虽经肉眼接受，但 `<180` 阈值在其 53 像素宽裁剪的最右列
+  仍发现笔墨，因此拒绝 clean glyph 准入。没有降低阈值绕过，也没有覆盖旧记录。
+  未为增加变体而继续扩裁；这不妨碍完整左侧样本进入候选。
+- **双积分：** 原始实际标签仍为 `\int\int`；映射 U+222C 是数学结构等价映射，
+  **不是作者写下了一个新的独立 Unicode 字符的真值**。在完整 120×175 原色裁剪上，
+  180 阈值分成三个八连通域：第一个积分 `[15,17,50,131]` / 705 点，第二个积分
+  `[65,18,42,148]` / 722 点，旁边 A `[105,118,15,55]` / 263 点。
+  仅选择前两个完整原始等亮度轮廓；所有 1427 个积分阈值墨点均保留，零 A 墨点进入轮廓。
+  130、160、180、200 四阈值诊断均保持三域分离。没有形态膨胀、腐蚀、补笔或平滑。
+- 原始 PDF、300 DPI 父页 RGB、包含 A 的完整裁剪、右侧 held 裁剪、原标签和坐标变换
+  均完整保存。组件标签 NPZ、轮廓顶点/代码 NPZ、每组件 SHA、所选/排除理由、
+  crop→PDF 与 contour→最终页面的变换分别写入来源 manifest 和逐项 provenance。
+
+可检查的源到轮廓证据：
+[两个积分及 A 的原图/组件/轮廓](../workspace/runs/20261120T113900120096Z-historical-membership-double-integral-candidate-9e6e74a8/comparisons/double-integral-context-source-to-contour.png) ·
+[左 ∈ 原图/组件/轮廓](../workspace/runs/20261120T113900120096Z-historical-membership-double-integral-candidate-9e6e74a8/comparisons/membership-left-source-to-contour.png) ·
+[新来源清单](../workspace/runs/20261120T113900120096Z-historical-membership-double-integral-candidate-9e6e74a8/solutions/new-glyphs/manifest.json)。
+这些彩色组件图、放大图和细线轮廓图是诊断副本，不是被修改的训练原图。
+
+两页重放以 `20261120T112636836466Z-author-feedback-combined-20-pages-e19104e1` 为基线。
+第 6 页 dots、第 18 页 plain 的原始英文、公式、布局与背景都保持：
+
+| 检查 | 第 6 页 | 第 18 页 |
+| --- | --- | --- |
+| combined 重放与存档像素 | 完全相同 | 完全相同 |
+| 新替换数学 item | 166 / ∬ | 487 / ∈ |
+| 字体回退 | 1 → 0 | 1 → 0 |
+| 改变像素数 | 784 | 444 |
+| 原目标槽位加 3px 抗锯齿边缘之外改变像素 | 0 | 0 |
+| 英文像素、所有非目标 item / 轮廓 / 来源 | 完全相同 | 完全相同 |
+
+解析 trace 一致仅证明这次替换没有改动记录中的公式结构，**不作为独立答案正确性证明**。
+两页无越界，原始槽位内完整安放轮廓。字体回退为零只适用于这两页，不代表其他符号补齐。
+本候选尚未包含另一路正在审核的数学 d/f/k 校准，最终二十页必须在获准 math-Latin 链后
+再次应用该纯增量模块，不能直接覆盖第 6 页而丢掉其他修复。
+
+保留失败证据：
+
+- `20261120T113750012795Z-historical-membership-double-integral-candidate-a0f15276`：
+  报告序列化不能直接写 NumPy `uint16` 组件编号；改为 Python `int`，无轮廓算法变化。
+- `20261120T113804164227Z-historical-membership-double-integral-candidate-8b374822`：
+  右侧 ∈ 原裁剪真实触边，门禁拒绝。改为仅选择完整左侧来源，没有清理、重标或放宽门禁。
+
+两个失败 run 均保留原源码和 traceback，后续运行使用新 ID。主 Agent 已独立目视两处
+原生局部对照与完整原图→组件→轮廓证据，确认左 ∈ 可辨认、两积分完整、A 排除有据，
+批准这两个固定来源和映射进入**隔离最终候选**。这是独立 Agent 视觉审核，
+不代表作者认可或生产准入。最终二十页整合需保持上述 math-Latin 顺序；正式 Profile/latest
+不变。已封存两页 run 内的 `visual_review: pending parent` 保留当时状态，后续接受决定
+记在本报告及最终整合记录，不回写旧运行。
+
+```sh
+.venv/bin/ruff check research/historical_math_candidate.py
+MPLCONFIGDIR=/tmp/hwsol-historical-math-mpl .venv/bin/python -m research.historical_math_candidate
+```
+
+新运行 `verify_run` 通过；原 latest、combined run 与历史 review run 的 SHA 均不变。
