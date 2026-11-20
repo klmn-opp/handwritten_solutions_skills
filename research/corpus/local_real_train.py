@@ -338,6 +338,32 @@ def worker(path: Path) -> None:
         rng.bit_generator.state = previous["numpy_rng"]
         torch.set_rng_state(previous["torch_rng"].cpu())
         torch.cuda.set_rng_state_all([q.cpu() for q in previous["cuda_rng"]])
+    start_step = 0
+    if cfg.get("recovery_checkpoint"):
+        assert cfg.get("capacity_comparison") and cfg["hidden_width"] == 256
+        assert digest(cfg["recovery_checkpoint"]) == cfg["recovery_checkpoint_sha256"]
+        recovery = torch.load(cfg["recovery_checkpoint"], map_location="cuda", weights_only=False)
+        assert recovery["step"] == cfg["recovery_step"] == 3000 and cfg["steps"] == 4000
+        for key, value in recovery["config"].items():
+            if key not in {"run", "inherited_model_updates", "protocol_sha256"}:
+                assert cfg[key] == value, key
+        model.load_state_dict(recovery["model"])
+        with torch.no_grad():
+            codes.copy_(recovery["training_codes"])
+        optimizer.load_state_dict(recovery["optimizer"])
+        rng.bit_generator.state = recovery["numpy_rng"]
+        torch.set_rng_state(recovery["torch_rng"].cpu())
+        torch.cuda.set_rng_state_all([q.cpu() for q in recovery["cuda_rng"]])
+        start_step = recovery["step"]
+        write(
+            run / "reports/recovery.json",
+            {
+                "restored_step": start_step,
+                "remaining_updates": cfg["steps"] - start_step,
+                "weights_optimizer_codes_all_rng_restored": True,
+                "sampling_counts_cover_recovery_segment_only": True,
+            },
+        )
     initial = {k: v.detach().clone() for k, v in model.state_dict().items()}
     initial_codes = codes.detach().clone()
     torch.save({"model": initial, "codes": initial_codes}, run / "logs/initial-state.pt")
@@ -356,7 +382,7 @@ def worker(path: Path) -> None:
             chol = torch.linalg.cholesky(torch.cov(codes.T) + torch.eye(2, device="cuda") * 1e-4)
         return mu, chol
 
-    for step in range(1, cfg["steps"] + 1):
+    for step in range(start_step + 1, cfg["steps"] + 1):
         batch = cfg["batch"]
         ii = sample_indices(rng, by_class, batch, balanced=cfg.get("class_balanced", False))
         np.add.at(counts, ii, 1)
@@ -416,7 +442,7 @@ def worker(path: Path) -> None:
         loss.backward()
         torch.nn.utils.clip_grad_norm_([*model.parameters(), codes], 5)
         optimizer.step()
-        if step == 1 or step % 100 == 0:
+        if step == start_step + 1 or step % 100 == 0:
             q = {
                 "step": step,
                 "loss": float(loss.detach()),
@@ -580,9 +606,9 @@ def worker(path: Path) -> None:
     write(
         run / "reports/result.json",
         {
-            "new_model_updates": cfg["steps"],
+            "new_model_updates": cfg["steps"] - start_step,
             "inherited_model_updates": cfg["inherited_model_updates"],
-            "model_lineage_updates": cfg["inherited_model_updates"] + cfg["steps"],
+            "model_lineage_updates": cfg["inherited_model_updates"] + cfg["steps"] - start_step,
             "actual_parameter_training": True,
             "parameter_l1_change": sum(
                 float((v - initial[k]).abs().sum()) for k, v in model.state_dict().items()
