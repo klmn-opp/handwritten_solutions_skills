@@ -31,6 +31,46 @@ class SemanticGeometry(unittest.TestCase):
 
 @unittest.skipUnless(importlib.util.find_spec("torch"), "Torch remains optional")
 class SemanticLearning(unittest.TestCase):
+    def test_distance_gradient_penalty_uses_pixel_units_and_backpropagates(self):
+        import torch
+
+        from research.corpus.semantic_ink_model import distance_gradient_loss
+
+        points = torch.tensor([[[2.0, 3.0], [5.0, 7.0]]], requires_grad=True)
+        slope = torch.nn.Parameter(torch.tensor(0.25))
+        distance = points[..., 0] * slope
+        band = torch.ones(1, 2, dtype=torch.bool)
+        penalty = distance_gradient_loss(distance, points, band)
+        self.assertAlmostEqual(float(penalty.detach()), 1.0, places=5)
+        penalty.backward()
+        self.assertGreater(float(slope.grad), 0)
+        unit = distance_gradient_loss(points[..., 0] / 8, points, band)
+        self.assertLess(float(unit.detach()), 1e-8)
+        empty = distance_gradient_loss(points[..., 0] * slope, points, ~band)
+        self.assertEqual(float(empty.detach()), 0)
+
+    def test_local_distance_ink_trains_geometry_head_and_spatial_regularizer(self):
+        import torch
+
+        from research.corpus.semantic_ink_model import (
+            SignedDistanceLocalInk,
+            distance_gradient_loss,
+        )
+
+        model = SignedDistanceLocalInk()
+        t = torch.tensor([[[102, 0, 0], [0, 0, 0]]])
+        b = torch.tensor([[[16, 16, 80, 80], [0, 0, 0, 0]]]).float()
+        points = torch.tensor([[[25.0, 34.0], [45.0, 65.0]]], requires_grad=True)
+        logits, sdf = model(t, b, points, style=torch.ones(1, 2, 10))
+        self.assertTrue(torch.equal(logits, 16 * sdf))
+        loss = logits.square().mean() + distance_gradient_loss(
+            sdf, points, torch.ones_like(sdf, dtype=torch.bool)
+        )
+        loss.backward()
+        self.assertTrue(torch.isfinite(model.field[-1].weight.grad).all())
+        self.assertEqual(float(model.field[-1].weight.grad[0].abs().sum()), 0)
+        self.assertGreater(float(model.field[-1].weight.grad[1].abs().sum()), 0)
+
     def test_local_diagnostic_is_invariant_to_neighbours_but_learns_morphology(self):
         import torch
 

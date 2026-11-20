@@ -15,6 +15,8 @@ def launch(
     control: Path | None = None,
     modulated=False,
     context_independent=False,
+    continuation: Path | None = None,
+    distance_regularized=False,
 ) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
@@ -27,6 +29,19 @@ def launch(
         raise ValueError("Layer modulation requires the registered hierarchical control")
     if context_independent and not modulated:
         raise ValueError("Context independence is registered for the modulated control only")
+    if continuation:
+        verify_run(continuation.parent.parent)
+        previous = json.loads((continuation.parent.parent / "reports/request.json").read_text())
+        if (
+            not context_independent
+            or not previous.get("context_independent")
+            or previous["data_sha256"] != digest(data / "run.json")
+            or previous["steps"] != 8000
+            or previous.get("continuation")
+        ):
+            raise ValueError("Registered continuation requires the same 8k local control/data")
+    if distance_regularized and not continuation:
+        raise ValueError("Distance diagnostic requires the frozen 8k local control")
     data_config = json.loads((data / "run.json").read_text())["config"]
     class_coordinates = data_config.get("per_class_coordinates", False)
     density_normalized = any(
@@ -40,7 +55,7 @@ def launch(
         "teacher_sha256": digest(teacher),
         "word_data": str(words.resolve()),
         "word_data_sha256": digest(words / "run.json"),
-        "steps": 8000,
+        "steps": 4000 if continuation else 8000,
         "seed": 3518,
         "batch": 4,
         "points": 1024,
@@ -48,8 +63,14 @@ def launch(
         "code_lr": 0.001,
         "code_l2": 0.01,
         "support_weight": 0.5,
-        "inherited_model_updates": 24000,
-        "architecture": "semantic-context-independent-local-ink/1"
+        "inherited_model_updates": 32000 if continuation else 24000,
+        "continuation": str(continuation.resolve()) if continuation else None,
+        "continuation_sha256": digest(continuation) if continuation else None,
+        "distance_regularized": bool(distance_regularized),
+        "distance_gradient_weight": 0.1 if distance_regularized else 0.0,
+        "architecture": "semantic-distance-local-ink/1"
+        if distance_regularized
+        else "semantic-context-independent-local-ink/1"
         if context_independent
         else "semantic-modulated-local-ink/1"
         if modulated
@@ -74,7 +95,11 @@ def launch(
     run = create("verified-local-ink-training", seed=cfg["seed"], config=cfg)
     write(run.path / "reports/request.json", {**cfg, "run": str(run.path)})
     name = (
-        "ft-context-independent"
+        "ft-distance-gradient"
+        if distance_regularized
+        else "ft-continuation-control"
+        if continuation
+        else "ft-context-independent"
         if cfg["capacity_diagnostic"] and context_independent
         else "context-independent"
         if context_independent
@@ -131,6 +156,8 @@ def worker(path: Path) -> None:
         HierarchicalSemanticInk,
         ModulatedSemanticInk,
         SemanticInk,
+        SignedDistanceLocalInk,
+        distance_gradient_loss,
     )
     from research.corpus.semantic_raw_data import apply_metrics
 
@@ -158,7 +185,9 @@ def worker(path: Path) -> None:
     teacher.requires_grad_(False)
     hierarchical = cfg.get("hierarchical", False)
     model = (
-        ContextIndependentLocalInk()
+        SignedDistanceLocalInk()
+        if cfg.get("distance_regularized")
+        else ContextIndependentLocalInk()
         if cfg.get("context_independent")
         else ModulatedSemanticInk()
         if cfg.get("modulated")
@@ -229,10 +258,33 @@ def worker(path: Path) -> None:
             "no_verified_data_from_development_or_C": True,
         },
     )
+    rng = np.random.default_rng(cfg["seed"])
+    if cfg.get("continuation"):
+        assert digest(cfg["continuation"]) == cfg["continuation_sha256"]
+        previous = torch.load(cfg["continuation"], map_location="cuda", weights_only=False)
+        assert previous["step"] == 8000
+        for key in [
+            "arrays_sha256",
+            "data_sha256",
+            "teacher_sha256",
+            "word_data_sha256",
+            "model_lr",
+            "code_lr",
+            "code_l2",
+            "support_weight",
+            "context_independent",
+        ]:
+            assert previous["config"][key] == cfg[key], key
+        model.load_state_dict(previous["model"])
+        with torch.no_grad():
+            codes.copy_(previous["training_codes"])
+        optimizer.load_state_dict(previous["optimizer"])
+        rng.bit_generator.state = previous["numpy_rng"]
+        torch.set_rng_state(previous["torch_rng"].cpu())
+        torch.cuda.set_rng_state_all([q.cpu() for q in previous["cuda_rng"]])
     initial = {k: v.detach().clone() for k, v in model.state_dict().items()}
     initial_codes = codes.detach().clone()
     torch.save({"model": initial, "codes": initial_codes}, run / "logs/initial-state.pt")
-    rng = np.random.default_rng(cfg["seed"])
     counts = np.zeros(len(rows), np.int64)
     curve = []
     start = time.perf_counter()
@@ -253,6 +305,8 @@ def worker(path: Path) -> None:
         np.add.at(counts, ii, 1)
         xy = np.concatenate([rng.integers(8, 88, (4, 768, 2)), rng.integers(0, 96, (4, 256, 2))], 1)
         pp = torch.tensor(xy, device="cuda").float()
+        if cfg.get("distance_regularized"):
+            pp.requires_grad_(True)
         pi = torch.tensor(xy[..., 1] * 96 + xy[..., 0], device="cuda")
         logits, distance = model(x["tokens"][ii], x["boxes"][ii], pp, style=target_style(ii))
         target = x["ink"][ii].flatten(1).gather(1, pi)
@@ -268,7 +322,7 @@ def worker(path: Path) -> None:
         mu, chol = prior()
         zz = torch.tensor(rng.standard_normal((4, 2)), device="cuda", dtype=torch.float32)
         zz = zz @ chol.T + mu
-        ll = model(tt, bb, pp, style=sampled_style(tt, zz))[0]
+        ll, prior_distance = model(tt, bb, pp, style=sampled_style(tt, zz))
         with torch.no_grad():
             ft = teacher(tt, bb, pp)[0].sigmoid()
         terms = []
@@ -285,6 +339,12 @@ def worker(path: Path) -> None:
                 )
         support = torch.stack(terms).mean()
         loss = fit + cfg["code_l2"] * codes.square().mean() + cfg["support_weight"] * support
+        if cfg.get("distance_regularized"):
+            boundary = 0.5 * (
+                distance_gradient_loss(distance, pp, sdf.abs() < 0.5)
+                + distance_gradient_loss(prior_distance, pp, prior_distance.abs() < 0.5)
+            )
+            loss = loss + cfg["distance_gradient_weight"] * boundary
         if not torch.isfinite(loss):
             raise ValueError("Nonfinite direct real glyph training loss")
         optimizer.zero_grad(set_to_none=True)
@@ -299,6 +359,8 @@ def worker(path: Path) -> None:
                 "prior": float(support.detach()),
                 "seconds": time.perf_counter() - start,
             }
+            if cfg.get("distance_regularized"):
+                q["distance_gradient"] = float(boundary.detach())
             curve.append(q)
             write(run / "reports/curve.json", curve)
             print(json.dumps(q), flush=True)
@@ -420,8 +482,8 @@ def worker(path: Path) -> None:
         run / "reports/result.json",
         {
             "new_model_updates": cfg["steps"],
-            "inherited_model_updates": 24000,
-            "model_lineage_updates": 24000 + cfg["steps"],
+            "inherited_model_updates": cfg["inherited_model_updates"],
+            "model_lineage_updates": cfg["inherited_model_updates"] + cfg["steps"],
             "actual_parameter_training": True,
             "parameter_l1_change": sum(
                 float((v - initial[k]).abs().sum()) for k, v in model.state_dict().items()

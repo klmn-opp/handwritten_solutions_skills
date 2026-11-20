@@ -250,6 +250,28 @@ class ContextIndependentLocalInk(ModulatedSemanticInk):
         return torch.zeros(*ids.shape, 12, device=ids.device, dtype=self.writer.dtype)
 
 
+class SignedDistanceLocalInk(ContextIndependentLocalInk):
+    """Learn ink through a signed distance; boundary derivatives are trainable."""
+
+    architecture = "semantic-distance-local-ink/1"
+
+    def forward(self, tokens, boxes, points, *, style=None):
+        _, distance = super().forward(tokens, boxes, points, style=style)
+        return 16 * distance, distance
+
+
+def distance_gradient_loss(distance, points, band):
+    """SDF values are in 8-pixel units; impose unit spatial slope near edges.
+
+    This is a differentiable training penalty, never a raster postprocessor.
+    Empty bands contribute zero rather than inventing boundary supervision.
+    """
+    gradient = torch.autograd.grad(distance.sum(), points, create_graph=True)[0]
+    error = (8 * gradient.square().sum(-1).add(1e-12).sqrt() - 1).square()
+    weights = band.detach().to(error.dtype)
+    return (error * weights).sum() / weights.sum().clamp_min(1)
+
+
 class MetricSemanticInk(ContextualSemanticInk):
     """Expose actual glyph scale/aspect to avoid contradictory normalized ink targets."""
 
