@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import re
 import sqlite3
 from collections import Counter
 from contextlib import closing
@@ -74,8 +75,14 @@ def extract_sources(selection: list[dict], dest: Path, corpus: Path) -> list[dic
                 ):
                     raise ValueError(f"Reviewed parent does not match original PDF: {old.name}")
         name = f"U{ord(item['character']):04X}-p{number}"
+        if sample_key := item.get("sample_key"):
+            if not re.fullmatch(r"[A-Za-z0-9_-]+", sample_key):
+                raise ValueError("Invalid math source sample key")
+            name = f"{sample_key}-{name}"
         crop_path = dest / "crops" / f"{name}.png"
         parent_path = dest / "parents" / f"{name}.png"
+        if crop_path.exists():
+            raise ValueError(f"Duplicate math source sample: {name}")
         crop.save(crop_path, dpi=(300, 300))
         parent.save(parent_path, dpi=(300, 300))
         parent_page = next(
@@ -139,7 +146,11 @@ def extract_sources(selection: list[dict], dest: Path, corpus: Path) -> list[dic
             "derived_contour_only": True,
             "original_pixels_edited": False,
             "writer": "personal",
-            "label_source": "v0.10.24 Codex visual review of original ink",
+            "label_source": (
+                "v0.10.25 Codex visual review of author session"
+                if item.get("capture_session")
+                else "v0.10.24 Codex visual review of original ink"
+            ),
             "review_status": "agent-accepted" if item["selected"] else "held",
             "clean_isolated_ink": item["selected"],
             "human_review": False,

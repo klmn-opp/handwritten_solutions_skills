@@ -280,7 +280,11 @@ def overlap_verification(
     }
 
 
-def local_comparison(output: Path, panels: list[tuple]) -> None:
+def local_comparison(
+    output: Path,
+    panels: list[tuple],
+    labels: tuple[str, str] = ("A   v0.10.23", "B   Personal math candidate"),
+) -> None:
     """Print all formula regions with replacements at the same scale for A and B."""
     with PdfPages(output / "formula-regions.pdf") as pdf:
         for start in range(0, len(panels), 6):
@@ -290,7 +294,7 @@ def local_comparison(output: Path, panels: list[tuple]) -> None:
             font = ImageFont.truetype("DejaVuSans.ttf", 31)
             small = ImageFont.truetype("DejaVuSans.ttf", 22)
             draw.text((92, 82), "Formula comparison", fill="#182530", font=font)
-            for x, label in [(92, "A   v0.10.23"), (1290, "B   Personal math candidate")]:
+            for x, label in zip((92, 1290), labels, strict=True):
                 draw.text((x, 148), label, fill="#49596b", font=font)
             for j, (page, group, a, b) in enumerate(part):
                 y = 239 + j * 515
