@@ -7,6 +7,46 @@ from pathlib import Path
 from research.corpus.context_content_train import digest, write
 
 
+def launch_clean(data: Path, template: Path) -> Path:
+    """Reset to the frozen font teacher, avoiding inherited contaminated real ink."""
+    from hwsol.workspace import verify_run
+    from research.corpus.experiment import create
+
+    verify_run(data)
+    verify_run(template)
+    dc = json.loads((data / "run.json").read_text())["config"]
+    parent = Path(dc["parent"])
+    verify_run(parent)
+    pc = json.loads((parent / "run.json").read_text())["config"]
+    if not pc.get("no_synthetic_repair") or not pc.get("review_sha256"):
+        raise ValueError("Newly reviewed clean subset and recomputed morphology required")
+    previous = json.loads((template / "reports/request.json").read_text())
+    cfg = {k: v for k, v in previous.items() if k != "run"}
+    cfg.update(
+        data=str(data.resolve()),
+        data_sha256=digest(data / "run.json"),
+        arrays_sha256=digest(data / "reports/arrays.npz"),
+        steps=32000,
+        inherited_model_updates=24000,
+        continuation=None,
+        continuation_sha256=None,
+        matched_neighborhood=True,
+        neighborhood_sigma=0.15,
+        context_independent=True,
+        architecture="semantic-context-independent-local-ink/1",
+        capacity_diagnostic=False,
+        initial_code_groups=dc["initial_code_groups"],
+        shared_word_variable_at_generation=False,
+        prior_center_is_seen_training_style=True,
+        novel_shape_verified=False,
+        generation_retrieves_no_bitmap=True,
+        contaminated_real_model_inherited=False,
+        protocol_sha256=digest("docs/V01019_PROTOCOL.md"),
+    )
+    run = create("matched-local-prior-training", seed=cfg["seed"], config=cfg)
+    return execute(run, cfg, "clean-full")
+
+
 def launch(source: Path, *, steps: int = 4000) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
@@ -39,8 +79,12 @@ def launch(source: Path, *, steps: int = 4000) -> Path:
         protocol_sha256=digest("docs/V01019_PROTOCOL.md"),
     )
     run = create("matched-local-prior-training", seed=cfg["seed"], config=cfg)
+    return execute(run, cfg, "ft-neighborhood")
+
+
+def execute(run, cfg, name):
     write(run.path / "reports/request.json", {**cfg, "run": str(run.path)})
-    Path("/tmp/context-v01019-ft-neighborhood").write_text(str(run.path))
+    Path(f"/tmp/context-v01019-{name}").write_text(str(run.path))
     print(run.path, flush=True)
     try:
         with (run.path / "logs/worker.log").open("w") as log:
@@ -55,7 +99,7 @@ def launch(source: Path, *, steps: int = 4000) -> Path:
                 stdout=log,
                 stderr=subprocess.STDOUT,
                 check=True,
-                timeout=3600,
+                timeout=7200,
             )
         run.finish("held", result=json.loads((run.path / "reports/result.json").read_text()))
     except Exception as exc:

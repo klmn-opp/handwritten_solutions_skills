@@ -109,6 +109,7 @@ def class_residual_coordinates(ink: np.ndarray, labels: np.ndarray, dimensions=8
 
 def prepare(parent: Path, per_class=False) -> Path:
     verify_run(parent)
+    parent_config = json.loads((parent / "run.json").read_text())["config"]
     with np.load(parent / "reports/arrays.npz") as f:
         arrays = {k: f[k] for k in f.files}
     if per_class:
@@ -130,6 +131,7 @@ def prepare(parent: Path, per_class=False) -> Path:
             "coordinates_are_not_identified_personal_style_factors": True,
             "PCA_inverse_not_used_by_generator": True,
             "per_class_coordinates": bool(per_class),
+            "initial_code_groups": parent_config.get("initial_code_groups"),
         },
     )
     np.savez_compressed(run.path / "reports/arrays.npz", **arrays, local_codes=codes)
