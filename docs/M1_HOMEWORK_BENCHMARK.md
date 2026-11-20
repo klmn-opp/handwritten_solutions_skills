@@ -1,6 +1,9 @@
 # M1 完整作业与数学覆盖验收
 
 2026-11-20。**本轮完整作业基准已执行，候选继续保留为研究版本；v1.0 发布 No-Go。**
+随后作者视觉验收指出长/高根号、斜线分数及部分 CPU 字形问题，当前 B 未通过风格验收。
+首轮修订已获作者明显改善评价，第二轮反馈与对照见 [作者修订](M1_AUTHOR_REVISION.md)。
+按最新要求改用 [19 页完整数学采集册](COMPREHENSIVE_MATH_COLLECTION.md)；下文保留原始基准记录。
 原始 24 题中，开发集 13 题出页、3 题按预期明确拒绝；一次性留出集 7 题出页、
 1 题发生未预期的明确拒绝。所有成功页面均经过主 Agent 阅读与数学局部检查。
 拒绝、来源缺口和未验收的风格问题均保留，不能把这轮结果称为“任意公式零回退”。
@@ -17,7 +20,7 @@
 | 全部成功与失败输入 | [可编辑解答](../workspace/runs/20261120T104919541290Z-m1-reviewed-homework-evidence-f4b2cca7/solutions) · [逐题状态](../workspace/runs/20261120T104919541290Z-m1-reviewed-homework-evidence-f4b2cca7/reports/cases.json) |
 | 独立原题→解题→校核→实际 CPU 出稿 | [4 页 PDF](../workspace/runs/20261120T103556645202Z-m1-text-end-to-end-5127591d/rendered/homework_solutions.pdf) |
 | 失败题的显式等价恢复 | [恢复后的候选 PDF](../workspace/runs/20261120T104853010542Z-homework-m1-render-7595af17/rendered/homework_solutions.pdf) · [原因、原式、逐字差异与验证](M1_LIMITATIONS.md) |
-| 可选最小补采 Session O | [打印 PDF](../workspace/runs/20261120T105153402369Z-m1-optional-math-session-o-137ebfeb/solutions/collection/session-O.pdf) · [PNG](../workspace/runs/20261120T105153402369Z-m1-optional-math-session-o-137ebfeb/solutions/collection/session-O.png) |
+| 历史最小补采 O（现由 O-FULL 替代） | [打印 PDF](../workspace/runs/20261120T105153402369Z-m1-optional-math-session-o-137ebfeb/solutions/collection/session-O.pdf) · [PNG](../workspace/runs/20261120T105153402369Z-m1-optional-math-session-o-137ebfeb/solutions/collection/session-O.png) |
 
 原始 20 页集合不夹入恢复页或重复页来提高通过率。恢复页与 4 道端到端题单独保存。
 所有产物留在私有 `workspace/runs/`，未激活正式 latest。

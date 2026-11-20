@@ -1,5 +1,17 @@
 > Current authoritative entry: [PROJECT_STATUS](PROJECT_STATUS.md). The [master plan](MASTER_EXECUTION_PLAN.md) and [master roadmap](MASTER_ROADMAP.md) govern future execution. Historical entries below retain their original time scope.
 
+2026-11-20 Master Plan 已完整保存并实际执行 M0/M1：冻结基线重放通过；新题原始成功
+20 页的数学字体回退 201→38，留出集原始 7/8，明确保留拒绝及恢复。
+[本轮完整报告与 PDF/PNG](M1_HOMEWORK_BENCHMARK.md)。M3 注册已实现；
+[M2 安装包](M2_PACKAGE_READINESS.md)和 [M4 机制诊断](M4_MECHANISM_PREFLIGHT.md)
+分别验收，尚未发布或启动新神经训练。
+
+作者第一轮修订已交付完整 20 页，数学字体回退进一步 38→30；作者确认明显改善，
+仍要求修正偏粗的 2/π、分数/长根号横笔及 f 的高度和墨重，第二轮正在隔离验收。
+[作者修订与对照](M1_AUTHOR_REVISION.md)。按最新偏好完成
+[19 页、123 行完整数学采集册](COMPREHENSIVE_MATH_COLLECTION.md)，可直接填写；
+不再最小化符号清单，提示不等于真实笔迹标签。下方均为历史状态。
+
 # v0.10.26 根号间距与数学墨迹修复
 
 以七页 C 为对照，D 收紧 15 处小根号内距，改选 22 个偏重的个人零字形，校准长括号、绝对值和高根号主干。
