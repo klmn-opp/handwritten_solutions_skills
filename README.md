@@ -1,119 +1,136 @@
 # Handwritten Solutions
 
-本地运行的手写作业 Agent Skill。Agent 读取文本、图片或 PDF，按原题号解答并保留验证记录。Runtime 用选定的字迹 Profile 排版，每道顶层题占一页，交付 PDF、逐页 PNG 和可编辑 Markdown。
+**把经过核验的解答，变成可追溯的手写风格作业 PDF。**
 
-当前隔离开发候选编号为 **1.0.0rc2**，本轮跨平台与本地资格工程验收已完成，未正式发布或替换生产默认。正式历史发行仍为 **v0.6.0**。CPU 工作流不需要 GPU 或 Torch；个人数学墨迹仍需显式选择已审核的私有候选，未准入的内容保持拒绝或可解释回退。候选的真实源码、平台证据及剩余门槛见 [PROJECT_STATUS](docs/PROJECT_STATUS.md)。
+A local Agent Skill and CPU renderer for checked mathematics homework.
+One top-level problem per page, with PDF, PNG, editable solutions and provenance.
 
-**当前开发交接入口：[CURRENT_STATE](docs/CURRENT_STATE.md)**，含对照、测试、新发行包与未完成项。[前置审计](docs/CURRENT_STATE_AUDIT.md)保留为历史基线。CLI 渲染已有解答；新题由外部 Agent 解题。当前 RL 是 CPU 渲染策略学习，未进行神经网络训练。
+Handwritten Solutions 将宿主 Agent 的读题、解题能力与可靠的数学排版结合起来：
+Agent 读取文字、图片或 PDF，编写并校核英文 Markdown / LaTeX；本地运行时负责
+数学结构、手写字形、页面布局和输出检查。你也可以直接提供已经完成的解答。
 
-工作区源码现支持 CPU 手写布局、笔画对照及个人校准。四份实测 PDF、公开手写样本留出结果及本人样本采集说明见[手写真实性报告](docs/HANDWRITING_REALISM.md)。
+v1.0 的产品核心是 **CPU 字体与结构渲染**。安装完成后，正常出稿不需要 GPU、
+PyTorch 或下载生成模型。连续神经笔迹、个人风格学习与偏好优化仍是后续研究方向，
+不会被当作本版本已经具备的生成能力。
 
-## 已发布 v0.6.0 的历史发行文件
+## 看一下实际输出
 
-以下版本和 Git bundle 说明属于历史发行，不是当前 RC 的交付清单。新候选仅通过公开文件白名单生成 wheel、sdist 和 Skill，私有 Profile 与 Git 历史不随公开包分发。
+下面的两页由项目的普通 CPU 入口实际生成，使用随包提供、采用 OFL-1.1 许可的
+**Patrick Hand 默认字体**。它们展示开箱即用的效果，不是作者的私有笔迹，也不是
+神经生成或图片模型制作的效果图。根号和导数撇号使用已记录的 STIX 字体回退，
+详见[这份演示的字形来源](public_docs/demo/provenance.json)。
 
-| 文件 | 用途 |
-|---|---|
-| handwritten-solutions-0.6.0-skill.zip | 解压后有 handwritten-solutions/，内含 SKILL.md、uv.lock、源码和示例。适合安装到 Codex。 |
-| handwritten_solutions-0.6.0-py3-none-any.whl | Python 命令行工具。使用锁定环境时从源码目录安装依赖，再安装 wheel。 |
-| handwritten_solutions-0.6.0.tar.gz | Python 源码发行包，保留 Skill、构建脚本和测试。 |
-| handwritten-solutions-v0.6.0.bundle | 完整本地 Git 历史，可用下方命令克隆。 |
-| release.json / SHA256SUMS | 发行 commit、lock 摘要及所有发行文件的 SHA-256。 |
+| 线性代数：矩阵与谱分解 | 微积分：积分与上下界 |
+| --- | --- |
+| ![默认字体生成的矩阵与谱分解页面](public_docs/demo/page-01.png) | ![默认字体生成的积分页面](public_docs/demo/page-02.png) |
+
+[下载完整两页 PDF](public_docs/demo/homework_solutions.pdf) ·
+[查看原题](examples/release-demo/questions.md) ·
+[解答一](examples/release-demo/matrix.md) ·
+[解答二](examples/release-demo/integral.md) ·
+[可复现 Job](examples/release-demo/job.json)
+
+## 已有功能
+
+- **完整作业输出**：每道顶层大题一页，小题留在所属页面；默认 A4 白纸，支持横线、方格、点阵及本地图片/PDF 背景。
+- **数学结构排版**：分数、根号、求和、积分、上下标和支持范围内的矩阵；保留原始 LaTeX 与结构记录，不交给自由图像生成器猜测。
+- **英文与数学混排**：英文说明、连续计算和公式统一排版，支持最高 300 DPI 的逐页 PNG。
+- **核验与来源**：保存原题引用、解答 Markdown、解析后的 Job、字形来源、边界检查和输出文件摘要；错误、回退与不支持的结构明确报告。
+- **个人 Profile**：版本化导入、导出、比较、选择和回滚；个人墨迹候选需要独立本地资格审核，导入不会自动改变默认版本。
+- **Agent Skill 与 CLI**：既可交给支持本地 Skill 的 Agent 调用，也可用命令行处理已核验的解答。
+
+发行候选已在 **Linux x86_64、macOS Apple Silicon，Python 3.12 / 3.13** 上完成真实安装、
+PDF/PNG、Profile 迁移和回滚验证。不同系统的文字排版库可能产生细微落点差异，
+不保证跨系统像素一致。Windows 尚不属于本版已验证的支持范围。
+
+## 第一次使用
+
+准备 **Python 3.12 或 3.13、Git 和 uv**。从本仓库的 Releases 下载并解压源码包，
+在解压后的项目目录执行：
 
 ```sh
-git clone ./handwritten-solutions-v0.6.0.bundle handwritten-solutions
-cd handwritten-solutions
-git log --oneline --decorate
-```
-
-在 Linux 或 macOS 可分别用 `sha256sum -c SHA256SUMS` 或 `shasum -a 256 -c SHA256SUMS` 核对文件。Windows PowerShell 可使用 `Get-FileHash -Algorithm SHA256 <文件>` 对照清单。
-
-## 安装与运行
-
-需要 Python 3.12/3.13、Git 和 [uv](https://docs.astral.sh/uv/)。日常安装可用 `uv sync --locked --no-dev`。以下为包含测试的开发安装。
-
-```bash
-uv sync --locked
+uv sync --locked --no-dev
 uv run --frozen hwsol doctor
-uv run --frozen hwsol render --manifest examples/phase2/euler/job.json --workspace workspace
+uv run --frozen hwsol render --manifest examples/release-demo/job.json --workspace workspace
 uv run --frozen hwsol workspace latest
-# 用上一步返回的 run 路径执行 hwsol verify --job <run> --pixels
-uv run --frozen hwsol profiles list
-uv run --frozen hwsol render-probe --input examples/phase0/common.md --output out/common
-uv run --frozen pytest
 ```
 
-安装需要下载锁定依赖；安装完成后渲染不需要网络、GPU、PyTorch 或模型权重。运行 `uv` 时使用
-`--offline` 可禁止依赖管理器访问网络；直接调用虚拟环境中的 `hwsol` 同样不下载任何资源。
-Windows 对应可执行文件位于 `.venv/Scripts/`；macOS/Linux 位于 `.venv/bin/`。
+第一次安装需要下载锁定的依赖。此后依赖已经缓存时，可以给 `uv` 加上 `--offline`。
+命令会打印实际运行目录；使用它核验成品：
 
-`out/common/` 包含 `probe.pdf`、`pages/01.png` 等逐页图、`source.md` 和 `validation_report.json`。
-输出目录必须为空或不存在，防止旧文件被误认作本次成功产物。失败退出码为 2；渲染期间失败会保存报告。
-
-```bash
-uv run --frozen hwsol render-probe --input examples/phase0/common.md --output out/custom \
-  --font /path/to/your-font.ttf --config config/defaults.json
+```sh
+uv run --frozen hwsol verify --job workspace/runs/<run_id> --pixels
 ```
 
-配置采用 JSON，尺寸使用 mm、字号使用 pt，未知字段报错。默认 A4 白纸、150 DPI；可设为 300 DPI。
-`HWSOL_WORKSPACE` 指定新的运行根目录，默认当前目录的 `workspace/`。初始化工作区可连接旧 Profile 库；见[目录契约](docs/WORKSPACE.md)。`HWSOL_DATA_DIR` 仍可优先覆盖用户数据目录。未配置工作区时，Linux 使用 `~/.local/share/handwritten-solutions`，
-macOS 使用 `~/Library/Application Support/handwritten-solutions`，Windows 使用 `%LOCALAPPDATA%/handwritten-solutions`。
-`render-probe` 的交付文件写入指定输出目录；样本、版本、构建记录保存在用户数据目录。
+在该运行目录中，你会得到：
 
-内附 **Patrick Hand / OFL-1.1 工程测试字体**，封装为只读 `bundled-default@v1`，不是项目作者笔迹。
-完整许可及固定来源见 `src/hwsol/assets/presets/patrick-hand/`。正文和数字使用选定字体，缺失的数学字形可能回退到 STIX，报告保留覆盖率信息。
-
-## 个人字迹 Profile
-
-```bash
-uv run --frozen hwsol profile template --output out/letters.pdf --chars "ABCabc123x" --sets 2
-# 使用相应模板填写后导入；这里的路径替换成自己的扫描图片
-uv run --frozen hwsol profile import --profile my-handwriting \
-  --source /path/to/scan.jpg --template out/letters.json
-uv run --frozen hwsol profile train --profile my-handwriting --append
-uv run --frozen hwsol profile evaluate --profile my-handwriting --version v1
-uv run --frozen hwsol profile publish --profile my-handwriting --version v1
-uv run --frozen hwsol profiles activate my-handwriting@v1
-uv run --frozen hwsol render-probe --input examples/phase0/common.md --output out/personal
+```text
+rendered/
+  homework_solutions.pdf
+  pages/01.png, 02.png, ...
+  solutions/01.md, 02.md, ...
+  manifest.json
+  validation_report.json
+run.json
 ```
 
-再次导入新样本并构建会生成 v2 候选版本，历史原始素材和 v1 都保留。发布不自动激活；可以显式使用
-`publish --activate`。运行时按 `--profile` → 用户默认 → `bundled-default@v1` 选择；普通渲染不调用 Studio。
-Studio 也可独立通过 `uv run --frozen hwsol-studio ...` 调用，参数与 `hwsol profile ...` 相同。
+`<run_id>` 需要替换成命令实际返回的值。运行记录与已有产物不会被新任务覆盖。
 
-```bash
-uv run --frozen hwsol profiles compare my-handwriting@v1 my-handwriting@v2
-uv run --frozen hwsol profiles rollback my-handwriting@v1
-uv run --frozen hwsol profiles export my-handwriting@v2 --output out/my-handwriting-v2.zip
-# 另一台电脑或另一数据目录，无需原始样本或训练环境
-uv run --frozen hwsol profiles import --source /path/to/my-handwriting-v2.zip
-uv run --frozen hwsol render-probe --input examples/phase0/common.md --output out/imported \
-  --profile my-handwriting@v2
+如果只需要安装 CLI，也可以在 Python 3.12/3.13 虚拟环境中安装 Releases 的 wheel：
+
+```sh
+python3.12 -m venv .venv
+.venv/bin/python -m pip install /path/to/handwritten_solutions-1.0.0-py3-none-any.whl
+.venv/bin/hwsol doctor
 ```
 
-轨迹 JSON、扫描、TTF/OTF 的支持边界与多轮操作见 [训练指南](docs/TRAINING.md)；
-可运行 `uv run --frozen python scripts/phase1_demo.py --output out/phase1-demo-new`
-完成两轮**合成轨迹** CLI 演练，不需要个人样本。
+wheel 提供命令行程序；演示输入、完整文档与 Skill 文件请使用源码包或 Skill 包。
+不要将尚未发布到 PyPI 的版本当作可直接 `pip install handwritten-solutions` 获取的包。
 
-详细证据：[Phase 0 报告](docs/PHASE0.md) · [Profile 格式](docs/PROFILE_FORMAT.md) · [实现状态](docs/IMPLEMENTATION_STATUS.md) ·
-[后续阶段规划](docs/ROADMAP.md) · [许可证清单](docs/LICENSES.md)。
+## 交给 Agent 使用
 
-## 在 Codex 中使用
+下载 Skill 包，将其中的 `handwritten-solutions` 目录放进你的 Agent 的 Skill 目录，
+按 [SKILL.md](SKILL.md) 完成运行环境配置。可以这样提出任务：
 
-将 Skill ZIP 解压到目标工作区的 `.agents/skills/`（ZIP 自带 handwritten-solutions 目录），或把此 checkout 链接到该位置。在该 Skill 目录运行 `uv sync --locked --no-dev`。在可以发现该 Skill 的 Codex 会话中使用 `$handwritten-solutions` 并提供题目。Agent 按 [SKILL.md](SKILL.md) 读取原始材料，完成解题、验证与交付。单独安装 wheel 可使用 CLI，Skill 指令和示例在源码发行包中。
+> 读取这份数学作业，保留题号和小题结构，给出必要的英文解题步骤并独立核验。
+> 然后使用 Handwritten Solutions 生成 A4 白纸 PDF 和逐页 PNG，每道大题一页，
+> 同时保留可编辑解答与核验报告。
 
-[Manifest 格式和排版规则](references/jobs.md) 描述输入文件、验证状态、背景优先级、可复算等式和故障恢复。运行五题示例可使用 `hwsol render --manifest examples/phase2/mixed/job.json --output out/mixed`。
+读题和数学推理由宿主 Agent 完成；CLI 不是内置通用解题模型。`verify` 检查文件、
+页面、来源和渲染一致性，不能代替数学推理的独立核验。
 
-## 固定基准
+自行创建新作业时，将原题、`answer.md` 和 `job.json` 放在同一输入目录，参考
+[完整使用指南](public_docs/GUIDE.md)与[Job 格式](references/jobs.md)。
 
-运行 `hwsol benchmark run --suite smoke --profile bundled-default@v1`，完整协议见[60 例基准](docs/BENCHMARK_V1.md)。holdout 只能评估，不能调参或训练。工程通过、独立内容正确率、风格自然度分别报告。
+## 使用自己的笔迹
 
-## 英文生成式笔迹实验
+默认字体可以直接使用，无需采集或训练。需要个人化时，可通过本地 Studio 整理
+真实笔迹、核对标签并建立版本化 Profile；这类字形提取与几何校准不是神经网络训练。
 
-运行 `hwsol lab models` 查看固定上游版本，`hwsol lab prepare --model one-dm --output out/trial` 创建本地实验。研究工具可以导入和盲评词图或行图。执行神经采样需要独立环境、获授权的风格样本、检查点和本地 VAE。[阶段 4 操作及许可](docs/PHASE4.md)
+已审核的个人墨迹包采用独立流程：
 
-v0.7 实验分支已实际运行 [DiffInk CUDA 续写](docs/DIFFINK_CUDA_REPRODUCTION.md) 和 [Handnote DiffBrush 个人英文参考对照](docs/DIFFBRUSH_CUDA_COMPARISON.md)，均有真实权重、输出、耗时与显存证据。DiffInk 不支持一般英文，DiffBrush 两候选未通过内容筛选；模型保持 held，未进入生产或进行个人训练。`hwsol lab diffink --help` 查看隔离入口。[本轮验收与产物](docs/evidence/v07-2026-11-18/README.md)
+```text
+导入候选 → 完整页面与来源审核 → qualify-ink → publish-ink → 按需 activate
+```
 
-## 开源与贡献
+这里的 `publish-ink` 是向**本机资料库**发布版本，不会上传网络，也不自动设为默认。
+资格与实际包、Profile 和文字排版能力绑定；导出再导入不会携带发布权限。
+详见[个人 CPU Profile 流程](public_docs/GUIDE.md#use-a-reviewed-personal-cpu-profile)。
 
-项目代码使用 MIT，内附 Patrick Hand 字体使用 SIL OFL 1.1。第三方运行依赖按其各自许可安装。打包过程保留字体来源及完整许可。仓库内的样例、源解答及 AI 生成记录供核查，课程要求独立完成或亲笔书写时应遵循课程规范。[许可清单](docs/LICENSES.md) · [贡献与打包](CONTRIBUTING.md) · [版本记录](CHANGELOG.md)
+公开发行包含源码、运行时、Skill、示例和有分发许可的默认字体；不包含个人原始作业、
+扫描裁剪、私有 Profile、研究权重或本地操作记录。自己的笔迹与历史数据应保存在私有资料库。
+
+## 当前边界与后续方向
+
+不是任意 LaTeX 都受支持。完整 TeX 宏包、特别复杂或过密的结构可能被明确拒绝；
+缺少可用字形时会记录回退。有限作业上的零回退不等于所有数学符号全面覆盖。
+发生拒绝时，应保留失败输入、检查原因并核验等价写法，不应删除必要步骤来换取通过。
+
+后续研发将围绕真实词句与连续墨迹监督、共享词级风格、可靠的神经个性化和独立
+偏好评价展开。新模型只有在新内容和完整页面中证明收益后，才会进入可用后端；
+稳定的 CPU 出稿不会依赖这些研究完成。
+
+- [使用指南](public_docs/GUIDE.md) · [Profile 与 Studio](public_docs/PROFILES.md)
+- [渲染与回退](public_docs/RENDERING.md) · [工作区与运行记录](public_docs/WORKSPACE.md)
+- [研究与 Benchmark 边界](public_docs/RESEARCH_BOUNDARIES.md)
+- [许可与第三方资产](public_docs/LICENSES.md) · [参与开发](CONTRIBUTING.md)

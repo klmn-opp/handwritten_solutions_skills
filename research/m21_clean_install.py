@@ -28,7 +28,14 @@ from scripts.package_release import stage_public_source, write_skill_archive
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def execute(ref: str, job: Path, profile: Path, rollback: Path, reference: Path | None) -> Path:
+def execute(
+    ref: str,
+    job: Path,
+    profile: Path,
+    rollback: Path,
+    reference: Path | None,
+    stable_tag: str | None = None,
+) -> Path:
     ref = subprocess.check_output(
         ["git", "rev-parse", "--verify", f"{ref}^{{commit}}"], cwd=ROOT, text=True
     ).strip()
@@ -50,6 +57,7 @@ def execute(ref: str, job: Path, profile: Path, rollback: Path, reference: Path 
             "platform": "Linux",
             "new_training": False,
             "production_publication": False,
+            "stable_tag": stable_tag,
         },
     )
     print(run.path, flush=True)
@@ -119,28 +127,26 @@ def execute(ref: str, job: Path, profile: Path, rollback: Path, reference: Path 
         dist = run.path / "reports/dist"
         version = tomllib.loads((public / "pyproject.toml").read_text())["project"]["version"]
         canonical_rc = bool(re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+rc[1-9][0-9]*", version))
-        if canonical_rc:
+        if canonical_rc or stable_tag:
             # CLI dispatch calls package_candidate; its frozen helper was hash-checked above.
             # This public stage is only the locked dependency closure, never a second wheel.
+            if stable_tag:
+                target = command(["git", "rev-parse", f"{stable_tag}^{{commit}}"], ROOT).strip()
+                if stable_tag != f"v{version}" or target != ref or canonical_rc:
+                    raise ValueError("Stable tag/version/source binding differs")
+                selection = [stable_tag]
+            else:
+                selection = ["--ref", ref, "--version", version]
             command(
-                [
-                    sys.executable,
-                    ROOT / "scripts/package_release.py",
-                    "--ref",
-                    ref,
-                    "--version",
-                    version,
-                    "--output",
-                    dist,
-                ],
+                [sys.executable, ROOT / "scripts/package_release.py", *selection, "--output", dist],
                 ROOT,
             )
             release = json.loads((dist / "release.json").read_text())
             if (release["commit"], release["version"], release["mode"], release["tag"]) != (
                 ref,
                 version,
-                "local-prerelease",
-                None,
+                "stable-tag" if stable_tag else "local-prerelease",
+                stable_tag,
             ):
                 raise ValueError("Canonical prerelease source identity differs")
             checked = {}
@@ -156,7 +162,9 @@ def execute(ref: str, job: Path, profile: Path, rollback: Path, reference: Path 
                 {
                     "release": release,
                     "verified_checksums": checked,
-                    "builder": "scripts.package_release.package_candidate",
+                    "builder": "scripts.package_release.package"
+                    if stable_tag
+                    else "scripts.package_release.package_candidate",
                     "dependency_stage_only": str(public),
                 },
             )
@@ -221,7 +229,10 @@ def execute(ref: str, job: Path, profile: Path, rollback: Path, reference: Path 
                     settings,
                 )
             )
-            if canonical_rc and own_version != {"module": version, "distribution": version}:
+            if (canonical_rc or stable_tag) and own_version != {
+                "module": version,
+                "distribution": version,
+            }:
                 raise ValueError("Installed module and distribution versions differ")
             command(
                 [
@@ -309,6 +320,7 @@ def execute(ref: str, job: Path, profile: Path, rollback: Path, reference: Path 
                 "source_commit": ref,
                 "package_version": version,
                 "canonical_prerelease_build": canonical_rc,
+                "canonical_stable_build": bool(stable_tag),
                 "wheel_sha256": sha256(wheel),
                 "python_versions": ["3.12", "3.13"],
                 "cross_python_exact": True,
@@ -332,8 +344,13 @@ def main():
     parser.add_argument("--profile", required=True, type=Path)
     parser.add_argument("--rollback-profile", required=True, type=Path)
     parser.add_argument("--reference", type=Path)
+    parser.add_argument("--stable-tag", help="Build the actual stable tag, which must match --ref")
     args = parser.parse_args()
-    print(execute(args.ref, args.job, args.profile, args.rollback_profile, args.reference))
+    print(
+        execute(
+            args.ref, args.job, args.profile, args.rollback_profile, args.reference, args.stable_tag
+        )
+    )
 
 
 if __name__ == "__main__":

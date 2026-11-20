@@ -34,6 +34,7 @@ def runtime_text_capabilities(font: Path) -> dict:
         "libraries": capabilities,
     }
 
+
 PACKAGES = (
     "handwritten-solutions",
     "handnote",

@@ -1,5 +1,18 @@
 # Public distribution notes
 
+## 1.0.0 — CPU release
+
+A complete local Agent Skill and CPU workflow: structured homework Jobs, one major
+problem per page, deterministic mathematical layout, PDF/PNG and editable answers,
+explicit provenance/fallback reports, portable Profiles and separate qualification,
+local publication, activation and rollback. The package includes a reproducible
+licensed-font demo. Runtime rendering does not require GPU or PyTorch.
+
+The host Agent supplies problem understanding, solutions and independent checks.
+Neural personal handwriting research remains separate; no private scans, personal
+fonts, training data or model weights are distributed. Tested platform evidence and
+remaining mathematical limits are recorded in the release documentation.
+
 ## 1.0.0rc2 — local qualification candidate under acceptance
 
 Adds separate local evidence qualification, ink publication and explicit activation.

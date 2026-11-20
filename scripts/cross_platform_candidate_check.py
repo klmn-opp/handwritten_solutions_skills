@@ -233,7 +233,9 @@ def main() -> None:
         receipt["qualification_environment"] = json.loads(
             call(
                 [
-                    str(python), "-I", "-c",
+                    str(python),
+                    "-I",
+                    "-c",
                     "import json,sys;from hwsol.identity import runtime_text_capabilities;"
                     "from hwsol.profiles.store import ProfileStore;"
                     "p=ProfileStore().resolve(sys.argv[1],candidate=True);"

@@ -1,5 +1,11 @@
 # CPU homework workflow
 
+For a complete reproducible two-page example, see
+[the public demo Job](../examples/release-demo/job.json),
+[original questions](../examples/release-demo/questions.md) and
+[actual PDF](demo/homework_solutions.pdf). It uses the licensed bundled font,
+not private author handwriting or a neural generator.
+
 The runtime typesets checked answers; it does not independently solve an arbitrary
 new problem. An external Agent must read the original and verify its answer.
 The [Job contract](../references/jobs.md) and

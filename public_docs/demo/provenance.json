@@ -1,0 +1,1035 @@
+{
+  "schema": "hwsol-public-demo/1",
+  "description": "Actual two-page bundled-font CPU output, not neural or personal handwriting. No retouching.",
+  "generated_with": "1.0.0rc2",
+  "stable_release_replay": "Reported separately in the v1.0.0 release validation; this file records the original immutable RC2 demo.",
+  "font": {
+    "reference": "bundled-default@v1",
+    "distribution": "OFL-1.1",
+    "font_sha256": "0f173b3e6cb6d1af25babf7f0057c5ac4ee11f9992b0469bb817e967ef4ad0fc"
+  },
+  "render": {
+    "backend": "font-cpu",
+    "dpi": 150,
+    "seed": 42,
+    "realism": "baseline",
+    "semantic_layout": true
+  },
+  "inputs": {
+    "integral.md": "b523127e0649fb02fc6fff4f3044dede1350df0e5734ccbd0e9c58be373f1d98",
+    "job.json": "5d3852992208cebc89b6aa21970343ff4e69c78beef443e836875d4dd56c209e",
+    "matrix.md": "7e4c524a0479960f1dcd0081095e8f3ce4205957c4a3408fb63bec104a489ccb",
+    "questions.md": "3dadd8b89137588e814b0942f0c0b16104e6cf979e3f03b9715e98c74d1d4658"
+  },
+  "outputs": {
+    "homework_solutions.pdf": "87b1516fbc85198e3530720e846e79802f75ccadde370c53d12ecd3735902dbe",
+    "page-01.png": "77278823a9d0ed9ed9e3adb8756047c612f58bb6e2b4d1fcb8caf9e4176a5ede",
+    "page-02.png": "5a811cfeee54d27b66679e68c2a60e8effe058c9f4ec7eb587727d655a5b5b4a"
+  },
+  "pages": [
+    {
+      "problem": "public-demo-matrix",
+      "math_fallback_glyphs": [
+        {
+          "codepoint": "U+221A",
+          "font": "STIXGeneral.ttf"
+        }
+      ],
+      "coverage_scanner_unknown_commands": [],
+      "ink_bounds_px": [
+        110.452,
+        124.34899999999999,
+        1019.178,
+        1140.38
+      ],
+      "glyph_sources": [
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0028",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 5
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0029",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 5
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+002C",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 5
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0030",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 3
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0031",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 27
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0032",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 10
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0033",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 7
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0034",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0035",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+003D",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 17
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0041",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 7
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0044",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 2
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0049",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 2
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0051",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 5
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0054",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 2
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0062",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0064",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 2
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0065",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 2
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0071",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 2
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0074",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 2
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0078",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 2
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+03BB",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 4
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+2212",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 13
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+002C",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+002E",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 7
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0031",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0032",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 2
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0041",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0044",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+004E",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0054",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 3
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0055",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0061",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 20
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0062",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 3
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0063",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 12
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0064",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 5
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0065",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 40
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0066",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 3
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0067",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 7
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0068",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 13
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0069",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 32
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+006C",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 14
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+006D",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 12
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+006E",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 23
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+006F",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 27
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0070",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 4
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0071",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 2
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0072",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 20
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0073",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 18
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0074",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 31
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0075",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 11
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0076",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 9
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0077",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 3
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0078",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0079",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 6
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+007A",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 2
+        },
+        {
+          "source": "fallback",
+          "route": "math",
+          "codepoint": "U+221A",
+          "font": "STIXGeneral.ttf",
+          "variant": 0,
+          "count": 3
+        },
+        {
+          "source": "geometry",
+          "route": "",
+          "codepoint": "",
+          "font": "",
+          "variant": 0,
+          "count": 54
+        },
+        {
+          "source": "geometry",
+          "route": "mrect",
+          "codepoint": "",
+          "font": "",
+          "variant": 0,
+          "count": 9
+        }
+      ]
+    },
+    {
+      "problem": "public-demo-integral",
+      "math_fallback_glyphs": [
+        {
+          "codepoint": "U+2032",
+          "font": "STIXGeneral.ttf"
+        }
+      ],
+      "coverage_scanner_unknown_commands": [
+        "log"
+      ],
+      "ink_bounds_px": [
+        114.857,
+        122.34899999999999,
+        1116.362,
+        1102.0
+      ],
+      "glyph_sources": [
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0028",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 5
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0029",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 5
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+002B",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 10
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+002C",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 2
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+002E",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0030",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 4
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0031",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 22
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0032",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 13
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0033",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 3
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0034",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0036",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 2
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0037",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0039",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+003C",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 2
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+003D",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 7
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0046",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 4
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0049",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 3
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0064",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0067",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 3
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+006C",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 3
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+006F",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 3
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+0078",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 21
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+2212",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 6
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+222B",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+2248",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "math",
+          "codepoint": "U+2264",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 6
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+002C",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+002E",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 8
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0032",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0041",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0049",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 2
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+004D",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+004E",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+004F",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0050",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0054",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0061",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 30
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0062",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 6
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0063",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 9
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0064",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 17
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0065",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 56
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0066",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 3
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0067",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 8
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0068",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 14
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0069",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 40
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+006B",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 2
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+006C",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 17
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+006D",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 8
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+006E",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 37
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+006F",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 18
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0070",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 7
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0072",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 23
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0073",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 25
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0074",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 41
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0075",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 10
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0076",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 11
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0077",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 5
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0078",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "base",
+          "route": "text-font",
+          "codepoint": "U+0079",
+          "font": "PatrickHand-Regular.ttf",
+          "variant": 0,
+          "count": 4
+        },
+        {
+          "source": "fallback",
+          "route": "math",
+          "codepoint": "U+2032",
+          "font": "STIXGeneral.ttf",
+          "variant": 0,
+          "count": 1
+        },
+        {
+          "source": "geometry",
+          "route": "mrect",
+          "codepoint": "",
+          "font": "",
+          "variant": 0,
+          "count": 14
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "render_and_pixel_checks": "passed",
+    "independent_sympy_checks": "matrix inverse, solution, orthonormality, spectral decomposition, derivative, definite integral and bounds passed",
+    "visual_review": "both native page PNGs reviewed; no observed missing content or clipping",
+    "author_style_approval": "not claimed; bundled font demonstration"
+  }
+}

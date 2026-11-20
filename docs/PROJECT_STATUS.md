@@ -1,5 +1,9 @@
 # Handwritten Solutions — authoritative status
 
+## Active release preparation — 2026-11-21
+
+The user explicitly authorized packaging and GitHub publication to `klmn-opp/handwritten_solutions_skills`. Current branch is `release/v1.0.0`; source metadata is 1.0.0. Earlier no-publication statements below describe the prior RC stage and are superseded for the scoped public CPU release. Private scans, Profiles, checkpoints, operational reports and private Git history stay local. Production main/latest/personal default remain unchanged. Final stable package validation and remote publication receipts are required before declaring release complete. See [local release audit](PROJECT_AUDIT_2026-11-21_RELEASE.md).
+
 Updated 2026-11-21. Read this page first, then [execution handoff](EXECUTION_HANDOFF.md).
 The [user's complete master instruction](MASTER_EXECUTION_PLAN.md) governs future work.
 Historical version reports remain historical evidence, not the current status entry.

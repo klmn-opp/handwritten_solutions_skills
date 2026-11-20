@@ -343,3 +343,7 @@ not a new styleapproval or a reason to silently alter the acceptedProfile.
 RC2 localengineeringGo, production/default untouched. These are productreliability
 results, not neuralquality progress. Keepv21/olddata and residualNoGo. Next context
 work needs a defensible continuous-supervision task before training or preferencework.
+
+## 2026-11-21 — authorized first public CPU release
+
+Publish v1.0.0 through an audited allowlist export with separate public Git ancestry. Preserve the original development repository and all personal research data locally. Public demo uses licensed bundled ink and explicitly records STIX fallback. Publish the exact tested archives using a checksum-bound release workflow, without rebuilding in CI. Only proven disposable caches are cleanup candidates; all historical runs and models remain.

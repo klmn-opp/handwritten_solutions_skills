@@ -48,3 +48,12 @@ to the original), and do not ask the author to re-approve this spacing adjustmen
 The Agent must still verify content, glyph provenance, wrapping and page boundaries.
 This limited review waiver is not permission to activate a production default,
 publish a production model, or change unrelated handwriting characteristics.
+
+Release authorization (2026-11-21): the user explicitly requests complete packaging,
+GitHub publication, README/features/usage/demo, a local audit and conservative cleanup
+of demonstrably obsolete files. Proceed with the scoped public CPU release without
+repeating permission questions. Keep private scans, personal Profile assets/weights,
+private operational reports and private Git ancestry local; public demos use licensed
+bundled assets unless the user specifically authorizes publishing personal samples.
+Delete only proven disposable, unreferenced rebuildable caches with an inventory.
+Do not infer permission to erase historical experiments or change the personal default.

@@ -1,5 +1,9 @@
 # Execution handoff
 
+## Active release preparation — 2026-11-21
+
+The user explicitly authorized packaging and GitHub publication to `klmn-opp/handwritten_solutions_skills`. Current branch is `release/v1.0.0`; source metadata is 1.0.0. Earlier no-publication statements below describe the prior RC stage and are superseded for the scoped public CPU release. Private scans, Profiles, checkpoints, operational reports and private Git history stay local. Production main/latest/personal default remain unchanged. Final stable package validation and remote publication receipts are required before declaring release complete. See [local release audit](PROJECT_AUDIT_2026-11-21_RELEASE.md).
+
 Updated2026-11-21. Branch `feature/m23-qualified-personal-cpu`.
 **Local RC2 engineering Go; production not promoted.** Frozen runtime/package source
 `3f8bff9c1659ecb9636f45764d103a0bccbc4911`, version`1.0.0rc2`.

@@ -8,7 +8,7 @@ tests; tests cannot establish personal visual quality.
 
 ```sh
 uv sync --locked
-uv run --no-sync pytest -ra
+uv run --no-sync python -m pytest -ra
 uv run --no-sync ruff check src scripts tests
 python scripts/package_release.py --stage .release-work/public-source
 cd .release-work/public-source

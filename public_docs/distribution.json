@@ -1,6 +1,7 @@
 {
   "schema": "hwsol-public-distribution/1",
   "files": [
+    ".gitignore",
     "pyproject.toml",
     "public_build_backend.py",
     "MANIFEST.in",
@@ -48,7 +49,19 @@
     "public_docs/RESEARCH_BOUNDARIES.md",
     "public_docs/LICENSES.md",
     "public_docs/PHASE0.md",
-    "public_docs/distribution.json"
+    "public_docs/distribution.json",
+    "examples/release-demo/questions.md",
+    "examples/release-demo/matrix.md",
+    "examples/release-demo/integral.md",
+    "examples/release-demo/job.json",
+    "public_docs/demo/README.md",
+    "public_docs/demo/provenance.json",
+    "public_docs/demo/homework_solutions.pdf",
+    "public_docs/demo/page-01.png",
+    "public_docs/demo/page-02.png",
+    "scripts/verify_release_assets.py",
+    "tests/test_release_assets.py",
+    ".github/workflows/release.yml"
   ],
   "patterns": [
     "src/hwsol/**/*.py",
