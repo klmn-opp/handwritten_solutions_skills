@@ -1,3 +1,5 @@
+> Current authoritative entry: [PROJECT_STATUS](PROJECT_STATUS.md). The [master plan](MASTER_EXECUTION_PLAN.md) and [master roadmap](MASTER_ROADMAP.md) govern future execution. Historical entries below retain their original time scope.
+
 ## v0.10.25 后续验收
 
 Session M/N 已接收并归档。保留作者偏好的 v0.10.24 B，使用同题 C 核对角频率、上下标内的重音、

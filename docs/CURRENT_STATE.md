@@ -1,3 +1,5 @@
+> Current authoritative entry: [PROJECT_STATUS](PROJECT_STATUS.md). The [master plan](MASTER_EXECUTION_PLAN.md) and [master roadmap](MASTER_ROADMAP.md) govern future execution. Historical entries below retain their original time scope.
+
 # v0.10.26 根号间距与数学墨迹修复
 
 以七页 C 为对照，D 收紧 15 处小根号内距，改选 22 个偏重的个人零字形，校准长括号、绝对值和高根号主干。
