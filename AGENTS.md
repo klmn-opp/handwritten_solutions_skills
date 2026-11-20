@@ -25,3 +25,17 @@ while a genuinely user-dependent decision remains pending.
 Update `docs/MASTER_ROADMAP.md`, `docs/DECISION_LOG.md` and
 `docs/EXECUTION_HANDOFF.md` at meaningful milestones. Each completed stage needs a
 meaningful local commit, an evidence run and an honest Go/No-Go conclusion.
+
+Author rendering preference (2026-11-20): write mathematical fractions with
+stacked numerator/denominator, including inline and exponent fractions. Preserve
+unit notation such as m/s. Prefer explicit semantic LaTeX authoring to an unsafe
+generic slash rewrite. Read `docs/M1_AUTHOR_REVISION.md` for the unresolved visual
+feedback and candidate evidence; engineering checks do not imply author approval.
+
+Latest collection preference (2026-11-20): the author explicitly prefers a broad
+university math/physics symbol workbook in the existing Session prompt-and-answer
+format. Do not spend extra effort minimizing what the author must write. It may
+include already collected symbols and realistic formula structures. This newer
+preference supersedes the master plan's minimum-collection recommendation for the
+current capture round. Printed prompts remain intended labels until actual ink is
+reviewed; original samples and previous worksheets must remain intact.
