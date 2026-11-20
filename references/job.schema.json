@@ -240,6 +240,13 @@
           "default": false,
           "title": "Semantic Layout",
           "type": "boolean"
+        },
+        "word_gap_scale": {
+          "default": 1.0,
+          "maximum": 1.25,
+          "minimum": 1.0,
+          "title": "Word Gap Scale",
+          "type": "number"
         }
       },
       "title": "RenderConfig",

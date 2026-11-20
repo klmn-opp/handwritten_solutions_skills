@@ -11,6 +11,7 @@ from hwsol.adapters.handnote import HandnoteAdapter
 from hwsol.adapters.markdown_to_handwrite import MarkdownToHandwriteAdapter
 from hwsol.benchmarks.cli import benchmark
 from hwsol.config import RenderConfig, data_dir
+from hwsol.identity import build_identity
 from hwsol.lab.cli import lab
 from hwsol.probe import digest, run_probe
 from hwsol.profile_cli import profiles, studio
@@ -53,11 +54,20 @@ def doctor() -> None:
                 "typer",
             )
         }
+        identity = build_identity()
         typer.echo(
             json.dumps(
                 {
                     "status": "passed",
                     "phase": 3,
+                    "application": {
+                        "distribution": "handwritten-solutions",
+                        "version": version("handwritten-solutions"),
+                        "commit": identity["commit"],
+                        "working_tree_dirty": identity["working_tree_dirty"],
+                        "renderer_fingerprint": identity["renderer_fingerprint"],
+                        "lock_sha256": identity["lock_sha256"],
+                    },
                     "profile": selected.provenance(),
                     "packages": packages,
                     "font": {

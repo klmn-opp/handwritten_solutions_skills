@@ -2,6 +2,7 @@
 
 import json
 import re
+import subprocess
 from pathlib import Path
 from zipfile import ZipFile
 
@@ -194,3 +195,126 @@ def test_generated_sdist_config_accepts_platform_newlines_only(tmp_path):
     files["setup.cfg"] += b"[options]\r\npackages = dangerous\r\n"
     with pytest.raises(ValueError, match="Unexpected generated sdist"):
         audit_public_files(files)
+
+
+@pytest.fixture
+def versioned_release_source(tmp_path, monkeypatch):
+    """Real Git objects exercise selection; these are not artifact-build claims."""
+    import scripts.package_release as release
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+
+    def git(*args):
+        return (
+            subprocess.check_output(["git", *args], cwd=repo, stderr=subprocess.PIPE)
+            .decode()
+            .strip()
+        )
+
+    git("init", "-q")
+    git("config", "user.name", "Packaging test")
+    git("config", "user.email", "packaging@example.invalid")
+
+    def commit(version, locked=None):
+        (repo / "pyproject.toml").write_text(
+            f'[project]\nname = "handwritten-solutions"\nversion = "{version}"\n'
+        )
+        (repo / "uv.lock").write_text(
+            f'[[package]]\nname = "handwritten-solutions"\nversion = "{locked or version}"\n'
+        )
+        git("add", "pyproject.toml", "uv.lock")
+        git("commit", "-qm", f"Freeze {version}")
+        return git("rev-parse", "HEAD")
+
+    monkeypatch.setattr(release, "ROOT", repo)
+    return repo, git, commit
+
+
+def test_local_rc_binds_real_commit_without_tag_and_excludes_dirty_checkout(
+    versioned_release_source,
+):
+    from scripts.package_release import git, resolve_package_source
+
+    repo, run_git, commit = versioned_release_source
+    frozen = commit("1.0.0rc1")
+    (repo / "pyproject.toml").write_text('[project]\nversion = "9.9.9rc9"\n')
+    binding = resolve_package_source(ref="HEAD", version="1.0.0rc1")
+    assert binding == {
+        "commit": frozen,
+        "version": "1.0.0rc1",
+        "tag": None,
+        "requested_ref": "HEAD",
+        "mode": "local-prerelease",
+    }
+    archive = repo.parent / "frozen.zip"
+    git("archive", "--format=zip", "-o", archive, binding["commit"])
+    with ZipFile(archive) as source:
+        assert b'"1.0.0rc1"' in source.read("pyproject.toml")
+        assert b"9.9.9rc9" not in source.read("pyproject.toml")
+    assert run_git("tag", "--list") == ""
+
+
+def test_rc_cannot_borrow_dirty_version_or_lock_from_checkout(versioned_release_source):
+    from scripts.package_release import resolve_package_source
+
+    repo, _, commit = versioned_release_source
+    frozen = commit("0.6.0")
+    (repo / "pyproject.toml").write_text('[project]\nversion = "1.0.0rc1"\n')
+    with pytest.raises(ValueError, match="distribution version disagree"):
+        resolve_package_source(ref=frozen, version="1.0.0rc1")
+    frozen = commit("1.0.0rc1", locked="0.6.0")
+    (repo / "uv.lock").write_text(
+        '[[package]]\nname = "handwritten-solutions"\nversion = "1.0.0rc1"\n'
+    )
+    with pytest.raises(ValueError, match="lockfile version disagree"):
+        resolve_package_source(ref=frozen, version="1.0.0rc1")
+
+
+def test_stable_tag_selection_ignores_newer_head_and_rejects_mismatch(versioned_release_source):
+    from scripts.package_release import resolve_package_source
+
+    _, git, commit = versioned_release_source
+    stable = commit("0.6.0")
+    git("tag", "v0.6.0")
+    commit("1.0.0rc1")
+    assert resolve_package_source(tag="v0.6.0")["commit"] == stable
+    assert resolve_package_source(tag="v0.6.0")["mode"] == "stable-tag"
+    git("tag", "v1.0.0")
+    with pytest.raises(ValueError, match="distribution version disagree"):
+        resolve_package_source(tag="v1.0.0")
+    with pytest.raises(ValueError, match="not both"):
+        resolve_package_source(tag="v0.6.0", ref="HEAD", version="1.0.0rc1")
+
+
+@pytest.mark.parametrize(
+    "version",
+    ["1.0.0", "v1.0.0rc1", "1.0.0b1", "1.0.0rc0", "1.0.0rc01", "01.0.0rc1", "1.0.0rc1+private"],
+)
+def test_candidate_version_refused_before_git_access(monkeypatch, version):
+    import scripts.package_release as release
+
+    monkeypatch.setattr(release, "git", lambda *args: pytest.fail("Invalid version accessed Git"))
+    with pytest.raises(ValueError, match="canonical X.Y.ZrcN"):
+        release.resolve_package_source(ref="HEAD", version=version)
+
+
+def test_missing_ref_is_rejected_and_existing_output_is_preserved(versioned_release_source):
+    from scripts.package_release import package, package_candidate, resolve_package_source
+
+    repo, _, commit = versioned_release_source
+    commit("1.0.0rc1")
+    with pytest.raises(subprocess.CalledProcessError):
+        resolve_package_source(ref="nonexistent-frozen-input", version="1.0.0rc1")
+    for ref in (None, "--help", "HEAD bad"):
+        with pytest.raises(ValueError, match="explicit Git"):
+            resolve_package_source(ref=ref, version="1.0.0rc1")
+    output = repo.parent / "artifacts"
+    output.mkdir()
+    marker = output / "keep.txt"
+    marker.write_text("Do not overwrite")
+    with pytest.raises(ValueError, match="new release directory"):
+        package_candidate("HEAD", "1.0.0rc1", output)
+    with pytest.raises(ValueError, match="new release directory"):
+        package("v0.6.0", output)
+    assert marker.read_text() == "Do not overwrite"

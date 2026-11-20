@@ -1,4 +1,4 @@
-"""Build audited public Skill/wheel/sdist snapshots from a matching version tag.
+"""Build audited public snapshots from a version tag or a local prerelease commit.
 
 Private working documents and Git history are never distribution artifacts.
 The public policy and documentation must exist in the selected ref itself.
@@ -227,21 +227,60 @@ def write_skill_archive(source: Path, destination: Path) -> dict:
     return result
 
 
-def git(*args, cwd=ROOT):
-    return subprocess.check_output(["git", *map(str, args)], cwd=cwd).decode().strip()
+def git(*args, cwd=None):
+    return subprocess.check_output(["git", *map(str, args)], cwd=cwd or ROOT).decode().strip()
 
 
-def package(tag, output):
-    if output.exists():
-        raise ValueError("Choose a new release directory")
-    if not re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+", tag):
-        raise ValueError("Use a release tag such as v0.3.0")
-    version = tag[1:]
-    ref = f"refs/tags/{tag}"
-    commit = git("rev-parse", "--verify", f"{ref}^{{commit}}")
+def resolve_package_source(
+    *, tag: str | None = None, ref: str | None = None, version: str | None = None
+) -> dict:
+    """Bind metadata to one Git object, never to mutable checkout files."""
+    if tag is not None:
+        if ref is not None or version is not None:
+            raise ValueError("Choose a stable tag or a local prerelease ref, not both")
+        if not re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+", tag):
+            raise ValueError("Use a release tag such as v0.3.0")
+        version, ref, mode = tag[1:], f"refs/tags/{tag}", "stable-tag"
+    else:
+        if not version or not re.fullmatch(
+            r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)rc[1-9][0-9]*", version
+        ):
+            raise ValueError("Local prerelease version must be canonical X.Y.ZrcN with N >= 1")
+        if not ref or ref.startswith("-") or any(c.isspace() for c in ref):
+            raise ValueError("Provide an explicit Git commit or ref for the local prerelease")
+        mode = "local-prerelease"
+    commit = git("rev-parse", "--verify", "--end-of-options", f"{ref}^{{commit}}")
     project = tomllib.loads(git("show", f"{commit}:pyproject.toml"))["project"]
     if project["version"] != version:
-        raise ValueError("Git tag and Python distribution version disagree")
+        raise ValueError("Selected Git source and Python distribution version disagree")
+    if mode == "local-prerelease":
+        locked = tomllib.loads(git("show", f"{commit}:uv.lock"))
+        own = [p for p in locked.get("package", []) if p.get("name") == "handwritten-solutions"]
+        if (
+            project.get("name") != "handwritten-solutions"
+            or len(own) != 1
+            or own[0].get("version") != version
+        ):
+            raise ValueError("Selected prerelease project and lockfile version disagree")
+    return {"commit": commit, "version": version, "tag": tag, "requested_ref": ref, "mode": mode}
+
+
+def package(tag: str, output: Path) -> None:
+    """Preserve the stable-tag packaging API."""
+    if output.exists():
+        raise ValueError("Choose a new release directory")
+    _package(resolve_package_source(tag=tag), output)
+
+
+def package_candidate(ref: str, version: str, output: Path) -> None:
+    """Build local RC artifacts without creating a tag or publishing anything."""
+    if output.exists():
+        raise ValueError("Choose a new release directory")
+    _package(resolve_package_source(ref=ref, version=version), output)
+
+
+def _package(binding: dict, output: Path) -> None:
+    commit, version = binding["commit"], binding["version"]
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(dir=output.parent) as temp:
         work = Path(temp).resolve()
@@ -256,9 +295,8 @@ def package(tag, output):
         # The wheel cannot discover a Git checkout. Embed the exact release identity,
         # while the fingerprint itself is computed from installed code/dependencies.
         build_record = {
-            "commit": commit,
+            **binding,
             "lock_sha256": hashlib.sha256((selected_ref / "uv.lock").read_bytes()).hexdigest(),
-            "tag": tag,
             "git_history_included": False,
         }
         (selected_ref / "src/hwsol/_build.json").write_text(
@@ -324,25 +362,32 @@ def package(tag, output):
                 )
         (stage / "SHA256SUMS").write_text("\n".join(checksums) + "\n", encoding="ascii")
         stage.rename(output)
-    print(f"{tag} {commit}  {output}")
+    print(f"{binding['tag'] or version} {commit}  {output}")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("tag", nargs="?")
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--ref", help="Frozen Git source for a local prerelease; no tag is created")
+    parser.add_argument("--version", help="Local prerelease version, exactly X.Y.ZrcN")
     parser.add_argument("--stage", type=Path, help="Prepare a new public source without releasing")
     parser.add_argument(
         "--source", type=Path, help="Explicit source for --stage; defaults to checkout"
     )
     args = parser.parse_args()
     if args.stage:
-        if args.tag or args.output:
-            parser.error("--stage cannot be combined with a tag or --output")
+        if args.tag or args.output or args.ref or args.version:
+            parser.error("--stage cannot be combined with a tag, output, ref or version")
         args.stage.parent.mkdir(parents=True, exist_ok=True)
         stage_public_source((args.source or ROOT).resolve(), args.stage.resolve())
         print(args.stage.resolve())
-    elif args.tag and args.output and not args.source:
+    elif args.tag and args.output and not any((args.source, args.ref, args.version)):
         package(args.tag, args.output.absolute())
+    elif args.ref and args.version and args.output and not any((args.tag, args.source)):
+        package_candidate(args.ref, args.version, args.output.absolute())
     else:
-        parser.error("Use --stage <new-directory>, or <version-tag> --output <new-directory>")
+        parser.error(
+            "Use --stage <new-directory>, <version-tag> --output <new-directory>, "
+            "or --ref <commit-or-ref> --version X.Y.ZrcN --output <new-directory>"
+        )

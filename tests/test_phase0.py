@@ -1,6 +1,7 @@
 import json
 import socket
 import sys
+from importlib.metadata import version
 from pathlib import Path
 
 import pytest
@@ -113,10 +114,15 @@ def test_300dpi_keeps_a4_physical_size(render, tmp_path):
 
 
 def test_cli_diagnostics_and_exit_codes(tmp_path):
+    import hwsol
+
     runner = CliRunner()
     result = runner.invoke(app, ["doctor"])
     assert result.exit_code == 0
-    assert json.loads(result.stdout)["training_required"] is False
+    report = json.loads(result.stdout)
+    assert report["training_required"] is False
+    assert report["application"]["version"] == hwsol.__version__ == version("handwritten-solutions")
+    assert len(report["application"]["renderer_fingerprint"]) == 64
     result = runner.invoke(
         app,
         [

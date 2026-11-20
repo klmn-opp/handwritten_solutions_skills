@@ -54,3 +54,24 @@ For a typesetting-only probe, use `hwsol render-probe --input <answer.md> --outp
 <new-directory>`. This legacy probe is not the complete one-problem-per-page Job
 contract. See [rendering](RENDERING.md), [Profiles](PROFILES.md), and
 [workspace behavior](WORKSPACE.md).
+
+## Preparing a local release candidate
+
+Maintainers can build a local prerelease from an already committed source whose
+`pyproject.toml` and project entry in `uv.lock` declare the same `X.Y.ZrcN` version
+(N starts at 1):
+
+```sh
+python scripts/package_release.py --ref <frozen-commit> --version 1.0.0rc1 --output <new-directory>
+```
+
+This command resolves the ref once, reads and archives only that Git commit, and
+uses the same public-file, private-asset and hash checks as stable packaging.
+Uncommitted metadata or documentation cannot repair the selected commit. It
+creates local wheel, sdist and Skill artifacts with `release.json` and
+`SHA256SUMS`; it creates no tag, upload, Profile activation or production release.
+Stable tagged builds still use `scripts/package_release.py vX.Y.Z --output DIR`.
+The example RC number is not an issued release or an acceptance claim. Test the
+exact new artifacts on the supported platforms and record their hashes before
+claiming release readiness; an older package's installation evidence is not the
+new package's verification.

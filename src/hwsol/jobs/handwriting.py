@@ -127,7 +127,7 @@ class HandwritingLayoutPlanner:
                     gaps = rhythm.word_gaps_em or (self.default_word_gap,)
                     gap = gaps[len(runs) // 2 % len(gaps)]
                     after_stop = bool(runs and runs[-1][1].endswith((".", "!", "?", ":", ",")))
-                    target = size * gap * (1.16 if after_stop else 1.0)
+                    target = size * gap * (1.16 if after_stop else 1.0) * r.word_gap_scale
                     following = tokens[index + 1] if index + 1 < len(tokens) else None
                     width = self.space_advance(target, runs[-1] if runs else None, following, size)
                     adjustments = ()
@@ -358,6 +358,9 @@ class PlannedRendering:
         self.local_scale = 0.0
         self.previous_char = " "
         self.semantic_enabled = bool(settings and settings.semantic_layout and not self.grid.snap)
+        self.word_gap_scale = settings.word_gap_scale if settings else 1.0
+        if self.word_gap_scale != 1.0 and not self.semantic_enabled:
+            raise ValueError("word_gap_scale requires an active semantic text layout")
         self.layout_enabled = mode in {"layout-enhanced", "combined"} and not self.grid.snap
         self.layout_enabled = self.layout_enabled or self.semantic_enabled
         self.stroke_enabled = mode in {"stroke-enhanced", "combined"}

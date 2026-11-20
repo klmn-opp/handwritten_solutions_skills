@@ -41,6 +41,13 @@ This is a CPU outline/geometry recipe, not a neural generator. No private ink sh
 with the public package, and arbitrary newly collected scans are not automatically
 admitted to this calibrated recipe.
 
+With `render.semantic_layout=true`, `render.word_gap_scale` can increase the visible
+English inter-word spacing target. Its default is `1.0` and supported range is
+`1.0`–`1.25`; for example, `1.06` requests a six-percent larger target after accounting
+for glyph side bearings. It does not scale letterforms, within-word spacing or
+mathematical token metrics. Line wrapping may change. A non-default value requires
+an active semantic text layout and is rejected when that layout is disabled.
+
 Use the ordinary render and verify commands. The same ordered rules apply to all
 pages and content; no page-number dispatch or pre-rendered word cache is used.
 Each visible item retains source provenance and rejected fits/fallback reasons.

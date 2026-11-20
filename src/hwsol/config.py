@@ -50,9 +50,12 @@ class RenderConfig(BaseModel):
     glyph_metrics: Literal["raw", "normalized", "contextual"] = "raw"
     math_strokes: Literal["personal", "off"] = "personal"
     semantic_layout: bool = False
+    word_gap_scale: float = Field(default=1.0, ge=1.0, le=1.25)
 
     @model_validator(mode="after")
     def content_area(self) -> "RenderConfig":
+        if self.word_gap_scale != 1.0 and not self.semantic_layout:
+            raise ValueError("word_gap_scale requires semantic_layout=True")
         if min(self.page_width_mm, self.page_height_mm) - 2 * self.margin_mm < 40:
             raise ValueError("Margins must leave at least 40 mm of content area")
         return self

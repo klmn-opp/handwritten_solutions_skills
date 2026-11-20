@@ -21,6 +21,7 @@ import pypdfium2 as pdfium
 from PIL import Image
 from pypdf import PdfWriter
 
+from hwsol.config import RenderConfig
 from hwsol.jobs.runtime import verify_job
 from hwsol.profiles.io import atomic_json, inside, sha256
 from hwsol.profiles.store import ProfileStore
@@ -472,6 +473,9 @@ def main() -> None:
         atomic_json(run.path / "reports/import.json", {**imported, "profile": profile.provenance()})
         if args.mode == "regression":
             expected_cfg = read(runs / ACCEPTED20 / "run.json")["config"]["render"]
+            # Legacy receipts omit the new identity word-gap multiplier. Normalize
+            # defaults without changing frozen inputs or any pixel/source checks.
+            expected_cfg = RenderConfig.model_validate(expected_cfg).model_dump(mode="json")
             if profile.manifest.render.model_dump(mode="json") != expected_cfg:
                 raise ValueError("Candidate defaults differ from accepted regression configuration")
         else:

@@ -2,13 +2,15 @@
 
 本地运行的手写作业 Agent Skill。Agent 读取文本、图片或 PDF，按原题号解答并保留验证记录。Runtime 用选定的字迹 Profile 排版，每道顶层题占一页，交付 PDF、逐页 PNG 和可编辑 Markdown。
 
-当前开发发行版为 **v0.6.0**，增加不可变工作区运行记录、60 例基准、端到端评估协议和真实 OCR 测量。Linux x86_64 已验证 Python 3.12 和 3.13。默认字迹可直接使用，附带一道公开题和五题合成作业。阶段 3 添加逐页像素核验与三平台 CI，阶段 4 提供独立的英文笔迹实验工具。[实施状态](docs/IMPLEMENTATION_STATUS.md)
+当前隔离开发候选编号为 **1.0.0rc1**，尚在验收，未发布或替换生产默认。正式历史发行仍为 **v0.6.0**。CPU 工作流不需要 GPU 或 Torch；个人数学墨迹仍需显式选择已审核的私有候选，未准入的内容保持拒绝或可解释回退。候选的真实源码、平台证据及剩余门槛见 [PROJECT_STATUS](docs/PROJECT_STATUS.md)。
 
 **当前开发交接入口：[CURRENT_STATE](docs/CURRENT_STATE.md)**，含对照、测试、新发行包与未完成项。[前置审计](docs/CURRENT_STATE_AUDIT.md)保留为历史基线。CLI 渲染已有解答；新题由外部 Agent 解题。当前 RL 是 CPU 渲染策略学习，未进行神经网络训练。
 
 工作区源码现支持 CPU 手写布局、笔画对照及个人校准。四份实测 PDF、公开手写样本留出结果及本人样本采集说明见[手写真实性报告](docs/HANDWRITING_REALISM.md)。
 
-## 选择发行文件
+## 已发布 v0.6.0 的历史发行文件
+
+以下版本和 Git bundle 说明属于历史发行，不是当前 RC 的交付清单。新候选仅通过公开文件白名单生成 wheel、sdist 和 Skill，私有 Profile 与 Git 历史不随公开包分发。
 
 | 文件 | 用途 |
 |---|---|
