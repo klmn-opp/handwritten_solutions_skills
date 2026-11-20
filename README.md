@@ -2,7 +2,7 @@
 
 本地运行的手写作业 Agent Skill。Agent 读取文本、图片或 PDF，按原题号解答并保留验证记录。Runtime 用选定的字迹 Profile 排版，每道顶层题占一页，交付 PDF、逐页 PNG 和可编辑 Markdown。
 
-当前隔离开发候选编号为 **1.0.0rc2**，尚在验收，未发布或替换生产默认。正式历史发行仍为 **v0.6.0**。CPU 工作流不需要 GPU 或 Torch；个人数学墨迹仍需显式选择已审核的私有候选，未准入的内容保持拒绝或可解释回退。候选的真实源码、平台证据及剩余门槛见 [PROJECT_STATUS](docs/PROJECT_STATUS.md)。
+当前隔离开发候选编号为 **1.0.0rc2**，本轮跨平台与本地资格工程验收已完成，未正式发布或替换生产默认。正式历史发行仍为 **v0.6.0**。CPU 工作流不需要 GPU 或 Torch；个人数学墨迹仍需显式选择已审核的私有候选，未准入的内容保持拒绝或可解释回退。候选的真实源码、平台证据及剩余门槛见 [PROJECT_STATUS](docs/PROJECT_STATUS.md)。
 
 **当前开发交接入口：[CURRENT_STATE](docs/CURRENT_STATE.md)**，含对照、测试、新发行包与未完成项。[前置审计](docs/CURRENT_STATE_AUDIT.md)保留为历史基线。CLI 渲染已有解答；新题由外部 Agent 解题。当前 RL 是 CPU 渲染策略学习，未进行神经网络训练。
 

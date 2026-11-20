@@ -23,6 +23,7 @@ def execute(
     linux: Path,
     python312: str | None = None,
     installed_native: Path | None = None,
+    public_cache_parent: Path | None = None,
 ) -> Path:
     verify_run(payload)
     verify_run(linux)
@@ -93,6 +94,25 @@ def execute(
             "run_sha256": sha256(installed_native / "run.json"),
             "receipts": parent_receipts,
         }
+    cache_binding = None
+    public_cache = ""
+    if public_cache_parent:
+        verify_run(public_cache_parent)
+        cache_receipt = public_cache_parent / "rendered/native/python-3.13/receipt.json"
+        old = json.loads(cache_receipt.read_text())
+        if (
+            old["status"] != "passed"
+            or old["actual_system"] != "Darwin"
+            or not old["clean_install_completed"]
+        ):
+            raise ValueError("Public cache reuse requires a completed actual native install")
+        public_cache = str(Path(old["inputs"]["wheel"]["path"]).parents[1] / "pip-cache")
+        cache_binding = {
+            "run": str(public_cache_parent),
+            "run_sha256": sha256(public_cache_parent / "run.json"),
+            "receipt_sha256": sha256(cache_receipt),
+            "public_cache": public_cache,
+        }
     run = Run.create(
         "m21-native-macos",
         seed=1909,
@@ -105,6 +125,7 @@ def execute(
             "source_commit": expected_linux["source_commit"],
             "production_activation": False,
             "clean_install_parent": parent_binding,
+            "public_cache_parent": cache_binding,
         },
     )
     shutil.copyfile(__file__, run.path / "logs/m21_native_mac.py")
@@ -158,6 +179,28 @@ export PIP_CACHE_DIR="$ROOT/pip-cache"
 export UV_CACHE_DIR="$ROOT/uv-cache"
 export UV_PYTHON_INSTALL_DIR="$ROOT/toolchains"
 export UV_PYTHON_BIN_DIR="$ROOT/toolchain-bin"
+public_cache=@PUBLIC_CACHE@
+if [ -n "$public_cache" ]; then
+/usr/local/bin/python3.13 - "$public_cache" "$PIP_CACHE_DIR" <<'CACHE'
+import hashlib,json,os,pathlib,shutil,sys,tempfile
+source,destination=map(pathlib.Path,sys.argv[1:])
+if not source.is_dir(): raise SystemExit('Public dependency cache parent is missing')
+added=[];skipped=0
+for file in source.rglob('*'):
+    if not file.is_file() or file.is_symlink(): continue
+    target=destination/file.relative_to(source)
+    target.parent.mkdir(parents=True,exist_ok=True)
+    if target.exists(): skipped+=1;continue
+    fd,temp=tempfile.mkstemp(prefix='.cache-seed-',dir=target.parent);os.close(fd)
+    try:
+        shutil.copyfile(file,temp)
+        try: os.link(temp,target)
+        except FileExistsError: skipped+=1;continue
+        added.append({'relative_path':str(file.relative_to(source)),'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'bytes':target.stat().st_size})
+    finally: os.unlink(temp)
+pathlib.Path('public-cache-seed.json').write_text(json.dumps({'source':str(source),'added':added,'skipped_existing':skipped,'existing_files_overwritten':False,'installed_environment_reused':False},indent=2))
+CACHE
+fi
 cd mac-acceptance
 /usr/local/bin/python3.13 -I cross_platform_candidate_check.py --require-system Darwin --wheel @WHEEL@ --profile @PROFILE@ --rollback-profile @ROLLBACK@ --job job/job.json --output "$ROOT/python-3.13" @REUSE313@ > "$ROOT/python-3.13.log" 2>&1
 printf '%s\\n' "$?" > "$ROOT/python-3.13.exit"
@@ -206,7 +249,7 @@ with zipfile.ZipFile('evidence.zip','w',zipfile.ZIP_DEFLATED) as out:
                 if file.name=='run.json': out.write(file,f'{folder}/cli-receipts/{file.parent.name}.json')
                 continue
             out.write(file,file.relative_to(root))
-    for name in ['hardware.json','run-native.sh','python-3.12.log','python-3.13.log','python-3.12.exit','python-3.13.exit','bootstrap.log']:
+    for name in ['hardware.json','run-native.sh','python-3.12.log','python-3.13.log','python-3.12.exit','python-3.13.exit','bootstrap.log','public-cache-seed.json']:
         if (root/name).is_file(): out.write(root/name,name)
 COLLECT
 """.replace("@WHEEL@", shlex.quote(bound_names["wheel"]))
@@ -214,7 +257,8 @@ COLLECT
             .replace("@ROLLBACK@", shlex.quote(bound_names["rollback_profile"]))
             .replace("@PYTHON312@", shlex.quote(python312 or ""))
             .replace("@REUSE312@", reuse["3.12"])
-            .replace("@REUSE313@", reuse["3.13"]),
+            .replace("@REUSE313@", reuse["3.13"])
+            .replace("@PUBLIC_CACHE@", shlex.quote(public_cache)),
             encoding="utf-8",
         )
         command(scp + [str(remote_script), f"{host}:{remote}/run-native.sh"])
@@ -293,6 +337,11 @@ def main() -> None:
         "--python312",
         help="Optional existing isolated native3.12 launcher; fresh venv still created",
     )
+    parser.add_argument(
+        "--public-cache-parent",
+        type=Path,
+        help="Copy only missing public pipcache entries from a completed native run; never reuse its installed packages",
+    )
     args = parser.parse_args()
     print(
         execute(
@@ -302,6 +351,7 @@ def main() -> None:
             args.linux.resolve(),
             args.python312,
             args.installed_native,
+            args.public_cache_parent,
         )
     )
 

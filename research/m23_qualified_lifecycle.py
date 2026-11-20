@@ -51,14 +51,15 @@ def execute(linux: Path, bundle: Path) -> Path:
     )
     print(run.path, flush=True)
     shutil.copyfile(__file__, run.path / "logs/m23_qualified_lifecycle.py")
-    child_workspace = Path(tempfile.mkdtemp(prefix="hwsol-m23-lifecycle-workspace-"))
+    isolated = Path(tempfile.mkdtemp(prefix="hwsol-m23-lifecycle-"))
+    child_workspace = isolated / "workspace"
     env = {
         k: v
         for k, v in os.environ.items()
         if k not in {"HWSOL_DATA_DIR", "HWSOL_WORKSPACE", "PYTHONPATH", "VIRTUAL_ENV"}
     }
     env.update(
-        HWSOL_DATA_DIR=str(run.path / "logs/isolated-store"),
+        HWSOL_DATA_DIR=str(isolated / "store"),
         HWSOL_WORKSPACE=str(child_workspace),
         MPLCONFIGDIR=str(run.path / "logs/mpl"),
     )
@@ -139,7 +140,7 @@ def execute(linux: Path, bundle: Path) -> Path:
         exported = run.path / "solutions/qualified-profile-export.zip"
         command("profiles", "export", spec, "--output", exported)
         assert archive_identity(exported) == archive_identity(profile)
-        second = {**env, "HWSOL_DATA_DIR": str(run.path / "logs/reimport-store")}
+        second = {**env, "HWSOL_DATA_DIR": str(isolated / "reimport-store")}
         imported = command("profiles", "import", "--source", exported, override=second)
         assert imported["candidate"] and not imported["activated"]
         command("profiles", "activate", spec, failure=True, override=second)
@@ -148,6 +149,8 @@ def execute(linux: Path, bundle: Path) -> Path:
             destination = run.path / "logs/cli-receipts" / f"{receipt.parent.name}-receipt.json"
             destination.parent.mkdir(exist_ok=True)
             shutil.copyfile(receipt, destination)
+        shutil.copytree(isolated / "store", run.path / "reports/store-snapshot")
+        shutil.copytree(isolated / "reimport-store", run.path / "reports/reimport-snapshot")
         atomic_json(
             run.path / "reports/lifecycle.json",
             {

@@ -324,3 +324,22 @@ an imported ZIP cannot grant publication authority. New qualification code lives
 feature/m23-qualified-personal-cpu, outside frozenRC1, with separate local evidence,
 publish and activate operations. It must be reviewed, frozen as a distinct version
 and tested through actual installs before fullM2.3 Go. No neural updates occurred.
+
+## 2026-11-21 — qualified RC2 actual lifecycle closes the product boundary
+
+Freeze source3f8bff9/version1.0.0rc2 after independent review. Build all publicartifacts
+from that exactGitobject. Actual clean Linux2880993d/Maca8b00dcb binds the new version,
+not relabelledRC1receipts. Per-native reviewed output exactness permits evidencebundle
+bc7b1c05 to record the author's precise gapwaiver without inventing Mac author review.
+
+Exercise real isolated Linux90cbf090/Macfd78ef1d qualify/publish/ordinaryCPU/activate/
+rollback/reimport; allpass. Export remains data, not portable authority. Failed-before-
+publication activation remains rejected. First accepted Page/Job content remains exact
+on each OS. A separately frozen new probability text question b1f90723 also renders
+through ordinaryqualifiedCPU after independent solution checks; actualpage reviewed.
+The inherited tall radical has a weak hook, readable on this page; retain observation,
+not a new styleapproval or a reason to silently alter the acceptedProfile.
+
+RC2 localengineeringGo, production/default untouched. These are productreliability
+results, not neuralquality progress. Keepv21/olddata and residualNoGo. Next context
+work needs a defensible continuous-supervision task before training or preferencework.

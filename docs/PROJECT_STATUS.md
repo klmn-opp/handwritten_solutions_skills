@@ -11,7 +11,7 @@ Historical version reports remain historical evidence, not the current status en
 | English research backbone | v0.10.21 canonical-conditioned-ink/1, 194,513 parameters; component-balanced checkpoint | Experimental |
 | English page calibration | v0.10.22 t/l/r metrics + v0.10.23 measured word gaps | Frozen reference |
 | Math research baseline | v0.10.26 D, original personal glyphs + measured structures + spacing/stem correction | M1 fresh-content evidence now available; explicit remaining fallback/refusals |
-| Current candidate | Private CPU Profile v5, gap target1.1448; local package1.0.0rc1 source884f397 | Actual Linux/macOS3.12/3.13 installation and four new PDF-intake problems verified; qualification lifecycle implementation under review, no production promotion |
+| Current candidate | Local1.0.0rc2 source3f8bff9; private CPU Profilev5, gap1.1448 | Actual Linux/macOS3.12/3.13 clean install; local qualification/publication/activation/rollback verified in isolated stores; RC engineering Go, no production promotion |
 
 The first four D pages contain 526 frozen neural English words. The other three
 use Handnote English. The seven-page D is not a general neural page service.
@@ -40,11 +40,22 @@ changes. This is not approval for arbitrary new glyphs or production activation.
 New4 contain827 math items,0 external font fallbacks; coverage is limited to the
 actual tested content. Prior24 remain exact on the frozen defaultgap runtime.
 
-Current branch `feature/m23-qualified-personal-cpu` implements and reviews separate
-local qualification, publication and activation. Changes need a distinct frozenRC2
-and new installed-platform evidence before admission; RC1 cannot prove new code.
-M2.1 engineering increment Go; fullM2.3/production remains No-Go pending those gates.
-No new neural training is admitted by this engineering increment.
+Current branch `feature/m23-qualified-personal-cpu`: [qualified RC2 report](M23_QUALIFIED_CPU_RC.md).
+Frozen runtime3f8bff9, canonicalpackage1.0.0rc2. Linuxclean2880993d and nativeMacclean
+a8b00dcb bind the new package. Evidencebundlebc7b1c05 validates four actual environments,
+exact reviewed pages, source assets and scoped author consent. Real Linux90cbf090 and
+Macfd78ef1d qualify→publish→ordinaryCPU→activate→rollback→export/reimport successfully
+in isolatedstores; each platform retains its reviewed page pixels/geometry/source.
+Imports do not inherit authority, and the production store is unchanged.
+
+A fresh probability question afterRC2freeze, b1f90723, passes independent derivation,
+ordinary installed qualifiedCPU rendering and root/independent native-page review:
+197 visiblemathitems,0fontfallback on this page. Its tall radical has a weak inherited
+hook but no confirmed ambiguity; no new author-style approval is claimed. This and
+the earlier four questions are controlled Agent-authored inputs, not external holdout.
+M2 localRC engineering Go. Formal production/default promotion awaits explicit user
+authorization. No tag/upload or new neural training. Continuous research retains the
+old residual No-Go; product success does not establish new neural naturalness.
 
 Previous completed increment: [M2 personal CPU integration](M2_PERSONAL_CPU_INTEGRATION.md).
 The author says the current Session O effect is broadly satisfactory. The accepted

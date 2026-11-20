@@ -1,5 +1,12 @@
 # M2.1–M2.3 acceptance continuation
 
+Status note,2026-11-21: the frozen rules below remain unchanged. Their initial
+availability/version paragraphs are historical: actualRC1 source884 and native Mac
+execution are now complete; finalgapv5 has the author's explicit scoped review waiver.
+RC2 source3f8bff9 adds local qualification; its actual native installation and
+isolated qualification lifecycle acceptance are now complete. See [current result](M21_ACCEPTANCE_RESULT.md) and
+[qualification candidate](M23_QUALIFIED_CPU_RC.md). No production approval is implied.
+
 The author's new instruction splits product acceptance into native cross-platform
 execution, new-question/general mathematics quality, and a qualified1.0 Release
 Candidate. Preserve the original master plan; new user M3(context learning) maps

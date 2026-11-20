@@ -5,6 +5,10 @@ It runs the installed `hwsol` CLI with a fresh isolated Profile store and worksp
 It does not import research modules, upload private files, select a better seed,
 change the production default, or pretend that Linux is macOS.
 
+The latest completed evidence is [RC2 native qualification](#rc2-native-installation-and-qualified-cpu-lifecycle):
+actual Mac3.12/3.13 fresh installs and the ordinary qualified CPU workflow pass in
+isolated stores. Earlier4a/RC1 results below remain distinct historical evidence.
+
 ## Run on the actual Mac
 
 Prerequisites: a real macOS machine, Python3.12 or3.13, Git, and the explicitly
@@ -64,7 +68,7 @@ Do not upload the whole result folder publicly: it includes private Profile data
 original task material, paths and generated handwriting. The receipt and selected
 redacted diagnostics can be returned to the local Agent by the author's chosen means.
 
-## Current status
+## Initial native4a acceptance
 
 The owner has authorized and authenticated the private connection. Actual native
 acceptance completed on Darwin arm64, macOS15.6.1 (24G90), in immutable run
@@ -169,3 +173,59 @@ remain explained by the measured RAQM/BASIC capability difference. Source select
 are therefore not claimed identical across platforms. The author waived another
 word-gap review; this does not waive later runtime/package qualification gates.
 No production default or published release changed.
+
+
+## RC2 native installation and qualified CPU lifecycle
+
+Exact runtime/source: `3f8bff9c1659ecb9636f45764d103a0bccbc4911`, package `1.0.0rc2`.
+The canonical wheel SHA is
+`3e6a07279b78bd9f0bffc80c1c579c9e393c2ce248209583351a8b30d22c3c08`.
+It was independently clean-installed on Linux in2880993d and on the actual owner Mac
+in `20261120T165923744719Z-m21-native-macos-a8b00dcb`.
+Native runSHA:`d025e7db5dfe32143a40fbe6bba25da03b2e6da9612145df7bc280bd6b674d0a`.
+Both native3.12.16/3.13.7 installation receipts report genuine clean installs and
+all eight acceptance operations pass. Public dependency cache reuse is explicitly
+recorded; each runtime/store is new. Native text capabilities are captured in the
+actual portable receipt, including BASIC versus LinuxRAQM.
+
+The actual qualification bundle is
+`20261120T170521217308Z-m23-local-qualification-bundle-bc7b1c05/solutions/qualification/request.json`,
+SHA`87f6e847d7f9be6fd16a97ed25ddf1241727efcc07208bdc2b10b90ebcf56021`.
+Its254 hashed files bind all four environments, exact wheel/build/Profile, complete
+PDF/PNG Jobs, clean-install evidence, historical author statements and independently
+checked mathematics. NewRC2 v5 outputs and native v4 rollback pages must exactly
+match the genuinely reviewed corresponding RC1 pages before the assembler writes
+any approval record. Existing Linuxd and Macf changes are explicitly inventoried.
+The author record means acceptedv3 style plus the prescribed spacing waiver; it
+does not claim that the author freshly inspected RC2 or every native Mac page.
+
+The qualification workflow itself was then executed on both native interpreters in
+`20261120T170809913530Z-m23-native-qualified-lifecycle-fd78ef1d`.
+RunSHA:`d419de16dd0e93a05b9191bef3e8cbaf5311c9fc7f5796cbfdcf473e48585652`.
+These lifecycle checks reuse the exact clean-installed RC2 interpreters and correctly
+report **no new package installation**. They use fresh temporary stores/workspaces.
+
+Both actual native versions pass:
+
+- Import starts as a candidate; activation before publication is rejected.
+- `qualify-ink` accepts the exact evidence without publishing or activating.
+- `publish-ink` creates a local published version while leaving the default unchanged.
+- Ordinary `font-cpu` generates and verifies all four pages using qualified personal ink.
+- Explicit activation in the test store produces identical pages; rollback restores the bundled default.
+- Export/reimport preserves asset hashes, loses publication authority and cannot activate in the second store.
+
+The local qualification ID is
+`6c58cc6a45e714c578ff43cc8d006c7d98a2e151459906c9f6062d047f16a94a`.
+Native lifecycle receiptSHA:3.12
+`f7c89a43005b98e189a8bee94ee4d5b1f23d464c7bff4e5a693f366ecb149f37`;
+3.13 `bdbe1324dcfa91182f5a35041dc7f51443e0c2da93e7654e0ef7621902fcf831`.
+[Actual ordinary CPU Mac PDF](../workspace/runs/20261120T170809913530Z-m23-native-qualified-lifecycle-fd78ef1d/rendered/native/python-3.13/qualified/homework_solutions.pdf)
+and its `pages/` PNGs are retained, alongside activated-default output and all logs.
+
+Every qualified/default output is pixel/source/formula/geometry exact to its own
+native candidate. Cross-Linux pixel identity is still not claimed. Functional
+native compatibility and this isolated qualified CPU lifecycle are **Go for the
+recorded RC2/Profilev5/four-Job scope**. This is not a global publication or activation:
+production main/latest/default, historical data and the owner's existing Profile
+store remain unchanged. No Torch/research import, new neural training or external
+private-data hosting is part of these native runtime checks.

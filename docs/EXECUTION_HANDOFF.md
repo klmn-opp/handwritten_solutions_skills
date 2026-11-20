@@ -1,74 +1,75 @@
 # Execution handoff
 
-Updated 2026-11-21. Current branch `feature/m23-qualified-personal-cpu`.
-Frozen RC1 runtime/package source `884f397383b8af204248d2cd3aa2570f0eab74ad`,
-version1.0.0rc1. New qualification implementation is uncommitted and must receive a
-new version/source freeze and actual installations before any qualification claim.
-No tag, production publish or default activation. Preserve user-owned `.vscode/`.
+Updated2026-11-21. Branch `feature/m23-qualified-personal-cpu`.
+**Local RC2 engineering Go; production not promoted.** Frozen runtime/package source
+`3f8bff9c1659ecb9636f45764d103a0bccbc4911`, version`1.0.0rc2`.
+That is the runtime commit, not later research/report closure commits; read live
+`git log -1` and status. Preserve user-owned `.vscode/`. No tag/public upload.
 
 Read first: [master plan](MASTER_EXECUTION_PLAN.md), [status](PROJECT_STATUS.md),
-[M2 result](M21_ACCEPTANCE_RESULT.md), [native Mac](M2_MAC_ACCEPTANCE.md),
-[word-gap revision](M22_WORD_GAP_REVISION.md), [historical RC gap audit](M23_ADMISSION_GAPS.md).
+[RC2 report](M23_QUALIFIED_CPU_RC.md), [native Mac](M2_MAC_ACCEPTANCE.md),
+[word gaps](M22_WORD_GAP_REVISION.md), [old context No-Go](M4_ALIGNMENT_PILOT.md).
 
-## Latest user steering
+## Author instruction and fixed baseline
 
-Author accepted four CPU pages overall and requested slightly wider words. Afterv4
-(1.06 target) the exact instruction was “再加百分之8即可，后续不用验收这个了”.
-Finalv5 target1.1448, preserving192 ink/font assets. Do not ask again about this gap
-adjustment. Root/independent checks still required. This is not permission for
-production activation, arbitrary new glyphs or altered mathematics.
+Author accepted the new fourCPU pages overall. Afterv4 target1.06, exact instruction:
+“再加百分之8即可，后续不用验收这个了”. Finalv5=1.1448. **Never re-ask about this gap
+adjustment.** The waiver does not authorize arbitrary glyph changes, formalproduction
+publication/defaultactivation or new neuralstyle claims.192ink/fontassets unchanged.
+Linux final4f709095 has one normal radial wrap and one reviewed existingd0→d1 choice.
+Mac reviewb95703b8 has2reviewed existingf fitchoices/8minor±1px placements, no reflow.
+Record nativeRAQM/BASIC differences; do not claim crossOSpixels equal or weaken gates.
 
-Final Linux review4f709095:288 shared gaps,177+1px/93+2px/1+3px/17unchanged; one
-radial line-wrap and existing title d0→d1 change explicitly reviewed. Earlier79defc9c
-strict unchanged-shape comparison failure retained. Root actually viewed full final
-installed overview under workspace/analysis/m21-root-review/v5-installed-four.png.
-Native final reviewb95703b8:2594 semantics/formulas preserved, no reflow,2existing f
-calibration changes and8±1px placements checked. Do not claim unchanged outlines or
-crossOS pixels; LinuxRAQM versus MacBASIC cause independently reviewed differences.
+## Final product evidence
 
-## Completed real RC1 evidence
+- RC1 source884f397 remains immutable; actual clean1e919407Linux/ce6bbb69Mac, finalv5
+  reuse8d0c2a95Linux/67021e67Mac. These are historicalparents, not RC2 installproof.
+- RC2 canonicalLinuxclean2880993d, Python3.12.16/3.13.18; Macclean a8b00dcb,
+  macOS15.6.1 arm64 Python3.12.16/3.13.7. Both actualhosts pass alloperations.
+- WheelSHA3e6a07279b78bd9f0bffc80c1c579c9e393c2ce248209583351a8b30d22c3c08;
+  wheel/sdist/Skill/release/SHA256SUMS under2880993d/reports/dist.
+- Evidencebundlebc7b1c05, requestSHA87f6e847d7f9be6fd16a97ed25ddf1241727efcc07208bdc2b10b90ebcf56021.
+  254files/fouractualenvironments, exactnativeprior/finalpages, realauthorquotes/mathreview.
+- Linux realqualifiedlifecycle90cbf090; Mac realqualifiedlifecyclefd78ef1d onbothPython.
+  qualify→localpublish→ordinaryfontCPU→explicitactivate→rollback→export/reimport pass.
+  Qualified/defaultoutputs exact to eachOS reviewedcandidate. Reimports remaincandidate.
+  qid6c58cc6a45e714c578ff43cc8d006c7d98a2e151459906c9f6062d047f16a94a.
+- Freshprobability TEXTquestionb1f90723 frozenafterRC2: Agentreading/derivation,
+  independentmoments/transformed-densitycheck, ordinaryinstalledqualifiedCPU PDF/PNG,
+  root+independentnativevisualreviewpass.197mathitems0fontfallback inthispage. Tallroot
+  inheritedhookweakbutreadable/no confirmedambiguity; retainobservation, no newauthorapproval.
+  ControlledAgent-authoredinput, notexternalholdout or universalcoverageproof.
 
-- CanonicalLinuxclean1e919407, source884, version1rc1, Python3.12.16/3.13.18.
-- CanonicalMacclean ce6bbb69, macOS15.6.1 arm64, Python3.12.16/3.13.7.
-- Wheel SHA44018419a7652b1a3fe7bc0c6d607eeff1405d3b840543b6a29952abf205a900.
-- Finalv5 Linux8d0c2a95 and Mac67021e67 reuse exact validated runtimes with fresh
-  stores/Jobs; honest clean=false plus hashed clean-parent proof. Both Python versions
-  within each OS exact. All8operations pass, no research/Torch/page-cache dependency.
-- Profilev5 assets e7313af3; append-only registry increment8d0c2a95 links all runs.
-- Source884 defaultgap old24regression83c8d2ad exact2932math0fallback. Earlier28a11fed
-  failed protection when root changed version midrun; preserved, no weakened check.
-- Mac connection is owner-created password SSH control master; no chat/tool password.
-  Private connection under workspace/analysis/m21-root-review/mac-connection-state.json;
-  reuse current socket. Earlier task publickey rejected, not a successful auth claim.
-  Owner explicitly allowed private project/Profile transfer to their controlled Mac.
-  Retain connection for next RC2, never upload personal data elsewhere automatically.
+## Actual implementation and future boundaries
 
-## Active M2.3 qualification implementation
+`profiles qualify-ink` validates typed complete local evidence. `publish-ink` is
+separate; activate/rollback separateagain. Authoritysidecar is notinside immutable
+Profile orZIP. OrdinaryfontCPU personalink requiresvalidpublishedqualification and
+reviewedrendersettings. Build/engine drift, missing/changed evidence and imported
+admissionclaims reject. No source/math/renderer freedom was added. No neural updates.
 
-coverage_audit owns profiles/qualification.py, minimal store/profileCLI/runtime
-integration, identity.runtime_text_capabilities and tests/test_cpu_qualification.py.
-new_e2e independently reviews it. Root owns futureRC2 harness environment receipt,
-rc_readiness binding and assembly/actual integration. mac_protocol owns native
-coordinator and three public guide templates, ready for trueRC2native run.
+Sourcefiles: profiles/qualification.py, minimalstore/CLI/Job/engineintegration,
+identity.runtime_text_capabilities. Researchcoordinators snapshot exactscripts into
+runs; they are never installedruntime dependencies. Version3f freezes runtime;
+closingresearch changes only improve reproducible acceptance orchestration.
 
-Commands are `profiles qualify-ink`, `publish-ink`, then separate explicitactivate.
-Imported ink stays inactivecandidate, authority outsideimmutableProfile/ZIP, binding
-exactwheel/source/build/recipe/assets and actualOS/arch/Python/Pillowengine libraries.
-Only valid localpublication lets ordinaryfont-cpu use personalink. Negative/transaction
-unit tests are synthetic and never actualnative/author evidence.
+A unitfixtureDPI301 hitexisting rangeguard beforeintendedsettingsguard; correctedto299,
+not relaxed. Independentreviewcaught nestedrun.json wrappinghazard beforeactualrun;
+mutable stores/workspaces nowexternal/tmp, preservedchildreceipts renamed onlyincopies.
+No failedsource/package result was renamed as successful. Earlierfailures remain.
 
-Review finding still being fixed: gapwaiver must bind each OS to its own actualv4
-priorJob and approved existing-rule differences; a singleLinuxprior and d-only delta
-cannot qualify Mac's different f-fit consequences. Author approved prior overall
-Linuxstyle plus prescribed revision; do not invent author-viewed Mac pages or blind
-assessment. Runtimeengine drift must invalidate qualification; import cannot carry it.
+ProductRC stagecomplete. NextuserM3 mapsoriginalM4: define a defensiblecontinuous
+supervision hypothesis using existingrealwords/lines, disentanglegeometry/morphology/
+tone, preservegroupedexposure andv21baseline. PriorlocalresidualNo-Go remainsvalid.
+Do not restart oldCVAE/GAN/diffusion orRL bydefault, or callCPUcalibration training.
+No ownerintervention is needed for this completed spacing/engineering increment.
+Formalproductionactivation/publication still requires explicit user approval.
 
-Next: complete independent review/tests, freeze1.0.0rc2, actual canonicalpackage and
-new Linux/Macinstall proof, construct genuine typed evidence, exercisequalification,
-localpublication, ordinaryCPUrender, activation/rollback in isolatedstores only.
-Do not repurposeRC1 evidence as newcode installproof. Production approvals separate.
-Latest user's M3 maps to originalM4 contextresearch; existing morphology-confounded
-residual remainsNo-Go. No new training admitted by this engineering increment.
+OwnerMac connection remains a user-established SSHcontrolmaster, no password in
+chat/tools. Private authorizedconnectionstate lives underworkspace/analysis; do not
+put host/auth data in publicdocs. Private transfer only toownercontrolledMac was
+explicitlyauthorized. Publicdependencycache reused onlydownloads, neverinstalledvenvs.
+Keeporiginals, weights, labels, sealedC, productionmain/latest/default intact.
 
 ## Earlier evidence retained
 

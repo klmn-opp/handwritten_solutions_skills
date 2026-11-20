@@ -7,7 +7,7 @@ Actual state: [PROJECT_STATUS](PROJECT_STATUS.md).
 | --- | --- | --- |
 | M0 freeze and registry | Complete | Verify actual source, checkpoint, data and Profile; replay D and protect latest |
 | M1 homework benchmark | Author broadly satisfied; fixed new6 and24 regression verified | New1,165 and prior2,932 math items have0 font fallbacks in these30 pages; stress retains explicit failures/fallbacks. Original consumed holdout remains7/8 |
-| M2 v1.0 candidate | RC1 native/new-question increment complete; qualification implementation active | Finalv5 tested on real Linux/macOS3.12/3.13; separate qualification/publish/activate implementation needs frozenRC2 and actual new-package evidence. Production remains No-Go |
+| M2 v1.0 candidate | RC2 local engineering Go; production not promoted | Frozen3f8bff9/version1.0.0rc2; actual Linux/Mac clean installs and isolated qualify/publish/normalCPU/activate/rollback pass; finalv5 and fresh probability question verified. Formal production activation/publication requires explicit approval |
 | M3 Corpus 2.0 | Session O import/review increment complete; broader Studio pending | New1 session/19 pages/123 rows retained at300DPI.36 glyphs/14 roles admitted; broader333 column regions still unlabelled,14 row-role holds. Existing English corpus grouping and exposure preserved |
 | M4 context-aware ink | Mechanism and alignment pilot complete; proposed local A/B/C training No-Go | Real continuous supervision exists, but independently sampled morphology/geometry/tone confound the proposed local residual. 32 actual frozen A/B0 forwards; no new model or training claim |
 | M5 personal training | Pending research gate | Incremental versioned candidate and reliable quality-gated inference |
@@ -57,3 +57,8 @@ The user's newly named M3 continuous-context work corresponds to original M4 abo
 new M4+ corresponds to original M5–M7. Preserve original milestones/history. Product
 stability and a separately valid continuous-supervision hypothesis precede training.
 The prior failed residual experiment remains No-Go, not a new training baseline.
+
+RC2 actual closure: [M2.3 report](M23_QUALIFIED_CPU_RC.md). The ordinary CPU product
+candidate is usable without research modules. Next continuous-ink work must retain
+v21 and define a new defensible supervision task; prior residual/confounding No-Go
+is not overturned by successful packaging. No new neural or RL claim is admitted.

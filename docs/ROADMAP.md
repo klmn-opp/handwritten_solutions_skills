@@ -1,5 +1,11 @@
 > Current authoritative entry: [PROJECT_STATUS](PROJECT_STATUS.md). The [master plan](MASTER_EXECUTION_PLAN.md) and [master roadmap](MASTER_ROADMAP.md) govern future execution. Historical entries below retain their original time scope.
 
+2026-11-21 RC2完成：[资格与出稿验收](M23_QUALIFIED_CPU_RC.md)。冻结源码3f8bff9、版本1.0.0rc2；
+真实Mac/Linux Python3.12/3.13干净安装通过。隔离库内资格、发布、普通CPU出稿、激活、回滚和重导入
+全部完成，页面与各平台已审核v5相同。新增概率题从冻结文本、独立解题核验到普通CPU成稿也通过。
+本地RC工程Go；生产main/latest/default未改，正式发布未执行。无新神经训练，不重复请求词距验收。
+以下保留此前检查点和历史阶段。
+
 2026-11-21 最新：真实 Mac 与 Linux 的 RC1 安装、四题 PDF/PNG、Profile 导入/导出与回滚已完成。
 最终词距为原始目标的1.1448倍（1.06×1.08）；作者明确无需再次验收词距。
 [完整结果](M21_ACCEPTANCE_RESULT.md)、[原生 Mac 证据](M2_MAC_ACCEPTANCE.md)、[词距报告](M22_WORD_GAP_REVISION.md)。
