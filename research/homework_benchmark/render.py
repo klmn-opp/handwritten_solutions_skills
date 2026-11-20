@@ -597,6 +597,43 @@ def write_manifest_inputs(manifest: Path, selected: list[dict], dest: Path) -> N
         atomic_json(folder / "source-manifest.json", sources)
 
 
+def bind_execution_jobs(manifests: list[Path], cfg: RenderConfig, profile) -> list[dict]:
+    """Keep authored templates, then export the exact settings used by this run."""
+    receipts = []
+    for manifest in manifests:
+        template = manifest.with_name("job-template.not-executed.json")
+        if template.exists():
+            raise FileExistsError("An input template cannot be replaced or rebound")
+        job = load_job(manifest)
+        shutil.copyfile(manifest, template)
+        actual = job.model_copy(
+            update={
+                "realism": "baseline",
+                "profile": profile.manifest.ref,
+                "profile_sha256": profile.manifest_sha256,
+                "render": cfg.model_copy(deep=True),
+            }
+        )
+        atomic_json(manifest, actual.model_dump(mode="json"))
+        _, _, loaded_cfg = manifest_cases(manifest, profile)
+        if loaded_cfg != cfg.model_dump(mode="json"):
+            raise ValueError("Exported Job does not preserve the executed render settings")
+        receipts.append(
+            {
+                "case": manifest.parent.name,
+                "execution_job": str(manifest),
+                "execution_sha256": sha256(manifest),
+                "template": str(template),
+                "template_sha256": sha256(template),
+                "template_status": "authoring template only; not the executed configuration",
+                "realism": "baseline",
+                "profile_sha256": profile.manifest_sha256,
+                "render_config": cfg.model_dump(mode="json"),
+            }
+        )
+    return receipts
+
+
 def launch(
     split: str = "development",
     *,
@@ -674,8 +711,9 @@ def launch(
             shutil.copyfile(protocol, run.path / "reports/protocol.md")
         if frozen:
             shutil.copyfile(frozen["registry"], run.path / "reports/frozen-registry.json")
+        execution_manifests = []
         if manifest is None:
-            write_inputs(run.path / "solutions/inputs", split=split)
+            execution_manifests = write_inputs(run.path / "solutions/inputs", split=split)
             references = verify_references()
         else:
             write_manifest_inputs(manifest, selected, run.path / "solutions/inputs")
@@ -693,6 +731,11 @@ def launch(
         for name, old in (("historical-glyphs", legacy), ("session-glyphs", baseline)):
             shutil.copytree(old / f"solutions/{name}", run.path / f"solutions/{name}")
         profile = load_snapshot(run.path / "solutions/profile-v1")
+        if execution_manifests:
+            atomic_json(
+                run.path / "reports/execution-jobs.json",
+                bind_execution_jobs(execution_manifests, cfg, profile),
+            )
         strokes = load_snapshot(run.path / "solutions/profile-v3")
         scanned = accepted_scans(run.path / "solutions/historical-glyphs")
         resolver = MathGlyphResolver(
