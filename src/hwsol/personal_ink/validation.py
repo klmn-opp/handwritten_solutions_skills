@@ -65,7 +65,7 @@ def capture(page, renderer, records) -> GeometryState:
         tuple(copy.deepcopy(records)),
         _paths(page, renderer),
         tuple((item[0], *item[3:]) for item in page.items),
-        trace(renderer),
+        copy.deepcopy(trace(renderer)),
         (page.width, page.height),
     )
 
@@ -84,7 +84,13 @@ def _nearby(bounds: np.ndarray, box: np.ndarray, margin: float) -> np.ndarray:
 
 
 def validate_session_increment(
-    state: GeometryState, page, renderer, records, bank_dir: Path
+    state: GeometryState,
+    page,
+    renderer,
+    records,
+    bank_dir: Path,
+    *,
+    targets: frozenset[str] = TARGETS,
 ) -> dict:
     """Preserve the sealed Session O geometry, source and clearance criteria.
 
@@ -115,7 +121,7 @@ def validate_session_increment(
             raise ValueError(f"Session glyph semantic field changed at {i}")
         eligible = (
             old["context"] == "mathematics"
-            and old["semantic"] in TARGETS
+            and old["semantic"] in targets
             and (
                 old["semantic"] == "π" or old["source_type"] in {"external-font", "inherited-font"}
             )
@@ -134,6 +140,14 @@ def validate_session_increment(
             continue
         if source.get("id") not in catalog or source != catalog[source["id"]]:
             raise ValueError(f"Actual Session source differs from the reviewed bank at {i}")
+        if (
+            source["character"] != new["semantic"]
+            or new.get("actual_glyph_id") != source["id"]
+            or not new.get("personal_collected")
+        ):
+            raise ValueError(
+                f"Actual Session source identity differs from visible character at {i}"
+            )
         if new.get("session_o_previous") != old:
             raise ValueError(f"Session source lost its previous item record at {i}")
         if new.get("session_o_bank_sha256") != manifest_sha:

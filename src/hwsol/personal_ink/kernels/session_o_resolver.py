@@ -14,8 +14,9 @@ from pathlib import Path
 import numpy as np
 from handnote.vector import Outline
 
+from hwsol.personal_ink.kernels.f_size_feedback import contour_distance
 from hwsol.personal_ink.kernels.math_glyph_resolver import ScanGlyph
-from hwsol.personal_ink.kernels.math_latin_feedback import contacts
+from hwsol.personal_ink.kernels.math_latin_feedback import contacts, filled_path
 from hwsol.personal_ink.kernels.math_session_glyphs import outline_bounds
 from hwsol.profiles.io import sha256
 
@@ -87,6 +88,7 @@ class SessionOResolver:
     def apply(self, page, renderer, provenance: list[dict], *, case_id: str) -> list[dict]:
         rows = copy.deepcopy(provenance)
         before_items = list(page.items)
+        before_paths = [filled_path(item, renderer) for item in before_items]
         for row in rows:
             char = row["semantic"]
             if row["context"] != "mathematics" or char not in self.targets:
@@ -150,6 +152,30 @@ class SessionOResolver:
                 collision = contacts(index, before_items, page, renderer, rows)
                 if any(item["new_contact"] for item in collision):
                     raise ValueError("New contact with a neighboring item")
+                # Reject this proposal before recording it as personal ink. The
+                # independent final gate still checks all placements together.
+                # This preserves readable old ink when a valid formula has too
+                # little clearance for a particular authentic source shape.
+                proposed = filled_path(page.items[index], renderer)
+                for j, other_item in enumerate(page.items):
+                    if j == index:
+                        continue
+                    other = filled_path(other_item, renderer)
+                    a, b, c, d = other.get_extents().extents
+                    if (
+                        c < box[0] - 0.60
+                        or a > box[2] + 0.60
+                        or d < box[1] - 0.60
+                        or b > box[3] + 0.60
+                    ):
+                        continue
+                    gap = contour_distance(proposed, other)
+                    prior_gap = contour_distance(before_paths[index], before_paths[j])
+                    if gap < 0.60 and gap < prior_gap - 0.05:
+                        raise ValueError(
+                            "Personal replacement refused; prior glyph retained: "
+                            f"neighbor {j} clearance {gap:.6f}px is below 0.60px"
+                        )
                 prior = copy.deepcopy(row)
                 for old_key in (
                     "fallback_reason",

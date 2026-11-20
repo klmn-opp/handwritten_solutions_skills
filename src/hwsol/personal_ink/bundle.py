@@ -50,8 +50,21 @@ class Recipe(BaseModel):
     banks: Banks
     bindings: RecipeBindings
     admission: dict
+    scan_roles: tuple[str, ...] = tuple(sorted("πκΦξη⟨⟩∏≈ζψ∮*"))
 
     _profiles = field_validator("base_profile", "stroke_profile")(relative)
+
+    @field_validator("scan_roles")
+    @classmethod
+    def explicit_roles(cls, roles: tuple[str, ...]) -> tuple[str, ...]:
+        if (
+            not roles
+            or len(roles) > 128
+            or len(set(roles)) != len(roles)
+            or any(len(ch) != 1 or not ch.isprintable() or ch.isspace() for ch in roles)
+        ):
+            raise ProfileError("Scan roles must be explicit distinct visible Unicode characters")
+        return roles
 
 
 @dataclass(frozen=True)
@@ -134,4 +147,8 @@ def load_recipe(profile: LoadedProfile) -> LoadedRecipe:
                     registered(f"{folder}/{relative(row['crop'])}")
                     if not row.get("clean_isolated_ink") or row.get("original_pixels_edited"):
                         raise ProfileError("Only reviewed unedited isolated source ink is admitted")
+            if name == "session_o":
+                admitted = {r["character"] for r in data if r["review_status"] == "agent-accepted"}
+                if not set(spec.scan_roles) <= admitted:
+                    raise ProfileError("Requested scan role has no reviewed source in this bundle")
     return LoadedRecipe(spec, profile, base, strokes, directories, sha256(descriptor))

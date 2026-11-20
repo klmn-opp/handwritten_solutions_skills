@@ -37,7 +37,7 @@ from hwsol.personal_ink.kernels.math_session_glyphs import SessionGlyphCalibrati
 from hwsol.personal_ink.kernels.math_session_polish import SessionInkPolish
 from hwsol.personal_ink.kernels.numeral_pi_feedback import NumeralPiFeedback
 from hwsol.personal_ink.kernels.render import accepted_scans
-from hwsol.personal_ink.kernels.session_o_resolver import PRIORITY, SessionOResolver
+from hwsol.personal_ink.kernels.session_o_resolver import SessionOResolver
 from hwsol.personal_ink.kernels.structural_rule_feedback import StructuralRuleFeedback
 from hwsol.personal_ink.validation import audit_new_contacts, capture, validate_session_increment
 from hwsol.profiles.schema import ProfileError
@@ -193,11 +193,12 @@ class PersonalCpuEngine:
             banks["f_variants"], source=source, title=title, seed=cfg.seed
         )
         records = variants.apply(page, renderer, records)
-        session_o = SessionOResolver(banks["session_o"], seed=cfg.seed, targets=PRIORITY | {"*"})
+        roles = frozenset(self.bundle.description.scan_roles)
+        session_o = SessionOResolver(banks["session_o"], seed=cfg.seed, targets=roles)
         before_session = capture(page, renderer, records)
         records = session_o.apply(page, renderer, records, case_id=title)
         source_checks = validate_session_increment(
-            before_session, page, renderer, records, banks["session_o"]
+            before_session, page, renderer, records, banks["session_o"], targets=roles
         )
         contact_audit = audit_new_contacts(raw_geometry, page, renderer, records)
         if contact_audit["unexpected_contacts"]:

@@ -76,6 +76,7 @@ def ink_candidate(tmp_path):
                 [
                     {
                         "id": "synthetic-loader-fixture",
+                        "character": "X",
                         "review_status": "agent-accepted",
                         "clean_isolated_ink": True,
                         "original_pixels_edited": False,
@@ -101,6 +102,7 @@ def ink_candidate(tmp_path):
             "single_bar_source_id": "synthetic-bar",
         },
         "admission": {"fixture_only": True, "production_approval": False},
+        "scan_roles": ["X"],
     }
     atomic_json(folder / "ink.json", recipe)
     manifest = base.manifest.model_dump(mode="json")
@@ -185,6 +187,16 @@ def test_existing_but_unregistered_runtime_dependency_is_rejected(ink_candidate)
     manifest["assets"] = [a for a in manifest["assets"] if a["path"] != path]
     atomic_json(folder / "profile.json", manifest)
     with pytest.raises(ProfileError, match="absent from the Profile inventory"):
+        load_recipe(load_snapshot(folder))
+
+
+def test_recipe_cannot_request_a_role_without_an_accepted_source(ink_candidate):
+    _, folder = ink_candidate
+    recipe = read(folder / "ink.json")
+    recipe["scan_roles"].append("Σ")
+    atomic_json(folder / "ink.json", recipe)
+    inventory(folder)
+    with pytest.raises(ProfileError, match="no reviewed source"):
         load_recipe(load_snapshot(folder))
 
 
