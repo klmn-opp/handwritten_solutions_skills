@@ -8,6 +8,20 @@ from hwsol.profiles.io import atomic_json, sha256
 from hwsol.workspace import Run, initialize, render_assignment, verify_run
 
 
+def test_result_payload_cannot_override_run_admission_or_identity(tmp_path):
+    run = Run.create("admission-contract", workspace=tmp_path, run_id="actual-candidate")
+    response = run.finish(
+        "held", result={"status": "passed", "run_id": "wrong-id", "run": "wrong-path"}
+    )
+    assert response["status"] == run.record()["status"] == "held"
+    assert response["result_status"] == run.record()["result"]["status"] == "passed"
+    assert response["run_id"] == "actual-candidate"
+    assert response["run"] == str(run.path)
+    assert not run.record()["deliverable"]
+    assert not (tmp_path / "latest.json").exists()
+    assert verify_run(run.path)["run_status"] == "held"
+
+
 def fixture_job(root):
     (root / "question.txt").write_text("Solve 3x+2=11.")
     (root / "solution.md").write_text("Subtract two and divide by three.\n\n$$x=3$$")

@@ -52,6 +52,9 @@ it must not silently change a submitted formula or delete required reasoning.
 Successful artifact verification does not publish this candidate: its workspace
 run is `held`, `deliverable=false`, and `latest.json` remains unchanged. Profile
 activation and the ordinary Studio publication route reject experimental ink.
+The CLI response's `status` is the workspace admission status; a separate
+`result_status="passed"` reports successful engineering validation. A passing
+render result cannot override the run's admission status or identity.
 Candidate portability uses `hwsol profiles export name@vN --candidate --output FILE`
 and `hwsol profiles import --source FILE`. Import validates the hashed dependency
 graph and installs it as a candidate without activation. The private archive contains

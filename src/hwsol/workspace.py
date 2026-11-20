@@ -151,10 +151,11 @@ class Run:
                         },
                     )
             return {
+                **(result or {}),
+                **({"result_status": result["status"]} if result and "status" in result else {}),
                 "run_id": record["run_id"],
                 "run": str(self.path),
                 "status": status,
-                **(result or {}),
             }
 
     def fail(self, exc: BaseException) -> dict:
