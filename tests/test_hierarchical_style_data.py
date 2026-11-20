@@ -6,6 +6,12 @@ from research.corpus.hierarchical_style_data import group_conditions
 
 
 class HierarchicalDataTest(unittest.TestCase):
+    def test_shared_latent_groups_stop_at_whitespace_and_padding(self):
+        from research.corpus.hierarchical_style_evaluate import word_ranges
+
+        tokens = np.array([[97, 0, 98], [98, 97, 0], [99, 0, 0], [0, 0, 0]])
+        self.assertEqual(word_ranges(tokens), [(0, 2), (2, 3)])
+
     def test_source_group_partition_missing_positions_and_duplicate_guard(self):
         rows = [
             {
