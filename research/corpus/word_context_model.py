@@ -46,3 +46,19 @@ class WordContextInk(nn.Module):
             part = self(base[..., left:right])
             parts.append(part[..., start - left : end - left])
         return torch.cat(parts, dim=-1)
+
+    @torch.inference_mode()
+    def isolated_max(self, layers):
+        """Remove other glyphs, retaining identical weights and physical positions."""
+        output = torch.zeros_like(layers[0])
+        height, width = output.shape
+        for layer in layers:
+            points = (layer != 0).nonzero()
+            if not len(points):
+                continue
+            lo, hi = points.amin(0).tolist(), (points.amax(0) + 1).tolist()
+            top, left = max(0, lo[0] - self.halo), max(0, lo[1] - self.halo)
+            bottom, right = min(height, hi[0] + self.halo), min(width, hi[1] + self.halo)
+            crop = self.image(layer[None, None, top:bottom, left:right])[0, 0]
+            output[top:bottom, left:right] = torch.maximum(output[top:bottom, left:right], crop)
+        return output

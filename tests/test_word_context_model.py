@@ -47,3 +47,18 @@ class WordContextTest(unittest.TestCase):
         output = model.image(changed)
         self.assertGreater(float((output[..., 9, 50] - whole[..., 9, 50]).abs()), 1e-7)
         self.assertTrue(torch.equal(output[..., :45], whole[..., :45]))
+
+    def test_isolated_character_cropping_preserves_full_canvas_ablation(self):
+        import torch
+
+        from research.corpus.word_context_model import WordContextInk
+
+        torch.manual_seed(4522)
+        model = WordContextInk().eval()
+        with torch.no_grad():
+            model.field[-1].weight.normal_(std=0.1)
+        layers = torch.zeros(3, 40, 100)
+        layers[0, 6:20, 20:35] = torch.rand(14, 15)
+        layers[1, 4:25, 32:49] = torch.rand(21, 17)
+        full = torch.stack([model.image(x[None, None])[0, 0] for x in layers]).amax(0)
+        self.assertTrue(torch.allclose(full, model.isolated_max(layers), atol=2e-6, rtol=2e-5))
