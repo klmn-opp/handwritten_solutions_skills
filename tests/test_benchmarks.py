@@ -2,9 +2,11 @@ import json
 from pathlib import Path
 
 import pytest
+from PIL import Image, ImageFont
+from pypdf import PdfReader
 
 from hwsol.benchmarks.metrics import observed_metrics
-from hwsol.benchmarks.runner import execute_case, prepare_packet
+from hwsol.benchmarks.runner import execute_case, prepare_packet, question_asset
 from hwsol.benchmarks.schema import load_corpus, select
 from hwsol.profiles.io import sha256
 from hwsol.workspace import Run, verify_run
@@ -37,6 +39,27 @@ def test_agent_packet_has_originals_without_solutions(tmp_path):
     question = json.loads((root / "reports/questions.json").read_text())["cases"][0]
     assert sha256(root / question["source"]) == question["source_sha256"]
     assert '"reference_solution":' not in (root / "run.json").read_text()
+
+
+@pytest.mark.parametrize("input_format", ["image", "pdf"])
+def test_question_assets_render_without_system_font_lookup(tmp_path, monkeypatch, input_format):
+    original = ImageFont.truetype
+
+    def only_explicit_font(font, *args, **kwargs):
+        if not Path(font).is_absolute():
+            raise OSError("System font lookup disabled for this regression")
+        return original(font, *args, **kwargs)
+
+    monkeypatch.setattr(ImageFont, "truetype", only_explicit_font)
+    case = load_corpus().cases[0].model_copy(update={"input_format": input_format})
+    output = question_asset(case, tmp_path / input_format)
+    if input_format == "image":
+        with Image.open(output) as image:
+            assert image.convert("L").getextrema()[0] < 255
+    else:
+        reader = PdfReader(output)
+        assert len(reader.pages) == 1
+        assert reader.pages[0].get_contents().get_data()
 
 
 def test_independent_transcription_bound_to_output():

@@ -151,3 +151,43 @@ v0.10.22 的主要有效改善来自 t/l/r 等几何校正，v0.10.23 来自测�
 - **下一阶段入口：** 产品发行记录闭环后，优先连续语料和新的有界上下文监督假设；任何训练都必须说明参数实际更新与最终未见内容结果。
 
 最终稳定包版本、源码提交、跨平台结果、清理回执、GitHub 地址及上传状态，应由主执行 Agent 在发行闭环时补充。任何外部依赖导致尚未上传，都应保留本地完整包并如实标注，不称为已发布。
+
+## 10. 稳定版本冻结与实际公开快照
+
+最终运行时代码暂定冻结为 `81685bd8aad9ceaba5598e89d8f0312e60b18968`，版本 `1.0.0`。
+初次冻结 `abb4e421` 的源码包清单遗漏新增 workflow 与 Demo 二进制，实际构建被收据校验拒绝；
+失败 run `900463df` 与 `v1.0.0-preflight-1` 保留。修正 `MANIFEST.in` 后的新 run `ab4dc589`
+完成 canonical stable-tag 构建与 Linux Python 3.12/3.13 干净安装，四页与 RC2 对照逐字节一致。
+此处修正的是发行文件清单，没有替换个人字形或修改数学布局。
+
+公开 Git 快照为 `d38892dfbdee715a4538dd81d85592a2cd46c2ea`，与开发仓库 commit **不是同一个身份**。
+它精确来自已审计 Skill 包中的 172 个公开文件，保留 `_build.json` 的开发身份及分发收据；
+创建独立公开根提交，避免上传私人研发 Git 历史。公开提交和标签采用 GitHub noreply 邮箱。
+仓库地址：https://github.com/klmn-opp/handwritten_solutions_skills 。目前源码已经推送；最终 Release
+是否成功发布，以本审计后续上传回执为准。
+
+| 原始安装产物 | SHA256 |
+| --- | --- |
+| wheel | `32463d72bf0a98b4521f20682fec3f9f3efd7ddd8cfc79213b90e23d7fcdb1a9` |
+| Skill ZIP | `c018be798b19a1b24ab5675bb042b0bae72ed63cd4307f626b95c36ae604d112` |
+| sdist | `3532f3eefda48887fbf3646e5f6d9454f38d4206e2e911a8bc6fa0742f155c76` |
+| release.json | `54d7d5e7c8714bb9991d4e20cf3a3fe40ffe724e87e98b57ebb3ac5c6c88dd54` |
+
+独立实际 archive 审核 `8442cf21` 验证源码、许可证、包元数据、依赖、入口及 wheel RECORD；
+原始包未改写。公开源码安装检查 `23be06e2` 完成 Linux 完整公共测试，发现并修复 CI 的 pytest
+入口路径问题。`e32eaa22` 用最终已安装 wheel 重放实际公开 Demo，两张 PNG 与 README 展示逐字节一致。
+Demo 原始来源仍如实记录 RC2，不篡改已冻结的生成历史。
+
+[本地恢复包](../workspace/releases/v1.0.0-private/RESTORE.md)包含约 1.2 GB 的私有恢复资产和
+两个 Git bundle 快照；最终运行时 bundle 已在独立裸仓库恢复全部 46 个引用。全部原始 PDF、当前
+个人资产及可靠权重保留。完整约 43 GB 历史工作区仍保留原地，恢复包清楚区分已复制资产与外部依赖，
+不假称已复制所有历史实验。
+
+### 公开 CI 揭示的真实跨平台缺陷（发行前修复）
+
+公开 CI `44785974884` 的 Linux 两版通过，但 Mac/Windows 的 pytest 失败。授权真实 Mac 诊断
+`68770da5` 复现两个失败，均在 Benchmark 生成原题图片时：`question_asset` 使用裸文件名
+`ImageFont.truetype('DejaVuSans.ttf', 26)`，依赖 Linux 系统字体搜索。其他 Mac 公共测试通过；
+`62e8e6b4` 的实际两版 Mac 安装和个人四页出稿也通过，因此不能把该问题误报为数学墨迹回归。
+它仍是真实发行缺陷，需要用 Matplotlib 的已安装字体资产显式定位修复后重新冻结。`81685bd8`
+和上述安装包保留为发行前证据，不作为最终 Release 冒充全部通过。
