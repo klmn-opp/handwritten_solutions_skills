@@ -72,6 +72,7 @@ class Asset(FrozenModel):
         "trajectory",
         "glyph-metrics",
         "model-adapter",
+        "personal-ink",
     ]
 
     @field_validator("path")
@@ -106,9 +107,15 @@ class ProfileVersion(FrozenModel):
     samples: tuple[SampleIndex, ...] = ()
     render: RenderConfig = Field(default_factory=RenderConfig)
     build: dict = Field(default_factory=dict)
+    ink_bundle: str | None = None
 
     _name = field_validator("profile")(name)
     _font = field_validator("font")(relative)
+
+    @field_validator("ink_bundle")
+    @classmethod
+    def safe_ink_bundle(cls, value: str | None) -> str | None:
+        return relative(value) if value is not None else None
 
     @field_validator("parent", "base")
     @classmethod
@@ -124,6 +131,11 @@ class ProfileVersion(FrozenModel):
             raise ProfileError("Duplicate asset paths")
         if not any(a.path == self.font and a.role == "font" for a in self.assets):
             raise ProfileError("Profile font must be a hashed font asset")
+        ink_assets = [a for a in self.assets if a.role == "personal-ink"]
+        if [a.path for a in ink_assets] != ([self.ink_bundle] if self.ink_bundle else []):
+            raise ProfileError("Personal ink requires exactly one matching hashed recipe asset")
+        if self.ink_bundle and self.distribution != "local-only":
+            raise ProfileError("Experimental personal ink assets must remain local-only")
         if list(self.coverage) != sorted(set(self.coverage)) or any(
             cp < 0 or cp > 0x10FFFF or 0xD800 <= cp <= 0xDFFF for cp in self.coverage
         ):

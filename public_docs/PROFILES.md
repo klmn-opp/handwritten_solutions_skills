@@ -42,3 +42,13 @@ run `python scripts/phase1_demo.py --output out/new-demo`. Calibration format is
 illustrated by [the synthetic example](../examples/realism/calibration.json).
 Do not claim inferred contours contain observed pen timing or pressure. The
 system's structural math layout remains separate from personalized ink.
+
+An explicitly audited personal ink recipe can be kept as a private CPU candidate.
+Use `hwsol profiles export name@vN --candidate --output out/candidate.zip` to transfer
+it locally. Import detects the recipe and installs it in the candidate area, without
+activation. The archive includes original crop evidence and source coordinates;
+keep it private. A compatible, reviewed recipe must already exist: importing a new
+scan does not automatically establish its labels, mathematical roles or geometry.
+The [Job contract](../references/jobs.md#reviewed-personal-cpu-candidate) describes
+explicit selection and rejection behavior. Existing published font Profiles and
+their default rendering behavior are unchanged.

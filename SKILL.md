@@ -17,6 +17,16 @@ Use the installed `hwsol`. In a source checkout use `uv run --offline --frozen -
 
 For a request limited to typesetting supplied Markdown, the original `render-probe` interface remains available. See [probe inputs](references/probe-inputs.md).
 
+When the user explicitly selects a reviewed personal CPU ink candidate, use
+`backend="personal-cpu-experimental"`, a pinned candidate `profile@vN`, and its
+calibrated defaults. This recipe uses baseline realism/raw metrics, so do not apply
+the older combined/contextual recommendation above. Use the normal render/verify
+workflow and inspect item provenance and retained fallbacks. Read
+[candidate selection](references/jobs.md#reviewed-personal-cpu-candidate) for its
+fixed-layout limit and private Profile transfer. Candidate runs remain held and
+cannot update formal latest or become the default. Do not call original-glyph
+collection or geometry calibration neural training.
+
 For explicitly requested neural research, use the isolated [DiffInk](docs/DIFFINK_CUDA_REPRODUCTION.md) or [DiffBrush](docs/DIFFBRUSH_CUDA_COMPARISON.md) workflow. Keep every trial under a fresh workspace run ID. A real model execution marked `held` is not a validated homework deliverable. Preserve raw outputs and content errors; never replace equations or publish an experimental model from an interface test or a visually attractive sample.
 
 For Profile authoring, use `hwsol profile` or `hwsol-studio`. Follow the [CPU Studio guide](docs/TRAINING.md) for template/import/train/evaluate/publish and [Profile format](docs/PROFILE_FORMAT.md) for activation, rollback and transfer. The bundled-default Profile contains the licensed Patrick Hand engineering font. Personalize through a derived Profile.

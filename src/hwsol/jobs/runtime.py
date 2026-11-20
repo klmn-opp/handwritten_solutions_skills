@@ -159,18 +159,25 @@ def build(
     from hwsol.jobs.layout import render_one
 
     job = load_job(manifest)
-    if job.backend != "font-cpu":
+    experimental = job.backend == "personal-cpu-experimental"
+    if job.backend not in {"font-cpu", "personal-cpu-experimental"}:
         raise ValueError("diffink-experimental is not admitted to production; use the isolated lab")
     if realism is not None:
         job = Job.model_validate({**job.model_dump(exclude_unset=True), "realism": realism})
     root = manifest.resolve().parent
-    selected = store.resolve(job.profile)
+    selected = store.resolve(job.profile, candidate=experimental)
     if job.profile_sha256 and job.profile_sha256 != selected.manifest_sha256:
         raise ValueError("Pinned Profile digest does not match")
     job.profile, job.profile_sha256 = selected.manifest.ref, selected.manifest_sha256
     settings = selected.manifest.render.model_dump()
     settings.update(job.render.model_dump(exclude_unset=True))
     job.render = RenderConfig.model_validate(settings)
+    if experimental:
+        from hwsol.personal_ink.runtime import PersonalCpuEngine
+
+        render_one = PersonalCpuEngine(selected).render_one
+    elif selected.manifest.ink_bundle:
+        raise ValueError("Personal ink candidates require personal-cpu-experimental")
     default_paper = store.settings().get("background")
     cache = {}
     validated = set()

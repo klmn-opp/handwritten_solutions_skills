@@ -372,6 +372,8 @@ def evaluate(store: ProfileStore, spec: str) -> dict:
 
 def publish(store: ProfileStore, spec: str, *, activate: bool = False) -> dict:
     candidate = store.resolve(spec, candidate=True)
+    if candidate.manifest.ink_bundle:
+        raise ProfileError("Experimental personal ink requires its separate release qualification")
     profile, version = candidate.manifest.profile, candidate.manifest.version
     with store.writer(profile):
         candidate = store.resolve(spec, candidate=True)

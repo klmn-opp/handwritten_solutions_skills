@@ -209,7 +209,8 @@ def render_assignment(
     try:
         shutil.copyfile(manifest, run.path / "logs/request.json")
         job = load_job(manifest)
-        selected = store.resolve(job.profile)
+        experimental = job.backend == "personal-cpu-experimental"
+        selected = store.resolve(job.profile, candidate=experimental)
         record = run.record()
         record.update(seed=job.render.seed, profile=selected.provenance())
         record["config"].update(manifest_sha256=sha256(manifest), job=job.model_dump(mode="json"))
@@ -232,7 +233,13 @@ def render_assignment(
 
             verify_job(output, pixels=True)
             result["compatibility_export"] = str(output.resolve())
-        return run.finish("passed", result=result, deliverable=latest)
+        # Experimental candidate output can be verified without advancing the
+        # production pointer, even when the caller uses the default latest=True.
+        return run.finish(
+            "held" if experimental else "passed",
+            result=result,
+            deliverable=latest and not experimental,
+        )
     except BaseException as exc:
         if output:
             failure = run.path / "payload/validation_report.json"

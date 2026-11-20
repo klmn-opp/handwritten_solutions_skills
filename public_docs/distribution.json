@@ -34,6 +34,7 @@
     "tests/test_diffink.py",
     "tests/test_math_relations.py",
     "tests/test_public_distribution.py",
+    "tests/test_personal_cpu.py",
     "public_docs/README.md.in",
     "public_docs/SKILL.md.in",
     "public_docs/CONTRIBUTING.md.in",

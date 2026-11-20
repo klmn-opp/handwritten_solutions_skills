@@ -452,6 +452,7 @@
       "default": "font-cpu",
       "enum": [
         "font-cpu",
+        "personal-cpu-experimental",
         "diffink-experimental"
       ],
       "title": "Backend",

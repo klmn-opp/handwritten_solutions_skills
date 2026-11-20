@@ -176,6 +176,8 @@ class ProfileStore:
 
     def activate(self, spec: str) -> dict:
         loaded = self.resolve(spec)
+        if loaded.manifest.ink_bundle:
+            raise ProfileError("Experimental personal ink cannot become the default Profile")
         with lock(self.root / ".settings.lock"):
             settings = self.settings()
             settings["default_profile"] = loaded.manifest.ref
@@ -209,8 +211,8 @@ class ProfileStore:
         a, b = self.resolve(older), self.resolve(newer)
         return compare(a, b)
 
-    def export(self, spec: str, output: Path) -> dict:
-        loaded = self.resolve(spec)
+    def export(self, spec: str, output: Path, *, candidate: bool = False) -> dict:
+        loaded = self.resolve(spec, candidate=candidate)
         output = output.expanduser().absolute()
         output.parent.mkdir(parents=True, exist_ok=True)
         # Exclusive creation protects previous portable snapshots.
@@ -228,7 +230,9 @@ class ProfileStore:
             "archive": str(output),
             "sha256": sha256(output),
             "contents": (
-                "includes explicitly packaged pen traces"
+                "private candidate ink, original crops and provenance; not public distribution"
+                if loaded.manifest.ink_bundle
+                else "includes explicitly packaged pen traces"
                 if any(a.role == "trajectory" for a in loaded.manifest.assets)
                 else "runtime assets only; no raw samples"
             ),
@@ -259,8 +263,11 @@ class ProfileStore:
             m = loaded.manifest
             folder = self.profile_dir(m.profile, writable=True)
             with self.writer(m.profile):
-                dest = folder / "versions" / m.version
-                if dest.exists() or (folder / "candidates" / m.version).exists():
+                is_candidate = bool(m.ink_bundle)
+                dest = folder / ("candidates" if is_candidate else "versions") / m.version
+                if (folder / "versions" / m.version).exists() or (
+                    folder / "candidates" / m.version
+                ).exists():
                     raise ProfileError(f"Version already exists: {m.ref}")
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 # Imported published assets are still subject to hash/format validation.
@@ -269,10 +276,14 @@ class ProfileStore:
                 details = inspect_font(loaded.font)
                 if tuple(details["coverage"]) != m.coverage or details["variants"] != m.variants:
                     raise ProfileError("Font coverage/variant metadata mismatch")
+                if is_candidate:
+                    from hwsol.personal_ink.bundle import load_recipe
+
+                    load_recipe(loaded)
                 if not (folder / "definition.json").exists():
                     ensure_base(loaded, folder)
                 copy_snapshot(loaded, dest)
-        return {"imported": m.ref, "activated": False}
+        return {"imported": m.ref, "activated": False, "candidate": is_candidate}
 
 
 def compare(a: LoadedProfile, b: LoadedProfile) -> dict:

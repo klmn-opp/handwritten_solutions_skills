@@ -72,8 +72,14 @@ def compare(older: str, newer: str) -> dict:
 
 @profiles.command("export")
 @command
-def export_profile(reference: str, output: Annotated[Path, typer.Option()]) -> dict:
-    return ProfileStore().export(reference, output)
+def export_profile(
+    reference: str,
+    output: Annotated[Path, typer.Option()],
+    candidate: Annotated[
+        bool, typer.Option(help="Export an explicitly selected local candidate.")
+    ] = False,
+) -> dict:
+    return ProfileStore().export(reference, output, candidate=candidate)
 
 
 @profiles.command("import")

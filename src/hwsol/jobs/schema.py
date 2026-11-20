@@ -68,7 +68,7 @@ class Problem(Record):
 
 class Job(Record):
     schema_version: Literal[1]
-    backend: Literal["font-cpu", "diffink-experimental"] = "font-cpu"
+    backend: Literal["font-cpu", "personal-cpu-experimental", "diffink-experimental"] = "font-cpu"
     realism: Realism = "baseline"
     generated_by: Text
     language: Text = "en"
@@ -80,6 +80,11 @@ class Job(Record):
 
     @model_validator(mode="after")
     def identities(self):
+        if self.backend == "personal-cpu-experimental":
+            if not self.profile or "@" not in self.profile:
+                raise ValueError("Personal CPU candidate requires an explicit pinned Profile")
+            if self.realism != "baseline":
+                raise ValueError("Personal CPU candidate uses its reviewed ink recipe")
         ids = [p.id or p.number for p in self.problems]
         if len(set(ids)) != len(ids):
             raise ValueError(

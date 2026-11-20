@@ -10,7 +10,7 @@ Create a job directory containing the original material, one Markdown solution p
 | verification | Agent status is not_checked, passed, failed or inconclusive. Supply evidence for reported checks. Optional `checks` pairs contain a numeric lhs and rhs. Exact rational evaluation accepts decimal or integer literals, parentheses, +, -, *, / and bounded integer powers using **. A failed check stops publication. |
 | language | Describes the Agent's solution language, default en. The Agent writes the requested language. The selected font must cover its prose. |
 | profile, profile_sha256 | Override the active Profile by name or pinned reference. An optional hash verifies the exact snapshot. The delivered manifest pins both. |
-| backend | `font-cpu` is the default. `diffink-experimental` is reserved and fails closed until independent admission; mathematics remains deterministic. |
+| backend | `font-cpu` is the default. `personal-cpu-experimental` explicitly selects a locally installed, pinned candidate ink Profile; see below. `diffink-experimental` remains reserved and fails closed. Mathematics remains deterministic. |
 | realism | Job-level baseline (default), layout-enhanced, stroke-enhanced, or combined. The optional CLI override `--realism` is saved in the delivered manifest. See [CPU realism](../docs/HANDWRITING_REALISM.md). |
 | render | RenderConfig overrides such as dpi, ink, seed, page_width_mm, page_height_mm, margin_mm, font_size_pt and line_spacing. The default Profile uses A4, 150 DPI and an 18 mm margin. Set dpi to 300 for high-resolution PNG. |
 | render.policy | Optional frozen CPU renderer policy, bound to the Profile digest. Embed the complete policy.json object; a filesystem path is not accepted. Requires stroke-enhanced or combined. Actions and probabilities remain in the archived manifest for replay. See [RL experiments](../docs/RL_RENDERING.md). |
@@ -29,3 +29,30 @@ CLI output is canonical under `workspace/runs/<run_id>/rendered/`; see [workspac
 A success contains homework_solutions.pdf, pages/NN.png, solutions/NN.md, inputs/, optional paper/, manifest.json and validation_report.json. Every PDF page carries the problem ID, printed label and solution digest. The report records order, layout attempts, mathematical evidence and file digests. `hwsol verify --job DIR` checks the delivered files locally. The report records Agent checks separately from Runtime arithmetic and file integrity. For a source edit, render the delivered manifest to a new directory. Keep the original solution and grading context together when sharing an edited job. Originals in inputs/ can contain other questions from the supplied material.
 
 After a failed build, the output contains validation_report.json. Read its problem, type, error and any attempts. Existing nonempty destinations are preserved. If a process is killed, a sibling .NAME.hwsol.lock may remain. Confirm its recorded PID has stopped before removing the stale lock.
+
+## Reviewed personal CPU candidate
+
+An audited private ink bundle can be selected with
+`"backend":"personal-cpu-experimental"` and an explicit `"profile":"name@vN"`.
+Resolution uses the local **candidates** area, not the active/default version.
+The recipe requires `realism="baseline"`, raw glyph metrics, personal math strokes
+and no renderer policy. Its own Profile supplies the calibrated rendering defaults.
+This is a CPU outline/geometry recipe, not a neural generator. No private ink ships
+with the public package, and arbitrary newly collected scans are not automatically
+admitted to this calibrated recipe.
+
+Use the ordinary render and verify commands. The same ordered rules apply to all
+pages and content; no page-number dispatch or pre-rendered word cache is used.
+Each visible item retains source provenance and rejected fits/fallback reasons.
+Unsupported notation and page overflow reject the page explicitly. The current
+candidate uses one fixed layout attempt, without the default backend's shrink or
+rewrap retries. The Agent may author an equivalent supported solution in a new run;
+it must not silently change a submitted formula or delete required reasoning.
+
+Successful artifact verification does not publish this candidate: its workspace
+run is `held`, `deliverable=false`, and `latest.json` remains unchanged. Profile
+activation and the ordinary Studio publication route reject experimental ink.
+Candidate portability uses `hwsol profiles export name@vN --candidate --output FILE`
+and `hwsol profiles import --source FILE`. Import validates the hashed dependency
+graph and installs it as a candidate without activation. The private archive contains
+source crops and provenance and is not an authorized public distribution.

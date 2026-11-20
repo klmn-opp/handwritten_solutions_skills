@@ -30,3 +30,11 @@ and requires `stroke-enhanced` or `combined`. This is not neural generator RL.
 Do not apply old ratings to new images or activate a policy without evaluation.
 
 See [the Job contract](../references/jobs.md) and [workspace records](WORKSPACE.md).
+
+The optional `personal-cpu-experimental` backend reads a pinned private candidate
+Profile containing reviewed outlines and geometry bindings. It uses baseline
+realism, raw metrics, personal math strokes and one fixed page-layout attempt.
+Every rejected replacement retains a recorded reason; unsupported structure or
+overflow rejects the page. It cannot activate a Profile or advance formal latest.
+It uses no Torch, research modules, old experiment directories or cached word images.
+See [candidate selection and portability](../references/jobs.md#reviewed-personal-cpu-candidate).

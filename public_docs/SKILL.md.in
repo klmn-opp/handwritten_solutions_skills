@@ -30,6 +30,10 @@ candidate. Do not claim that font construction trains a neural network.
    relative local paths, an explicit Profile when requested, and record Agent
    authorship. [The guide](public_docs/GUIDE.md) and
    [five-problem example](examples/phase2/mixed/job.json) show the workflow.
+   For an explicitly selected reviewed personal ink candidate, use
+   `personal-cpu-experimental`, a pinned candidate Profile and its calibrated
+   defaults. Read [candidate selection](references/jobs.md#reviewed-personal-cpu-candidate).
+   This CPU mode is experimental, cannot advance latest and ships no private ink.
 6. Run `hwsol render --manifest <job.json> --workspace <workspace>`. Read its
    immutable run receipt. Errors and unsupported formulas must remain explicit.
    For a changed solution create a new run; never delete required derivation to
