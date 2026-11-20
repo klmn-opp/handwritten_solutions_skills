@@ -298,3 +298,29 @@ closes before authentication; no Mac result or upload is claimed. A stdlib harne
 requires actual OS, exact installed wheel, original Job and Profile identities, real
 PDF/PNG, export/reimport, rollback and unchanged defaults. Reserve1.0.0rc1 without
 issuing it. Release remains No-Go until actual platform and author gates are met.
+
+## 2026-11-21 — native proof, final gap consent, and isolated qualification
+
+The owner's password-authenticated SSH control connection enabled actual Mac tests;
+no password was handled in chat or tool arguments. RC1 source884f397 builds canonical
+wheel/sdist/Skill and installs independently on Linux/macOS3.12/3.13. Missing public
+cache entries may be reused; installed environments and private stores are fresh.
+Same-version Pillow can have different binary shaping features: RAQM on Linux,
+BASIC on this Mac. Preserve accepted Linux layout and record actual capabilities;
+review real cross-OS differences instead of pretending equal package versions imply
+pixel equality. Both native Python outputs are identical, with no confirmed content
+or boundary defect in the complete four-page Job.
+
+Author instruction “再加百分之8即可，后续不用验收这个了” means1.06×1.08=1.1448.
+Finalv5 assets retain all192 ink/font assets. Linux's wider placement makes one
+existing d1 refinement safe and moves radial to the next line; root reviewed both.
+Mac's two f fit decisions also received independent review. Do not claim every
+outline or linebreak stays unchanged. The waiver applies only to this spacing
+adjustment and reviewed consequences, never production activation or arbitrary style.
+
+Profile-only tests reuse exact RC1 installs with separate linked clean-install
+proof; they do not create another install claim. A receipt/admission dictionary in
+an imported ZIP cannot grant publication authority. New qualification code lives on
+feature/m23-qualified-personal-cpu, outside frozenRC1, with separate local evidence,
+publish and activate operations. It must be reviewed, frozen as a distinct version
+and tested through actual installs before fullM2.3 Go. No neural updates occurred.

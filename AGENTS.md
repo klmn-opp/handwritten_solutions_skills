@@ -39,3 +39,12 @@ include already collected symbols and realistic formula structures. This newer
 preference supersedes the master plan's minimum-collection recommendation for the
 current capture round. Printed prompts remain intended labels until actual ink is
 reviewed; original samples and previous worksheets must remain intact.
+
+Word-spacing preference (2026-11-21): after reviewing the new four-page CPU Job,
+the author accepted the overall style and requested slightly larger word gaps.
+After seeing the 1.06 candidate, the author instructed: “再加百分之8即可，后续不用验收这个了”.
+Apply another 8% to that candidate (visible-gap target multiplier 1.1448 relative
+to the original), and do not ask the author to re-approve this spacing adjustment.
+The Agent must still verify content, glyph provenance, wrapping and page boundaries.
+This limited review waiver is not permission to activate a production default,
+publish a production model, or change unrelated handwriting characteristics.

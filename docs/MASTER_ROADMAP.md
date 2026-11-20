@@ -7,7 +7,7 @@ Actual state: [PROJECT_STATUS](PROJECT_STATUS.md).
 | --- | --- | --- |
 | M0 freeze and registry | Complete | Verify actual source, checkpoint, data and Profile; replay D and protect latest |
 | M1 homework benchmark | Author broadly satisfied; fixed new6 and24 regression verified | New1,165 and prior2,932 math items have0 font fallbacks in these30 pages; stress retains explicit failures/fallbacks. Original consumed holdout remains7/8 |
-| M2 v1.0 candidate | Native/new-question acceptance active; release No-Go | Explicit Job/CLI backend, v2 private Profile, installed Linux3.12/3.13 exact pages, source tracing, rollback and default protection pass. Native macOS and explicit release admission remain |
+| M2 v1.0 candidate | RC1 native/new-question increment complete; qualification implementation active | Finalv5 tested on real Linux/macOS3.12/3.13; separate qualification/publish/activate implementation needs frozenRC2 and actual new-package evidence. Production remains No-Go |
 | M3 Corpus 2.0 | Session O import/review increment complete; broader Studio pending | New1 session/19 pages/123 rows retained at300DPI.36 glyphs/14 roles admitted; broader333 column regions still unlabelled,14 row-role holds. Existing English corpus grouping and exposure preserved |
 | M4 context-aware ink | Mechanism and alignment pilot complete; proposed local A/B/C training No-Go | Real continuous supervision exists, but independently sampled morphology/geometry/tone confound the proposed local residual. 32 actual frozen A/B0 forwards; no new model or training claim |
 | M5 personal training | Pending research gate | Incremental versioned candidate and reliable quality-gated inference |
@@ -38,8 +38,8 @@ not a declaration that every long-term milestone or the v1.0 release is complete
 The filled broad collection is received; do not ask the author to repeat it.
 Before admitting additional symbols, review actual ink in the existing123 rows,
 not prompt-order labels on333 geometric candidates. Broad author satisfaction with
-Session O is now recorded. Keep the portable candidate explicit/inactive; native
-macOS evidence and release admission remain. Further source roles and unsupported
+Session O is now recorded. Keep the portable candidate explicit/inactive; actual
+macOS evidence is complete for RC1, while qualification/release admission remains. Further source roles and unsupported
 structures can use the ordinary candidate Job entry. M4 research limits remain;
 math collection does not justify new continuous-English training by itself.
 
@@ -47,7 +47,8 @@ math collection does not justify new continuous-English training by itself.
 
 M2.1 native platform/new-question, M2.2 quality/coverage, and M2.3 RC now have a
 [frozen acceptance protocol](M2_ACCEPTANCE_PROTOCOL.md). The real Mac is owned by
-the author and transfer is authorized, but execution requires a working SSH entry.
+the author and transfer is authorized; genuine RC1 native installations and finalv5
+Profile-only reuse are complete. Do not mislabel reuse as another clean installation.
 The new four-question controlled PDF intake exposes a real title collision, fixed
 with original-glyph fallback; previous24 pages remain exact. See
 [source/structure findings and continuous-ink tasks](M22_SOURCE_GAPS.md).

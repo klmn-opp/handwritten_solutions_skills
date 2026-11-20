@@ -1,4 +1,4 @@
-"""One author-requested +6% visible word-gap candidate, with frozen-content evidence."""
+"""One fixed author-requested word-gap increment with frozen-content evidence."""
 
 from __future__ import annotations
 
@@ -35,36 +35,45 @@ def read(path):
     return json.loads(path.read_text())
 
 
-def prepare():
-    verify_run(PARENT)
+def prepare(parent=PARENT, scale=SCALE, feedback=FEEDBACK, spacing_review_waived=False):
+    verify_run(parent)
+    previous = read(parent / "solutions/profile/profile.json")
+    version = f"v{int(previous['version'][1:]) + 1}"
+    previous_scale = previous["render"].get("word_gap_scale", 1.0)
     run = Run.create(
-        "m22-word-gap-v4-assets",
+        f"m22-word-gap-{version}-assets",
         seed=1909,
         config={
-            "parent": str(PARENT),
-            "parent_sha256": sha256(PARENT / "run.json"),
-            "author_feedback": FEEDBACK,
-            "word_gap_scale": SCALE,
+            "parent": str(parent),
+            "parent_sha256": sha256(parent / "run.json"),
+            "author_feedback": feedback,
+            "word_gap_scale": scale,
             "single_preselected_amount": True,
             "neural_updates": 0,
             "author_approved_prior_output_except_spacing": True,
             "revised_spacing_author_approval": False,
+            "further_spacing_review_waived": spacing_review_waived,
+            "prior_scale": previous_scale,
+            "increment_multiplier": scale / previous_scale,
+            "waiver_scope": "word spacing only; not publication or activation",
         },
     )
     print(run.path, flush=True)
     try:
         shutil.copyfile(__file__, run.path / "logs/source.py")
         folder = run.path / "solutions/profile"
-        shutil.copytree(PARENT / "solutions/profile", folder)
+        shutil.copytree(parent / "solutions/profile", folder)
         manifest = read(folder / "profile.json")
         original_assets = copy.deepcopy(manifest["assets"])
         manifest.update(
-            version="v4",
-            parent="personal-cpu-candidate@v3",
+            version=version,
+            parent=f"{previous['profile']}@{previous['version']}",
             created_at=datetime.now(UTC).isoformat(),
-            description="Private +6% visible English word-gap candidate; same v3 ink assets",
+            description=(
+                f"Private visible English word-gap scale {scale}; unchanged parent ink assets"
+            ),
         )
-        manifest["render"]["word_gap_scale"] = SCALE
+        manifest["render"]["word_gap_scale"] = scale
         manifest["build"]["word_gap_revision"] = run.record()["config"]
         atomic_json(folder / "profile.json", manifest)
         assert manifest["assets"] == original_assets
@@ -72,7 +81,7 @@ def prepare():
             assert sha256(folder / item["path"]) == item["sha256"]
         loaded = load_snapshot(folder)
         load_recipe(loaded)
-        archive = run.path / "solutions/personal-cpu-candidate-v4.zip"
+        archive = run.path / f"solutions/personal-cpu-candidate-{version}.zip"
         with ZipFile(archive, "x", ZIP_DEFLATED) as target:
             for path in sorted(folder.rglob("*")):
                 if path.is_file():
@@ -84,7 +93,7 @@ def prepare():
                 "archive_sha256": sha256(archive),
                 "profile": loaded.manifest.ref,
                 "profile_sha256": loaded.manifest_sha256,
-                "all_assets_exact_to_v3": True,
+                "all_assets_exact_to_parent": True,
                 "assets": len(original_assets),
                 "source_glyphs_added": 0,
                 "production_activation": False,
@@ -171,9 +180,30 @@ def word_boxes(lines, records):
     return result
 
 
-def compare(assets):
-    for parent in (assets, PARENT, INPUT, REFERENCE):
-        verify_run(parent)
+def compare(assets, reference_job=None, selection_review=None):
+    asset_config = read(assets / "run.json")["config"]
+    parent = Path(asset_config["parent"])
+    baseline = read(parent / "solutions/profile/profile.json")["version"]
+    candidate = read(assets / "solutions/profile/profile.json")["version"]
+    scale = asset_config["word_gap_scale"]
+    previous_scale = read(parent / "solutions/profile/profile.json")["render"].get(
+        "word_gap_scale", 1.0
+    )
+    increment_percent = round((scale / previous_scale - 1) * 100, 6)
+    reference_job = (reference_job or REFERENCE / "rendered/python-3.12/candidate").resolve()
+    reference_run = next(p for p in reference_job.parents if (p / "run.json").is_file())
+    for evidence in (assets, parent, INPUT, reference_run):
+        verify_run(evidence)
+    verify_job(reference_job, pixels=True)
+    review = read(selection_review) if selection_review else {}
+    if review:
+        assert review["candidate_profile_sha256"] == sha256(
+            assets / "solutions/profile/profile.json"
+        )
+        assert review["baseline_profile_sha256"] == sha256(
+            parent / "solutions/profile/profile.json"
+        )
+        assert review["scope"] == "existing unchanged-runtime variant selection only"
     run = Run.create(
         "m22-word-gap-full-four",
         seed=1909,
@@ -182,13 +212,18 @@ def compare(assets):
             "asset_run_sha256": sha256(assets / "run.json"),
             "input": str(INPUT),
             "input_sha256": sha256(INPUT / "run.json"),
-            "reference": str(REFERENCE),
-            "author_feedback": FEEDBACK,
-            "word_gap_scale": SCALE,
+            "reference": str(reference_run),
+            "reference_job": str(reference_job),
+            "author_feedback": asset_config["author_feedback"],
+            "word_gap_scale": scale,
             "neural_updates": 0,
             "method": "normal render_job plus observation-only line/path capture",
             "installed_wheel_claim": False,
+            "selection_review_sha256": sha256(selection_review) if selection_review else None,
             "author_style_approval": False,
+            "further_spacing_review_waived": asset_config.get(
+                "further_spacing_review_waived", False
+            ),
         },
     )
     print(run.path, flush=True)
@@ -218,13 +253,15 @@ def compare(assets):
 
     try:
         shutil.copyfile(__file__, run.path / "logs/source.py")
+        if selection_review:
+            shutil.copyfile(selection_review, run.path / "reports/selection-review.json")
         for name in ("config.py", "jobs/handwriting.py"):
             target = run.path / "logs/runtime" / name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / "src/hwsol" / name, target)
         store = ProfileStore(run.path / "solutions/store")
         banks = {}
-        for mode, origin in [("v3", PARENT), ("v4", assets)]:
+        for mode, origin in [(baseline, parent), (candidate, assets)]:
             imported = store.import_archive(Path(read(origin / "reports/result.json")["archive"]))
             profile = store.resolve(imported["imported"], candidate=True)
             folder = run.path / f"solutions/{mode}"
@@ -255,9 +292,11 @@ def compare(assets):
         comparison_images = []
         validations = {
             mode: read(run.path / f"rendered/{mode}/validation_report.json")["pages"]
-            for mode in ("v3", "v4")
+            for mode in (baseline, candidate)
         }
-        for index, (before, after) in enumerate(zip(banks["v3"], banks["v4"], strict=True), 1):
+        for index, (before, after) in enumerate(
+            zip(banks[baseline], banks[candidate], strict=True), 1
+        ):
             a, b = before["state"], after["state"]
             assert len(a.records) == len(b.records)
             assert [[r.get(k) for k in SEMANTIC_FIELDS] for r in a.records] == [
@@ -277,8 +316,20 @@ def compare(assets):
                 deviation = float(np.max(np.abs(delta - np.median(delta, axis=0))))
                 if deviation > 0.002:
                     shape_changes.append({"item": i, "max_nontranslation_px": deviation})
-            assert not source_changes and not shape_changes
-            before_page, after_page = (validations[mode][index - 1] for mode in ("v3", "v4"))
+            selection_changes = [
+                {
+                    "item": i,
+                    "before": source_identity(a.records[i]),
+                    "after": source_identity(b.records[i]),
+                }
+                for i in source_changes
+            ]
+            accepted_changes = review.get("pages", {}).get(str(index), [])
+            assert selection_changes == accepted_changes
+            assert {r["item"] for r in shape_changes} == {r["item"] for r in accepted_changes}
+            before_page, after_page = (
+                validations[mode][index - 1] for mode in (baseline, candidate)
+            )
             for field, keys in (
                 ("formula_groups", ("latex", "geometry_sha256", "items")),
                 (
@@ -301,12 +352,14 @@ def compare(assets):
                 }
                 for key in shared
             ]
-            left = Image.open(run.path / f"rendered/v3/pages/{index:02d}.png").convert("RGB")
-            original = Image.open(
-                REFERENCE / f"rendered/python-3.12/candidate/pages/{index:02d}.png"
-            ).convert("RGB")
+            left = Image.open(run.path / f"rendered/{baseline}/pages/{index:02d}.png").convert(
+                "RGB"
+            )
+            original = Image.open(reference_job / f"pages/{index:02d}.png").convert("RGB")
             assert left.size == original.size and left.tobytes() == original.tobytes()
-            right = Image.open(run.path / f"rendered/v4/pages/{index:02d}.png").convert("RGB")
+            right = Image.open(run.path / f"rendered/{candidate}/pages/{index:02d}.png").convert(
+                "RGB"
+            )
             # Same first two complete prose lines on each page; includes title separately.
             selected = sorted(shared, key=lambda k: old_gaps[k]["left"]["line"])
             line_numbers = sorted(set(old_gaps[k]["left"]["line"] for k in selected))[:3]
@@ -335,10 +388,16 @@ def compare(assets):
                 )
                 pen = ImageDraw.Draw(panel)
                 pen.text(
-                    (2, 2), f"Page {index}, line {line_number}: v3 accepted baseline", fill="black"
+                    (2, 2),
+                    f"Page {index}, line {line_number}: {baseline} prior spacing",
+                    fill="black",
                 )
                 panel.paste(ca, (0, 20))
-                pen.text((2, ca.height + 23), "v4: +6% visible inter-word target", fill="black")
+                pen.text(
+                    (2, ca.height + 23),
+                    f"{candidate}: +{increment_percent:g}% visible inter-word target",
+                    fill="black",
+                )
                 panel.paste(cb, (0, ca.height + 44))
                 panel.save(run.path / f"comparisons/page-{index:02d}-line-{line_number:02d}.png")
                 comparison_images.append(panel)
@@ -350,13 +409,15 @@ def compare(assets):
                     "formula_parser_local_geometry_exact": True,
                     "matrix_structure_local_sizes_exact": True,
                     "source_changes": source_changes,
+                    "selection_changes": selection_changes,
+                    "reviewed_existing_rule_selections": accepted_changes,
                     "shape_changes": shape_changes,
                     "text_lines_before_after": [before["text_lines"], after["text_lines"]],
                     "same_line_gap_pairs": len(shared),
                     "gaps": gap_rows,
                     "reflowed_old_pairs": sorted(old_gaps.keys() - new_gaps.keys()),
                     "reflowed_new_pairs": sorted(new_gaps.keys() - old_gaps.keys()),
-                    "baseline_pixels_exact_to_43bb9000": True,
+                    "baseline_pixels_exact_to_reference": True,
                 }
             )
         if comparison_images:
@@ -367,16 +428,19 @@ def compare(assets):
                 resolution=150,
             )
         atomic_json(run.path / "reports/page-comparison.json", reports)
-        validation = read(run.path / "rendered/v4/validation_report.json")
+        validation = read(run.path / f"rendered/{candidate}/validation_report.json")
         summary = {
             "pages": len(reports),
-            "word_gap_scale": SCALE,
+            "word_gap_scale": scale,
             "semantic_identity_all_exact": True,
             "source_changes": sum(len(r["source_changes"]) for r in reports),
             "shape_changes": sum(len(r["shape_changes"]) for r in reports),
             "text_lines_before_after": [r["text_lines_before_after"] for r in reports],
             "font_fallbacks": sum(len(p["math_fallback_glyphs"]) for p in validation["pages"]),
             "author_style_approval": False,
+            "further_spacing_review_waived": asset_config.get(
+                "further_spacing_review_waived", False
+            ),
             "production_go": False,
             "all_font_ink_assets_exact": True,
             "source_inputs_unchanged": True,
@@ -396,13 +460,19 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", choices=["prepare", "compare"])
     parser.add_argument("--assets", type=Path)
+    parser.add_argument("--parent", type=Path, default=PARENT)
+    parser.add_argument("--scale", type=float, default=SCALE)
+    parser.add_argument("--feedback", default=FEEDBACK)
+    parser.add_argument("--spacing-review-waived", action="store_true")
+    parser.add_argument("--reference-job", type=Path)
+    parser.add_argument("--selection-review", type=Path)
     args = parser.parse_args()
     if args.mode == "prepare":
-        prepare()
+        prepare(args.parent.resolve(), args.scale, args.feedback, args.spacing_review_waived)
     else:
         if not args.assets:
             parser.error("--assets required")
-        compare(args.assets.resolve())
+        compare(args.assets.resolve(), args.reference_job, args.selection_review)
 
 
 if __name__ == "__main__":

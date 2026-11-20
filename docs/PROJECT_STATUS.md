@@ -1,6 +1,6 @@
 # Handwritten Solutions — authoritative status
 
-Updated 2026-11-20. Read this page first, then [execution handoff](EXECUTION_HANDOFF.md).
+Updated 2026-11-21. Read this page first, then [execution handoff](EXECUTION_HANDOFF.md).
 The [user's complete master instruction](MASTER_EXECUTION_PLAN.md) governs future work.
 Historical version reports remain historical evidence, not the current status entry.
 
@@ -11,7 +11,7 @@ Historical version reports remain historical evidence, not the current status en
 | English research backbone | v0.10.21 canonical-conditioned-ink/1, 194,513 parameters; component-balanced checkpoint | Experimental |
 | English page calibration | v0.10.22 t/l/r metrics + v0.10.23 measured word gaps | Frozen reference |
 | Math research baseline | v0.10.26 D, original personal glyphs + measured structures + spacing/stem correction | M1 fresh-content evidence now available; explicit remaining fallback/refusals |
-| Current candidate | Portable personal CPU recipe, `personal-cpu-candidate@v3`, installed source4a0e52a | Original24 exact + new4 PDF intake, Linux3.12/3.13 verified; explicit opt-in only, no promotion |
+| Current candidate | Private CPU Profile v5, gap target1.1448; local package1.0.0rc1 source884f397 | Actual Linux/macOS3.12/3.13 installation and four new PDF-intake problems verified; qualification lifecycle implementation under review, no production promotion |
 
 The first four D pages contain 526 frozen neural English words. The other three
 use Handnote English. The seven-page D is not a general neural page service.
@@ -23,17 +23,27 @@ Private machine-readable entries are `workspace/registry/production.json`,
 assets and replay; each references its immutable freeze run. Use
 `python -m research.project_state verify` to verify existing entries.
 
-Active continuation: [M2.1–M2.3 protocol](M2_ACCEPTANCE_PROTOCOL.md),
-[native platform runner](M2_MAC_ACCEPTANCE.md), [source/placement audit](M22_SOURCE_GAPS.md).
-New controlled question-PDF intake, Agent reading/solving and independent mathematics
-checks are implemented. A genuine new-title l/d contact exposed by the fourth problem
-is fixed in source `4a0e52a`: reject only the contacting glyph refinement and preserve
-its original source. All24 previous pages remain pixel/semantic/source/geometry exact
-in regressiona337a4dd. The complete4-page result now passes fresh Linux3.12/3.13 installations in43bb9000,
-including actual export/reimport, rollback, and exact reference/cross-Python pixels. Privatev3 appends one reviewed original∀;
-ℤ and denseΦ constraints remain explicit. The author has authorized transfer to their
-own Mac; SSH is reachable but authentication is pending, so native execution
-has not yet occurred. M2 and the release remain open.
+Active continuation: [M2.1–M2.3 result](M21_ACCEPTANCE_RESULT.md),
+[native platform evidence](M2_MAC_ACCEPTANCE.md), [source/placement audit](M22_SOURCE_GAPS.md),
+[final word gaps](M22_WORD_GAP_REVISION.md). RC1 source884f397 has genuine clean Linux
+Python3.12.16/3.13.18 and native macOS15.6.1 arm64 Python3.12.16/3.13.7 installations.
+Finalv5 is tested in those exact installed runtimes with fresh stores/Jobs, honestly
+linked to clean-install parents. Both Python versions within each OS have identical
+pages. Linux RAQM versus Mac BASIC yields documented placement/fit differences;
+no cross-OS pixel identity is claimed, and no confirmed math/content/boundary defect
+was found in these four complete pages.
+
+Author accepted overall style and requested another8% afterv4: final1.1448 target.
+They explicitly waived another spacing review. Linux has one normal line-wrap change
+and one independently reviewed existing d0→d1 selection; Mac has two reviewed f fit
+changes. This is not approval for arbitrary new glyphs or production activation.
+New4 contain827 math items,0 external font fallbacks; coverage is limited to the
+actual tested content. Prior24 remain exact on the frozen defaultgap runtime.
+
+Current branch `feature/m23-qualified-personal-cpu` implements and reviews separate
+local qualification, publication and activation. Changes need a distinct frozenRC2
+and new installed-platform evidence before admission; RC1 cannot prove new code.
+M2.1 engineering increment Go; fullM2.3/production remains No-Go pending those gates.
 No new neural training is admitted by this engineering increment.
 
 Previous completed increment: [M2 personal CPU integration](M2_PERSONAL_CPU_INTEGRATION.md).

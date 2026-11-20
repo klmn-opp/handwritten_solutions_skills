@@ -75,9 +75,71 @@ failed run is retained; repeat only after source freeze. Legacy frozen render co
 omit the new default field, so the harness compares their validated RenderConfig
 models; it does not edit old receipts or relax any pixel/source/geometry comparison.
 
+After freezing source`884f397383b8af204248d2cd3aa2570f0eab74ad`, fresh regression
+[83c8d2ad](../workspace/runs/20261120T162030678252Z-personal-cpu-regression-evidence-83c8d2ad/run.json)
+passes24/24 with actual PDF raster pixels, semantic/source identity and English
+geometry all exact. It contains2,932 visible mathematical items and0 font fallbacks.
+All protected assets, production references and latest remain unchanged. This is
+the valid default1.0 compatibility result;28a11fed remains a protected-state failure.
+
+The Agent inspected all four new v4 page PNGs and the same-content line comparisons;
+no new clipping, content loss or ink defect was observed. Review receipt:
+`workspace/analysis/m22-word-gap-review/FINAL_REVIEW.json`. This review supports
+proceeding to author spacing review and exact-package verification, not production.
+
 ## Admission
 
-Engineering and author judgments remain distinct. The prior output has broad author
-style approval except spacing. The +6percent candidate needs review of the new full
-PDF and same-content local comparisons. No production/default/latest change occurs.
+Engineering and author judgments remain distinct. At the v4 checkpoint the prior
+output had broad author style approval except spacing; the +6percent candidate was
+awaiting author review. The subsequent instruction below resolves that spacing
+review requirement. No production/default/latest change occurs.
 The frozen4a Mac acceptance baseline remains separate from this later candidate.
+
+## Final author-directed increment: v5
+
+The subsequent exact author response is “再加百分之8即可，后续不用验收这个了”.
+Apply8percent to the currentv4 target:1.06×1.08=**1.1448** relative to originalv3.
+This is one prescribed amount, not an amount/seed search. The author explicitly
+waives another spacing review; do not ask for it again. The waiver covers this
+word-gap change and does not authorize publication or production/default activation.
+
+Fresh assets:e7313af3 (`20261120T162900778696Z-m22-word-gap-v5-assets-e7313af3`).
+`personal-cpu-candidate@v5` inheritsv4; all192 font/ink/source/recipe asset files stay
+byte-identical. Only the outer Profile's render setting and version/lineage change.
+ProfileSHA`e7959a8124ba48dc7384c0c1a574bbc6e8da99879c9a8e9809946e69bcc17f81`;
+ZIP SHA`06fd786d5df49e2a0c72bdd7e184aa364c8fcd6c55f2a9bc820d786fb02167d2`.
+The frozen884 runtime and existing1.0.0rc1 wheel need no code change or rebuild.
+
+The firstv4/v5 comparison79defc9c renders all four pages successfully, with unchanged
+formula geometry and passing actual Job checks, but its strict all-glyph-identity
+comparison fails. Preserve that failure. There is one real observed secondary effect:
+item24, the final `d` in the fourth page title, now selects original recorded d1 instead
+of d0. Accumulated word-position changes and pinned Handnote's integer placement give
+the preceding `l` 1 px more relative clearance. The unchanged filled-path contact guard
+therefore admits the existing lower-bowl d1 proposal that it previously rejected.
+There is no new contour, source edit, runtime edit, shape calibration or suppressed
+contact gate. It would nevertheless be false to call all output shapes unchanged.
+
+Root independently reviewed the real field comparison and both provenance records,
+accepted exactly this existing variant selection, and confirmed clear identity and
+the previously preferred lower bowl. The source-bound review is saved under
+`workspace/analysis/m22-word-gap-v5-d-decision/root-review.json`. A fresh comparison
+requires exactly that item/source change and rejects any extra source or shape
+change. This is review of an actual existing-rule consequence, not a new style fit.
+
+Final comparison:
+[4f709095](../workspace/runs/20261120T163316655132Z-m22-word-gap-full-four-4f709095/run.json),
+[v5 complete PDF](../workspace/runs/20261120T163316655132Z-m22-word-gap-full-four-4f709095/rendered/v5/homework_solutions.pdf),
+[v4/v5 local comparisons](../workspace/runs/20261120T163316655132Z-m22-word-gap-full-four-4f709095/comparisons/word-gap-before-after.pdf).
+It passes all four pages with0font fallback and unchanged visible semantics/formula
+geometry/matrix dimensions. Exactly the independently reviewed d variant changes;
+all other sources and contours remain unchanged apart from translation. Page pixels
+are exact to the initial fixedv5 render in79defc9c; no candidate tuning occurred.
+
+There are288 shared same-line word pairs:177 widen1px,93 widen2px,1 widens3px and17
+remain at their integer position; none shrink. The fourth page's word “radial” moves
+to the second prose line as expected from increased spacing; the number of text lines
+still remains8/6/10/9. Thus equal line counts do not imply unchanged wrapping. The
+new page remains comfortably inside its bounds and retains every word. Source-only
+Profile revision uses the identical frozen884 wheel; fresh installed checks must bind
+v5 explicitly instead of reusing a v4 Profile receipt.

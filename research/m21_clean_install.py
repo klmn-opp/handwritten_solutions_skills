@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -116,10 +117,55 @@ def execute(ref: str, job: Path, profile: Path, rollback: Path, reference: Path 
         atomic_json(run.path / "reports/public-stage.json", stage_public_source(selected, public))
         env["SOURCE_DATE_EPOCH"] = command(["git", "show", "-s", "--format=%ct", ref], ROOT).strip()
         dist = run.path / "reports/dist"
-        dist.mkdir()
         version = tomllib.loads((public / "pyproject.toml").read_text())["project"]["version"]
-        write_skill_archive(public, dist / f"handwritten-solutions-{version}-skill.zip")
-        command(["uv", "build", "--offline", "--python", sys.executable, "--out-dir", dist], public)
+        canonical_rc = bool(re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+rc[1-9][0-9]*", version))
+        if canonical_rc:
+            # CLI dispatch calls package_candidate; its frozen helper was hash-checked above.
+            # This public stage is only the locked dependency closure, never a second wheel.
+            command(
+                [
+                    sys.executable,
+                    ROOT / "scripts/package_release.py",
+                    "--ref",
+                    ref,
+                    "--version",
+                    version,
+                    "--output",
+                    dist,
+                ],
+                ROOT,
+            )
+            release = json.loads((dist / "release.json").read_text())
+            if (release["commit"], release["version"], release["mode"], release["tag"]) != (
+                ref,
+                version,
+                "local-prerelease",
+                None,
+            ):
+                raise ValueError("Canonical prerelease source identity differs")
+            checked = {}
+            for line in (dist / "SHA256SUMS").read_text().splitlines():
+                digest, name = line.split("  ", 1)
+                if name in checked or Path(name).name != name or sha256(dist / name) != digest:
+                    raise ValueError("Canonical prerelease checksum inventory differs")
+                checked[name] = digest
+            if set(checked) != {p.name for p in dist.iterdir()} - {"SHA256SUMS"}:
+                raise ValueError("Canonical prerelease checksum inventory incomplete")
+            atomic_json(
+                run.path / "reports/canonical-package.json",
+                {
+                    "release": release,
+                    "verified_checksums": checked,
+                    "builder": "scripts.package_release.package_candidate",
+                    "dependency_stage_only": str(public),
+                },
+            )
+        else:
+            dist.mkdir()
+            write_skill_archive(public, dist / f"handwritten-solutions-{version}-skill.zip")
+            command(
+                ["uv", "build", "--offline", "--python", sys.executable, "--out-dir", dist], public
+            )
         packages = [*dist.glob("*.whl"), *dist.glob("*.tar.gz"), *dist.glob("*-skill.zip")]
         if len(packages) != 3:
             raise ValueError("Incomplete package inventory")
@@ -161,6 +207,22 @@ def execute(ref: str, job: Path, profile: Path, rollback: Path, reference: Path 
                 temp,
                 settings,
             )
+            own_version = json.loads(
+                command(
+                    [
+                        python,
+                        "-I",
+                        "-c",
+                        "import json,hwsol;from importlib.metadata import version;"
+                        "print(json.dumps({'module':hwsol.__version__,"
+                        "'distribution':version('handwritten-solutions')}))",
+                    ],
+                    temp,
+                    settings,
+                )
+            )
+            if canonical_rc and own_version != {"module": version, "distribution": version}:
+                raise ValueError("Installed module and distribution versions differ")
             command(
                 [
                     python,
@@ -186,7 +248,11 @@ def execute(ref: str, job: Path, profile: Path, rollback: Path, reference: Path 
             )
             acceptance = temp / "acceptance"
             receipt = json.loads((acceptance / "receipt.json").read_text())
-            if receipt["status"] != "passed" or receipt["source_commit"] != ref:
+            if (
+                receipt["status"] != "passed"
+                or receipt["source_commit"] != ref
+                or receipt["package_version"] != version
+            ):
                 raise ValueError("Installed acceptance differs from source ref")
             destination = run.path / f"rendered/python-{label}"
             shutil.copytree(
@@ -209,6 +275,8 @@ def execute(ref: str, job: Path, profile: Path, rollback: Path, reference: Path 
                 {
                     "python": label,
                     "source_commit": ref,
+                    "package_version": version,
+                    "installed_version_identity": own_version,
                     "wheel_sha256": sha256(wheel),
                     "fresh_environment": str(runtime),
                     "clean_install_completed": True,
@@ -239,6 +307,8 @@ def execute(ref: str, job: Path, profile: Path, rollback: Path, reference: Path 
                 "linux_clean_install": "passed",
                 "new_job_pages": count,
                 "source_commit": ref,
+                "package_version": version,
+                "canonical_prerelease_build": canonical_rc,
                 "wheel_sha256": sha256(wheel),
                 "python_versions": ["3.12", "3.13"],
                 "cross_python_exact": True,

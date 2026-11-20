@@ -1,5 +1,12 @@
 > Current authoritative entry: [PROJECT_STATUS](PROJECT_STATUS.md). The [master plan](MASTER_EXECUTION_PLAN.md) and [master roadmap](MASTER_ROADMAP.md) govern future execution. Historical entries below retain their original time scope.
 
+2026-11-21 最新：真实 Mac 与 Linux 的 RC1 安装、四题 PDF/PNG、Profile 导入/导出与回滚已完成。
+最终词距为原始目标的1.1448倍（1.06×1.08）；作者明确无需再次验收词距。
+[完整结果](M21_ACCEPTANCE_RESULT.md)、[原生 Mac 证据](M2_MAC_ACCEPTANCE.md)、[词距报告](M22_WORD_GAP_REVISION.md)。
+同系统两版 Python 输出一致；跨系统 RAQM/BASIC 排版差异已解释并审核，不宣称像素一致。
+M2.3 独立资格/发布/激活流程正在实现与复核；它需要新 RC2 的真实安装证据，正式发布仍 No-Go。
+无新训练、生产激活或原始资产覆盖。以下条目保留其历史时间范围。
+
 2026-11-20 新增验收：[M2.1–M2.3 协议](M2_ACCEPTANCE_PROTOCOL.md)与[数学来源/结构报告](M22_SOURCE_GAPS.md)。
 新四题原题 PDF 已先冻结，再由 Agent 阅读、求解和独立校核；修复新标题 l/d 接触，
 原24页像素/来源/语义完全保留。私有候选 v3 仅新增已审核 ∀；ℤ、密集Φ仍明确回退。

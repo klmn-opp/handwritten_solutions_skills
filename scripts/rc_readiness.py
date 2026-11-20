@@ -5,11 +5,72 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 from pathlib import Path
 
 
 def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def linked_record(base: Path, evidence: dict):
+    path = base / evidence["path"]
+    if not path.is_file() or digest(path) != evidence["sha256"]:
+        raise ValueError("Installation evidence absent or changed")
+    return json.loads(path.read_text())
+
+
+def clean_installation(row: dict, evidence: dict, candidate: dict, base: Path) -> bool:
+    """A new Profile test may reuse the exact previously clean-installed package.
+
+    Installation proof binds the package and interpreter; current acceptance still
+    separately binds the new Profile and Job. Never relabel a reuse receipt clean.
+    """
+    if row.get("clean_install_completed") is True:
+        return True
+    link = evidence.get("installation")
+    if not link:
+        return False
+    try:
+        parent = linked_record(base, link)
+        external = None
+        if isinstance(parent, list):
+            selected = [p for p in parent if p.get("python") == link.get("python")]
+            if len(selected) != 1:
+                return False
+            external = selected[0]
+            if not (
+                external.get("status") == "passed"
+                and external.get("clean_install_completed") is True
+                and external.get("source_commit") == candidate["source_commit"]
+                and external.get("package_version") == candidate["version"]
+                and external.get("wheel_sha256") == candidate["wheel_sha256"]
+            ):
+                return False
+            parent = linked_record(
+                (base / link["path"]).parent,
+                {
+                    "path": external["portable_receipt"],
+                    "sha256": external["portable_receipt_sha256"],
+                },
+            )
+            if not Path(parent["runtime"]["hwsol"]).is_relative_to(
+                Path(external["fresh_environment"])
+            ):
+                return False
+        return bool(
+            parent.get("schema") == "cross-platform-candidate-check/1"
+            and parent.get("status") == "passed"
+            and parent.get("actual_system") == row.get("actual_system")
+            and (external is not None or parent.get("clean_install_completed") is True)
+            and parent.get("source_commit") == candidate["source_commit"]
+            and parent.get("package_version") == candidate["version"]
+            and parent.get("inputs", {}).get("wheel", {}).get("sha256") == candidate["wheel_sha256"]
+            and parent.get("runtime", {}).get("hwsol")
+            and parent["runtime"] == row.get("runtime")
+        )
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
+        return False
 
 
 def assess(spec: dict, base: Path) -> dict:
@@ -34,7 +95,7 @@ def assess(spec: dict, base: Path) -> dict:
             row.get("schema") == "cross-platform-candidate-check/1"
             and row.get("actual_system") == system
             and row.get("status") == "passed"
-            and row.get("clean_install_completed") is True
+            and clean_installation(row, evidence, candidate, base)
             and members_checked
             and row.get("source_commit") == candidate["source_commit"]
             and row.get("package_version") == candidate["version"]
@@ -76,7 +137,7 @@ def assess(spec: dict, base: Path) -> dict:
             row = json.loads(path.read_text())
             if not (row.get("author_approved") is True and row.get("candidate") == candidate):
                 reasons.append("Author approval does not bind this exact candidate")
-    if not candidate["version"].startswith("1.0.0rc"):
+    if not re.fullmatch(r"1\.0\.0rc[1-9][0-9]*", candidate["version"]):
         reasons.append("Package has no unique v1.0 RC metadata version")
     return {
         "schema": "rc-readiness/1",
