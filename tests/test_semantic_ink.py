@@ -31,6 +31,28 @@ class SemanticGeometry(unittest.TestCase):
 
 @unittest.skipUnless(importlib.util.find_spec("torch"), "Torch remains optional")
 class SemanticLearning(unittest.TestCase):
+    def test_local_diagnostic_is_invariant_to_neighbours_but_learns_morphology(self):
+        import torch
+
+        from research.corpus.semantic_ink_model import ContextIndependentLocalInk
+
+        model = ContextIndependentLocalInk()
+        with torch.no_grad():
+            model.context_gate.fill_(1)
+        t = torch.tensor([[[102, 0, 0], [0, 0, 0]]])
+        changed = t.clone()
+        changed[0, 0, 1:] = torch.tensor([110, 105])
+        b = torch.tensor([[[16, 16, 80, 80], [0, 0, 0, 0]]]).float()
+        points = torch.tensor([[[25, 34], [45, 65]]]).float()
+        style = torch.ones(1, 2, 10)
+        before = model(t, b, points, style=style)[0]
+        self.assertTrue(torch.equal(before, model(changed, b, points, style=style)[0]))
+        before.sum().backward()
+        self.assertIsNone(model.neighbour.weight.grad)
+        self.assertIsNone(model.context_gate.grad)
+        self.assertGreater(float(model.local_projection.weight.grad.abs().sum()), 0)
+        self.assertGreater(float(model.field_modulation.weight.grad.abs().sum()), 0)
+
     def test_zero_modulation_preserves_field_and_all_hidden_layers_receive_gradients(self):
         import torch
 

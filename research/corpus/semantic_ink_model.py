@@ -237,6 +237,19 @@ class ModulatedSemanticInk(HierarchicalSemanticInk):
         return self.field[-1](hidden)
 
 
+class ContextIndependentLocalInk(ModulatedSemanticInk):
+    """Diagnostic stable local component; deliberately does not model connections.
+
+    Neighbour IDs cannot serve as training-example identifiers. Word and local
+    latent conditioning remain learned, and this is not a contextual line model.
+    """
+
+    architecture = "semantic-context-independent-local-ink/1"
+
+    def neighbour_features(self, ids):
+        return torch.zeros(*ids.shape, 12, device=ids.device, dtype=self.writer.dtype)
+
+
 class MetricSemanticInk(ContextualSemanticInk):
     """Expose actual glyph scale/aspect to avoid contradictory normalized ink targets."""
 

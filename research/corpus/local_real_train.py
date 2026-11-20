@@ -9,7 +9,12 @@ from research.corpus.context_content_train import digest, write
 
 
 def launch(
-    data: Path, teacher: Path, words: Path, control: Path | None = None, modulated=False
+    data: Path,
+    teacher: Path,
+    words: Path,
+    control: Path | None = None,
+    modulated=False,
+    context_independent=False,
 ) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
@@ -20,6 +25,8 @@ def launch(
         verify_run(control)
     if modulated and control is None:
         raise ValueError("Layer modulation requires the registered hierarchical control")
+    if context_independent and not modulated:
+        raise ValueError("Context independence is registered for the modulated control only")
     data_config = json.loads((data / "run.json").read_text())["config"]
     class_coordinates = data_config.get("per_class_coordinates", False)
     density_normalized = any(
@@ -42,13 +49,16 @@ def launch(
         "code_l2": 0.01,
         "support_weight": 0.5,
         "inherited_model_updates": 24000,
-        "architecture": "semantic-modulated-local-ink/1"
+        "architecture": "semantic-context-independent-local-ink/1"
+        if context_independent
+        else "semantic-modulated-local-ink/1"
         if modulated
         else "semantic-hierarchical-local-ink/1"
         if control
         else "semantic-word-autodecoder/1",
         "hierarchical": control is not None,
         "modulated": bool(modulated),
+        "context_independent": bool(context_independent),
         "class_coordinates": class_coordinates,
         "density_normalized": density_normalized,
         "capacity_diagnostic": data_config.get("capacity_diagnostic_only", False),
@@ -64,7 +74,11 @@ def launch(
     run = create("verified-local-ink-training", seed=cfg["seed"], config=cfg)
     write(run.path / "reports/request.json", {**cfg, "run": str(run.path)})
     name = (
-        "ft-capacity"
+        "ft-context-independent"
+        if cfg["capacity_diagnostic"] and context_independent
+        else "context-independent"
+        if context_independent
+        else "ft-capacity"
         if cfg["capacity_diagnostic"]
         else "modulated"
         if modulated
@@ -113,6 +127,7 @@ def worker(path: Path) -> None:
     from research.corpus.real_ink_support import nearest_real_loss
     from research.corpus.semantic_ink_model import (
         AutoDecodedSemanticInk,
+        ContextIndependentLocalInk,
         HierarchicalSemanticInk,
         ModulatedSemanticInk,
         SemanticInk,
@@ -143,7 +158,9 @@ def worker(path: Path) -> None:
     teacher.requires_grad_(False)
     hierarchical = cfg.get("hierarchical", False)
     model = (
-        ModulatedSemanticInk()
+        ContextIndependentLocalInk()
+        if cfg.get("context_independent")
+        else ModulatedSemanticInk()
         if cfg.get("modulated")
         else HierarchicalSemanticInk()
         if hierarchical
