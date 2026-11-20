@@ -117,9 +117,9 @@ def execute(ref: str, job: Path, profile: Path, rollback: Path, reference: Path 
         env["SOURCE_DATE_EPOCH"] = command(["git", "show", "-s", "--format=%ct", ref], ROOT).strip()
         dist = run.path / "reports/dist"
         dist.mkdir()
-        command(["uv", "build", "--offline", "--python", sys.executable, "--out-dir", dist], public)
         version = tomllib.loads((public / "pyproject.toml").read_text())["project"]["version"]
         write_skill_archive(public, dist / f"handwritten-solutions-{version}-skill.zip")
+        command(["uv", "build", "--offline", "--python", sys.executable, "--out-dir", dist], public)
         packages = [*dist.glob("*.whl"), *dist.glob("*.tar.gz"), *dist.glob("*-skill.zip")]
         if len(packages) != 3:
             raise ValueError("Incomplete package inventory")

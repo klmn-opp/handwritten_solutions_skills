@@ -11,7 +11,7 @@ Historical version reports remain historical evidence, not the current status en
 | English research backbone | v0.10.21 canonical-conditioned-ink/1, 194,513 parameters; component-balanced checkpoint | Experimental |
 | English page calibration | v0.10.22 t/l/r metrics + v0.10.23 measured word gaps | Frozen reference |
 | Math research baseline | v0.10.26 D, original personal glyphs + measured structures + spacing/stem correction | M1 fresh-content evidence now available; explicit remaining fallback/refusals |
-| Current candidate | Portable personal CPU recipe, `personal-cpu-candidate@v2`, installed source8da224f4 | Original24 exact + new6, Linux3.12/3.13 verified; explicit opt-in only, no promotion |
+| Current candidate | Portable personal CPU recipe, `personal-cpu-candidate@v3`, installed source4a0e52a | Original24 exact + new4 PDF intake, Linux3.12/3.13 verified; explicit opt-in only, no promotion |
 
 The first four D pages contain 526 frozen neural English words. The other three
 use Handnote English. The seven-page D is not a general neural page service.
@@ -23,7 +23,20 @@ Private machine-readable entries are `workspace/registry/production.json`,
 assets and replay; each references its immutable freeze run. Use
 `python -m research.project_state verify` to verify existing entries.
 
-Latest evidence: [M2 personal CPU integration](M2_PERSONAL_CPU_INTEGRATION.md).
+Active continuation: [M2.1–M2.3 protocol](M2_ACCEPTANCE_PROTOCOL.md),
+[native platform runner](M2_MAC_ACCEPTANCE.md), [source/placement audit](M22_SOURCE_GAPS.md).
+New controlled question-PDF intake, Agent reading/solving and independent mathematics
+checks are implemented. A genuine new-title l/d contact exposed by the fourth problem
+is fixed in source `4a0e52a`: reject only the contacting glyph refinement and preserve
+its original source. All24 previous pages remain pixel/semantic/source/geometry exact
+in regressiona337a4dd. The complete4-page result now passes fresh Linux3.12/3.13 installations in43bb9000,
+including actual export/reimport, rollback, and exact reference/cross-Python pixels. Privatev3 appends one reviewed original∀;
+ℤ and denseΦ constraints remain explicit. The author has authorized transfer to their
+own Mac; SSH is reachable but authentication is pending, so native execution
+has not yet occurred. M2 and the release remain open.
+No new neural training is admitted by this engineering increment.
+
+Previous completed increment: [M2 personal CPU integration](M2_PERSONAL_CPU_INTEGRATION.md).
 The author says the current Session O effect is broadly satisfactory. The accepted
 math/Latin calibration now runs through the ordinary Job/Skill/CLI with an explicit
 `personal-cpu-experimental` backend and version-pinned private candidate. No research

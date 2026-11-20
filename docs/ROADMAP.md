@@ -1,5 +1,13 @@
 > Current authoritative entry: [PROJECT_STATUS](PROJECT_STATUS.md). The [master plan](MASTER_EXECUTION_PLAN.md) and [master roadmap](MASTER_ROADMAP.md) govern future execution. Historical entries below retain their original time scope.
 
+2026-11-20 新增验收：[M2.1–M2.3 协议](M2_ACCEPTANCE_PROTOCOL.md)与[数学来源/结构报告](M22_SOURCE_GAPS.md)。
+新四题原题 PDF 已先冻结，再由 Agent 阅读、求解和独立校核；修复新标题 l/d 接触，
+原24页像素/来源/语义完全保留。私有候选 v3 仅新增已审核 ∀；ℤ、密集Φ仍明确回退。
+运行源码4a0e52a，43bb9000已完成Linux3.12/3.13干净安装、四题出稿和回滚，逐页一致。
+作者已确认 Mac 归属并授权复制资料；SSH现已可达，临时公钥授权待完成，尚未执行 Mac 验收。
+本轮无新训练或生产替换；连续上下文训练仍按原始数据与任务门槛准入。
+以下保留上一增量和更早阶段的原始状态。
+
 2026-11-20 当前：[通用个人 CPU 候选完成报告](M2_PERSONAL_CPU_INTEGRATION.md)。
 作者确认当前效果大致满意。已把数学原迹、英文校准和来源门禁接入普通 Job/CLI，
 可显式选择、迁移并回退候选 Profile v2；不依赖研究目录或 Torch。原24页精确保留，

@@ -275,3 +275,26 @@ passes Run and Job checks after sealing. Append a private candidate registry ent
 never advance production/default/latest. Candidate increment Go; formalv1.0 No-Go
 until platform/release gates. No favorable-seed selection, sealedC use, public upload,
 weight update, author blind-approval claim or olddata overwrite.
+
+## 2026-11-20 — native execution, real new inputs, and proposal-level safety
+
+Freeze controlled questionPDF before reading and solving. Label these four problems
+Agent-authored; they are useful end-to-end intake evidence, not an external unseen
+university assignment. Retain unsupported-notation failures and exact equivalent
+source corrections, then independently recheck mathematics without deleting steps.
+The fourth title exposes an l/d contact despite nearly equal bounds: bounding boxes
+alone cannot establish filled-ink separation. Check each proposed refinement against
+actual neighbor outlines, retain the original source on new contact, and leave the
+whole-page gate unchanged. New4 pass; old24 pixels/semantics/sources remain exact.
+
+Search allowed historical sources before admitting ∀. Historical native144DPI ink
+exists; select clearer already supplied300DPI SessionO original, preserve both source
+records and append privatev3. Ordinary sourceZ remains ordinaryZ, not blackboardZ.
+Quantifier comparison changes only440pixels in its neighborhood; ℤ fallback remains.
+
+The author confirms their Mac ownership and explicitly authorizes project transfer.
+SSH configuration from the Mac is not itself its inbound address. Initial connection
+closes before authentication; no Mac result or upload is claimed. A stdlib harness
+requires actual OS, exact installed wheel, original Job and Profile identities, real
+PDF/PNG, export/reimport, rollback and unchanged defaults. Reserve1.0.0rc1 without
+issuing it. Release remains No-Go until actual platform and author gates are met.

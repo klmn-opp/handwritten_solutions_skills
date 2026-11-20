@@ -34,8 +34,10 @@ production/default activation, tag, upload or publication is implied.
 
 ## Current gates
 
-NativeMac environment is not presently connected; the author has been asked for
-an authorized Mac or local execution option. Linux work proceeds independently.
+The author confirms ownership of the Mac and explicitly authorizes copying project
+materials there for acceptance. The actual SSH address now responds; the added temporary key is rejected. The author requests password login; an owner-run
+SSH control master is pending so no password passes through chat. No Mac execution or transfer has occurred.
+Linux work proceeds independently.
 New complete-page author judgment remains necessary. Product-wideM2 is incomplete;
 continuous-context training follows product stability and a separately testable
 hypothesis, retainingv21 and preserving previously disclosed data exposure.

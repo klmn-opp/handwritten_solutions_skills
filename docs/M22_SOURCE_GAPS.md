@@ -98,8 +98,14 @@ final gate is involved. The existing math wrapper and final whole-chain gate rem
 
 Full original four-problem Job07f2da79 passes with0font fallbacks and pixel verification
 using the editable current source; it is **not** exact-commit installed-package evidence.
-Root will freeze and verify a new wheel separately. Source-bound24-page regression is
-recorded separately before declaring preservation of old accepted output.
+Root will freeze and verify a new wheel separately. Source-bound24-page regression
+[a337a4dd](../workspace/runs/20261120T155346293984Z-personal-cpu-regression-evidence-a337a4dd/run.json)
+with privatev3 passes24/24: identical actual PDF raster pixels, visible semantic
+identity, English geometry and source IDs;2,932 math visible items,0 font fallback,
+0 unexpected outcomes. All protected assets and latest remain unchanged. Existing
+historical source-digest rebindings are preserved as disclosed copies, not rewritten
+originals. This transfers the prior visual review for unchanged pixels, while the new
+four pages retain separate Agent/author-review status.
 
 ## New user M3: continuous handwriting (old master M4)
 
