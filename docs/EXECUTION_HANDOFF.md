@@ -1,86 +1,92 @@
 # Execution handoff
 
-Updated 2026-11-20. Branch `feature/master-execution-m0-m1`. Current completed
-source commits:55bacf3 (real lighter2),4250f2e (measured structural rules),d9391dc
-(common-source f and atomic ff); the closing commit adds the combined driver,
-checks and this handoff. Resolve exact HEAD with `git log -1`; run956bbad6 records
-its pre-closing HEAD plus complete source hashes/snapshot. User-owned `.vscode/`
-is untracked and untouched.
+Updated2026-11-20. Branch `feature/master-execution-m0-m1`. Current source commit
+`33eb737` implements third author correction and source-access guard; closing docs
+commit follows it (`git log -1` gives current HEAD). Previous round2 closure8210a37.
+User-owned `.vscode/` remains untracked/untouched. Read live Git status first.
 
-Read first: [verbatim master instruction](MASTER_EXECUTION_PLAN.md),
-[status](PROJECT_STATUS.md), [latest author revision](M1_SECOND_AUTHOR_REVISION.md),
+Read first: [verbatim master plan](MASTER_EXECUTION_PLAN.md),
+[status](PROJECT_STATUS.md), [third revision](M1_THIRD_AUTHOR_REVISION.md),
 [roadmap](MASTER_ROADMAP.md), [decisions](DECISION_LOG.md).
-The user authorizes bounded autonomous work and parallel agents. Do not restart
-completed M/N import, count consumed holdout as unseen, or repeat the old13-word
-neural experiment. No new neural training has occurred in this master-plan phase.
+Bounded autonomous work and parallel agents are authorized; no production
+activation. No new neural updates have occurred in this master-plan phase.
 
-## Current delivered candidate — second complete20
+## Latest delivered candidate: authentic f variation, pi explicitly unresolved
 
-Run `20261120T121552890180Z-author-feedback-round2-complete-20-956bbad6` is held,
-sealed and verified. Main PDF: rendered/homework_solutions.pdf; pages/*.png;
-comparisons/focused/formula-regions.pdf (24 pairs), all-formulas (173 pairs),
-all-targets (350 changes), fallback-overlay; reports contain exact source/decisions.
-Run SHA c6a2fbc94e384335271262828de7c7e1e1a329932527b42a2cf5b0e963e3323f.
-PDF SHA b6145cd3d115afde957b5dff85accc6d9fe847540b4be2a9993ed540b423e0f6.
+Run `20261120T124522448757Z-author-feedback-round3-authentic-f-complete-20-4af6334e`
+is held and verified. MainPDF:rendered/homework_solutions.pdf; pages/*.png;
+comparisons/all-f-words/formula-regions.pdf has124 complete words; all-f-pi-targets
+has145 f+20 pi; all-formulas173; fallback-overlay and full provenance/decisions.
+Run SHA9419cb9713df8d5118603bd166f5f6c4ec31e2148afcea5b2058a11e4789248f.
+PDF SHAc10f557a97ef0485b583d7111f0ecf418d9d6aec1b4cfe1f4f571cc410732933.
 
-The author confirmed the first final20 improved, but identified heavy2/pi,
-printed-looking fraction/root roofs and short/faint f. Exact feedback and input
-PDF SHA: workspace/analysis/20261120-master-execution/author-feedback-m1-round2.json.
-The completed second revision is awaiting author style review; do not assume
-acceptance or production authorization. An optional review question links this
-actual new PDF. The latest complete report supersedes earlier 'active' notes.
+Latest author feedback on round2: '有改善，f的形状不错了，但是出现了所有f趋同的现象，
+pi（圆周率符号）仍然有加粗问题'. Verbatim/PDF identity:
+workspace/analysis/20261120-master-execution/author-feedback-m1-round3.json.
+This accepts f shape, not variation or pi. The new mixed-source candidate still
+awaits author's judgment. Do not treat a prior 'B better' as blanket acceptance.
 
-Final changes:92 of203 twos select verified realv0;111 lighter2 unchanged.
-20 pi remain the original heavy source.129 fraction rules+14 roofs use real
-Session N centre/nib mapping;7 extremely short roofs remain unchanged.
-115 of145 f recover common-source proportions;30 remain for clearance or atomic
-ff consistency.14 actual same-word ff groups:6 accepted together,8 retained together.
-The earlier123-f candidate20f7cc0c is rejected for integration because of8 mixed ff.
-Do not revive it just because independent-glyph collision checks passed.
+All145 f had used f0. Actual GSUB has two independent sheet f, not four cyclic
+indices. Fixed seed1909, actual word/LaTeX context hash, nominal50/50 choice;
+53 use real sheet-f1 and92 remain f0. Original30 held f are exact,2 new cutoff
+ff instances retained together after one fails clearance,60 stay by selection.
+All14 real ff groups have consistent actual sources. Only P6 f_avg changes among
+five mathematical f. Other10,629 records and every non-f geometry/pixel remain.
+All20 final PNG files exactly equal reviewed parentfb1722a8. Math2265,30 explicit
+font fallbacks,pi20 unchanged. No new missing item/contact/crop issue observed.
 
-Math inventory2265, explicit font fallbacks30 (29 external/1 inherited). All10,774
-visible records checked:10,387 exact,350 targets changed,37 held targets only append
-rejection metadata. Non-target geometry/source/positions and outside-target pixels
-are unchanged; all14 modified original root joins preserved; no new unrelated
-contacts. This preserves incremental structure, not a new proof of every solution.
-New20 English is CPU, not new neural English. Old frozen neural pages are intact.
+Root reviewed all53 changes, authentic source contact, probes and full pages
+1/4/6/16/18/20. Independent reviewed all53 changes+14 whole ff words, recomputed
+choices and source-font hashes. No claim of newly learned or continuous variation:
+this restores real variant calling with only two samples from one collection.
+Historical final was too wide/heavy even where geometrically safe,No-Go; two red
+source derivatives with old density gain were not admitted. Do not tune another
+seed/proportion or revive final without a distinct new hypothesis.
 
-Root reviewed all isolated92 digits/145 f/150 rules plus17 structure diagnostics;
-final pages1–10 and12/14/17/20. Independent Agent reviewed final11–20 plus10 formula
-crops and confirmed those pages rerasterize exactly from final mergedPDF.
-Post-seal records are outside the immutable run:
-workspace/analysis/20261120-round2-root-review/
-workspace/analysis/20261120-round2-final-independent-pages11-20/README.md
-No new blocking content/contact/crop defect was seen. Pi/f holds, the heavier
-existing tall-root stem and font fallbacks remain visual/coverage limits.
+Frozen evidence:
+- final f parent `20261120T124209101548Z-f-real-source-variation-probe-fb1722a8`,
+  runSHA54c8c08c323681c9ce4e22d18a0451c1306bab0fa308e52a683f234c889cabd6;
+  source directory solutions/sources. FVariationFeedback(source_dir,source=...,
+  title=...,seed=1909).apply; moduleSHA734885a57f0987edf6c900cdf7524f3028768a4acb06f6e9c67d4b2c0829ad69.
+- pi source review `20261120T123612508971Z-pi-connected-source-review-0029bd3f`.
+  New lighter pi is joined to the preceding2; no isolated contour is safe. Whole
+  original2pi retained with raw RGB/PDF coordinates/old OCR/separate actual review.
+  Initial11 OCR hits→8 regions/4docs:7false,1oldheavy;2extra same-page contextviews.
+  Not an exhaustive history search. Cross-token composition not admitted.
+- access guard/disclosure `20261120T124151564297Z-corpus-access-guard-audit-7702c97c`.
+  Initial old catalogue loaded15 legacy heldout character labels in16 physics1
+  sample JSONs; some metadata printed. Recognition count0, no original physics1
+  images opened, no candidate/training based on it. C SHA/name exclusions always
+  active. Never say the whole turn had perfect text isolation. Shared corpus_access
+  now protects both old/new entrypoints using nested split and whole-source plus
+  ancestry/sibling closure before raw labels. Synthetic SQLite checks only.
+- root review workspace/analysis/20261120-round3-root-review/FINAL_REVIEW.json;
+  independent workspace/analysis/20261120T123058133770Z-round3-independent-1381bc61/FINAL_REVIEW.json,
+  SHA3f18b662ef5a967a3e999762b5451c67c569501364547e2f95af0ab0311a0cab.
 
-Approved individual parents:
-- digits `20261120T120612102552Z-numeral-pi-real-two-candidate-95ce7292`;
-- f `20261120T121330591696Z-f-size-source-recovery-3728598e`;
-- rules `20261120T121043171023Z-structural-rule-provenance-correction-657bc90f`.
-Root approval receipt pins all parent and six source hashes. The combined driver
-replays each baseline then applies digits→f→rules, passing source/title to f.
-Original fonts/crops/colour parents/transforms are copied into solutions/evidence
-and solutions/structural-sources. Sources and labels are never rewritten.
+Prior round2 remains `20261120T121552890180Z-author-feedback-round2-complete-20-956bbad6`,
+with92 two fixes,129 real fraction rules,14 real roofs and115 source-relative f.
+Its root/independent full-page review is documented inM1_SECOND_AUTHOR_REVISION.
+First revision50910a3a and original rejectedB remain immutable. New20 English is
+CPU; frozen v21/v23 neural English pages remain untouched.
 
-## Next actual author inputs and independent limits
+## Actual next author inputs
 
-Broad collection request fulfilled:19pages123rows, university math/physics in the
-Session prompt-and-blank format. Final run
+Broad Session O-FULL already delivered:19pages123rows, not minimized. Run
 `20261120T115345363337Z-comprehensive-math-collection-o-full-6e3979c3`,
-solutions/collection/session-O_full.pdf. Root reviewed all19; independent native
-review accepted structures/variants and all5 enlarged/roomier revisions.
-Filled original colour scan destination:source_pdf/session-O_full_source.pdf.
-[Booklet report](COMPREHENSIVE_MATH_COLLECTION.md). Do not further minimize the
-book or treat intended prompt labels as verified handwriting. New real samples0.
+solutions/collection/session-O_full.pdf. Root/independent print/structure review
+accepted. Filled original colour scan:source_pdf/session-O_full_source.pdf.
+[Booklet report](COMPREHENSIVE_MATH_COLLECTION.md). No actual new scans imported.
+Prompt labels are intended content, not true labels until ink review.
 
-This bounded phase is delivered and reaches author style/new-ink gates. On new
-feedback, retain this version and diagnose concrete remaining items. On new scan,
-use original RGB300DPI/coordinates, actual labels and review before isolated math
-replacement. Do not blindly train just because new glyph collection exists.
-Continue genuinely independent authorized work when justified, but do not repeat
-completed package checks/alignment diagnostics or expand the rejected M4 hypothesis.
-No main/latest/default/public release is authorized. M0–M8 is not globally complete.
+This bounded correction is delivered. On new author feedback, preserve this
+candidate and diagnose the specified problem. On new scan, retain RGB300DPI,
+PDF/source SHA and transforms; review actual writing before isolated replacement.
+Pi and missing math sources need new reliable ink. Do not blindly launch neural
+training because a glyph collection arrives. M2/M4 independent limits below stay;
+do not repeat old packaging checks/13-word experiments to create apparent work.
+No main/latest/default activation, release, private upload, original overwrite or
+sealedC access. M0–M8 is not globally complete.
 
 ## Completed increments and their limits
 

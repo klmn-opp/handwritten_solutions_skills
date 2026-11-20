@@ -168,3 +168,38 @@ ready for authentic new ink. Current bounded repair is delivered; subsequent
 style admission and missing-glyph replacement depend on author evaluation/scan.
 M2/M4 retain their documented independent limits. Do not erase the unsuccessful
 mixed-ff/source-role/provenance candidates or interpret tests as style progress.
+
+## 2026-11-20 — preserve accepted f shape while restoring real source variety
+
+After round2, the author likes the f shape but observes convergence and heavy pi.
+All145 f currently use the same f0. Actual GSUB contains two independent sheet f,
+not four samples implied by cyclic indices. Review both sheets and three historical
+word f; retain accepted D proportions. Native probes admit sheet-f1, reject the
+large/wide historical final style, and do not use density-enhanced red derivatives.
+One fixed seed1909/context-hash choice, nominal50/50 f0/f1, produces53 f1 and92 f0
+after clearance/atomic-ff admission. No seed search, noise or neural updates.
+Run4af6334e replays all20 reviewed parent images exactly; all53 changes and14 ff
+groups passed root/independent local review. Two authentic sources are correctly
+called, not learned continuous variation. Author mixed-style judgment remains.
+
+## 2026-11-20 — do not cut genuine connected pi to fill a missing glyph
+
+Bounded indexed search found seven false pi locators, the old heavy pi and a lighter
+second pi on the same original physics page. The new pi is genuinely connected to2;
+four thresholds and independent RGB inspection agree. Preserve the whole2pi source
+and raw OCR/independent actual transcription, but reject standalone extraction.
+Cross-token composition is outside this bounded repair. Await natural pi in the
+already delivered broad workbook; no artificial erosion or disconnected source.
+
+## 2026-11-20 — disclose and repair legacy nested-holdout label access
+
+The initial old catalogue call loaded16 physics1 sample JSONs, including15 legacy
+holdout character labels stored under derivation.selection.split; later diagnostics
+printed some metadata. Its recognition count is zero, and no physics1 original
+PDF/page/glyph image was opened or used, but label exposure did occur. C SHA/name
+exclusions remained effective before label retrieval. Do not rewrite this fact as
+perfect isolation. Receipt7702c97c preserves precise disclosure and metadata scope.
+Shared corpus_access now protects both actual search entrypoints before label JSON
+retrieval, using source/name/split/ancestor/descendant/sibling closure. Synthetic
+SQLite label sentinels verify the guard; no additional protected text/image was
+read. This is data-access engineering, not handwriting-quality evidence.

@@ -11,7 +11,7 @@ Historical version reports remain historical evidence, not the current status en
 | English research backbone | v0.10.21 canonical-conditioned-ink/1, 194,513 parameters; component-balanced checkpoint | Experimental |
 | English page calibration | v0.10.22 t/l/r metrics + v0.10.23 measured word gaps | Frozen reference |
 | Math research baseline | v0.10.26 D, original personal glyphs + measured structures + spacing/stem correction | M1 fresh-content evidence now available; explicit remaining fallback/refusals |
-| Current increment | M0/M1 evidence, M2 public packaging, M4 alignment pilot and second visual correction delivered | Author review/new ink pending; no production promotion |
+| Current increment | Third correction delivered: two authentic f sources actually used; isolated pi extraction No-Go | Author review/new natural ink pending; no production promotion |
 
 The first four D pages contain 526 frozen neural English words. The other three
 use Handnote English. The seven-page D is not a general neural page service.
@@ -67,8 +67,16 @@ printed-looking fraction/root bars and short/faint f. The completed
 [second correction](M1_SECOND_AUTHOR_REVISION.md), run `956bbad6`, changes92 twos,
 129 fraction bars,14 radical roofs and115 f. All20 pages received Agent visual
 review; non-target pixels/geometry/provenance stay unchanged.20 pi,30 f,7 short
-roofs and30 font fallbacks remain explicit. This candidate awaits author review;
-no new neural training occurred. The
+roofs and30 font fallbacks remain explicit. Author feedback now likes the f shape
+but identifies collapsed f variety and retained heavy pi. The completed
+[third correction](M1_THIRD_AUTHOR_REVISION.md), run `4af6334e`, uses actual sheet-f1
+in 53 places and f0 in 92, preserving the accepted proportions, all 14 ff groups,
+the original 30 held f and all non-f output. All final PNGs equal the reviewed
+parent. A lighter historical pi is genuinely connected to its preceding 2, so
+independent extraction remains No-Go. The source search also exposed a legacy
+nested-holdout label-access flaw; the actual shared reader is fixed and the
+15-label access is disclosed, without C access or original-image use. No new
+neural training occurred. The
 [comprehensive 19-page collection booklet](COMPREHENSIVE_MATH_COLLECTION.md)
 now supersedes the minimum-collection preference and is ready to fill.
 See the reports for PDFs, PNGs, all 173 formula pairs and fallback overlays.
