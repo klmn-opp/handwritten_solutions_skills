@@ -21,8 +21,10 @@ from handnote.vector import Outline
 from matplotlib import rc_context
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
+from matplotlib.ft2font import FT2Font
 from matplotlib.patches import PathPatch
 from matplotlib.path import Path as MplPath
+from matplotlib.textpath import text_to_path
 from PIL import Image, ImageDraw
 
 from hwsol.adapters.handnote import RENDER_LOCK, upstream_config
@@ -136,7 +138,7 @@ def lower_k_body(vertices, codes):
 
 
 class CpuGlyphFeedback:
-    """Apply reviewed source variants and explicit output geometry only in prose/title."""
+    """Recorded variants; default prose/title, explicit opt-in math d/f/k/r only."""
 
     def __init__(self, font: Path):
         self.font = font
@@ -148,11 +150,16 @@ class CpuGlyphFeedback:
                 name: file.getGlyphID(name) for names in self.names.values() for name in names
             }
 
-    def apply(self, page, renderer, provenance):
+    def apply(self, page, renderer, provenance, *, contexts=frozenset({"text"})):
+        contexts = frozenset(contexts)
+        if not contexts or not contexts <= {"text", "mathematics"}:
+            raise ValueError("Explicit supported feedback contexts required")
         records = copy.deepcopy(provenance)
         for row in records:
             ch, i = row["semantic"], row["item_index"]
-            if row["context"] != "text" or ch not in TARGETS or page.items[i][0] != "path":
+            if row["context"] not in contexts or ch not in TARGETS or page.items[i][0] != "path":
+                continue
+            if row["context"] == "mathematics" and ch not in {"d", "f", "k", "r"}:
                 continue
             if not row["personal_collected"] or row.get("font_sha256") != self.font_sha:
                 row["cpu_feedback_rejection"] = "Expected pinned personal font provenance"
@@ -188,12 +195,40 @@ class CpuGlyphFeedback:
                 treatment = {"method": "select recorded d1 with lower bowl", "fit": scale}
             elif ch == "f" and variant == 1:
                 selected = 0
-                v, c = handwritten_outline(self.font, ord(ch), selected, 1000)
+                if row["context"] == "mathematics":
+                    # MathText outlines use FONT_SCALE (100), unlike prose's 1000 em.
+                    v, c = renderer._math_glyph(
+                        FT2Font(str(self.font)), self.ids[self.names[ch][0]], ord(ch), 0, True
+                    )
+                else:
+                    v, c = handwritten_outline(self.font, ord(ch), selected, 1000)
                 new, matrix = Outline(v, c, stroke=False, digits=4), old_item[2]
                 treatment = {"method": "select fuller recorded f0 at native em scale; no dilation"}
+                if row["context"] == "mathematics":
+                    treatment["outline_units_per_em"] = text_to_path.FONT_SCALE
+                    treatment["mathtext_primary_slot"] = True
+            elif ch == "r" and row["context"] == "mathematics" and variant == 1:
+                selected = 0
+                v, c = renderer._math_glyph(
+                    FT2Font(str(self.font)), self.ids[self.names[ch][0]], ord(ch), 0, True
+                )
+                new, matrix = Outline(v, c, stroke=False, digits=4), old_item[2]
+                treatment = {
+                    "method": "select recorded r0 in MathText's existing primary slot",
+                    "outline_units_per_em": text_to_path.FONT_SCALE,
+                    "mathtext_primary_slot": True,
+                    "primary_advance_preserved": True,
+                    "alternate_not_stretched": True,
+                }
             elif ch == "k":
-                v, c = handwritten_outline(self.font, ord(ch), variant, 1000)
-                v, c = lower_k_body(v, c)
+                if row["context"] == "mathematics":
+                    existing = renderer._outlines[old_item[1]]
+                    units = 1000 / text_to_path.FONT_SCALE
+                    v, c = lower_k_body(existing.verts * units, existing.codes)
+                    v = v / units
+                else:
+                    v, c = handwritten_outline(self.font, ord(ch), variant, 1000)
+                    v, c = lower_k_body(v, c)
                 new, matrix = Outline(v, c, stroke=False, digits=4), old_item[2]
                 treatment = {
                     "method": "output-only monotone lower-body y calibration",
@@ -201,6 +236,9 @@ class CpuGlyphFeedback:
                     "endpoints_fixed": True,
                     "author_style_acceptance": "pending",
                 }
+                if row["context"] == "mathematics":
+                    treatment["existing_mathtext_fitted_outline_preserved"] = True
+                    treatment["outline_units_per_em"] = text_to_path.FONT_SCALE
             if treatment is None:
                 continue
             key = ("cpu-glyph-feedback", ch, i, selected)
