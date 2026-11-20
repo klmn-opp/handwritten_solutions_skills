@@ -47,8 +47,9 @@ from hwsol.profiles.store import LoadedProfile
 class PersonalCpuEngine:
     """The same data-driven transform order for every problem and page."""
 
-    def __init__(self, profile: LoadedProfile):
+    def __init__(self, profile: LoadedProfile, *, qualification: dict | None = None):
         self.bundle = load_recipe(profile)
+        self.qualification = qualification
 
     def render_one(
         self,
@@ -129,7 +130,10 @@ class PersonalCpuEngine:
                         "formula_groups": renderer.formulas,
                         "matrix_groups": renderer.matrices,
                         "candidate": {
-                            "backend": "personal-cpu-experimental",
+                            "backend": "personal-cpu-qualified"
+                            if self.qualification
+                            else "personal-cpu-experimental",
+                            "local_release_qualification": self.qualification,
                             "recipe": self.bundle.description.recipe,
                             "recipe_sha256": self.bundle.sha256,
                             "profile": profile.provenance(),
@@ -140,7 +144,11 @@ class PersonalCpuEngine:
                             "fallback_count": len(fallbacks),
                             "source_selection_seed": cfg.seed,
                             "neural_weight_updates": 0,
-                            "production_qualified": False,
+                            "production_qualified": bool(self.qualification),
+                            "qualification_scope": "this local ProfileStore and exact build; "
+                            "qualification does not activate defaults"
+                            if self.qualification
+                            else "experimental candidate only",
                             **diagnostics,
                         },
                         "handwriting": {

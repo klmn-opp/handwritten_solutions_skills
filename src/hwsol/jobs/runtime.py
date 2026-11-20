@@ -177,7 +177,13 @@ def build(
 
         render_one = PersonalCpuEngine(selected).render_one
     elif selected.manifest.ink_bundle:
-        raise ValueError("Personal ink candidates require personal-cpu-experimental")
+        from hwsol.personal_ink.runtime import PersonalCpuEngine
+        from hwsol.profiles.qualification import validate_published
+
+        qualification = validate_published(store, selected)
+        if job.render != selected.manifest.render:
+            raise ValueError("Qualified personal ink requires its reviewed Profile render settings")
+        render_one = PersonalCpuEngine(selected, qualification=qualification).render_one
     default_paper = store.settings().get("background")
     cache = {}
     validated = set()

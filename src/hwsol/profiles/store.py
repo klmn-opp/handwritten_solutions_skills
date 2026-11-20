@@ -177,7 +177,9 @@ class ProfileStore:
     def activate(self, spec: str) -> dict:
         loaded = self.resolve(spec)
         if loaded.manifest.ink_bundle:
-            raise ProfileError("Experimental personal ink cannot become the default Profile")
+            from hwsol.profiles.qualification import activate_ink
+
+            return activate_ink(self, loaded.manifest.ref)
         with lock(self.root / ".settings.lock"):
             settings = self.settings()
             settings["default_profile"] = loaded.manifest.ref

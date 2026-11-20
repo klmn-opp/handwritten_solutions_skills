@@ -33,6 +33,15 @@ the command line runtime; the Skill and editable examples accompany the source
 and Skill archives. Native compatibility must be verified on the target machine;
 the local Linux preflight does not establish macOS or Windows validation.
 
+Personal ink remains optional. A compatible imported ink Profile starts as an
+inactive candidate. Once its local evidence passes `hwsol profiles qualify-ink`,
+an explicit `hwsol profiles publish-ink` makes it available to ordinary `font-cpu`
+Jobs without changing the default. Activation and rollback remain separate choices.
+See the [personal CPU lifecycle](public_docs/GUIDE.md#use-a-reviewed-personal-cpu-profile)
+for the commands and evidence requirements. Qualification is tied to the tested
+package and actual platform/text capabilities; it is not transferable approval or
+a promise of identical pixels on every OS. None of these steps needs a neural model.
+
 - [Job creation and output verification](public_docs/GUIDE.md)
 - [Personal Profile and Studio workflow](public_docs/PROFILES.md)
 - [Rendering options and explicit fallback](public_docs/RENDERING.md)

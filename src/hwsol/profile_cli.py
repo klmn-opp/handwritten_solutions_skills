@@ -70,6 +70,24 @@ def compare(older: str, newer: str) -> dict:
     return ProfileStore().compare(older, newer)
 
 
+@profiles.command("qualify-ink")
+@command
+def qualify_ink(reference: str, evidence: Annotated[Path, typer.Option()]) -> dict:
+    """Validate local CPU ink evidence without publishing or changing the default."""
+    from hwsol.profiles.qualification import qualify
+
+    return qualify(ProfileStore(), reference, evidence)
+
+
+@profiles.command("publish-ink")
+@command
+def publish_ink(reference: str, qualification_id: Annotated[str, typer.Option()]) -> dict:
+    """Explicitly publish qualified local ink; activation remains a separate command."""
+    from hwsol.profiles.qualification import publish_ink as publish
+
+    return publish(ProfileStore(), reference, qualification_id)
+
+
 @profiles.command("export")
 @command
 def export_profile(

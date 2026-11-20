@@ -34,6 +34,9 @@ candidate. Do not claim that font construction trains a neural network.
    `personal-cpu-experimental`, a pinned candidate Profile and its calibrated
    defaults. Read [candidate selection](references/jobs.md#reviewed-personal-cpu-candidate).
    This CPU mode is experimental, cannot advance latest and ships no private ink.
+   For a locally qualified and explicitly published personal ink version, ordinary
+   `font-cpu` Jobs can select that pinned Profile. Use baseline realism and inherit
+   its reviewed render settings; do not bypass a stale-qualification rejection.
 6. Run `hwsol render --manifest <job.json> --workspace <workspace>`. Read its
    immutable run receipt. Errors and unsupported formulas must remain explicit.
    For a changed solution create a new run; never delete required derivation to
@@ -47,6 +50,18 @@ Use [Studio and Profiles](public_docs/PROFILES.md) for user-authorized collectio
 font construction, candidate evaluation, activation and rollback. Preserve raw
 sources and labels; keep personal assets local. Normal rendering does not call
 Studio. Unsupported personal glyphs may use a recorded font fallback.
+
+For personal ink qualification, follow the [local lifecycle](public_docs/GUIDE.md#use-a-reviewed-personal-cpu-profile).
+`profiles qualify-ink` validates an exact local evidence request: real supported
+platform installations and complete Jobs, package/Profile identity, author review,
+mathematical checks and current text capabilities. It neither publishes nor activates.
+`profiles publish-ink` is a separate, explicitly authorized publication in the local
+store; it uploads nothing and leaves the active default unchanged. Activation or
+rollback requires its own user instruction. Imported ink archives always return to
+the candidate area; never treat a ZIP, claimed approval flag or older package's
+results as qualification of the current environment. Keep the bundled CPU font
+usable while personal evidence is incomplete. These rules do not claim an untested
+release candidate has passed, and they do not authorize sharing private ink.
 
 [Experimental adapters and benchmark rules](public_docs/RESEARCH_BOUNDARIES.md)
 are separate from normal output. No private model or author-specific research

@@ -2,9 +2,37 @@
 
 import hashlib
 import json
+import platform
 import subprocess
+import sys
 from importlib.metadata import distribution, version
 from pathlib import Path
+
+
+def runtime_text_capabilities(font: Path) -> dict:
+    """Measure the active Pillow text stack; do not change existing build identity.
+
+    Equal Pillow package versions need not have equal shaping support. Loading the
+    actual Profile font also records which layout engine the default loader chose.
+    """
+    from PIL import ImageFont, features
+
+    selected = ImageFont.truetype(str(font), 32)
+    capabilities = {}
+    for name in ("raqm", "harfbuzz", "fribidi", "freetype2"):
+        enabled = bool(features.check(name))
+        capabilities[name] = {
+            "enabled": enabled,
+            "version": features.version(name) if enabled else None,
+        }
+    return {
+        "system": platform.system(),
+        "machine": platform.machine(),
+        "python_minor": f"{sys.version_info.major}.{sys.version_info.minor}",
+        "pillow_version": version("pillow"),
+        "layout_engine": ImageFont.Layout(selected.layout_engine).name,
+        "libraries": capabilities,
+    }
 
 PACKAGES = (
     "handwritten-solutions",

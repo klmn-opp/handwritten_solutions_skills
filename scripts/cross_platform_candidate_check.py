@@ -230,6 +230,18 @@ def main() -> None:
                 raise ValueError("Import escaped inactive candidate area")
         if profiles["profile"]["reference"] == profiles["rollback_profile"]["reference"]:
             raise ValueError("Rollback requires a distinct version")
+        receipt["qualification_environment"] = json.loads(
+            call(
+                [
+                    str(python), "-I", "-c",
+                    "import json,sys;from hwsol.identity import runtime_text_capabilities;"
+                    "from hwsol.profiles.store import ProfileStore;"
+                    "p=ProfileStore().resolve(sys.argv[1],candidate=True);"
+                    "print(json.dumps(runtime_text_capabilities(p.font)))",
+                    profiles["profile"]["reference"],
+                ]
+            )
+        )
         frozen_job = copy_job(paths["job"], output / "inputs/frozen")
         receipt["job_input_inventory"] = {
             str(p.relative_to(frozen_job.parent)): digest(p)

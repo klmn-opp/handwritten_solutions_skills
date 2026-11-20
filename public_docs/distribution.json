@@ -36,6 +36,7 @@
     "tests/test_public_distribution.py",
     "tests/test_personal_cpu.py",
     "tests/test_word_gap.py",
+    "tests/test_cpu_qualification.py",
     "public_docs/README.md.in",
     "public_docs/SKILL.md.in",
     "public_docs/CONTRIBUTING.md.in",
