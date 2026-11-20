@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import math
 import shutil
 import sys
 from collections import Counter
@@ -30,6 +31,7 @@ from research.corpus.math_glyph_evidence import extract_sources, read, source_co
 from research.corpus.math_glyph_resolver import MathGlyphResolver, ScanGlyph
 from research.corpus.math_glyph_semantics import check_reference_math
 from research.corpus.math_session_glyphs import SessionGlyphCalibration
+from research.corpus.math_session_polish import SessionInkPolish
 from research.corpus.mixed_ink_pages import label_pdf
 
 PREVIOUS = "20261120T051613583545Z-v01024-personal-math-glyph-completion-e7b8c8e5"
@@ -66,9 +68,9 @@ def load_scans(folder: Path, rows: list[dict]) -> list[ScanGlyph]:
     return [ScanGlyph.load(folder, row) for row in rows if row["review_status"] == "agent-accepted"]
 
 
-def collect_panels(records, renderer, before, after, page_number):
+def collect_panels(records, renderer, before, after, page_number, *, change_key="session_source"):
     panels = []
-    changes = {r["item_index"] for r in records if r.get("session_source")}
+    changes = {r["item_index"] for r in records if r.get(change_key)}
     groups = sorted(
         [*renderer.formulas, *renderer.matrices],
         key=lambda group: group["item_range"],
@@ -94,7 +96,9 @@ def collect_panels(records, renderer, before, after, page_number):
     return panels
 
 
-def session_experiment(selection: Path, previous: Path) -> Path:
+def session_experiment(
+    selection: Path, previous: Path, *, polish_baseline: Path | None = None
+) -> Path:
     verify_run(previous)
     cfg_record = read(previous / "run.json")["config"]
     cfg = RenderConfig.model_validate(cfg_record["render_config"])
@@ -106,12 +110,20 @@ def session_experiment(selection: Path, previous: Path) -> Path:
     protected = read(previous / "reports/protected-assets.json")
     protected.update({str(Path(r["pdf"])): sha256(Path(r["pdf"])) for r in specs})
     protected[str(previous / "run.json")] = sha256(previous / "run.json")
+    old_c = []
+    if polish_baseline is not None:
+        verify_run(polish_baseline)
+        old_c = read(polish_baseline / "reports/glyph-provenance.json")
+        protected[str(polish_baseline / "run.json")] = sha256(polish_baseline / "run.json")
+    before_arm, after_arm = "CD" if old_c else "BC"
+    change_key = "polish" if old_c else "session_source"
     run = create(
-        "v01025-session-mn-math-calibration",
+        "v01026-session-math-polish" if old_c else "v01025-session-mn-math-calibration",
         seed=cfg.seed,
         config={
             "author_preferred_baseline": str(previous),
             "author_preferred_baseline_sha256": sha256(previous / "run.json"),
+            "polish_baseline": str(polish_baseline) if old_c else None,
             "render_config": cfg.model_dump(mode="json"),
             "layout_profile": cfg_record["layout_profile"],
             "measured_stroke_profile": cfg_record["measured_stroke_profile"],
@@ -151,6 +163,7 @@ def session_experiment(selection: Path, previous: Path) -> Path:
         session = extract_sources(specs, raw_session, corpus)
         new_scans = load_scans(raw_session, session)
         calibration = SessionGlyphCalibration(new_scans)
+        polish = SessionInkPolish(calibration, profile.font) if old_c else None
         atomic_json(
             output / "reports/radical-calibration.json",
             [sample.metrics() for sample in calibration.radicals],
@@ -166,7 +179,7 @@ def session_experiment(selection: Path, previous: Path) -> Path:
             for r in previous_records
         ] + [("Session math operators and notation", OPERATORS, None)]
         reports, panels = [], []
-        for arm in "BC":
+        for arm in (before_arm, after_arm):
             (output / f"rendered/pages/{arm}").mkdir()
         for number, (identity, source, old) in enumerate(inputs, 1):
             source_md = output / f"solutions/problem-{number:02d}.md"
@@ -197,6 +210,34 @@ def session_experiment(selection: Path, previous: Path) -> Path:
                     raise ValueError(f"Archived B does not replay on page {number}")
                 b_marked_pdf = archived.read_bytes()
             revised = calibration.apply(page, renderer, baseline, operator_page=old is None)
+            if polish is not None:
+                c_items, _ = frozen_english(page.items, frozen)
+                b_pdf = renderer.to_vector_pdf([replace(page, items=c_items)])
+                before_math = [r for r in revised if r["context"] == "mathematics"]
+                reference = old_c[number - 1]
+                if (
+                    reference["source_sha256"] != sha256(source_md)
+                    or json.loads(json.dumps(before_math)) != reference["C"]
+                    or json.loads(json.dumps(trace)) != reference["parser_structure_trace"]
+                ):
+                    raise ValueError(f"Archived C trace changed on page {number}")
+                archived_c = polish_baseline / f"rendered/pages/C/page-{number:02d}.pdf"
+                b_marked_pdf = archived_c.read_bytes()
+                if (
+                    raster(
+                        label_pdf(b_pdf, method, math_label="Session M/N glyph calibration")
+                    ).tobytes()
+                    != raster(b_marked_pdf).tobytes()
+                ):
+                    raise ValueError(f"Archived C pixels changed on page {number}")
+                baseline = revised
+                original_items = list(page.items)
+                revised = polish.apply(page, renderer, baseline)
+                if any(
+                    a is not b and "polish" not in row
+                    for a, b, row in zip(original_items, page.items, revised, strict=True)
+                ):
+                    raise ValueError("Math polish changed an unassigned item")
             c_items, new_words = frozen_english(page.items, frozen)
             if words != new_words:
                 raise ValueError("Frozen English shifted in the session candidate")
@@ -212,7 +253,7 @@ def session_experiment(selection: Path, previous: Path) -> Path:
             ):
                 raise ValueError("Session calibration changed math identity or order")
             new_math = [r for r in revised if r["context"] == "mathematics"]
-            changes = [r for r in new_math if "session_source" in r]
+            changes = [r for r in new_math if change_key in r]
             neural_items = {i for w in frozen if not w["fallback_reason"] for i in w["items"]}
             field = [w["box"] for w in words] + [
                 r["bounds_px"]
@@ -221,9 +262,38 @@ def session_experiment(selection: Path, previous: Path) -> Path:
             ]
             before, after = raster(b_pdf), raster(c_pdf)
             pixel_proof = overlap_verification(before, after, changes, field)
-            panels.extend(collect_panels(revised, renderer, before, after, number))
-            c_marked_pdf = label_pdf(c_pdf, method, math_label="Session M/N glyph calibration")
-            for arm, pdf in (("B", b_marked_pdf), ("C", c_marked_pdf)):
+            radicands = {
+                row["polish"]["radicand_item"]: row["polish"]["digit_shift_px"]
+                for row in changes
+                if "polish" in row and "radicand_item" in row["polish"]
+            }
+            antialias_delta = 0
+            for index, dx in radicands.items():
+                x0, y0, x1, y1 = baseline[index]["bounds_px"]
+                crop = (math.floor(x0), math.floor(y0), math.ceil(x1), math.ceil(y1))
+                moved = (crop[0] + dx, crop[1], crop[2] + dx, crop[3])
+                original = np.asarray(before.crop(crop), dtype=np.int16)
+                shifted = np.asarray(after.crop(moved), dtype=np.int16)
+                delta = int(np.abs(original - shifted).max())
+                # PDFium can round edge coverage differently after an integer
+                # translation. Any mismatch beyond that edge rounding fails.
+                if delta > 4:
+                    raise ValueError("Compact root changed the digit under the roof")
+                antialias_delta = max(antialias_delta, delta)
+            if polish is not None:
+                pixel_proof["preserved_radicand_shapes"] = len(radicands)
+                pixel_proof["radicand_max_antialias_delta"] = antialias_delta
+            panels.extend(
+                collect_panels(revised, renderer, before, after, number, change_key=change_key)
+            )
+            c_marked_pdf = label_pdf(
+                c_pdf,
+                method,
+                math_label="Session math spacing and ink polish"
+                if old_c
+                else "Session M/N glyph calibration",
+            )
+            for arm, pdf in ((before_arm, b_marked_pdf), (after_arm, c_marked_pdf)):
                 dest = output / f"rendered/pages/{arm}/page-{number:02d}.pdf"
                 dest.write_bytes(pdf)
                 raster(pdf).save(dest.with_suffix(".png"), dpi=(300, 300))
@@ -232,8 +302,8 @@ def session_experiment(selection: Path, previous: Path) -> Path:
                     "page": number,
                     "identity": identity,
                     "B_matches_v01024_pixels": old is not None,
-                    "B": before_math,
-                    "C": new_math,
+                    before_arm: before_math,
+                    after_arm: new_math,
                     "word_provenance": frozen,
                     "word_rhythm": rhythm,
                     "neural_words": len(words),
@@ -244,20 +314,22 @@ def session_experiment(selection: Path, previous: Path) -> Path:
                     **pixel_proof,
                 }
             )
-        for arm in "BC":
+        for arm in (before_arm, after_arm):
             with PdfWriter() as writer:
                 for pdf in sorted((output / f"rendered/pages/{arm}").glob("*.pdf")):
                     writer.append(pdf)
                 writer.write(output / f"rendered/{arm}-homework.pdf")
         with PdfWriter() as pair:
             for number in range(1, len(reports) + 1):
-                for arm in "BC":
+                for arm in (before_arm, after_arm):
                     pair.append(output / f"rendered/pages/{arm}/page-{number:02d}.pdf")
-            pair.write(output / "comparisons/B-C-homework.pdf")
+            pair.write(output / f"comparisons/{before_arm}-{after_arm}-homework.pdf")
         local_comparison(
             output / "comparisons",
             panels,
-            labels=("B   v0.10.24 author preference", "C   Session M/N calibration"),
+            labels=("C   v0.10.25 before polish", "D   Spacing and ink corrected")
+            if old_c
+            else ("B   v0.10.24 author preference", "C   Session M/N calibration"),
         )
         atomic_json(output / "reports/glyph-provenance.json", reports)
         atomic_json(
@@ -283,15 +355,15 @@ def session_experiment(selection: Path, previous: Path) -> Path:
         if any(sha256(Path(path)) != digest for path, digest in protected.items()):
             raise ValueError("Previously archived inputs, Profiles or latest changed")
         atomic_json(output / "reports/protected-assets.json", protected)
-        first_four = [r for p in reports[:4] for r in p["C"]]
-        used = [r for p in reports for r in p["C"] if r.get("session_source")]
+        first_four = [r for p in reports[:4] for r in p[after_arm]]
+        used = [r for p in reports for r in p[after_arm] if r.get("session_source")]
         result = {
             "pages_per_arm": len(reports),
             "exact_v01024_B_pages": len(previous_records),
             "neural_words_identical": sum(p["neural_words"] for p in reports),
             "retained_word_gap_observations": sum(len(p["word_rhythm"]) for p in reports),
             "baseline_four_page_source_types": source_counts(
-                [r for page in reports[:4] for r in page["B"]]
+                [r for page in reports[:4] for r in page[before_arm]]
             ),
             "candidate_four_page_source_types": source_counts(first_four),
             "candidate_four_page_fallbacks": dict(
@@ -309,6 +381,24 @@ def session_experiment(selection: Path, previous: Path) -> Path:
             "new_neural_updates": 0,
             "release_decision": "held for new candidate author review and wider validation",
         }
+        if polish is not None:
+            changes = [row for p in reports for row in p[after_arm] if "polish" in row]
+            result.update(
+                exact_v01025_C_pages=len(old_c),
+                polished_items_by_symbol=dict(Counter(r["semantic"] for r in changes)),
+                preserved_radicand_shapes=sum(p["preserved_radicand_shapes"] for p in reports),
+                radicand_max_antialias_delta=max(
+                    p["radicand_max_antialias_delta"] for p in reports
+                ),
+                final_fallbacks=dict(
+                    Counter(
+                        r["semantic"]
+                        for p in reports
+                        for r in p[after_arm]
+                        if r.get("fallback_reason")
+                    )
+                ),
+            )
         run.finish("held", result=result)
     except Exception as exc:
         run.fail(exc)
@@ -320,5 +410,6 @@ if __name__ == "__main__":
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument("--selection", required=True, type=Path)
     cli.add_argument("--previous", type=Path, default=workspace_root() / "runs" / PREVIOUS)
+    cli.add_argument("--polish-baseline", type=Path)
     args = cli.parse_args()
-    session_experiment(args.selection, args.previous)
+    session_experiment(args.selection, args.previous, polish_baseline=args.polish_baseline)
