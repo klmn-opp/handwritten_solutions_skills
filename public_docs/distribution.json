@@ -61,7 +61,12 @@
     "public_docs/demo/page-02.png",
     "scripts/verify_release_assets.py",
     "tests/test_release_assets.py",
-    ".github/workflows/release.yml"
+    ".github/workflows/release.yml",
+    "public_docs/personal-demo/README.md",
+    "public_docs/personal-demo/provenance.json",
+    "public_docs/personal-demo/homework_solutions.pdf",
+    "public_docs/personal-demo/page-01.png",
+    "public_docs/personal-demo/page-04.png"
   ],
   "patterns": [
     "src/hwsol/**/*.py",

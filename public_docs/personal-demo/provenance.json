@@ -1,0 +1,160 @@
+{
+  "schema": "public-personal-handwriting-demo/1",
+  "description": "Actual checked four-page ordinary-CPU output using the author's reviewed private handwriting Profile. These rendered pages are published with the author's explicit permission.",
+  "renderer": {
+    "backend": "font-cpu",
+    "method": "Personal font outlines and reviewed scan-derived math glyphs, verified structural-stroke rules, and deterministic Handnote/MathText layout",
+    "neural_generation": false,
+    "generation_model_weights_included": false,
+    "captured_package_version": "1.0.0rc2",
+    "capture_stage": "Verified release-candidate output; published as a documentation example, not relabeled as a new generation run"
+  },
+  "profile": {
+    "reference": "personal-cpu-candidate@v5",
+    "manifest_sha256": "e7959a8124ba48dc7384c0c1a574bbc6e8da99879c9a8e9809946e69bcc17f81",
+    "visible_word_gap_scale": 1.1448,
+    "private_profile_distributed": false,
+    "raw_handwriting_assets_distributed": false
+  },
+  "render": {
+    "dpi": 300,
+    "page_width_mm": 210.0,
+    "page_height_mm": 297.0,
+    "seed": 1909,
+    "paper": "plain",
+    "ink": "#000000"
+  },
+  "scope": {
+    "pages": 4,
+    "input_origin": "Controlled Agent-authored mathematics questions; no student name, school identifier or private document content",
+    "author_style_review": "Overall handwriting/layout accepted; final additional 8 percent spacing adjustment expressly waived repeat author review",
+    "pixels_or_ink_edited_for_publication": false,
+    "not_a_neural_generation_benchmark": true,
+    "not_a_claim_of_universal_math_coverage": true
+  },
+  "math_summary": {
+    "visible_items": 827,
+    "source_types": {
+      "personal-outline": 666,
+      "personal-outline-stretched": 33,
+      "personal-scan-outline": 24,
+      "personal-scan-structural-rule": 47,
+      "personal-session-outline": 51,
+      "procedural-geometry": 6
+    },
+    "external_font_fallbacks": 0,
+    "procedural_geometry_flag_total": 53,
+    "structure_note": "47 scan-derived structural rules and 6 generic procedural geometry items remain explicitly recorded; zero external font fallback does not mean every visible mark is a directly copied personal outline."
+  },
+  "pages": [
+    {
+      "page": 1,
+      "title": "Symmetric tridiagonal system",
+      "visible_math_items": 216,
+      "math_source_types": {
+        "personal-outline": 162,
+        "personal-outline-stretched": 19,
+        "personal-scan-outline": 6,
+        "personal-scan-structural-rule": 11,
+        "personal-session-outline": 15,
+        "procedural-geometry": 3
+      },
+      "external_math_font_fallbacks": 0,
+      "math_semantic_identity_preserved": true,
+      "recorded_page_count": 1
+    },
+    {
+      "page": 2,
+      "title": "Two definite integrals",
+      "visible_math_items": 260,
+      "math_source_types": {
+        "personal-outline": 239,
+        "personal-outline-stretched": 2,
+        "personal-scan-outline": 2,
+        "personal-scan-structural-rule": 13,
+        "personal-session-outline": 4
+      },
+      "external_math_font_fallbacks": 0,
+      "math_semantic_identity_preserved": true,
+      "recorded_page_count": 1
+    },
+    {
+      "page": 3,
+      "title": "Normal mean inference",
+      "visible_math_items": 187,
+      "math_source_types": {
+        "personal-outline": 152,
+        "personal-outline-stretched": 4,
+        "personal-scan-structural-rule": 8,
+        "personal-session-outline": 20,
+        "procedural-geometry": 3
+      },
+      "external_math_font_fallbacks": 0,
+      "math_semantic_identity_preserved": true,
+      "recorded_page_count": 1
+    },
+    {
+      "page": 4,
+      "title": "Coaxial electrostatic field",
+      "visible_math_items": 164,
+      "math_source_types": {
+        "personal-outline": 113,
+        "personal-outline-stretched": 8,
+        "personal-scan-outline": 16,
+        "personal-scan-structural-rule": 15,
+        "personal-session-outline": 12
+      },
+      "external_math_font_fallbacks": 0,
+      "math_semantic_identity_preserved": true,
+      "recorded_page_count": 1
+    }
+  ],
+  "files": [
+    {
+      "file": "homework_solutions.pdf",
+      "bytes": 633224,
+      "sha256": "e5133700adfb5b02403cc6537dabb220dfffb9b36ad2b778009925ebfd830742",
+      "source_page": null,
+      "byte_identical_to_verified_output": true
+    },
+    {
+      "file": "page-01.png",
+      "bytes": 484793,
+      "sha256": "c44f6ce31d70c49384eedd8f37d3cab318c5ba41024e6dd762e9e031d1c849d6",
+      "source_page": 1,
+      "byte_identical_to_verified_output": true,
+      "dimensions_px": [
+        2480,
+        3508
+      ]
+    },
+    {
+      "file": "page-04.png",
+      "bytes": 506312,
+      "sha256": "6a4c5d3901dbcded4d90f74c7ebd24cbc74bfb7edcee3fa8b448d07abe35c207",
+      "source_page": 4,
+      "byte_identical_to_verified_output": true,
+      "dimensions_px": [
+        2480,
+        3508
+      ]
+    }
+  ],
+  "metadata_review": {
+    "pdf_page_count": 4,
+    "pdf_metadata": {
+      "/Producer": "pypdf",
+      "/Creator": "m21-controlled-pdf-intake-e2e/1",
+      "/Title": "Homework solutions"
+    },
+    "pdf_xmp_present": false,
+    "pdf_attachments": 0,
+    "pdf_annotations": 0,
+    "embedded_font_resources": 0,
+    "png_metadata_keys": [
+      "dpi"
+    ],
+    "private_paths_or_host_information_published": false
+  },
+  "reproduction_boundary": "Exact handwriting requires the private approved Profile, which is not distributed. The separate default-font demo has public inputs and uses the bundled OFL-licensed Patrick Hand font. Full item-level provenance and raw source records remain local."
+}

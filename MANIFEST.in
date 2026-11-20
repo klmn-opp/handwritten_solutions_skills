@@ -22,3 +22,4 @@ include .github/workflows/ci.yml
 include .gitignore .github/workflows/release.yml
 include scripts/verify_release_assets.py tests/test_release_assets.py
 recursive-include public_docs/demo *.pdf *.png
+recursive-include public_docs/personal-demo *.pdf *.png

@@ -13,22 +13,24 @@ v1.0 的产品核心是 **CPU 字体与结构渲染**。安装完成后，正常
 PyTorch 或下载生成模型。连续神经笔迹、个人风格学习与偏好优化仍是后续研究方向，
 不会被当作本版本已经具备的生成能力。
 
-## 看一下实际输出
+## 看一下真实个人笔迹输出
 
-下面的两页由项目的普通 CPU 入口实际生成，使用随包提供、采用 OFL-1.1 许可的
-**Patrick Hand 默认字体**。它们展示开箱即用的效果，不是作者的私有笔迹，也不是
-神经生成或图片模型制作的效果图。根号和导数撇号使用已记录的 STIX 字体回退，
-详见[这份演示的字形来源](public_docs/demo/provenance.json)。
+下面展示的是**作者自己的笔迹 Profile** 生成的完整作业。英文与数学使用真实个人字形，
+公式结构由 Handnote / MathText 排版，必要的结构笔画按已核验规则绘制；这是实际普通
+CPU 出稿成品，不是神经网络生成的宣传图。作者已授权公开这些演示页面，图片和 PDF
+保持验收输出原样。
 
-| 线性代数：矩阵与谱分解 | 微积分：积分与上下界 |
+| 线性代数：矩阵、方程组与谱分解 | 电磁学：同轴电容器与场能 |
 | --- | --- |
-| ![默认字体生成的矩阵与谱分解页面](public_docs/demo/page-01.png) | ![默认字体生成的积分页面](public_docs/demo/page-02.png) |
+| ![作者个人笔迹生成的线性代数作业](public_docs/personal-demo/page-01.png) | ![作者个人笔迹生成的电磁学作业](public_docs/personal-demo/page-04.png) |
 
-[下载完整两页 PDF](public_docs/demo/homework_solutions.pdf) ·
-[查看原题](examples/release-demo/questions.md) ·
-[解答一](examples/release-demo/matrix.md) ·
-[解答二](examples/release-demo/integral.md) ·
-[可复现 Job](examples/release-demo/job.json)
+[下载完整四页个人笔迹 PDF](public_docs/personal-demo/homework_solutions.pdf) ·
+[演示说明](public_docs/personal-demo/README.md) ·
+[来源汇总与校验](public_docs/personal-demo/provenance.json)
+
+四页包含线性代数、积分、统计和电磁学，共 827 个数学可见项目，无外部字体回退；
+个人结构规则和程序结构笔画仍单独记录。**演示成品已公开，作者的私人字体、Profile、
+原始笔迹和权重不随包分发。** 你可以使用默认字体直接出稿，也可以建立自己的个人 Profile。
 
 ## 已有功能
 
@@ -42,6 +44,21 @@ PyTorch 或下载生成模型。连续神经笔迹、个人风格学习与偏好
 发行候选已在 **Linux x86_64、macOS Apple Silicon，Python 3.12 / 3.13** 上完成真实安装、
 PDF/PNG、Profile 迁移和回滚验证。不同系统的文字排版库可能产生细微落点差异，
 不保证跨系统像素一致。Windows 尚不属于本版已验证的支持范围。
+
+## 开箱即用的默认字体示例
+
+公开安装包随附采用 OFL-1.1 许可的 **Patrick Hand** 默认字体。它与上方作者个人笔迹
+演示不同，适合无需采集个人字形的首次使用。下列输入全部公开，可以直接复现：
+
+[默认字体两页 PDF](public_docs/demo/homework_solutions.pdf) ·
+[默认字体预览与来源](public_docs/demo/README.md) ·
+[原题](examples/release-demo/questions.md) ·
+[解答一](examples/release-demo/matrix.md) ·
+[解答二](examples/release-demo/integral.md) ·
+[可复现 Job](examples/release-demo/job.json)
+
+这个默认示例的根号和导数撇号使用已记录的 STIX 字体回退，
+详见[字形来源](public_docs/demo/provenance.json)。
 
 ## 第一次使用
 
@@ -134,3 +151,7 @@ wheel 提供命令行程序；演示输入、完整文档与 Skill 文件请使�
 - [渲染与回退](public_docs/RENDERING.md) · [工作区与运行记录](public_docs/WORKSPACE.md)
 - [研究与 Benchmark 边界](public_docs/RESEARCH_BOUNDARIES.md)
 - [许可与第三方资产](public_docs/LICENSES.md) · [参与开发](CONTRIBUTING.md)
+
+项目的原始研发提交已保留在 Git 历史中，原始 commit ID、作者与时间不变；也可查看
+[原始开发分支](https://github.com/klmn-opp/handwritten_solutions_skills/tree/history/development)。
+历史研究尝试与当前正式 CPU 功能应分别理解，旧版本记录不等于已通过生产验收。
