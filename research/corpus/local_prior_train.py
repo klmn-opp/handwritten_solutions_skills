@@ -7,6 +7,40 @@ from pathlib import Path
 from research.corpus.context_content_train import digest, write
 
 
+def launch_balanced(source: Path) -> Path:
+    from hwsol.workspace import verify_run
+    from research.corpus.experiment import create
+
+    verify_run(source)
+    previous = json.loads((source / "reports/request.json").read_text())
+    result = json.loads((source / "reports/result.json").read_text())
+    if (
+        previous["steps"] != 32000
+        or not previous.get("matched_neighborhood")
+        or previous.get("capacity_diagnostic")
+        or previous.get("continuation")
+    ):
+        raise ValueError("Registered balanced continuation requires the clean 32k source")
+    classes = json.loads((source / "reports/class-supervision.json").read_text())["real_classes"]
+    if len(classes) != 28:
+        raise ValueError("Registered dataset has exactly 28 real classes")
+    checkpoint = source / "logs/checkpoint-32000.pt"
+    cfg = {k: v for k, v in previous.items() if k != "run"}
+    cfg.update(
+        steps=16000,
+        batch=len(classes),
+        points=512,
+        class_balanced=True,
+        continuation=str(checkpoint),
+        continuation_sha256=digest(checkpoint),
+        continuation_step=32000,
+        inherited_model_updates=result["model_lineage_updates"],
+        protocol_sha256=digest("docs/V01019_PROTOCOL.md"),
+    )
+    run = create("matched-local-prior-training", seed=cfg["seed"], config=cfg)
+    return execute(run, cfg, "clean-balanced")
+
+
 def launch_clean(data: Path, template: Path) -> Path:
     """Reset to the frozen font teacher, avoiding inherited contaminated real ink."""
     from hwsol.workspace import verify_run

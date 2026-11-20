@@ -149,6 +149,7 @@ def worker(path: Path) -> None:
     from torch.nn import functional as F
 
     from research.corpus.aligned_style_experiment import setup
+    from research.corpus.local_sampling import sample_indices, sample_points
     from research.corpus.real_ink_support import nearest_real_loss
     from research.corpus.semantic_ink_model import (
         AutoDecodedSemanticInk,
@@ -318,9 +319,10 @@ def worker(path: Path) -> None:
         return mu, chol
 
     for step in range(1, cfg["steps"] + 1):
-        ii = np.array([rng.choice(by_class[int(c)]) for c in rng.choice(real_classes, 4)])
+        batch = cfg["batch"]
+        ii = sample_indices(rng, by_class, batch, balanced=cfg.get("class_balanced", False))
         np.add.at(counts, ii, 1)
-        xy = np.concatenate([rng.integers(8, 88, (4, 768, 2)), rng.integers(0, 96, (4, 256, 2))], 1)
+        xy = sample_points(rng, batch, cfg["points"])
         pp = torch.tensor(xy, device="cuda").float()
         if cfg.get("distance_regularized"):
             pp.requires_grad_(True)
@@ -331,13 +333,15 @@ def worker(path: Path) -> None:
         fit = (
             F.binary_cross_entropy_with_logits(logits, target, reduction="none") * (1 + 3 * target)
         ).mean() + 0.2 * (distance - sdf).abs().mean()
-        selected = np.concatenate([rng.choice(real_classes, 2), rng.choice(font_classes, 2)])
-        tt = torch.zeros(4, 2, 3, dtype=torch.long, device="cuda")
+        selected = np.concatenate(
+            [rng.choice(real_classes, batch // 2), rng.choice(font_classes, batch - batch // 2)]
+        )
+        tt = torch.zeros(batch, 2, 3, dtype=torch.long, device="cuda")
         tt[:, 0, 0] = torch.tensor(selected, device="cuda")
-        tt[:, 0, 1:] = torch.tensor(rng.choice([0] + alphabet, (4, 2)), device="cuda")
+        tt[:, 0, 1:] = torch.tensor(rng.choice([0] + alphabet, (batch, 2)), device="cuda")
         bb = x["boxes"][ii]
         mu, chol = prior()
-        zz = torch.tensor(rng.standard_normal((4, 2)), device="cuda", dtype=torch.float32)
+        zz = torch.tensor(rng.standard_normal((batch, 2)), device="cuda", dtype=torch.float32)
         zz = zz @ chol.T + mu
         prior_style, prior_centers = sampled_style(tt, zz)
         ll, prior_distance = model(tt, bb, pp, style=prior_style)
