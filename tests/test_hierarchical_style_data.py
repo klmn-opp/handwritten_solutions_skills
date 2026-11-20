@@ -6,6 +6,18 @@ from research.corpus.hierarchical_style_data import group_conditions
 
 
 class HierarchicalDataTest(unittest.TestCase):
+    def test_frozen_basis_zero_padding_is_not_a_learned_style_degree(self):
+        from research.corpus.hierarchical_style_data import component_support
+
+        labels = np.array([102, 102, 102, 65])
+        codes = np.zeros((4, 8), np.float32)
+        codes[:3, :2] = [[-1, -0.5], [0, 1], [1, -0.5]]
+        mask = component_support(labels, codes)
+        self.assertEqual(mask[102].tolist(), [1, 1, 0, 0, 0, 0, 0, 0])
+        self.assertFalse(mask[65].any())
+        self.assertFalse(mask[103].any())
+        self.assertTrue(np.array_equal(codes, codes * mask[labels]))
+
     def test_shared_latent_groups_stop_at_whitespace_and_padding(self):
         from research.corpus.hierarchical_style_evaluate import word_ranges
 

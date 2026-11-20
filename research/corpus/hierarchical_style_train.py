@@ -9,7 +9,7 @@ import numpy as np
 from research.corpus.context_content_train import digest, write
 
 
-def launch(backbone: Path, real: Path, *, context: bool) -> Path:
+def launch(backbone: Path, real: Path, *, context: bool, support: bool = False) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
     from research.corpus.hierarchical_style_data import group_conditions
@@ -30,6 +30,7 @@ def launch(backbone: Path, real: Path, *, context: bool) -> Path:
         "checkpoint": str(cp),
         "checkpoint_sha256": digest(cp),
         "context": context,
+        "enforce_component_support": support,
         "seed": 4622,
         "steps": 2000,
         "learning_rate": 0.001,
@@ -49,6 +50,8 @@ def launch(backbone: Path, real: Path, *, context: bool) -> Path:
     cfg["conditions_sha256"] = digest(run.path / "solutions/conditions.npz")
     write(run.path / "reports/request.json", {**cfg, "run": str(run.path)})
     name = "hierarchical-context" if context else "hierarchical-control"
+    if support:
+        name += "-support"
     Path(f"/tmp/context-v01022-{name}").write_text(str(run.path))
     print(run.path, flush=True)
     try:
@@ -83,6 +86,7 @@ def worker(request: str) -> None:
     from research.corpus.aligned_style_experiment import setup
     from research.corpus.canonical_ink_model import CanonicalInk
     from research.corpus.hierarchical_ink_style import HierarchicalInkStyle
+    from research.corpus.hierarchical_style_data import component_support
 
     cfg = json.loads(Path(request).read_text())
     run, real = Path(cfg["run"]), Path(cfg["real"])
@@ -93,6 +97,7 @@ def worker(request: str) -> None:
     setup(cfg["seed"])
     with np.load(real / "reports/glyphs.npz") as a:
         target = torch.tensor(a["ink"], device="cuda")
+        support = torch.tensor(component_support(a["labels"], a["local_codes"]), device="cuda")
     with np.load(run / "solutions/conditions.npz") as a:
         data = {k: torch.tensor(a[k], device="cuda") for k in a.files}
         train = np.flatnonzero(a["train"])
@@ -117,6 +122,8 @@ def worker(request: str) -> None:
         w = wm + (0.5 * wv).exp() * torch.randn_like(wm) if stochastic else wm
         local = lm + (0.5 * lv).exp() * torch.randn_like(lm) if stochastic else lm
         predicted = model(tokens, w, local)
+        if cfg.get("enforce_component_support", False):
+            predicted = predicted * support[tokens[..., 0]]
         logits = ink(tokens[..., 0][known], predicted[known])
         actual = target[data["glyph_indices"][indices][known]]
         bce = (

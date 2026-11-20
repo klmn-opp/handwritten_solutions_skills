@@ -3,6 +3,18 @@
 import numpy as np
 
 
+def component_support(labels: np.ndarray, codes: np.ndarray) -> np.ndarray:
+    """The frozen per-class PCA basis has no meaning in its zero-padded axes."""
+    if codes.shape != (len(labels), 8) or not np.isfinite(codes).all():
+        raise ValueError("Finite eight-dimensional frozen basis coordinates required")
+    result = np.zeros((128, 8), np.float32)
+    for char in np.unique(labels):
+        if not 0 < char < 128:
+            raise ValueError("Supported semantic class required")
+        result[char] = np.any(codes[labels == char] != 0, axis=0)
+    return result
+
+
 def group_conditions(rows: list[dict], codes: np.ndarray) -> tuple[dict, list[dict]]:
     groups = {}
     for i, q in enumerate(rows):

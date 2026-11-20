@@ -7,7 +7,7 @@ from pathlib import Path
 from research.corpus.context_content_train import digest, write
 
 
-def launch(model: Path, baseline: Path, *, name: str) -> Path:
+def launch(model: Path, baseline: Path, *, name: str, support: bool | None = None) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
 
@@ -33,6 +33,9 @@ def launch(model: Path, baseline: Path, *, name: str) -> Path:
         "reference_image_input": False,
         "lookup_training_centers": False,
         "normal_prior_scale": 1.0,
+        "enforce_component_support": old.get("enforce_component_support", False)
+        if support is None
+        else support,
     }
     run = create("hierarchical-style-text-generation", seed=cfg["seed"], config=cfg)
     write(run.path / "reports/request.json", {**cfg, "run": str(run.path)})
@@ -79,6 +82,7 @@ def worker(request: str, mode: str) -> None:
     from research.corpus.canonical_ink_composer import compose
     from research.corpus.canonical_ink_model import CanonicalInk
     from research.corpus.hierarchical_ink_style import HierarchicalInkStyle
+    from research.corpus.hierarchical_style_data import component_support
 
     cfg = json.loads(Path(request).read_text())
     run, baseline, trained = [Path(cfg[k]) for k in ["run", "baseline", "model"]]
@@ -98,6 +102,7 @@ def worker(request: str, mode: str) -> None:
     trained_cfg = json.loads((trained / "reports/request.json").read_text())
     with np.load(Path(trained_cfg["real"]) / "reports/glyphs.npz") as a:
         real_classes = set(a["labels"].tolist())
+        support = torch.tensor(component_support(a["labels"], a["local_codes"]), device="cuda")
     cases = json.loads((baseline / "reports/cases.json").read_text())
     outputs, effects = [], []
     prior = json.loads((run / "reports/outputs.json").read_text()) if mode == "replay" else None
@@ -127,6 +132,9 @@ def worker(request: str, mode: str) -> None:
                     if char not in real_classes:
                         for style in styles.values():
                             style[j] = 0
+                if cfg["enforce_component_support"]:
+                    for style in styles.values():
+                        style *= support[tokens[:, 0]]
             model.context = cfg["context"]
             images = {}
             for method in methods:
@@ -184,9 +192,9 @@ def worker(request: str, mode: str) -> None:
                             {
                                 "position": j,
                                 "semantic_character": chr(c),
-                            "actual_glyph_id": (
-                                f"{cfg['checkpoint_sha256'][:16]}:{ident}:{method}:{j}"
-                            ),
+                                "actual_glyph_id": (
+                                    f"{cfg['checkpoint_sha256'][:16]}:{ident}:{method}:{j}"
+                                ),
                                 "source_type": "learned-offline-ink-with-neural-style-prior",
                                 "personally_collected": False,
                                 "real_scan_training_coverage": c in real_classes,
@@ -227,6 +235,8 @@ def worker(request: str, mode: str) -> None:
                 ]
                 wm, wv, lm, lv = model.posterior(t, c, k)
                 style = model(t, wm, lm)
+                if trained_cfg.get("enforce_component_support", False):
+                    style *= support[t[..., 0]]
                 assert np.array_equal(style[0].cpu().numpy(), p["styles"][i])
                 generated = local(t[..., 0][k], style[k]).sigmoid().cpu().numpy()
                 for im in generated:
