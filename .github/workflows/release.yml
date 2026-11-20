@@ -1,0 +1,61 @@
+name: Publish verified prebuilt release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Check out the tagged public source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Check out already tested release artifacts
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: release-assets/${{ github.ref_name }}
+          path: .release-upload
+          persist-credentials: false
+      - name: Verify exact prebuilt artifacts and source binding
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          SOURCE_REV: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_commit="$(git rev-parse --verify "${SOURCE_REV}^{commit}")"
+          python3 scripts/verify_release_assets.py \
+            --source . --assets .release-upload \
+            --tag "$RELEASE_TAG" --expected-commit "$source_commit"
+      - name: Publish once without rebuilding or replacing existing assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "Release already exists; refusing to replace it." >&2
+            exit 1
+          fi
+          version="${RELEASE_TAG#v}"
+          gh release create "$RELEASE_TAG" --verify-tag \
+            --title "Handwritten Solutions $RELEASE_TAG" \
+            --notes-file .release-upload/RELEASE_NOTES.md \
+            ".release-upload/handwritten_solutions-${version}-py3-none-any.whl" \
+            ".release-upload/handwritten_solutions-${version}.tar.gz" \
+            ".release-upload/handwritten-solutions-${version}-skill.zip" \
+            .release-upload/SHA256SUMS .release-upload/release.json \
+            .release-upload/PUBLICATION.json

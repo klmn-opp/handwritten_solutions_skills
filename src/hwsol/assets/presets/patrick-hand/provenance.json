@@ -1,0 +1,20 @@
+{
+  "name": "Patrick Hand",
+  "purpose": "licensed engineering test font; NOT project author handwriting; NOT a published profile",
+  "license": "OFL-1.1",
+  "commit": "4aa2f9643b044d0fdc55687891e4611f1f32a698",
+  "files": {
+    "PatrickHand-Regular.ttf": {
+      "source": "https://raw.githubusercontent.com/google/fonts/4aa2f9643b044d0fdc55687891e4611f1f32a698/ofl/patrickhand/PatrickHand-Regular.ttf",
+      "sha256": "0f173b3e6cb6d1af25babf7f0057c5ac4ee11f9992b0469bb817e967ef4ad0fc"
+    },
+    "OFL.txt": {
+      "source": "https://raw.githubusercontent.com/google/fonts/4aa2f9643b044d0fdc55687891e4611f1f32a698/ofl/patrickhand/OFL.txt",
+      "sha256": "377f4f9c19e935228552478eb68cc2ed82910988a60ba60e2ac73b09f32d02d1"
+    },
+    "METADATA.pb": {
+      "source": "https://raw.githubusercontent.com/google/fonts/4aa2f9643b044d0fdc55687891e4611f1f32a698/ofl/patrickhand/METADATA.pb",
+      "sha256": "6513eb0ff338568490bc748407c19bdc97e32237806e702fc623ae24eb0bb17b"
+    }
+  }
+}

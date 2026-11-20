@@ -1,0 +1,2124 @@
+{
+  "schema_version": 1,
+  "benchmark_version": "1.0.0",
+  "license": "MIT",
+  "cases": [
+    {
+      "id": "smoke-matrix-inverse",
+      "suite": "smoke",
+      "category": "linear-algebra",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Find the inverse of A=[[2,1],[1,1]] and verify AA^-1=I.",
+      "input_format": "text",
+      "reference_solution": "The determinant is one.\n\n$$|A|=2(1)-1(1)=1$$\n\n$$A^{-1}=\\begin{pmatrix}1&-1\\\\-1&2\\end{pmatrix}$$\n\nMultiplication gives the identity matrix.",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "2*1-1*1",
+            "rhs": "1"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": [
+          "matrix-bracket"
+        ]
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "smoke-product-derivative",
+      "suite": "smoke",
+      "category": "calculus",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Differentiate f(x)=x^2 exp(x), then evaluate f prime at zero.",
+      "input_format": "image",
+      "reference_solution": "Apply the product rule.\n\n$$f'(x)=2x\\exp(x)+x^2\\exp(x)$$\n\n$$=\\exp(x)(x^2+2x)$$\n\n$$f'(0)=0$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "0**2+2*0",
+            "rhs": "0"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "smoke-integration-parts",
+      "suite": "smoke",
+      "category": "calculus",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Evaluate the integral from 0 to 1 of x exp(x) dx.",
+      "input_format": "pdf",
+      "reference_solution": "Set u=x and dv=exp(x) dx.\n\n$$\\int_0^1 x\\exp(x)\\,dx=[(x-1)\\exp(x)]_0^1$$\n\n$$=0-(-1)=1$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "0-(-1)",
+            "rhs": "1"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": [
+          "stretchable-delimiter"
+        ]
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "smoke-normal-ci",
+      "suite": "smoke",
+      "category": "statistics",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "A sample of 64 has mean 12. Known population sigma is 4. Use z=1.96 for a 95 percent confidence interval.",
+      "input_format": "text",
+      "reference_solution": "The standard error is one half.\n\n$$SE=\\frac{4}{\\sqrt{64}}=0.5$$\n\n$$12\\pm1.96(0.5)=12\\pm0.98$$\n\nThe confidence interval is [11.02, 12.98].",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "1.96*0.5",
+            "rhs": "0.98"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": [
+          "fraction-bar",
+          "radical-sign"
+        ]
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "smoke-rlc-impedance",
+      "suite": "smoke",
+      "category": "physics",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "In a series RLC circuit R=30 ohm, L=0.2 H, C=0.001 F and omega=100 rad/s. Find impedance and current magnitude for 100 V rms.",
+      "input_format": "image",
+      "reference_solution": "The reactances are 20 and 10 ohms.\n\n$$Z=30+j(100(0.2)-\\frac{1}{100(0.001)})=30+j10$$\n\n$$|Z|=\\sqrt{30^2+10^2}=10\\sqrt{10}\\ \\mathrm{ohm}$$\n\n$$I=\\frac{100}{10\\sqrt{10}}=\\sqrt{10}\\ \\mathrm{A}$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "100*0.2-1/(100*0.001)",
+            "rhs": "10"
+          },
+          {
+            "lhs": "30**2+10**2",
+            "rhs": "1000"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": [
+          "fraction-bar"
+        ]
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "smoke-thin-lens",
+      "suite": "smoke",
+      "category": "physics",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "A converging lens has focal length 10 cm. An object is 30 cm away. Find image distance and magnification.",
+      "input_format": "pdf",
+      "reference_solution": "Use the thin lens equation.\n\n$$\\frac{1}{10}=\\frac{1}{30}+\\frac{1}{d_i}$$\n\n$$d_i=15\\ \\mathrm{cm}$$\n\n$$m=-\\frac{15}{30}=-0.5$$\n\nThe real image is inverted and half as tall.",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "1/10-1/30",
+            "rhs": "1/15"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "smoke-english-rhythm",
+      "suite": "smoke",
+      "category": "english",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Copy exactly: Minimum illumination requires careful, repeated measurements; parallel pipelines should preserve punctuation.",
+      "input_format": "text",
+      "reference_solution": "Minimum illumination requires careful, repeated measurements; parallel pipelines should preserve punctuation.",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "smoke-equation-chain",
+      "suite": "smoke",
+      "category": "layout",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Solve 3(2x-1)=15 with each equality on a separate line.",
+      "input_format": "image",
+      "reference_solution": "Expand and isolate the unknown.\n\n$$3(2x-1)=15$$\n\n$$6x-3=15$$\n\n$$6x=18$$\n\n$$x=3$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "3*(2*3-1)",
+            "rhs": "15"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-elimination",
+      "suite": "core",
+      "category": "linear-algebra",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Solve x+y+z=6, 2x-y+z=3, x+2y-z=2 by elimination.",
+      "input_format": "pdf",
+      "reference_solution": "Subtract twice row one from row two, and row one from row three.\n\n$$\\begin{pmatrix}1&1&1&6\\\\0&-3&-1&-9\\\\0&1&-2&-4\\end{pmatrix}$$\n\n$$7z=21$$\n\n$$z=3,\\quad y=2,\\quad x=1$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "1+2+3",
+            "rhs": "6"
+          },
+          {
+            "lhs": "2-2+3",
+            "rhs": "3"
+          },
+          {
+            "lhs": "1+4-3",
+            "rhs": "2"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-eigenvectors",
+      "suite": "core",
+      "category": "linear-algebra",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Find eigenvalues and eigenvectors of [[3,1],[1,3]].",
+      "input_format": "text",
+      "reference_solution": "The characteristic polynomial factors.\n\n$$(3-\\lambda)^2-1=(\\lambda-4)(\\lambda-2)$$\n\n$$\\lambda_1=4,\\quad v_1=\\begin{pmatrix}1\\\\1\\end{pmatrix}$$\n\n$$\\lambda_2=2,\\quad v_2=\\begin{pmatrix}1\\\\-1\\end{pmatrix}$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "(3-4)**2-1",
+            "rhs": "0"
+          },
+          {
+            "lhs": "(3-2)**2-1",
+            "rhs": "0"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-null-space",
+      "suite": "core",
+      "category": "linear-algebra",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Find a basis for the null space of [[1,2,3],[2,4,6],[0,1,1]].",
+      "input_format": "image",
+      "reference_solution": "The second row is redundant. The third row gives y=-z.\n\n$$x+2y+3z=0$$\n\n$$x=-z$$\n\n$$v=z\\begin{pmatrix}-1\\\\-1\\\\1\\end{pmatrix}$$\n\nThe nullity is one.",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "-1+2*(-1)+3",
+            "rhs": "0"
+          },
+          {
+            "lhs": "-1+1",
+            "rhs": "0"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-projection",
+      "suite": "core",
+      "category": "linear-algebra",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Project b=(2,0,1) onto the span of u=(1,1,1). Find the residual.",
+      "input_format": "pdf",
+      "reference_solution": "The scalar coefficient is one.\n\n$$c=\\frac{b\\cdot u}{u\\cdot u}=\\frac{3}{3}=1$$\n\n$$p=(1,1,1),\\quad r=(1,-1,0)$$\n\n$$r\\cdot u=1-1+0=0$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "(2+0+1)/(1+1+1)",
+            "rhs": "1"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-substitution",
+      "suite": "core",
+      "category": "calculus",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Evaluate integral from 0 to 1 of 2x/(1+x^2) dx.",
+      "input_format": "text",
+      "reference_solution": "Set u=1+x^2, so du=2x dx.\n\n$$\\int_0^1\\frac{2x}{1+x^2}\\,dx=\\int_1^2\\frac{1}{u}\\,du$$\n\n$$=\\ln 2$$",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": [
+          "fraction-bar"
+        ]
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-taylor-limit",
+      "suite": "core",
+      "category": "calculus",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Evaluate limit as x approaches zero of (sin(x)-x)/x^3.",
+      "input_format": "image",
+      "reference_solution": "Use the cubic Taylor term.\n\n$$\\sin x=x-\\frac{x^3}{6}+O(x^5)$$\n\n$$\\lim_{x\\to0}\\frac{\\sin x-x}{x^3}=-\\frac{1}{6}$$",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": [
+          "fraction-bar"
+        ]
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-hessian",
+      "suite": "core",
+      "category": "calculus",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Find the gradient and Hessian of f(x,y)=x^2+xy+2y^2 at (1,-1).",
+      "input_format": "pdf",
+      "reference_solution": "Differentiate each variable while fixing the other.\n\n$$\\nabla f=(2x+y,x+4y)$$\n\n$$\\nabla f(1,-1)=(1,-3)$$\n\n$$H=\\begin{pmatrix}2&1\\\\1&4\\end{pmatrix}$$\n\nThe positive principal minors 2 and 7 imply a positive definite Hessian.",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "2*1-1",
+            "rhs": "1"
+          },
+          {
+            "lhs": "1+4*(-1)",
+            "rhs": "-3"
+          },
+          {
+            "lhs": "2*4-1",
+            "rhs": "7"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-improper-integral",
+      "suite": "core",
+      "category": "calculus",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Evaluate the improper integral from 1 to infinity of x^-3 dx.",
+      "input_format": "text",
+      "reference_solution": "Take a finite upper limit first.\n\n$$\\int_1^b x^{-3}\\,dx=\\frac{1}{2}-\\frac{1}{2b^2}$$\n\n$$\\lim_{b\\to\\infty}\\left(\\frac{1}{2}-\\frac{1}{2b^2}\\right)=\\frac{1}{2}$$",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-t-test",
+      "suite": "core",
+      "category": "statistics",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Test H0: mu=20 against two-sided alternative using n=16, sample mean 22, s=4. Given t critical=2.131 at 5 percent, state decision.",
+      "input_format": "image",
+      "reference_solution": "The estimated standard error is one.\n\n$$t=\\frac{22-20}{4/\\sqrt{16}}=2$$\n\nThe degrees of freedom are 15. Since 2 is less than 2.131, do not reject the null hypothesis at five percent.",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "(22-20)/(4/4)",
+            "rhs": "2"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-regression",
+      "suite": "core",
+      "category": "statistics",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Fit y=a+bx by least squares to (1,2),(2,3),(3,5). Give residual sum of squares.",
+      "input_format": "pdf",
+      "reference_solution": "The means are 2 and 10/3.\n\n$$b=\\frac{\\sum(x_i-\\bar{x})(y_i-\\bar{y})}{\\sum(x_i-\\bar{x})^2}=\\frac{3}{2}$$\n\n$$a=\\frac{10}{3}-\\frac{3}{2}(2)=\\frac{1}{3}$$\n\n$$SSE=\\frac{1}{36}+\\frac{1}{9}+\\frac{1}{36}=\\frac{1}{6}$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "10/3-3",
+            "rhs": "1/3"
+          },
+          {
+            "lhs": "1/36+1/9+1/36",
+            "rhs": "1/6"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-binomial",
+      "suite": "core",
+      "category": "statistics",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "For X binomial with n=5 and p=0.2, compute P(X=2), mean and variance.",
+      "input_format": "text",
+      "reference_solution": "There are ten ways to choose the two successes.\n\n$$P(X=2)=10(0.2)^2(0.8)^3=0.2048$$\n\n$$E[X]=5(0.2)=1$$\n\n$$\\mathrm{Var}(X)=5(0.2)(0.8)=0.8$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "10*0.2**2*0.8**3",
+            "rhs": "0.2048"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-chi-square",
+      "suite": "core",
+      "category": "statistics",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Observed counts are 18,22,20; expected counts are 20 each. Compute chi-square and compare to 5.991, df=2.",
+      "input_format": "image",
+      "reference_solution": "Add the three standardized squared deviations.\n\n$$\\chi^2=\\frac{(18-20)^2}{20}+\\frac{(22-20)^2}{20}+\\frac{(20-20)^2}{20}$$\n\n$$=0.4$$\n\nSince 0.4 is less than 5.991, do not reject the specified distribution.",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "4/20+4/20",
+            "rhs": "0.4"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-rl-transient",
+      "suite": "core",
+      "category": "physics",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "A 12 V source drives a series R=6 ohm, L=3 H circuit from zero current at t=0. Find i(t) and the time constant.",
+      "input_format": "pdf",
+      "reference_solution": "The initial current is zero and the final current is two amperes.\n\n$$\\tau=\\frac{L}{R}=\\frac{3}{6}=0.5\\ \\mathrm{s}$$\n\n$$i(t)=2(1-\\exp(-2t))\\ \\mathrm{A},\\quad t\\ge0$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "3/6",
+            "rhs": "0.5"
+          },
+          {
+            "lhs": "12/6",
+            "rhs": "2"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-lorentz-force",
+      "suite": "core",
+      "category": "physics",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "For q=2 C, v=(3,0,0) m/s, B=(0,0,4) T and E=(0,1,0) N/C, calculate Lorentz force.",
+      "input_format": "text",
+      "reference_solution": "The cross product points in the negative y direction.\n\n$$\\vec{v}\\times\\vec{B}=(0,-12,0)$$\n\n$$\\vec{F}=q(\\vec{E}+\\vec{v}\\times\\vec{B})=(0,-22,0)\\ \\mathrm{N}$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "2*(1-12)",
+            "rhs": "-22"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": [
+          "vector-arrow"
+        ]
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-interference",
+      "suite": "core",
+      "category": "physics",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "In a double slit experiment wavelength is 500 nm, screen distance 2 m, and slit spacing 0.5 mm. Find fringe spacing.",
+      "input_format": "image",
+      "reference_solution": "Use the small-angle fringe relation.\n\n$$\\Delta y=\\frac{\\lambda D}{d}$$\n\n$$=\\frac{500\\times10^{-9}(2)}{0.5\\times10^{-3}}=0.002\\ \\mathrm{m}$$\n\nThe fringes are two millimetres apart.",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "500*10**(-9)*2/(0.5*10**(-3))",
+            "rhs": "0.002"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-capacitor-energy",
+      "suite": "core",
+      "category": "physics",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "A 20 microfarad capacitor is charged to 100 V. Find charge and stored energy.",
+      "input_format": "pdf",
+      "reference_solution": "Charge is capacitance times potential difference.\n\n$$Q=CV=20\\times10^{-6}(100)=0.002\\ \\mathrm{C}$$\n\n$$U=\\frac{1}{2}CV^2=0.1\\ \\mathrm{J}$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "20*10**(-6)*100",
+            "rhs": "0.002"
+          },
+          {
+            "lhs": "20*10**(-6)*100**2/2",
+            "rhs": "0.1"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-punctuation",
+      "suite": "core",
+      "category": "english",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Copy exactly: \"Is it reproducible?\" Alice asked. Bob replied: \"Yes; check rows 1-3, then repeat!\"",
+      "input_format": "text",
+      "reference_solution": "\"Is it reproducible?\" Alice asked. Bob replied: \"Yes; check rows 1-3, then repeat!\"",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-long-words",
+      "suite": "core",
+      "category": "english",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Copy exactly: Electroencephalography, interdisciplinary communication, and incomprehensibility challenge consistent handwriting.",
+      "input_format": "image",
+      "reference_solution": "Electroencephalography, interdisciplinary communication, and incomprehensibility challenge consistent handwriting.",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-descenders",
+      "suite": "core",
+      "category": "english",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Copy exactly: Playful pygmy penguins quickly judged quirky typography; graceful young people copied the paragraph.",
+      "input_format": "pdf",
+      "reference_solution": "Playful pygmy penguins quickly judged quirky typography; graceful young people copied the paragraph.",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-english-paragraph",
+      "suite": "core",
+      "category": "english",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Write two sentences explaining why independent transcription matters in handwriting evaluation.",
+      "input_format": "text",
+      "reference_solution": "A visually attractive page may contain a missing word or a repeated symbol. Independent transcription checks what readers can recover from the output, while style assessment asks whether the writing resembles its author.",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-fraction-matrix",
+      "suite": "core",
+      "category": "layout",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Write a 2 by 2 matrix with entries 1/2, -1/3, 2/5, 3/4; compute its determinant.",
+      "input_format": "image",
+      "reference_solution": "The entries retain their fraction structure.\n\n$$A=\\begin{pmatrix}\\frac{1}{2}&-\\frac{1}{3}\\\\\\frac{2}{5}&\\frac{3}{4}\\end{pmatrix}$$\n\n$$|A|=\\frac{3}{8}+\\frac{2}{15}=\\frac{61}{120}$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "3/8+2/15",
+            "rhs": "61/120"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-nested-radicals",
+      "suite": "core",
+      "category": "layout",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Simplify sqrt(1+sqrt(9)) and write sqrt((a+b)/(c+d)) without flattening the fraction.",
+      "input_format": "pdf",
+      "reference_solution": "The inner radical is three.\n\n$$\\sqrt{1+\\sqrt{9}}=\\sqrt{4}=2$$\n\nThe symbolic expression retains both levels.\n\n$$r=\\sqrt{\\frac{a+b}{c+d}}$$",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": [
+          "radical-sign",
+          "radical-overbar",
+          "fraction-bar"
+        ]
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-piecewise-lines",
+      "suite": "core",
+      "category": "layout",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Write the absolute value function as two cases using separate lines; evaluate it at -3 and 2.",
+      "input_format": "text",
+      "reference_solution": "For nonnegative x:\n\n$$f(x)=x,\\quad x\\ge0$$\n\nFor negative x:\n\n$$f(x)=-x,\\quad x<0$$\n\n$$f(-3)=3,\\quad f(2)=2$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "-(-3)",
+            "rhs": "3"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "core-mixed-units",
+      "suite": "core",
+      "category": "layout",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "For s(t)=3t^2+2t metres, calculate v(2) and a(2), preserving units and inline explanations.",
+      "input_format": "image",
+      "reference_solution": "Differentiating $s(t)=3t^2+2t$ gives velocity $v(t)=6t+2$ in metres per second.\n\n$$v(2)=14\\ \\mathrm{m/s}$$\n\nThe acceleration is constant.\n\n$$a(2)=6\\ \\mathrm{m/s^2}$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "6*2+2",
+            "rhs": "14"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "lined",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "stress-dense-derivation",
+      "suite": "stress",
+      "category": "layout",
+      "complexity": "high",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Expand (x+1)^4 and evaluate at x=2, showing binomial coefficients and checks.",
+      "input_format": "pdf",
+      "reference_solution": "The binomial coefficients are 1, 4, 6, 4, 1.\n\n$$(x+1)^4=x^4+4x^3+6x^2+4x+1$$\n\n$$f(2)=16+32+24+8+1$$\n\n$$=81$$\n\n$$f'(x)=4x^3+12x^2+12x+4$$\n\n$$f'(2)=32+48+24+4=108$$\n\n$$f''(x)=12x^2+24x+12$$\n\n$$f''(2)=48+48+12=108$$\n\nThe direct value is three to the fourth power. The derivative can also be evaluated as four times three cubed.",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "16+32+24+8+1",
+            "rhs": "81"
+          },
+          {
+            "lhs": "32+48+24+4",
+            "rhs": "108"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "stress-long-fraction",
+      "suite": "stress",
+      "category": "layout",
+      "complexity": "high",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Render the normalized weighted mean sum(i=1..n) w_i x_i divided by sum(i=1..n) w_i, with definitions.",
+      "input_format": "text",
+      "reference_solution": "Let each positive weight describe one measurement.\n\n$$\\bar{x}_w=\\frac{\\sum_{i=1}^{n}w_i x_i}{\\sum_{i=1}^{n}w_i}$$\n\nThe denominator must be nonzero. Equal weights recover the arithmetic mean.",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": [
+          "fraction-bar"
+        ]
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "stress-matrix-four",
+      "suite": "stress",
+      "category": "linear-algebra",
+      "complexity": "high",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Find determinant and eigenvalues of upper triangular matrix [[1,2,0,1],[0,2,3,0],[0,0,3,4],[0,0,0,4]].",
+      "input_format": "image",
+      "reference_solution": "The matrix is upper triangular.\n\n$$A=\\begin{pmatrix}1&2&0&1\\\\0&2&3&0\\\\0&0&3&4\\\\0&0&0&4\\end{pmatrix}$$\n\n$$|A|=1(2)(3)(4)=24$$\n\nThe eigenvalues are 1, 2, 3 and 4.",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "1*2*3*4",
+            "rhs": "24"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "stress-vector-identity",
+      "suite": "stress",
+      "category": "physics",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "For a=(1,2,0) and b=(0,1,3), compute cross product and verify it is orthogonal to both.",
+      "input_format": "pdf",
+      "reference_solution": "Expand the determinant by the first row.\n\n$$\\vec{a}\\times\\vec{b}=(6,-3,1)$$\n\n$$\\vec{a}\\cdot(\\vec{a}\\times\\vec{b})=6-6+0=0$$\n\n$$\\vec{b}\\cdot(\\vec{a}\\times\\vec{b})=0-3+3=0$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "6-6",
+            "rhs": "0"
+          },
+          {
+            "lhs": "-3+3",
+            "rhs": "0"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": [
+          "vector-arrow"
+        ]
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "stress-repeated-glyphs",
+      "suite": "stress",
+      "category": "english",
+      "complexity": "high",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Copy the following passage exactly: Minimum minimum minimum; illumination, millennium, parallelism. Puppy puppy puppy; typography and gyroscopic equipment.",
+      "input_format": "text",
+      "reference_solution": "Minimum minimum minimum; illumination, millennium, parallelism. Puppy puppy puppy; typography and gyroscopic equipment.",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "stress-long-prose",
+      "suite": "stress",
+      "category": "english",
+      "complexity": "high",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Explain in one paragraph why visually similar glyphs require careful testing; mention l, I, 1, O, 0, p, q, y and g.",
+      "input_format": "image",
+      "reference_solution": "Lowercase l, uppercase I, and the digit 1 may look similar when written quickly. Uppercase O and the digit 0 require attention too. The descenders in p, q, y and g should retain their shape and depth. Repeated words help reveal inconsistent scale, but a consistent scale alone does not establish natural continuous handwriting.",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "stress-punctuation-numbers",
+      "suite": "stress",
+      "category": "english",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Copy exactly: Trial 001: 0.01, 10.10, 101.01; \"Why?\" (repeat twice). Trial 002: accepted, rejected, or inconclusive.",
+      "input_format": "pdf",
+      "reference_solution": "Trial 001: 0.01, 10.10, 101.01; \"Why?\" (repeat twice). Trial 002: accepted, rejected, or inconclusive.",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "stress-unsupported-cases",
+      "suite": "stress",
+      "category": "edge",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Render the exact LaTeX cases environment for absolute value. Do not silently rewrite this renderer capability test.",
+      "input_format": "text",
+      "reference_solution": "$$f(x)=\\begin{cases}x&x\\ge0\\\\-x&x<0\\end{cases}$$",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "reject",
+        "error_contains": "Unsupported LaTeX environment",
+        "page_count": 0,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "stress-unsupported-align",
+      "suite": "stress",
+      "category": "edge",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Render the exact align environment containing x=1 and y=2; report unsupported notation instead of dropping it.",
+      "input_format": "image",
+      "reference_solution": "$$\\begin{align}x&=1\\\\y&=2\\end{align}$$",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "reject",
+        "error_contains": "Unsupported LaTeX environment",
+        "page_count": 0,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "stress-missing-glyph",
+      "suite": "stress",
+      "category": "edge",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Copy this exact text including the emoji: A unicorn 🦄 marks the missing glyph.",
+      "input_format": "pdf",
+      "reference_solution": "A unicorn 🦄 marks the missing glyph.",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "reject",
+        "error_contains": "Missing text or matrix glyphs",
+        "page_count": 0,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "stress-vertical-overflow",
+      "suite": "stress",
+      "category": "edge",
+      "complexity": "extreme",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Retain all 160 numbered explanatory steps on one page; reject if impossible.",
+      "input_format": "text",
+      "reference_solution": "Step 1: retain this required explanatory statement and its supporting detail.\n\nStep 2: retain this required explanatory statement and its supporting detail.\n\nStep 3: retain this required explanatory statement and its supporting detail.\n\nStep 4: retain this required explanatory statement and its supporting detail.\n\nStep 5: retain this required explanatory statement and its supporting detail.\n\nStep 6: retain this required explanatory statement and its supporting detail.\n\nStep 7: retain this required explanatory statement and its supporting detail.\n\nStep 8: retain this required explanatory statement and its supporting detail.\n\nStep 9: retain this required explanatory statement and its supporting detail.\n\nStep 10: retain this required explanatory statement and its supporting detail.\n\nStep 11: retain this required explanatory statement and its supporting detail.\n\nStep 12: retain this required explanatory statement and its supporting detail.\n\nStep 13: retain this required explanatory statement and its supporting detail.\n\nStep 14: retain this required explanatory statement and its supporting detail.\n\nStep 15: retain this required explanatory statement and its supporting detail.\n\nStep 16: retain this required explanatory statement and its supporting detail.\n\nStep 17: retain this required explanatory statement and its supporting detail.\n\nStep 18: retain this required explanatory statement and its supporting detail.\n\nStep 19: retain this required explanatory statement and its supporting detail.\n\nStep 20: retain this required explanatory statement and its supporting detail.\n\nStep 21: retain this required explanatory statement and its supporting detail.\n\nStep 22: retain this required explanatory statement and its supporting detail.\n\nStep 23: retain this required explanatory statement and its supporting detail.\n\nStep 24: retain this required explanatory statement and its supporting detail.\n\nStep 25: retain this required explanatory statement and its supporting detail.\n\nStep 26: retain this required explanatory statement and its supporting detail.\n\nStep 27: retain this required explanatory statement and its supporting detail.\n\nStep 28: retain this required explanatory statement and its supporting detail.\n\nStep 29: retain this required explanatory statement and its supporting detail.\n\nStep 30: retain this required explanatory statement and its supporting detail.\n\nStep 31: retain this required explanatory statement and its supporting detail.\n\nStep 32: retain this required explanatory statement and its supporting detail.\n\nStep 33: retain this required explanatory statement and its supporting detail.\n\nStep 34: retain this required explanatory statement and its supporting detail.\n\nStep 35: retain this required explanatory statement and its supporting detail.\n\nStep 36: retain this required explanatory statement and its supporting detail.\n\nStep 37: retain this required explanatory statement and its supporting detail.\n\nStep 38: retain this required explanatory statement and its supporting detail.\n\nStep 39: retain this required explanatory statement and its supporting detail.\n\nStep 40: retain this required explanatory statement and its supporting detail.\n\nStep 41: retain this required explanatory statement and its supporting detail.\n\nStep 42: retain this required explanatory statement and its supporting detail.\n\nStep 43: retain this required explanatory statement and its supporting detail.\n\nStep 44: retain this required explanatory statement and its supporting detail.\n\nStep 45: retain this required explanatory statement and its supporting detail.\n\nStep 46: retain this required explanatory statement and its supporting detail.\n\nStep 47: retain this required explanatory statement and its supporting detail.\n\nStep 48: retain this required explanatory statement and its supporting detail.\n\nStep 49: retain this required explanatory statement and its supporting detail.\n\nStep 50: retain this required explanatory statement and its supporting detail.\n\nStep 51: retain this required explanatory statement and its supporting detail.\n\nStep 52: retain this required explanatory statement and its supporting detail.\n\nStep 53: retain this required explanatory statement and its supporting detail.\n\nStep 54: retain this required explanatory statement and its supporting detail.\n\nStep 55: retain this required explanatory statement and its supporting detail.\n\nStep 56: retain this required explanatory statement and its supporting detail.\n\nStep 57: retain this required explanatory statement and its supporting detail.\n\nStep 58: retain this required explanatory statement and its supporting detail.\n\nStep 59: retain this required explanatory statement and its supporting detail.\n\nStep 60: retain this required explanatory statement and its supporting detail.\n\nStep 61: retain this required explanatory statement and its supporting detail.\n\nStep 62: retain this required explanatory statement and its supporting detail.\n\nStep 63: retain this required explanatory statement and its supporting detail.\n\nStep 64: retain this required explanatory statement and its supporting detail.\n\nStep 65: retain this required explanatory statement and its supporting detail.\n\nStep 66: retain this required explanatory statement and its supporting detail.\n\nStep 67: retain this required explanatory statement and its supporting detail.\n\nStep 68: retain this required explanatory statement and its supporting detail.\n\nStep 69: retain this required explanatory statement and its supporting detail.\n\nStep 70: retain this required explanatory statement and its supporting detail.\n\nStep 71: retain this required explanatory statement and its supporting detail.\n\nStep 72: retain this required explanatory statement and its supporting detail.\n\nStep 73: retain this required explanatory statement and its supporting detail.\n\nStep 74: retain this required explanatory statement and its supporting detail.\n\nStep 75: retain this required explanatory statement and its supporting detail.\n\nStep 76: retain this required explanatory statement and its supporting detail.\n\nStep 77: retain this required explanatory statement and its supporting detail.\n\nStep 78: retain this required explanatory statement and its supporting detail.\n\nStep 79: retain this required explanatory statement and its supporting detail.\n\nStep 80: retain this required explanatory statement and its supporting detail.\n\nStep 81: retain this required explanatory statement and its supporting detail.\n\nStep 82: retain this required explanatory statement and its supporting detail.\n\nStep 83: retain this required explanatory statement and its supporting detail.\n\nStep 84: retain this required explanatory statement and its supporting detail.\n\nStep 85: retain this required explanatory statement and its supporting detail.\n\nStep 86: retain this required explanatory statement and its supporting detail.\n\nStep 87: retain this required explanatory statement and its supporting detail.\n\nStep 88: retain this required explanatory statement and its supporting detail.\n\nStep 89: retain this required explanatory statement and its supporting detail.\n\nStep 90: retain this required explanatory statement and its supporting detail.\n\nStep 91: retain this required explanatory statement and its supporting detail.\n\nStep 92: retain this required explanatory statement and its supporting detail.\n\nStep 93: retain this required explanatory statement and its supporting detail.\n\nStep 94: retain this required explanatory statement and its supporting detail.\n\nStep 95: retain this required explanatory statement and its supporting detail.\n\nStep 96: retain this required explanatory statement and its supporting detail.\n\nStep 97: retain this required explanatory statement and its supporting detail.\n\nStep 98: retain this required explanatory statement and its supporting detail.\n\nStep 99: retain this required explanatory statement and its supporting detail.\n\nStep 100: retain this required explanatory statement and its supporting detail.\n\nStep 101: retain this required explanatory statement and its supporting detail.\n\nStep 102: retain this required explanatory statement and its supporting detail.\n\nStep 103: retain this required explanatory statement and its supporting detail.\n\nStep 104: retain this required explanatory statement and its supporting detail.\n\nStep 105: retain this required explanatory statement and its supporting detail.\n\nStep 106: retain this required explanatory statement and its supporting detail.\n\nStep 107: retain this required explanatory statement and its supporting detail.\n\nStep 108: retain this required explanatory statement and its supporting detail.\n\nStep 109: retain this required explanatory statement and its supporting detail.\n\nStep 110: retain this required explanatory statement and its supporting detail.\n\nStep 111: retain this required explanatory statement and its supporting detail.\n\nStep 112: retain this required explanatory statement and its supporting detail.\n\nStep 113: retain this required explanatory statement and its supporting detail.\n\nStep 114: retain this required explanatory statement and its supporting detail.\n\nStep 115: retain this required explanatory statement and its supporting detail.\n\nStep 116: retain this required explanatory statement and its supporting detail.\n\nStep 117: retain this required explanatory statement and its supporting detail.\n\nStep 118: retain this required explanatory statement and its supporting detail.\n\nStep 119: retain this required explanatory statement and its supporting detail.\n\nStep 120: retain this required explanatory statement and its supporting detail.\n\nStep 121: retain this required explanatory statement and its supporting detail.\n\nStep 122: retain this required explanatory statement and its supporting detail.\n\nStep 123: retain this required explanatory statement and its supporting detail.\n\nStep 124: retain this required explanatory statement and its supporting detail.\n\nStep 125: retain this required explanatory statement and its supporting detail.\n\nStep 126: retain this required explanatory statement and its supporting detail.\n\nStep 127: retain this required explanatory statement and its supporting detail.\n\nStep 128: retain this required explanatory statement and its supporting detail.\n\nStep 129: retain this required explanatory statement and its supporting detail.\n\nStep 130: retain this required explanatory statement and its supporting detail.\n\nStep 131: retain this required explanatory statement and its supporting detail.\n\nStep 132: retain this required explanatory statement and its supporting detail.\n\nStep 133: retain this required explanatory statement and its supporting detail.\n\nStep 134: retain this required explanatory statement and its supporting detail.\n\nStep 135: retain this required explanatory statement and its supporting detail.\n\nStep 136: retain this required explanatory statement and its supporting detail.\n\nStep 137: retain this required explanatory statement and its supporting detail.\n\nStep 138: retain this required explanatory statement and its supporting detail.\n\nStep 139: retain this required explanatory statement and its supporting detail.\n\nStep 140: retain this required explanatory statement and its supporting detail.\n\nStep 141: retain this required explanatory statement and its supporting detail.\n\nStep 142: retain this required explanatory statement and its supporting detail.\n\nStep 143: retain this required explanatory statement and its supporting detail.\n\nStep 144: retain this required explanatory statement and its supporting detail.\n\nStep 145: retain this required explanatory statement and its supporting detail.\n\nStep 146: retain this required explanatory statement and its supporting detail.\n\nStep 147: retain this required explanatory statement and its supporting detail.\n\nStep 148: retain this required explanatory statement and its supporting detail.\n\nStep 149: retain this required explanatory statement and its supporting detail.\n\nStep 150: retain this required explanatory statement and its supporting detail.\n\nStep 151: retain this required explanatory statement and its supporting detail.\n\nStep 152: retain this required explanatory statement and its supporting detail.\n\nStep 153: retain this required explanatory statement and its supporting detail.\n\nStep 154: retain this required explanatory statement and its supporting detail.\n\nStep 155: retain this required explanatory statement and its supporting detail.\n\nStep 156: retain this required explanatory statement and its supporting detail.\n\nStep 157: retain this required explanatory statement and its supporting detail.\n\nStep 158: retain this required explanatory statement and its supporting detail.\n\nStep 159: retain this required explanatory statement and its supporting detail.\n\nStep 160: retain this required explanatory statement and its supporting detail.",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "reject",
+        "error_contains": "does not fit one page",
+        "page_count": 0,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "stress-horizontal-overflow",
+      "suite": "stress",
+      "category": "edge",
+      "complexity": "extreme",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Render an unbreakable sum containing 100 x terms equal to zero. Reject instead of clipping.",
+      "input_format": "image",
+      "reference_solution": "$$x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x+x=0$$",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "reject",
+        "error_contains": "does not fit one page",
+        "page_count": 0,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "stress-image-paper",
+      "suite": "stress",
+      "category": "layout",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "On the supplied image paper, solve 4x-7=9.",
+      "input_format": "pdf",
+      "reference_solution": "Add seven to both sides.\n\n$$4x=16$$\n\n$$x=4$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "4*4-7",
+            "rhs": "9"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "image",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "stress-pdf-paper",
+      "suite": "stress",
+      "category": "layout",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "On the supplied PDF paper, evaluate integral from 0 to 2 of 3x^2 dx.",
+      "input_format": "text",
+      "reference_solution": "An antiderivative is x cubed.\n\n$$\\int_0^2 3x^2\\,dx=[x^3]_0^2=8$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "2**3",
+            "rhs": "8"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "pdf",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "stress-nested-subscripts",
+      "suite": "stress",
+      "category": "statistics",
+      "complexity": "high",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Write the unbiased covariance estimator for components j and k of n observations; state the minimum sample size.",
+      "input_format": "image",
+      "reference_solution": "At least two observations are required.\n\n$$s_{jk}=\\frac{1}{n-1}\\sum_{i=1}^{n}(x_{ij}-\\bar{x}_j)(x_{ik}-\\bar{x}_k)$$\n\nThe denominator is n minus one, not n.",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": [
+          "fraction-bar"
+        ]
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "stress-unknown-command",
+      "suite": "stress",
+      "category": "edge",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Render exact LaTeX \\overset{!}{=} as a capability test; reject if unsupported.",
+      "input_format": "pdf",
+      "reference_solution": "$$a\\overset{!}{=}b$$",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "reject",
+        "error_contains": "Unsupported LaTeX command",
+        "page_count": 0,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": true,
+        "model_training": false
+      }
+    },
+    {
+      "id": "holdout-rank-factorization",
+      "suite": "holdout",
+      "category": "linear-algebra",
+      "complexity": "high",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Find rank and a null-space basis of [[1,2,0,1],[0,1,1,0],[1,3,1,1]].",
+      "input_format": "text",
+      "reference_solution": "Row three is the sum of rows one and two, so the rank is two.\n\n$$x_2=-x_3,\\quad x_1=2x_3-x_4$$\n\n$$x=s\\begin{pmatrix}2\\\\-1\\\\1\\\\0\\end{pmatrix}+t\\begin{pmatrix}-1\\\\0\\\\0\\\\1\\end{pmatrix}$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "2+2*(-1)",
+            "rhs": "0"
+          },
+          {
+            "lhs": "-1+1",
+            "rhs": "0"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": false,
+        "model_training": false
+      }
+    },
+    {
+      "id": "holdout-rotation-eigen",
+      "suite": "holdout",
+      "category": "linear-algebra",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Find the complex eigenvalues of [[0,-1],[1,0]] and their magnitudes.",
+      "input_format": "image",
+      "reference_solution": "The characteristic polynomial is lambda squared plus one.\n\n$$\\lambda^2+1=0$$\n\n$$\\lambda_1=i,\\quad\\lambda_2=-i$$\n\nBoth eigenvalues have magnitude one.",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": false,
+        "model_training": false
+      }
+    },
+    {
+      "id": "holdout-log-integral",
+      "suite": "holdout",
+      "category": "calculus",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Evaluate integral from 1 to e of (ln x)/x dx.",
+      "input_format": "pdf",
+      "reference_solution": "Set u=ln x, with du=dx/x.\n\n$$\\int_1^e\\frac{\\ln x}{x}\\,dx=\\int_0^1u\\,du$$\n\n$$=\\frac{1}{2}$$",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": [
+          "fraction-bar"
+        ]
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": false,
+        "model_training": false
+      }
+    },
+    {
+      "id": "holdout-second-limit",
+      "suite": "holdout",
+      "category": "calculus",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Evaluate limit as x approaches zero of (exp(2x)-1-2x)/x^2.",
+      "input_format": "text",
+      "reference_solution": "The quadratic term of the exponential is 2x squared.\n\n$$\\exp(2x)=1+2x+2x^2+O(x^3)$$\n\n$$\\lim_{x\\to0}\\frac{\\exp(2x)-1-2x}{x^2}=2$$",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": false,
+        "model_training": false
+      }
+    },
+    {
+      "id": "holdout-welch-statistic",
+      "suite": "holdout",
+      "category": "statistics",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Two independent samples have means 10 and 8, sample variances 4 and 9, and sizes 16 and 36. Compute the Welch test statistic; no decision is requested.",
+      "input_format": "image",
+      "reference_solution": "Add the two estimated variances of the sample means.\n\n$$SE=\\sqrt{\\frac{4}{16}+\\frac{9}{36}}=\\sqrt{\\frac{1}{2}}$$\n\n$$t=\\frac{10-8}{\\sqrt{1/2}}=2\\sqrt{2}$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "4/16+9/36",
+            "rhs": "1/2"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": false,
+        "model_training": false
+      }
+    },
+    {
+      "id": "holdout-weighted-regression",
+      "suite": "holdout",
+      "category": "statistics",
+      "complexity": "high",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "For weighted observations (x,y,w)=(0,1,1),(1,2,2),(2,2,1), form and solve the normal equations for y=a+bx.",
+      "input_format": "pdf",
+      "reference_solution": "The weighted sums are 4, 4, 6, 7 and 8.\n\n$$\\begin{pmatrix}4&4\\\\4&6\\end{pmatrix}\\begin{pmatrix}a\\\\b\\end{pmatrix}=\\begin{pmatrix}7\\\\8\\end{pmatrix}$$\n\n$$b=\\frac{1}{2},\\quad a=\\frac{5}{4}$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "4*5/4+4/2",
+            "rhs": "7"
+          },
+          {
+            "lhs": "4*5/4+6/2",
+            "rhs": "8"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": false,
+        "model_training": false
+      }
+    },
+    {
+      "id": "holdout-resonance",
+      "suite": "holdout",
+      "category": "physics",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "For series RLC with L=0.05 H and C=20 microfarad, find resonant angular frequency and impedance when R=8 ohm.",
+      "input_format": "text",
+      "reference_solution": "At resonance the inductive and capacitive reactances cancel.\n\n$$\\omega_0=\\frac{1}{\\sqrt{LC}}=1000\\ \\mathrm{rad/s}$$\n\n$$Z(\\omega_0)=8\\ \\mathrm{ohm}$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "0.05*20*10**(-6)",
+            "rhs": "1/1000000"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": false,
+        "model_training": false
+      }
+    },
+    {
+      "id": "holdout-snell-critical",
+      "suite": "holdout",
+      "category": "physics",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Light passes from refractive index 1.5 to 1.0. Derive the critical-angle equation and give an approximate angle.",
+      "input_format": "image",
+      "reference_solution": "At the critical angle the refracted angle is ninety degrees.\n\n$$1.5\\sin\\theta_c=1$$\n\n$$\\sin\\theta_c=\\frac{2}{3}$$\n\nThe critical angle is approximately 41.81 degrees.",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": false,
+        "model_training": false
+      }
+    },
+    {
+      "id": "holdout-english-generalization",
+      "suite": "holdout",
+      "category": "english",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Copy exactly: Unpredictable typography should preserve every quotation mark, especially when neighboring letters share similar silhouettes.",
+      "input_format": "pdf",
+      "reference_solution": "Unpredictable typography should preserve every quotation mark, especially when neighboring letters share similar silhouettes.",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": false,
+        "model_training": false
+      }
+    },
+    {
+      "id": "holdout-english-dialogue",
+      "suite": "holdout",
+      "category": "english",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Copy exactly: \"Can you distinguish 0 from O, and 1 from l?\" she asked. \"Only after checking the original,\" he replied.",
+      "input_format": "text",
+      "reference_solution": "\"Can you distinguish 0 from O, and 1 from l?\" she asked. \"Only after checking the original,\" he replied.",
+      "reference_verification": {
+        "method": "analytic/editorial review; no independent proof",
+        "checks": []
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "plain",
+      "isolation": {
+        "policy_tuning": false,
+        "model_training": false
+      }
+    },
+    {
+      "id": "holdout-multi-line-fractions",
+      "suite": "holdout",
+      "category": "layout",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "Solve (x-1)/3+(x+2)/4=5/6 using separate derivation lines.",
+      "input_format": "image",
+      "reference_solution": "Multiply both sides by twelve.\n\n$$4(x-1)+3(x+2)=10$$\n\n$$7x+2=10$$\n\n$$x=\\frac{8}{7}$$\n\nSubstitution gives five sixths.",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "(8/7-1)/3+(8/7+2)/4",
+            "rhs": "5/6"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "grid",
+      "isolation": {
+        "policy_tuning": false,
+        "model_training": false
+      }
+    },
+    {
+      "id": "holdout-matrix-root",
+      "suite": "holdout",
+      "category": "layout",
+      "complexity": "medium",
+      "source": {
+        "kind": "original-authored",
+        "author": "OpenAI Codex",
+        "license": "MIT",
+        "revision": "benchmark-v1"
+      },
+      "question": "For A=diag(4,9), write its positive definite square root and verify the product.",
+      "input_format": "pdf",
+      "reference_solution": "Take the positive square root of each diagonal entry.\n\n$$B=\\begin{pmatrix}2&0\\\\0&3\\end{pmatrix}$$\n\n$$B^2=\\begin{pmatrix}4&0\\\\0&9\\end{pmatrix}=A$$",
+      "reference_verification": {
+        "method": "analytic derivation with exact numeric spot checks",
+        "checks": [
+          {
+            "lhs": "2**2",
+            "rhs": "4"
+          },
+          {
+            "lhs": "3**2",
+            "rhs": "9"
+          }
+        ]
+      },
+      "expected": {
+        "outcome": "render",
+        "error_contains": null,
+        "page_count": 1,
+        "no_clipping": true,
+        "structures": []
+      },
+      "paper": "dots",
+      "isolation": {
+        "policy_tuning": false,
+        "model_training": false
+      }
+    }
+  ]
+}

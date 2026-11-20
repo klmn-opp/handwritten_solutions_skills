@@ -1,0 +1,545 @@
+{
+  "$defs": {
+    "Background": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "default": "plain",
+          "enum": [
+            "plain",
+            "lined",
+            "grid",
+            "dots",
+            "image",
+            "pdf"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Path"
+        },
+        "page": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Page",
+          "type": "integer"
+        },
+        "fit": {
+          "default": "contain",
+          "enum": [
+            "contain",
+            "cover",
+            "stretch"
+          ],
+          "title": "Fit",
+          "type": "string"
+        }
+      },
+      "title": "Background",
+      "type": "object"
+    },
+    "Equality": {
+      "additionalProperties": false,
+      "properties": {
+        "lhs": {
+          "minLength": 1,
+          "title": "Lhs",
+          "type": "string"
+        },
+        "rhs": {
+          "minLength": 1,
+          "title": "Rhs",
+          "type": "string"
+        }
+      },
+      "required": [
+        "lhs",
+        "rhs"
+      ],
+      "title": "Equality",
+      "type": "object"
+    },
+    "Problem": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id"
+        },
+        "number": {
+          "minLength": 1,
+          "title": "Number",
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/Source"
+          },
+          "minItems": 1,
+          "title": "Sources",
+          "type": "array"
+        },
+        "statement": {
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string"
+        },
+        "complete": {
+          "default": true,
+          "title": "Complete",
+          "type": "boolean"
+        },
+        "solution": {
+          "minLength": 1,
+          "title": "Solution",
+          "type": "string"
+        },
+        "verification": {
+          "$ref": "#/$defs/Verification"
+        },
+        "background": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Background"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "number",
+        "sources",
+        "statement",
+        "solution"
+      ],
+      "title": "Problem",
+      "type": "object"
+    },
+    "RenderConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "dpi": {
+          "default": 150,
+          "maximum": 300,
+          "minimum": 72,
+          "title": "Dpi",
+          "type": "integer"
+        },
+        "page_width_mm": {
+          "default": 210,
+          "maximum": 300,
+          "minimum": 100,
+          "title": "Page Width Mm",
+          "type": "number"
+        },
+        "page_height_mm": {
+          "default": 297,
+          "maximum": 400,
+          "minimum": 100,
+          "title": "Page Height Mm",
+          "type": "number"
+        },
+        "margin_mm": {
+          "default": 18,
+          "maximum": 50,
+          "minimum": 5,
+          "title": "Margin Mm",
+          "type": "number"
+        },
+        "font_size_pt": {
+          "default": 13,
+          "maximum": 24,
+          "minimum": 8,
+          "title": "Font Size Pt",
+          "type": "number"
+        },
+        "line_spacing": {
+          "default": 1.6,
+          "maximum": 2.5,
+          "minimum": 1.1,
+          "title": "Line Spacing",
+          "type": "number"
+        },
+        "seed": {
+          "default": 42,
+          "maximum": 2147483647,
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        },
+        "paper": {
+          "default": "plain",
+          "enum": [
+            "plain",
+            "lined",
+            "grid",
+            "dots"
+          ],
+          "title": "Paper",
+          "type": "string"
+        },
+        "ink": {
+          "default": "#202838",
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "title": "Ink",
+          "type": "string"
+        },
+        "policy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RenderPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "glyph_metrics": {
+          "default": "raw",
+          "enum": [
+            "raw",
+            "normalized",
+            "contextual"
+          ],
+          "title": "Glyph Metrics",
+          "type": "string"
+        },
+        "math_strokes": {
+          "default": "personal",
+          "enum": [
+            "personal",
+            "off"
+          ],
+          "title": "Math Strokes",
+          "type": "string"
+        },
+        "semantic_layout": {
+          "default": false,
+          "title": "Semantic Layout",
+          "type": "boolean"
+        },
+        "word_gap_scale": {
+          "default": 1.0,
+          "maximum": 1.25,
+          "minimum": 1.0,
+          "title": "Word Gap Scale",
+          "type": "number"
+        }
+      },
+      "title": "RenderConfig",
+      "type": "object"
+    },
+    "RenderPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "profile_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Profile Sha256",
+          "type": "string"
+        },
+        "reward_source": {
+          "default": "untrained",
+          "enum": [
+            "untrained",
+            "proxy",
+            "human-preference"
+          ],
+          "title": "Reward Source",
+          "type": "string"
+        },
+        "training_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Training Sha256"
+        },
+        "actions": {
+          "items": {
+            "$ref": "#/$defs/StrokeAction"
+          },
+          "maxItems": 12,
+          "minItems": 2,
+          "title": "Actions",
+          "type": "array"
+        },
+        "probabilities": {
+          "items": {
+            "maximum": 1,
+            "minimum": 0,
+            "type": "number"
+          },
+          "title": "Probabilities",
+          "type": "array"
+        }
+      },
+      "required": [
+        "profile_sha256",
+        "actions",
+        "probabilities"
+      ],
+      "title": "RenderPolicy",
+      "type": "object"
+    },
+    "Source": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page"
+        },
+        "location": {
+          "default": "",
+          "title": "Location",
+          "type": "string"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sha256"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "title": "Source",
+      "type": "object"
+    },
+    "StrokeAction": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "pattern": "^[a-z][a-z0-9-]{0,31}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "legacy": {
+          "default": false,
+          "title": "Legacy",
+          "type": "boolean"
+        },
+        "ink_balance": {
+          "default": 0,
+          "maximum": 8,
+          "minimum": 0,
+          "title": "Ink Balance",
+          "type": "number"
+        },
+        "continuity": {
+          "default": 0,
+          "maximum": 4,
+          "minimum": 0,
+          "title": "Continuity",
+          "type": "number"
+        },
+        "repeat_penalty": {
+          "default": 0,
+          "maximum": 3,
+          "minimum": 0,
+          "title": "Repeat Penalty",
+          "type": "number"
+        },
+        "lean": {
+          "default": 0.075,
+          "maximum": 0.15,
+          "minimum": -0.15,
+          "title": "Lean",
+          "type": "number"
+        },
+        "lean_variation": {
+          "default": 0,
+          "maximum": 0.04,
+          "minimum": 0,
+          "title": "Lean Variation",
+          "type": "number"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "StrokeAction",
+      "type": "object"
+    },
+    "Verification": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "default": "not_checked",
+          "enum": [
+            "not_checked",
+            "inconclusive",
+            "passed",
+            "failed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "evidence": {
+          "default": "",
+          "title": "Evidence",
+          "type": "string"
+        },
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/Equality"
+          },
+          "title": "Checks",
+          "type": "array"
+        }
+      },
+      "title": "Verification",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "backend": {
+      "default": "font-cpu",
+      "enum": [
+        "font-cpu",
+        "personal-cpu-experimental",
+        "diffink-experimental"
+      ],
+      "title": "Backend",
+      "type": "string"
+    },
+    "realism": {
+      "default": "baseline",
+      "enum": [
+        "baseline",
+        "layout-enhanced",
+        "stroke-enhanced",
+        "combined"
+      ],
+      "title": "Realism",
+      "type": "string"
+    },
+    "generated_by": {
+      "minLength": 1,
+      "title": "Generated By",
+      "type": "string"
+    },
+    "language": {
+      "default": "en",
+      "minLength": 1,
+      "title": "Language",
+      "type": "string"
+    },
+    "profile": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Profile"
+    },
+    "profile_sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[a-f0-9]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Profile Sha256"
+    },
+    "background": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Background"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "render": {
+      "$ref": "#/$defs/RenderConfig"
+    },
+    "problems": {
+      "items": {
+        "$ref": "#/$defs/Problem"
+      },
+      "minItems": 1,
+      "title": "Problems",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "generated_by",
+    "problems"
+  ],
+  "title": "Job",
+  "type": "object"
+}

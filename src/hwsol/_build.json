@@ -1,0 +1,9 @@
+{
+  "commit": "81685bd8aad9ceaba5598e89d8f0312e60b18968",
+  "version": "1.0.0",
+  "tag": "v1.0.0",
+  "requested_ref": "refs/tags/v1.0.0",
+  "mode": "stable-tag",
+  "lock_sha256": "02d754a51a6eeef6affa7d1cb4383340554d137785081e7bdc21f00d0cc16608",
+  "git_history_included": false
+}

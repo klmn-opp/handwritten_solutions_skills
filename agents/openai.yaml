@@ -1,0 +1,4 @@
+interface:
+  display_name: "Handwritten Solutions"
+  short_description: "Solve homework and render one handwritten page per problem"
+  default_prompt: "Use $handwritten-solutions to solve the attached problems and return a handwritten PDF with one page per problem."
