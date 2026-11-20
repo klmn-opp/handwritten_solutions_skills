@@ -225,7 +225,24 @@ def worker(path: Path) -> None:
 
     def sampled_style(tokens, word_style, generator=None):
         if not hierarchical:
-            return word_style
+            return word_style, None
+        if cfg.get("matched_neighborhood"):
+            from research.corpus.local_prior import sample_neighborhood
+
+            local = torch.zeros(*tokens.shape[:2], 8, device="cuda")
+            style = torch.cat([word_style[:, None].expand(-1, tokens.shape[1], -1), local], -1)
+            selected_centers = torch.full(tokens.shape[:2], -1, device="cuda", dtype=torch.long)
+            for i in range(len(tokens)):
+                for j, c in enumerate(tokens[i, :, 0].tolist()):
+                    if c in by_class:
+                        ids = by_class[c]
+                        joint = torch.cat([codes[x["groups"][ids]], x["local_codes"][ids]], -1)
+                        value, selected = sample_neighborhood(
+                            joint, cfg["neighborhood_sigma"], generator=generator
+                        )
+                        style[i, j] = value
+                        selected_centers[i, j] = int(ids[selected])
+            return style, selected_centers
         local = torch.zeros(*tokens.shape[:2], 8, device="cuda")
         for i in range(len(tokens)):
             for j, c in enumerate(tokens[i, :, 0].tolist()):
@@ -235,7 +252,7 @@ def worker(path: Path) -> None:
                         q["mean"]
                         + torch.randn(8, device="cuda", generator=generator) @ q["cholesky"].T
                     )
-        return torch.cat([word_style[:, None].expand(-1, tokens.shape[1], -1), local], -1)
+        return torch.cat([word_style[:, None].expand(-1, tokens.shape[1], -1), local], -1), None
 
     optimizer = torch.optim.AdamW(
         [
@@ -262,7 +279,7 @@ def worker(path: Path) -> None:
     if cfg.get("continuation"):
         assert digest(cfg["continuation"]) == cfg["continuation_sha256"]
         previous = torch.load(cfg["continuation"], map_location="cuda", weights_only=False)
-        assert previous["step"] == 8000
+        assert previous["step"] == cfg.get("continuation_step", 8000)
         for key in [
             "arrays_sha256",
             "data_sha256",
@@ -322,13 +339,19 @@ def worker(path: Path) -> None:
         mu, chol = prior()
         zz = torch.tensor(rng.standard_normal((4, 2)), device="cuda", dtype=torch.float32)
         zz = zz @ chol.T + mu
-        ll, prior_distance = model(tt, bb, pp, style=sampled_style(tt, zz))
+        prior_style, prior_centers = sampled_style(tt, zz)
+        ll, prior_distance = model(tt, bb, pp, style=prior_style)
         with torch.no_grad():
             ft = teacher(tt, bb, pp)[0].sigmoid()
         terms = []
         for j, c in enumerate(selected):
             if int(c) in by_class:
-                variants = x["ink"][by_class[int(c)]].flatten(1)[:, pi[j]]
+                ids = (
+                    [int(prior_centers[j, 0])]
+                    if cfg.get("matched_neighborhood")
+                    else by_class[int(c)]
+                )
+                variants = x["ink"][ids].flatten(1)[:, pi[j]]
                 terms.append(nearest_real_loss(ll[j], variants))
             else:
                 terms.append(
@@ -381,6 +404,26 @@ def worker(path: Path) -> None:
     assert all(torch.equal(v, saved["model"][k]) for k, v in teacher.state_dict().items())
     model.eval()
     mu, chol = prior()
+    if cfg.get("matched_neighborhood"):
+        write(
+            run / "reports/joint-prior.json",
+            {
+                "sigma": cfg["neighborhood_sigma"],
+                "shared_word_variable": False,
+                "sampling_is_not_neural_training": True,
+                "centers": {
+                    str(c): {
+                        "sample_indices": by_class[c].tolist(),
+                        "values": torch.cat(
+                            [codes[x["groups"][by_class[c]]], x["local_codes"][by_class[c]]], -1
+                        )
+                        .detach()
+                        .tolist(),
+                    }
+                    for c in real_classes
+                },
+            },
+        )
     write(
         run / "reports/prior.json",
         {"mean": mu.tolist(), "cholesky": chol.tolist(), "train_codes_only": True},
@@ -440,12 +483,21 @@ def worker(path: Path) -> None:
         )
         for c in real_classes:
             tt = torch.tensor([[[c, 0, 0], [0, 0, 0]]], device="cuda")
+            style, centers = sampled_style(tt, z, local_generator)
             emit(
                 f"prior-{seed}-{c}",
                 tt,
                 x["boxes"][:1],
-                sampled_style(tt, z, local_generator),
-                {"mode": "glyph-prior", "seed": seed, "text": chr(c), "target_seen": False},
+                style,
+                {
+                    "mode": "glyph-prior",
+                    "seed": seed,
+                    "text": chr(c),
+                    "target_seen": False,
+                    "style_center_indices": centers[0].tolist() if centers is not None else None,
+                    "style_center_seen": centers is not None,
+                    "pixels_or_outline_as_generator_input": False,
+                },
             )
     np.savez_compressed(run / "reports/glyph-priors.npz", ink=np.stack(images))
     images.clear()
@@ -459,11 +511,12 @@ def worker(path: Path) -> None:
             @ chol.T
         )
         for i in wi["development"] + wi["novel"]:
+            style, centers = sampled_style(wt[i : i + 1], z, local_generator)
             emit(
                 f"word-{seed}-{i:04d}",
                 wt[i : i + 1],
                 wb[i : i + 1],
-                sampled_style(wt[i : i + 1], z, local_generator),
+                style,
                 {
                     "mode": "word-prior",
                     "seed": seed,
@@ -471,6 +524,10 @@ def worker(path: Path) -> None:
                     "text": wr[i]["text"],
                     "split": wr[i]["split"],
                     "target_seen": False,
+                    "style_center_indices": centers[0].tolist() if centers is not None else None,
+                    "style_center_seen": centers is not None,
+                    "word_variable_shared": centers is None,
+                    "pixels_or_outline_as_generator_input": False,
                 },
                 128,
                 512,
