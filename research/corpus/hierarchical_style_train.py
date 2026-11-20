@@ -9,7 +9,15 @@ import numpy as np
 from research.corpus.context_content_train import digest, write
 
 
-def launch(backbone: Path, real: Path, *, context: bool, support: bool = False) -> Path:
+def launch(
+    backbone: Path,
+    real: Path,
+    *,
+    context: bool,
+    support: bool = False,
+    source: Path | None = None,
+    joint: bool = False,
+) -> Path:
     from hwsol.workspace import verify_run
     from research.corpus.experiment import create
     from research.corpus.hierarchical_style_data import group_conditions
@@ -44,6 +52,32 @@ def launch(backbone: Path, real: Path, *, context: bool, support: bool = False) 
         "C_used": False,
         "protocol_sha256": digest("docs/V01022_PROTOCOL.md"),
     }
+    if source is not None:
+        verify_run(source)
+        previous = json.loads((source / "reports/request.json").read_text())
+        assert previous["context"] and context and support and previous["steps"] == 2000
+        style_cp = source / "logs/checkpoint-02000.pt"
+        font = Path(old["font"])
+        verify_run(font)
+        cfg.update(
+            continuation_source=str(source),
+            continuation_source_sha256=digest(source / "run.json"),
+            style_checkpoint=str(style_cp),
+            style_checkpoint_sha256=digest(style_cp),
+            steps=1000,
+            seed=4722,
+            learning_rate=0.0003,
+            kl_weight=0.01,
+            kl_warmup=1,
+            joint_ink_training=joint,
+            ink_learning_rate=0.0001,
+            font_weight=0.25,
+            font=str(font),
+            font_sha256=digest(font / "run.json"),
+            inherited_style_updates=2000,
+        )
+    elif joint:
+        raise ValueError("Joint experiment requires registered source")
     run = create("hierarchical-neural-style-training", seed=cfg["seed"], config=cfg)
     np.savez_compressed(run.path / "solutions/conditions.npz", **arrays)
     write(run.path / "reports/groups.json", groups)
@@ -52,6 +86,8 @@ def launch(backbone: Path, real: Path, *, context: bool, support: bool = False) 
     name = "hierarchical-context" if context else "hierarchical-control"
     if support:
         name += "-support"
+    if source is not None:
+        name += "-joint" if joint else "-frozen"
     Path(f"/tmp/context-v01022-{name}").write_text(str(run.path))
     print(run.path, flush=True)
     try:
@@ -103,13 +139,35 @@ def worker(request: str) -> None:
         train = np.flatnonzero(a["train"])
     # Same random initialization in both arms; context toggle contains no parameters.
     model = HierarchicalInkStyle(context=cfg["context"]).cuda()
+    if cfg.get("continuation_source"):
+        assert (
+            digest(Path(cfg["continuation_source"]) / "run.json")
+            == cfg["continuation_source_sha256"]
+        )
+        assert digest(cfg["style_checkpoint"]) == cfg["style_checkpoint_sha256"]
+        model.load_state_dict(
+            torch.load(cfg["style_checkpoint"], map_location="cuda", weights_only=False)["model"]
+        )
     initial = {k: v.detach().clone() for k, v in model.state_dict().items()}
     torch.save({"model": initial}, run / "logs/initial-state.pt")
-    ink = CanonicalInk().cuda().eval().requires_grad_(False)
+    ink = CanonicalInk().cuda().eval().requires_grad_(cfg.get("joint_ink_training", False))
     ink.load_state_dict(
         torch.load(cfg["checkpoint"], map_location="cuda", weights_only=False)["model"]
     )
-    optimizer = torch.optim.AdamW(model.parameters(), lr=cfg["learning_rate"])
+    ink_initial = {k: v.detach().clone() for k, v in ink.state_dict().items()}
+    parameters = [{"params": list(model.parameters()), "lr": cfg["learning_rate"]}]
+    if cfg.get("joint_ink_training"):
+        parameters.append({"params": list(ink.parameters()), "lr": cfg["ink_learning_rate"]})
+    optimizer = torch.optim.AdamW(parameters)
+    font_target = font_labels = None
+    if cfg.get("font"):
+        assert digest(Path(cfg["font"]) / "run.json") == cfg["font_sha256"]
+        with np.load(Path(cfg["font"]) / "reports/font-glyphs.npz") as f:
+            available = torch.unique(data["tokens"][..., 0][data["known"]]).cpu().numpy()
+            keep = ~np.isin(f["tokens"][:, 0, 0], available)
+            font_target = torch.tensor(f["ink"][keep], device="cuda")
+            font_labels = torch.tensor(f["tokens"][keep, 0, 0], device="cuda")
+            assert len(font_labels) == 44
     rng = np.random.default_rng(cfg["seed"])
     counts = np.zeros(len(data["tokens"]), np.int64)
     curve, validation = [], []
@@ -140,11 +198,22 @@ def worker(request: str) -> None:
         loss = (
             bce + cfg["code_weight"] * mse + cfg["kl_weight"] * min(1, step / cfg["kl_warmup"]) * kl
         )
+        auxiliary = torch.zeros((), device="cuda")
+        if font_target is not None:
+            fi = rng.choice(len(font_labels), size=4, replace=True)
+            font_logits = ink(font_labels[fi], torch.zeros(4, 8, device="cuda"))
+            auxiliary = (
+                F.binary_cross_entropy_with_logits(font_logits, font_target[fi], reduction="none")
+                * (1 + 3 * font_target[fi])
+            ).mean()
+            loss = loss + cfg["font_weight"] * auxiliary
         if not torch.isfinite(loss):
             raise ValueError("Nonfinite hierarchical loss")
         optimizer.zero_grad(set_to_none=True)
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 5)
+        if cfg.get("joint_ink_training"):
+            torch.nn.utils.clip_grad_norm_(ink.parameters(), 5)
         optimizer.step()
         if step == 1 or step % 100 == 0:
             row = {
@@ -153,6 +222,7 @@ def worker(request: str) -> None:
                 "image_bce": float(bce.detach()),
                 "code_mse": float(mse.detach()),
                 "kl": float(kl.detach()),
+                "font_only_auxiliary_loss": float(auxiliary.detach()),
                 "seconds": time.perf_counter() - start,
             }
             curve.append(row)
@@ -181,6 +251,7 @@ def worker(request: str) -> None:
                     "torch_rng": torch.get_rng_state(),
                     "cuda_rng": torch.cuda.get_rng_state_all(),
                     "config": cfg,
+                    **({"ink": ink.state_dict()} if cfg.get("joint_ink_training") else {}),
                 },
                 run / f"logs/checkpoint-{step:05d}.pt",
             )
@@ -232,6 +303,11 @@ def worker(request: str) -> None:
             "actual_parameter_training": True,
             "new_model_updates": cfg["steps"],
             "frozen_backbone_updates": 0,
+            "joint_ink_updates": cfg["steps"] if cfg.get("joint_ink_training") else 0,
+            "ink_parameter_l1_change": sum(
+                float((v - ink_initial[k]).abs().sum()) for k, v in ink.state_dict().items()
+            ),
+            "style_lineage_updates": cfg.get("inherited_style_updates", 0) + cfg["steps"],
             "parameters": sum(p.numel() for p in model.parameters()),
             "parameter_l1_change": sum(
                 float((v - initial[k]).abs().sum()) for k, v in model.state_dict().items()

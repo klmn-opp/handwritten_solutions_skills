@@ -27,6 +27,7 @@ def launch(model: Path, baseline: Path, *, name: str, support: bool | None = Non
         "backbone": old["checkpoint"],
         "backbone_sha256": old["checkpoint_sha256"],
         "context": old["context"],
+        "joint_ink_training": old.get("joint_ink_training", False),
         "seed": 4622,
         "C_used": False,
         "new_neural_updates": 0,
@@ -92,13 +93,14 @@ def worker(request: str, mode: str) -> None:
         assert digest(cfg[key]) == cfg[key + "_sha256"]
     setup(cfg["seed"])
     local = CanonicalInk().cuda().eval()
+    joint = torch.load(cfg["checkpoint"], map_location="cuda", weights_only=False)
     local.load_state_dict(
-        torch.load(cfg["backbone"], map_location="cuda", weights_only=False)["model"]
+        joint["ink"]
+        if cfg["joint_ink_training"]
+        else torch.load(cfg["backbone"], map_location="cuda", weights_only=False)["model"]
     )
     model = HierarchicalInkStyle(context=cfg["context"]).cuda().eval()
-    model.load_state_dict(
-        torch.load(cfg["checkpoint"], map_location="cuda", weights_only=False)["model"]
-    )
+    model.load_state_dict(joint["model"])
     trained_cfg = json.loads((trained / "reports/request.json").read_text())
     with np.load(Path(trained_cfg["real"]) / "reports/glyphs.npz") as a:
         real_classes = set(a["labels"].tolist())
@@ -187,7 +189,9 @@ def worker(request: str, mode: str) -> None:
                         "reference_image_input": False,
                         "training_center_lookup": False,
                         "neural_style_checkpoint": cfg["checkpoint_sha256"],
-                        "neural_ink_checkpoint": cfg["backbone_sha256"],
+                        "neural_ink_checkpoint": cfg["checkpoint_sha256"]
+                        if cfg["joint_ink_training"]
+                        else cfg["backbone_sha256"],
                         "glyphs": [
                             {
                                 "position": j,
