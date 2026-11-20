@@ -1,0 +1,46 @@
+# Handwritten Solutions
+
+A local Agent Skill and CPU runtime for handwritten homework PDFs. An external
+Agent reads the original problems, writes and checks English Markdown/LaTeX, and
+calls the runtime. The runtime preserves top-level problem identities and creates
+one page per problem, page PNGs, editable solutions and a provenance report.
+
+This public distribution contains the stable CPU implementation and the licensed
+Patrick Hand engineering font. It does not contain the developer's handwriting,
+private research reports, personal models, or an approved neural/hybrid backend.
+The package version is recorded in `pyproject.toml`; package contents do not imply
+a new production release or author approval of a research candidate.
+
+Use Python 3.12 or 3.13, Git and uv:
+
+```sh
+uv sync --locked --no-dev
+uv run --frozen hwsol doctor
+uv run --frozen hwsol render --manifest examples/phase2/mixed/job.json --workspace workspace
+uv run --frozen hwsol workspace latest
+# Verify the actual run path printed above:
+uv run --frozen hwsol verify --job workspace/runs/<run_id> --pixels
+```
+
+Installing dependencies may need network access. Once installed, normal CPU
+rendering needs neither a GPU nor Torch or model downloads. Use `--offline` with
+uv when the locked dependencies are already cached. On Windows, executables are
+under `.venv/Scripts`; on Linux/macOS they are under `.venv/bin`.
+
+Install a Skill archive by unpacking its `handwritten-solutions` directory into
+the Agent's skill directory, then follow [SKILL.md](SKILL.md). A wheel installs
+the command line runtime; the Skill and editable examples accompany the source
+and Skill archives. Native compatibility must be verified on the target machine;
+the local Linux preflight does not establish macOS or Windows validation.
+
+- [Job creation and output verification](public_docs/GUIDE.md)
+- [Personal Profile and Studio workflow](public_docs/PROFILES.md)
+- [Rendering options and explicit fallback](public_docs/RENDERING.md)
+- [Workspace and immutable runs](public_docs/WORKSPACE.md)
+- [Benchmark and experimental boundaries](public_docs/RESEARCH_BOUNDARIES.md)
+- [Licenses](public_docs/LICENSES.md) and [contributing](CONTRIBUTING.md)
+
+Public archives are built from an explicit allowlist. Local instructions, project
+handoffs, personal audit reports, samples and model weights remain outside them.
+Git history is not a public distribution artifact: a clean source snapshot does
+not establish that its ancestry is safe to share.

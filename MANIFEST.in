@@ -1,11 +1,19 @@
-include SKILL.md uv.lock requirements-compatibility.lock
+include SKILL.md README.md uv.lock requirements-compatibility.lock PUBLIC_DISTRIBUTION.json
+include public_build_backend.py
 recursive-include agents *.yaml
 recursive-include config *.json
 recursive-include references *.md *.json
 recursive-include examples *.md *.json
 include examples/realism/math-symbols.pdf
-recursive-include docs *.md *.json *.txt *.xml
-recursive-include scripts *.py
-recursive-include tests *.py
+prune docs
+# Compatibility guides are public overlays in the prepared source.
+include docs/HANDWRITING_REALISM.md docs/RL_RENDERING.md docs/WORKSPACE.md
+include docs/PHASE0.md
+recursive-include public_docs *.md *.md.in *.json
+include scripts/package_release.py scripts/smoke_wheel.py scripts/phase1_demo.py scripts/license_inventory.py
+include tests/conftest.py tests/test_phase0.py tests/test_compatibility.py tests/test_profiles.py
+include tests/test_jobs.py tests/test_realism.py tests/test_rl.py tests/test_lab.py
+include tests/test_next_stage.py tests/test_workspace.py tests/test_benchmarks.py tests/test_diffink.py
+include tests/test_math_relations.py tests/test_public_distribution.py
 include CHANGELOG.md CONTRIBUTING.md
 include .github/workflows/ci.yml

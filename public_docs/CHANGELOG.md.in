@@ -1,0 +1,11 @@
+# Public distribution notes
+
+The exact package version is declared in `pyproject.toml`; the build receipt
+records source commit, dependency lock and file hashes. This public-documentation
+layer does not change that version or declare a new release.
+
+The CPU runtime provides Markdown/LaTeX homework layout, one top-level problem
+per page, source and verification records, PDF/PNG output, immutable workspaces,
+bundled fonts, personal Profile versioning and the CPU Studio. Optional experiment
+adapters remain separate. Private research experiments and author-specific
+quality claims are intentionally absent from public archives.

@@ -1,8 +1,14 @@
-"""Package a version tag as an installable Skill, wheel, sdist and cloneable Git bundle."""
+"""Build audited public Skill/wheel/sdist snapshots from a matching version tag.
+
+Private working documents and Git history are never distribution artifacts.
+The public policy and documentation must exist in the selected ref itself.
+"""
 
 import argparse
 import hashlib
+import json
 import os
+import posixpath
 import re
 import shutil
 import subprocess
@@ -11,10 +17,18 @@ import tarfile
 import tempfile
 import tomllib
 from pathlib import Path, PurePosixPath
+from urllib.parse import unquote, urlsplit
 from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
 FONT = "src/hwsol/assets/presets/patrick-hand/PatrickHand-Regular.ttf"
+POLICY = "public_docs/distribution.json"
+PUBLIC_SCHEMA = "hwsol-public-distribution/1"
+PRIVATE_TEXT = re.compile(
+    r"/home/[^/\s`]+/|workspace/runs/20\d{6}T|"
+    r"out/(?:next-stage|realism)/|source_pdf/[^\s`<>]+|"
+    r"docs/(?:MASTER_EXECUTION_PLAN|EXECUTION_HANDOFF|CURRENT_STATE|V010\d*_)"
+)
 
 
 def audit_paths(names):
@@ -29,6 +43,9 @@ def audit_paths(names):
         "out",
         "dist",
         "workspace",
+        "source_pdf",
+        "sourcepdf",
+        ".vscode",
         ".env",
         "__pycache__",
     }
@@ -46,6 +63,170 @@ def audit_paths(names):
             raise ValueError(f"Unexpected release file: {name}")
 
 
+def audit_public_files(files: dict[str, bytes]) -> dict:
+    """Audit actual public bytes, including links, rather than trusting an allowlist alone."""
+    audit_paths(files)
+    if "PUBLIC_DISTRIBUTION.json" not in files:
+        raise ValueError("Unprepared source: stage the explicit public distribution before sharing")
+    policy = json.loads(files[POLICY])
+    if policy.get("schema") != PUBLIC_SCHEMA:
+        raise ValueError("Unknown public distribution policy")
+    receipt = json.loads(files["PUBLIC_DISTRIBUTION.json"])
+    expected = receipt["source_sha256"]
+    if (
+        receipt.get("schema") != PUBLIC_SCHEMA
+        or receipt.get("policy_sha256") != hashlib.sha256(files[POLICY]).hexdigest()
+    ):
+        raise ValueError("Public source receipt or policy changed")
+    for name, digest in expected.items():
+        if name not in files or hashlib.sha256(files[name]).hexdigest() != digest:
+            raise ValueError(f"Public source differs from its receipt: {name}")
+    allowed = set(expected) | set(policy["overlays"]) | {"PUBLIC_DISTRIBUTION.json"}
+    metadata_names = {
+        "PKG-INFO",
+        "SOURCES.txt",
+        "dependency_links.txt",
+        "entry_points.txt",
+        "requires.txt",
+        "top_level.txt",
+        "not-zip-safe",
+        "zip-safe",
+    }
+    for name in set(files) - allowed:
+        path = PurePosixPath(name)
+        metadata = (
+            any(part.endswith(".egg-info") for part in path.parts) and path.name in metadata_names
+        )
+        if name == "setup.cfg" and files[name].replace(b"\r\n", b"\n") != (
+            b"[egg_info]\ntag_build = \ntag_date = 0\n\n"
+        ):
+            raise ValueError("Unexpected generated sdist configuration")
+        if not metadata and name not in {"PKG-INFO", "setup.cfg"}:
+            raise ValueError(f"File outside the frozen public source inventory: {name}")
+    for target, template in policy["overlays"].items():
+        if target not in files or template not in files or files[target] != files[template]:
+            raise ValueError(f"Public entry differs from its versioned template: {target}")
+    private = []
+    for name, data in files.items():
+        if PurePosixPath(name).suffix.lower() in {".md", ".txt", ".json", ".xml"} or name.endswith(
+            ".md.in"
+        ):
+            if PRIVATE_TEXT.search(data.decode("utf-8", errors="replace")):
+                private.append(name)
+    if private:
+        raise ValueError(f"Private operational references in public files: {private}")
+    missing = []
+    for name, data in files.items():
+        if not name.endswith(".md"):
+            continue
+        text = data.decode("utf-8")
+        for match in re.finditer(r"!?\[[^\]]*\]\(([^)]+)\)", text):
+            target = match[1].strip().split(" ", 1)[0].strip("<>")
+            parsed = urlsplit(target)
+            if parsed.scheme or parsed.netloc or not parsed.path:
+                continue
+            path = posixpath.normpath(str(PurePosixPath(name).parent / unquote(parsed.path)))
+            if path.startswith("../") or path.startswith("/"):
+                missing.append({"file": name, "target": target})
+            elif path not in files and not any(p.startswith(path.rstrip("/") + "/") for p in files):
+                missing.append({"file": name, "target": target})
+    if missing:
+        raise ValueError(f"Broken public relative links: {missing}")
+    return {
+        "status": "passed",
+        "files": len(files),
+        "relative_links": "resolved",
+        "private_operational_references": [],
+        "git_history_included": False,
+    }
+
+
+def public_files(source: Path) -> dict[str, bytes]:
+    return {
+        path.relative_to(source).as_posix(): path.read_bytes()
+        for path in source.rglob("*")
+        if path.is_file()
+    }
+
+
+def verify_public_source(source: Path) -> dict:
+    """Validate fresh build inputs; stale setuptools output is never trusted."""
+    if not (source / "PUBLIC_DISTRIBUTION.json").is_file():
+        raise ValueError("Unprepared source: no PUBLIC_DISTRIBUTION.json receipt")
+    if (source / "build").exists():
+        raise ValueError("Existing build output is not audited; prepare a fresh public snapshot")
+    files = {}
+    for path in source.rglob("*"):
+        relative = path.relative_to(source)
+        if path.is_symlink():
+            raise ValueError(f"Linked public build input: {relative}")
+        if path.is_file():
+            # Importing this backend creates bytecode. No directory-name exclusion:
+            # src/hwsol/build (or dist) can be actual package code, and build/lib
+            # can otherwise inject stale files into setuptools' wheel output.
+            if relative.parent.name == "__pycache__" and path.suffix == ".pyc":
+                continue
+            files[relative.as_posix()] = path.read_bytes()
+    return audit_public_files(files)
+
+
+def stage_public_source(source: Path, destination: Path) -> dict:
+    """Copy an explicit public view; originals and private instructions stay untouched."""
+    policy_path = source / POLICY
+    if not policy_path.is_file():
+        raise ValueError(
+            "Selected ref has no versioned public distribution layer; use its historical "
+            "packaging workflow for local inspection or a new reviewed candidate ref. "
+            "Current working-tree guides cannot be substituted into an old tag."
+        )
+    policy = json.loads(policy_path.read_bytes())
+    if policy.get("schema") != PUBLIC_SCHEMA:
+        raise ValueError("Unsupported public distribution policy")
+    selected = set(policy["files"])
+    for pattern in policy["patterns"]:
+        selected.update(
+            p.relative_to(source).as_posix() for p in source.glob(pattern) if p.is_file()
+        )
+    audit_paths(selected)
+    destination.mkdir()
+    source_hashes = {}
+    for name in sorted(selected):
+        original = source / name
+        if original.is_symlink() or not original.is_file():
+            raise ValueError(f"Missing or linked public source: {name}")
+        original.resolve().relative_to(source.resolve())
+        target = destination / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(original, target)
+        source_hashes[name] = hashlib.sha256(original.read_bytes()).hexdigest()
+    for target, template in policy["overlays"].items():
+        audit_paths([target, template])
+        if template not in selected:
+            raise ValueError(f"Public overlay is outside the source allowlist: {template}")
+        saved = destination / target
+        saved.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(destination / template, saved)
+    receipt = {
+        "schema": PUBLIC_SCHEMA,
+        "policy_sha256": source_hashes[POLICY],
+        "source_sha256": source_hashes,
+        "overlays": policy["overlays"],
+        "git_history_included": False,
+    }
+    (destination / "PUBLIC_DISTRIBUTION.json").write_text(json.dumps(receipt, indent=2) + "\n")
+    audit_public_files(public_files(destination))
+    return receipt
+
+
+def write_skill_archive(source: Path, destination: Path) -> dict:
+    files = public_files(source)
+    result = audit_public_files(files)
+    with ZipFile(destination, "x") as archive:
+        for name, data in sorted(files.items()):
+            archive.writestr(f"handwritten-solutions/{name}", data)
+    return result
+
+
 def git(*args, cwd=ROOT):
     return subprocess.check_output(["git", *map(str, args)], cwd=cwd).decode().strip()
 
@@ -61,32 +242,34 @@ def package(tag, output):
     project = tomllib.loads(git("show", f"{commit}:pyproject.toml"))["project"]
     if project["version"] != version:
         raise ValueError("Git tag and Python distribution version disagree")
-    # Include the release ancestry in the audit, since the bundle includes the same history.
-    history = git("-c", "core.quotepath=false", "log", "-z", "--name-only", "--format=", commit)
-    audit_paths(name for name in history.split("\0") if name)
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(dir=output.parent) as temp:
         work = Path(temp).resolve()
         stage = work / "artifacts"
         stage.mkdir()
-        zip_path = stage / f"handwritten-solutions-{version}-skill.zip"
-        git("archive", "--format=zip", "--prefix=handwritten-solutions/", "-o", zip_path, commit)
-        with ZipFile(zip_path) as archive:
+        source_archive = work / "selected-ref.zip"
+        git("archive", "--format=zip", "--prefix=selected-ref/", "-o", source_archive, commit)
+        with ZipFile(source_archive) as archive:
             archive.extractall(work)
+        selected_ref = work / "selected-ref"
         source = work / "handwritten-solutions"
         # The wheel cannot discover a Git checkout. Embed the exact release identity,
         # while the fingerprint itself is computed from installed code/dependencies.
-        import json
-
         build_record = {
             "commit": commit,
-            "lock_sha256": hashlib.sha256((source / "uv.lock").read_bytes()).hexdigest(),
+            "lock_sha256": hashlib.sha256((selected_ref / "uv.lock").read_bytes()).hexdigest(),
             "tag": tag,
+            "git_history_included": False,
         }
-        (source / "src/hwsol/_build.json").write_text(json.dumps(build_record, indent=2) + "\n")
+        (selected_ref / "src/hwsol/_build.json").write_text(
+            json.dumps(build_record, indent=2) + "\n"
+        )
+        stage_public_source(selected_ref, source)
         for name in ("SKILL.md", "uv.lock", "agents/openai.yaml", "LICENSE", FONT):
             if not (source / name).is_file():
                 raise ValueError(f"Missing Skill file: {name}")
+        zip_path = stage / f"handwritten-solutions-{version}-skill.zip"
+        write_skill_archive(source, zip_path)
         epoch = git("show", "-s", "--format=%ct", commit)
         build_dir = work / "build-artifacts"
         subprocess.run(
@@ -103,23 +286,26 @@ def package(tag, output):
         sdist = stage / f"handwritten_solutions-{version}.tar.gz"
         with tarfile.open(sdist) as archive:
             files = {
-                str(PurePosixPath(entry.name).relative_to(f"handwritten_solutions-{version}"))
+                str(
+                    PurePosixPath(entry.name).relative_to(f"handwritten_solutions-{version}")
+                ): archive.extractfile(entry).read()
                 for entry in archive
                 if entry.isfile()
             }
-        audit_paths(files)
+        audit_public_files(files)
         required = {
             "SKILL.md",
             "uv.lock",
             "agents/openai.yaml",
             FONT,
-            "docs/LICENSES.md",
-            "docs/PHASE4.md",
+            "public_docs/LICENSES.md",
+            "public_docs/RESEARCH_BOUNDARIES.md",
+            "PUBLIC_DISTRIBUTION.json",
             "scripts/smoke_wheel.py",
             "CHANGELOG.md",
             "CONTRIBUTING.md",
         }
-        if missing := required - files:
+        if missing := required - set(files):
             raise ValueError(f"Incomplete sdist: {sorted(missing)}")
         wheel = stage / f"handwritten_solutions-{version}-py3-none-any.whl"
         with ZipFile(wheel) as archive:
@@ -129,14 +315,6 @@ def package(tag, output):
             for filename in (FONT, FONT.replace("PatrickHand-Regular.ttf", "OFL.txt")):
                 if archive.read(filename.removeprefix("src/")) != (source / filename).read_bytes():
                     raise ValueError(f"Wheel asset mismatch: {filename}")
-        # The bundle's main branch always identifies this release, even for a historic tag.
-        mirror = work / "mirror.git"
-        git("init", "-q", "--bare", "--initial-branch=main", mirror)
-        git("fetch", "-q", "--no-tags", ROOT, f"{ref}:{ref}", cwd=mirror)
-        git("update-ref", "refs/heads/main", commit, cwd=mirror)
-        bundle = stage / f"handwritten-solutions-{tag}.bundle"
-        git("bundle", "create", bundle, "HEAD", "refs/heads/main", ref, cwd=mirror)
-        git("bundle", "verify", bundle, cwd=mirror)
         (stage / "release.json").write_text(json.dumps(build_record, indent=2) + "\n")
         checksums = []
         for path in sorted(stage.iterdir()):
@@ -151,7 +329,20 @@ def package(tag, output):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("tag")
-    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("tag", nargs="?")
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--stage", type=Path, help="Prepare a new public source without releasing")
+    parser.add_argument(
+        "--source", type=Path, help="Explicit source for --stage; defaults to checkout"
+    )
     args = parser.parse_args()
-    package(args.tag, args.output.absolute())
+    if args.stage:
+        if args.tag or args.output:
+            parser.error("--stage cannot be combined with a tag or --output")
+        args.stage.parent.mkdir(parents=True, exist_ok=True)
+        stage_public_source((args.source or ROOT).resolve(), args.stage.resolve())
+        print(args.stage.resolve())
+    elif args.tag and args.output and not args.source:
+        package(args.tag, args.output.absolute())
+    else:
+        parser.error("Use --stage <new-directory>, or <version-tag> --output <new-directory>")

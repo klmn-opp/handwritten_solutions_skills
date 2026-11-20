@@ -23,5 +23,7 @@ jobs:
       - run: uv run --no-sync ruff check .
       - run: uv run --no-sync ruff format --check .
       - run: uv run --no-sync pytest -ra
-      - run: uv build --out-dir dist
+      - run: uv run --no-sync python scripts/package_release.py --stage .release-work/public-source
+      - run: uv build --out-dir ../../dist
+        working-directory: .release-work/public-source
       - run: uv run --no-sync python scripts/smoke_wheel.py --dist dist
