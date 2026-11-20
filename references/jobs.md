@@ -49,6 +49,14 @@ candidate uses one fixed layout attempt, without the default backend's shrink or
 rewrap retries. The Agent may author an equivalent supported solution in a new run;
 it must not silently change a submitted formula or delete required reasoning.
 
+When the Agent's own answer uses unsupported notation, keep the failed Job and
+validation error, then author an explicitly equivalent answer in a new Job. Record
+the source diff and recheck the mathematics before rendering. For example, the
+current candidate rejects `\det` and `\widehat`; a named determinant written as
+`\mathrm{det}(A)` and a single-letter `\hat{\mu}` can express the intended operations in
+supported notation. This is an answer-authoring recovery, not a parser expansion
+or a successful first attempt. Never remove a required step merely to fit a page.
+
 Successful artifact verification does not publish this candidate: its workspace
 run is `held`, `deliverable=false`, and `latest.json` remains unchanged. Profile
 activation and the ordinary Studio publication route reject experimental ink.

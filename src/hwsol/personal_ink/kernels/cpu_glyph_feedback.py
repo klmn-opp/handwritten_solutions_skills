@@ -136,6 +136,10 @@ class CpuGlyphFeedback:
             }
 
     def apply(self, page, renderer, provenance, *, contexts=frozenset({"text"})):
+        # Imported here because the math wrapper also uses this kernel. Both paths
+        # must apply the same actual filled-outline contact test to proposals.
+        from hwsol.personal_ink.kernels.math_latin_feedback import contacts
+
         contexts = frozenset(contexts)
         if not contexts or not contexts <= {"text", "mathematics"}:
             raise ValueError("Explicit supported feedback contexts required")
@@ -224,9 +228,27 @@ class CpuGlyphFeedback:
                     treatment["outline_units_per_em"] = text_to_path.FONT_SCALE
             if treatment is None:
                 continue
+            before_items = list(page.items)
             key = ("cpu-glyph-feedback", ch, i, selected)
             renderer._outlines[key] = new
             page.items[i] = ("path", key, matrix, old_item[3], 0)
+            nearby = contacts(i, before_items, page, renderer, records)
+            if any(neighbor["new_contact"] for neighbor in nearby):
+                candidate_bounds = item_bounds(page.items[i], renderer)
+                page.items[i] = old_item
+                # No candidate identity/source fields have been written yet. Keep
+                # the original path and all its metadata, with an explicit receipt.
+                row["cpu_feedback_rejection"] = {
+                    "status": "explicit-original-glyph-fallback",
+                    "reason": "new neighbor ink contact",
+                    "attempted_variant": selected,
+                    "attempted_bounds_px": candidate_bounds,
+                    "attempted_treatment": treatment,
+                    "neighbors": nearby,
+                    "original_source_retained": True,
+                    "layout_positions_changed": False,
+                }
+                continue
             row.update(
                 cpu_feedback={
                     "original_variant": variant,
