@@ -203,3 +203,44 @@ Shared corpus_access now protects both actual search entrypoints before label JS
 retrieval, using source/name/split/ancestor/descendant/sibling closure. Synthetic
 SQLite label sentinels verify the guard; no additional protected text/image was
 read. This is data-access engineering, not handwriting-quality evidence.
+
+## 2026-11-20 — admit actual Session O ink, not printed prompt labels
+
+New O-FULL is19 pages/123 rows in one author session. Direct import retains RGB300DPI,
+original SHA, source context and exact PDF↔raster/crop transforms. All rows receive
+actual-ink review.333 projected column regions remain unlabelled;14 row-role holds
+include ππΠ vs intended variants, plain vs blackboard letters, and an actual matrix
+b where the prompt says c. Never repair labels to match expected math. Approve33
+precise original crops/13 roles after root and independent review; no source edits,
+training updates, private uploads, history DB or sealedC access this round.
+
+## 2026-11-20 — fix source/placement causes before modifying ink
+
+Pi thickness comes from the old heavy original; new three isolated authentic pi
+replace20 occurrences with fixed seed1909/context hash, without erosion. Phi's
+long stem makes full-bbox normalization shrink the bowl. Measured whole/bowl ratio
+is about1.82; scale the whole original uniformly by the bowl and allow its measured
+asymmetric stem extension under real neighbor checks. The original symmetric cap
+rejects3 variants by0.008h; source-based top.4h/bottom.6h admits unchanged geometry.
+Closed integral centered in its slot touches E; fixed left alignment retains size
+and actual source with3.038px clearance. Preserve failed candidates and exact source
+reconstruction; do not loosen contour equality to hide repeated-transform roundoff.
+
+## 2026-11-20 — deliver tested24-page coverage without universal claims
+
+Final20de331ba4 replaces50 items (20pi +30font fallbacks) with all8509 English
+records/paths and all non-target output exact. Fresh4ad9aab55 adds74 placements,
+independent analytic checks and real complete answers. These are engineering new
+content, not fresh sealed holdout. Unsupported ell/widehat use explicit alternative
+notation in the authored answers; generic parser capability is not expanded.
+Finale4bc22e8 combines24 approved pages,2932 math items,0 font fallback; all merged
+page pixels equal approved parents. Seven old short procedural roofs and fine
+superscript star remain explicit. Source commit ae9c9db matches run snapshots.
+
+Earlier20package8a64ba48 had an invalid artifact inventory and post-finish log;
+keep it failed for verification purposes. Rename nested receipt and create a new
+run, rather than repair the old receipt.91 PDF/PNG files remain byte-identical in
+validde331ba4. Root and independent reviews approve engineering evidence, not author
+style. Candidate registry is append-only, public/default Profile unchanged. Go for
+bounded stage delivery and author comparison; production/v1.0 remains No-Go.
+M4/M5/RL are not unlocked by isolated glyph collection or lower fallback counts.

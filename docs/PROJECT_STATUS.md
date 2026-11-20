@@ -11,7 +11,7 @@ Historical version reports remain historical evidence, not the current status en
 | English research backbone | v0.10.21 canonical-conditioned-ink/1, 194,513 parameters; component-balanced checkpoint | Experimental |
 | English page calibration | v0.10.22 t/l/r metrics + v0.10.23 measured word gaps | Frozen reference |
 | Math research baseline | v0.10.26 D, original personal glyphs + measured structures + spacing/stem correction | M1 fresh-content evidence now available; explicit remaining fallback/refusals |
-| Current increment | Third correction delivered: two authentic f sources actually used; isolated pi extraction No-Go | Author review/new natural ink pending; no production promotion |
+| Current increment | Session O imported; 33 reviewed glyphs / 13 roles; original20 + fresh4 pages | Tested24 pages: 0 font fallbacks; author style pending, no production promotion |
 
 The first four D pages contain 526 frozen neural English words. The other three
 use Handnote English. The seven-page D is not a general neural page service.
@@ -22,6 +22,17 @@ Private machine-readable entries are `workspace/registry/production.json`,
 `research_best.json` and `candidates.json`. M0 creates them only after verifying
 assets and replay; each references its immutable freeze run. Use
 `python -m research.project_state verify` to verify existing entries.
+
+Latest evidence: [Session O math completion](SESSION_O_MATH_COMPLETION.md) and
+[source audit](SESSION_O_CORPUS_IMPORT.md). Run `e4bc22e8` packages24 reviewed pages,
+2932 visible math items and124 new-source placements. Original20 fallbacks30→0;
+all20 pi use authentic new ink. Existing8509 English records/paths, f variations
+and non-target geometry stay exact. Phi body-height and integral left alignment
+were source-measured and visually reviewed. No new neural training occurred.
+Only33 glyphs are admitted:123 rows are source-reviewed,333 regions remain unlabelled,
+and14 rows have role uncertainties. Seven old procedural short roofs remain.
+Author style acceptance is pending. Candidate manifest and append-only registry
+increment are private; frozen production/research registries remain unchanged.
 
 History: [2026-11-20 audit](../PROJECT_AUDIT_2026-11-20.md),
 [method retrospective](../workspace/analysis/20261120-font-method-retrospective/retrospective.md),
@@ -53,7 +64,7 @@ separate equivalent-source recovery; it is not a newly supported renderer struct
 Four different original-text problems were actually solved, checked and rendered
 through the public CPU path. No new image/PDF intake evidence is claimed.
 
-The 20 original successful A/B pages contain 2,269 visible math items. Font fallback
+Historical sequence before Session O: the 20 original successful A/B pages contain 2,269 visible math items. Font fallback
 occurrences decrease from 201 to 38, with zero changed English pixels. Root Agent
 review found no confirmed content/boundary error in accepted pages. The author then
 rejected visual acceptance: long/tall root clearance, slash fractions, heavy title
@@ -78,7 +89,9 @@ nested-holdout label-access flaw; the actual shared reader is fixed and the
 15-label access is disclosed, without C access or original-image use. No new
 neural training occurred. The
 [comprehensive 19-page collection booklet](COMPREHENSIVE_MATH_COLLECTION.md)
-now supersedes the minimum-collection preference and is ready to fill.
+superseded the minimum-collection preference. Its filled Session O is now imported
+and reviewed as described above; the earlier connected-pi No-Go remains a valid
+historical decision, superseded by distinct new isolated sources.
 See the reports for PDFs, PNGs, all 173 formula pairs and fallback overlays.
 
 [M3 corpus report](M3_CORPUS_READINESS.md): immutable federation and incremental

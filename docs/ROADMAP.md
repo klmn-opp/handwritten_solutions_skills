@@ -1,5 +1,12 @@
 > Current authoritative entry: [PROJECT_STATUS](PROJECT_STATUS.md). The [master plan](MASTER_EXECUTION_PLAN.md) and [master roadmap](MASTER_ROADMAP.md) govern future execution. Historical entries below retain their original time scope.
 
+最新增量：[O-FULL 原迹已导入](SESSION_O_CORPUS_IMPORT.md)，[完整 24 页已交付](SESSION_O_MATH_COMPLETION.md)。
+原 20 页所有 30 处字体回退及 20 个 π 已由可靠新原迹替换，33 枚字形准入；英文/f
+及布局保持。下一判断为作者对 π/Φ/∮ 与整页风格的验收。新符号继续从已收到的
+123 行中审核，不重复索要整套采集，也不把 333 个未标注 region 当作训练样本。
+M2 正式整合/macOS/作者门槛与 M4 假设 No-Go 保持，不因回退数下降而自动解锁。
+下方所述“等待新笔迹”为此前历史状态，当前以 [交接](EXECUTION_HANDOFF.md) 为准。
+
 当前执行入口为长期 M0–M8 总计划。M0 冻结、M1 首轮新作业验收和 M3 注册增量已交付；
 M2 公开构建门禁、M4 历史连续监督审核及真实推理对齐试验已完成增量验收；
 首轮完整 20 页修订已获作者「明显改善」评价；第二轮修订 2、横笔和 f 后的完整 20 页

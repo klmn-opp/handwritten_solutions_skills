@@ -1,5 +1,13 @@
 > Current authoritative entry: [PROJECT_STATUS](PROJECT_STATUS.md). The [master plan](MASTER_EXECUTION_PLAN.md) and [master roadmap](MASTER_ROADMAP.md) govern future execution. Historical entries below retain their original time scope.
 
+2026-11-20 最新：[Session O 完成报告](SESSION_O_MATH_COMPLETION.md)。已导入新上传的
+19 页数学原件并审核 123 行，准入 33 枚真实字形/13 种符号。原 20 页的 30 处字体
+回退和 20 个偏重 π 已替换；连同新四题共 24 页、2932 个数学项目，受测页回退为零。
+Φ 按真实圆腹尺寸放置，∮ 左对齐避免接触；英文、真实 f 变体及非目标布局完全保留。
+最终包 `e4bc22e8` 已核验，源码 `ae9c9db`。作者风格判断待定，生产发布 No-Go；
+无神经权重更新。333 列候选未准入，14 行角色不确定，7 条旧程序短横笔仍保留。
+总计划、main/latest、原件及历史 Profile 不变。以下是该增量之前的历史过程。
+
 2026-11-20 Master Plan 已完整保存并实际执行 M0/M1：冻结基线重放通过；新题原始成功
 20 页的数学字体回退 201→38，留出集原始 7/8，明确保留拒绝及恢复。
 [本轮完整报告与 PDF/PNG](M1_HOMEWORK_BENCHMARK.md)。M3 注册已实现；

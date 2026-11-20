@@ -1,92 +1,105 @@
 # Execution handoff
 
-Updated2026-11-20. Branch `feature/master-execution-m0-m1`. Current source commit
-`33eb737` implements third author correction and source-access guard; closing docs
-commit follows it (`git log -1` gives current HEAD). Previous round2 closure8210a37.
-User-owned `.vscode/` remains untracked/untouched. Read live Git status first.
+Updated2026-11-20. Branch `feature/session-o-math-completion`; implementation commit
+`ae9c9db` on parent9881dc7, closing documentation commit follows (`git log -1`).
+Read live Git status. User-owned `.vscode/` remains untracked and untouched.
 
 Read first: [verbatim master plan](MASTER_EXECUTION_PLAN.md),
-[status](PROJECT_STATUS.md), [third revision](M1_THIRD_AUTHOR_REVISION.md),
-[roadmap](MASTER_ROADMAP.md), [decisions](DECISION_LOG.md).
-Bounded autonomous work and parallel agents are authorized; no production
-activation. No new neural updates have occurred in this master-plan phase.
+[status](PROJECT_STATUS.md), [Session O completion](SESSION_O_MATH_COMPLETION.md),
+[source audit](SESSION_O_CORPUS_IMPORT.md), [roadmap](MASTER_ROADMAP.md).
+Authorized bounded autonomous work/parallel review continues; no production
+activation or new neural training is implied by source collection.
 
-## Latest delivered candidate: authentic f variation, pi explicitly unresolved
+## Latest delivery: Session O,24 pages, author style pending
 
-Run `20261120T124522448757Z-author-feedback-round3-authentic-f-complete-20-4af6334e`
-is held and verified. MainPDF:rendered/homework_solutions.pdf; pages/*.png;
-comparisons/all-f-words/formula-regions.pdf has124 complete words; all-f-pi-targets
-has145 f+20 pi; all-formulas173; fallback-overlay and full provenance/decisions.
-Run SHA9419cb9713df8d5118603bd166f5f6c4ec31e2148afcea5b2058a11e4789248f.
-PDF SHAc10f557a97ef0485b583d7111f0ecf418d9d6aec1b4cfe1f4f571cc410732933.
+Final package `20261120T141332892747Z-session-o-reviewed-24-page-delivery-e4bc22e8`
+is held and verified; runSHA
+`e0c65bd37fdc3c5af478a29364a7a669b2f9de97314909dea83d82a9a45c6075`;
+PDFSHA `4405763fe1e152371a891e8ef74baa2ed8e424393d7d2d51d5e6ee19d55415b2`.
+Main PDF:rendered/homework_solutions.pdf; pages/01..24.pdf/png;
+rendered/pages-300dpi.zip; comparisons/baseline-24-pages.pdf;
+reports/glyph-provenance.json; candidate-profile descriptor and copied33-source
+bank under solutions/candidate-profile. All24 merged PDF page pixels equal parents.
+Append-only private registry:workspace/registry/increments/<run_id>.json.
+No existing registry/default Profile/latest changed.
 
-Latest author feedback on round2: '有改善，f的形状不错了，但是出现了所有f趋同的现象，
-pi（圆周率符号）仍然有加粗问题'. Verbatim/PDF identity:
-workspace/analysis/20261120-master-execution/author-feedback-m1-round3.json.
-This accepts f shape, not variation or pi. The new mixed-source candidate still
-awaits author's judgment. Do not treat a prior 'B better' as blanket acceptance.
+Parents:
 
-All145 f had used f0. Actual GSUB has two independent sheet f, not four cyclic
-indices. Fixed seed1909, actual word/LaTeX context hash, nominal50/50 choice;
-53 use real sheet-f1 and92 remain f0. Original30 held f are exact,2 new cutoff
-ff instances retained together after one fails clearance,60 stay by selection.
-All14 real ff groups have consistent actual sources. Only P6 f_avg changes among
-five mathematical f. Other10,629 records and every non-f geometry/pixel remain.
-All20 final PNG files exactly equal reviewed parentfb1722a8. Math2265,30 explicit
-font fallbacks,pi20 unchanged. No new missing item/contact/crop issue observed.
+- Final20 `20261120T140811736339Z-session-o-reviewed-math-complete-20-de331ba4`,
+  runSHA50fa2faa80153455386085837d267a4969eb92a245a2a39b19b0634bf704528b.
+ 50/50 replacements:20 pi plus30 previous font fallbacks. All8509 English records
+ and placed paths, all non-target geometry/records,173 parser traces exact;
+ no changed pixels outside targets, no new contacts or subpixel crowding.
+ comparisons/all-targets has50 pairs; all-formulas173; fallback-overlay-A/B.
+- Fresh4 `20261120T140350095212Z-session-o-fresh-four-homework-pages-ad9aab55`:
+ 74 new-source placements,667 visible math items,0 font fallbacks; own full
+ solutions with independent analytic checks. All CPU English, no prebuilt words.
+ Supplementary engineering new content, not sealed holdout or neural generalization.
+- Original rollback `20261120T124522448757Z-author-feedback-round3-authentic-f-complete-20-4af6334e`:
+ 53 actual f1/92 f0,30 held older small f. These f and14ff are unchanged this round.
+ Exact20 baseline replay74cee5e0 passed before replacement.
 
-Root reviewed all53 changes, authentic source contact, probes and full pages
-1/4/6/16/18/20. Independent reviewed all53 changes+14 whole ff words, recomputed
-choices and source-font hashes. No claim of newly learned or continuous variation:
-this restores real variant calling with only two samples from one collection.
-Historical final was too wide/heavy even where geometrically safe,No-Go; two red
-source derivatives with old density gain were not admitted. Do not tune another
-seed/proportion or revive final without a distinct new hypothesis.
+Final24 math2932, new-source placements124, font fallbacks0;7 older procedural
+short roofs remain. Source categories are explicit, including181 source-measured
+structural rules. Zero fallback is limited to tested pages, not all mathematics.
+U* true five-ray source is complete but fine at native superscript scale.
 
-Frozen evidence:
-- final f parent `20261120T124209101548Z-f-real-source-variation-probe-fb1722a8`,
-  runSHA54c8c08c323681c9ce4e22d18a0451c1306bab0fa308e52a683f234c889cabd6;
-  source directory solutions/sources. FVariationFeedback(source_dir,source=...,
-  title=...,seed=1909).apply; moduleSHA734885a57f0987edf6c900cdf7524f3028768a4acb06f6e9c67d4b2c0829ad69.
-- pi source review `20261120T123612508971Z-pi-connected-source-review-0029bd3f`.
-  New lighter pi is joined to the preceding2; no isolated contour is safe. Whole
-  original2pi retained with raw RGB/PDF coordinates/old OCR/separate actual review.
-  Initial11 OCR hits→8 regions/4docs:7false,1oldheavy;2extra same-page contextviews.
-  Not an exhaustive history search. Cross-token composition not admitted.
-- access guard/disclosure `20261120T124151564297Z-corpus-access-guard-audit-7702c97c`.
-  Initial old catalogue loaded15 legacy heldout character labels in16 physics1
-  sample JSONs; some metadata printed. Recognition count0, no original physics1
-  images opened, no candidate/training based on it. C SHA/name exclusions always
-  active. Never say the whole turn had perfect text isolation. Shared corpus_access
-  now protects both old/new entrypoints using nested split and whole-source plus
-  ancestry/sibling closure before raw labels. Synthetic SQLite checks only.
-- root review workspace/analysis/20261120-round3-root-review/FINAL_REVIEW.json;
-  independent workspace/analysis/20261120T123058133770Z-round3-independent-1381bc61/FINAL_REVIEW.json,
-  SHA3f18b662ef5a967a3e999762b5451c67c569501364547e2f95af0ab0311a0cab.
+Root and independent source/local/full-page visual reviews complete:
+workspace/analysis/session-o-root-priority/FINAL_ROOT_REVIEW.json;
+workspace/analysis/20261120T140416012048Z-session-o-final-pages-independent-a45c1888/FINAL_REVIEW.json
+SHA02c8ad2686540d0d7cecdf76614e129ff968d4d712664d41b4fecaee0a9786e3.
+Pending author question links final20 and50 target pairs, focusing pi/Phi/integral.
+Do not treat author's earlier f-shape or old B preference as approval of new pages.
 
-Prior round2 remains `20261120T121552890180Z-author-feedback-round2-complete-20-956bbad6`,
-with92 two fixes,129 real fraction rules,14 real roofs and115 source-relative f.
-Its root/independent full-page review is documented inM1_SECOND_AUTHOR_REVISION.
-First revision50910a3a and original rejectedB remain immutable. New20 English is
-CPU; frozen v21/v23 neural English pages remain untouched.
+## Sources, exact mechanism and failed trials
 
-## Actual next author inputs
+Original source_pdf/session-O_full_source.pdf:19pages,
+SHA23a84ff4cf5dc4882b5fb76d5eb4cc3a32c59e9799ea7a351f545598401f4d43.
+Direct O-only import7e119738; rowindex6886ffcf:123rows/369overlapping RGB views;
+columnsc1312600:333 unlabelled regions from32rows,91whole rows preserved.
+All crops retain exact original pixels, parent context and PDF/raster transforms.
+No history DB/heldout/C was accessed this round. Existing prior exposure disclosure
+remains in third revision; do not rewrite it as perfect historical isolation.
 
-Broad Session O-FULL already delivered:19pages123rows, not minimized. Run
-`20261120T115345363337Z-comprehensive-math-collection-o-full-6e3979c3`,
-solutions/collection/session-O_full.pdf. Root/independent print/structure review
-accepted. Filled original colour scan:source_pdf/session-O_full_source.pdf.
-[Booklet report](COMPREHENSIVE_MATH_COLLECTION.md). No actual new scans imported.
-Prompt labels are intended content, not true labels until ink review.
+Final bank `20261120T135929419362Z-session-o-reviewed-glyph-bank-b803206a`,
+solutions/glyphs/sources.json SHA2ae93d8c9f2261abfae4811a82e87f275232e3231bc7c2fc6cf53c7fc9372f18.
+33 original glyphs:pi/kappa/Phi/xi/eta/product/approx/zeta/psi/asterisk each3;
+left-angle/right-angle/closed-integral each1. One session,13 roles, not independent
+train/holdout sources. L160 contours; original RGB never altered. Seed1909 fixed.
+Printed prompts not labels:14 rows have actual role holds (see source report).
+333 geometric column regions not admitted. Do not auto-label by column order.
 
-This bounded correction is delivered. On new author feedback, preserve this
-candidate and diagnose the specified problem. On new scan, retain RGB300DPI,
-PDF/source SHA and transforms; review actual writing before isolated replacement.
-Pi and missing math sources need new reliable ink. Do not blindly launch neural
-training because a glyph collection arrives. M2/M4 independent limits below stay;
-do not repeat old packaging checks/13-word experiments to create apparent work.
-No main/latest/default activation, release, private upload, original overwrite or
-sealedC access. M0–M8 is not globally complete.
+SessionOResolver uses existing parser slots. Phi:whole original contour uniformly
+scaled by reviewed bowl height, about1.82×bowl total source height. Allowed original
+slot expansion top.4h/bottom.6h follows source asymmetry; real collision gate still
+required. No ink gain or stem cutting. Closed integral:left anchor of originalslot,
+no scale/y change; E gap3.038px. Pi:new3 genuine isolated sources replace old heavy
+source; no erosion or forced split of historical2pi. Angles bounded stretch recorded.
+
+Failed first20adf8f1c8 retained:49/50,1integral fallback and smallPhi.
+Phi symmetric bound probe62afb332 admits2/5; corrected source-based a765cef0 admits5.
+Fresh5ce9e516 rejects unsupported ell; preflight also rejects widehat. Own-answer
+notation explicitly declared Latin l=logL and single-letter hat; no parser fix claim.
+Initial integral proofa27cad9f failed one-ulp repeated transform; e58e4155 exact
+source reconstruction passes. Final20 packaging8a64ba48 failed nested run.json
+inventory and post-finish log; do not call it valid. Replacementde331ba4 is valid;
+91 outputs byte-identical, proofe1c2d8d6. Do not mutate/delete earlier failed runs.
+
+## Next authorized work and actual gates
+
+This bounded new-source stage is complete and committed. Await author style
+judgment on the delivered pages; incorporate specific corrections when received.
+No further whole-symbol rescan is needed now. Future coverage expansion should
+review existing rows first and separately confirm ambiguous roles, especially
+variant Greeks, blackboard/calligraphic roles, tall right angle and literal matrix b.
+Do not replace actual writing with the prompt or reference answer.
+
+M2 production integration/macOS/author acceptance remains No-Go. M4's specific
+context hypothesis remains No-Go; isolated math symbols do not supply missing
+continuous English supervision. Do not blindly train, replay consumed holdout or
+repeat old packaging checks as apparent progress. The full M0–M8 is not complete.
+Protect main/latest/default, original scans/labels/Profiles/checkpoints and sealedC;
+no external personal-data upload or production publication without explicit approval.
 
 ## Completed increments and their limits
 
