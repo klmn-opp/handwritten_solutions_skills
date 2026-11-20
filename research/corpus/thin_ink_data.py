@@ -25,17 +25,20 @@ def token_positions(row: dict) -> np.ndarray:
     return result
 
 
-def component_weights(ink: np.ndarray) -> np.ndarray:
-    if ink.shape != (128, 512) or not np.isfinite(ink).all():
+def component_weights(
+    ink: np.ndarray, *, expected_shape=(128, 512), balance_to_largest: bool = False
+) -> np.ndarray:
+    if ink.shape != expected_shape or ink.ndim != 2 or not np.isfinite(ink).all():
         raise ValueError("Complete finite real ink required")
     mask = np.uint8(ink > 0.5)
     if not mask.any():
         raise ValueError("Blank target")
     count, labels, stats, _ = cv2.connectedComponentsWithStats(mask)
     weights = np.zeros_like(ink, dtype=np.float32)
+    reference_area = max(stats[1:, cv2.CC_STAT_AREA]) if balance_to_largest else 128
     for label in range(1, count):
         area = stats[label, cv2.CC_STAT_AREA]
         # Isolated single pixels must not dominate; no pixels/labels are fabricated.
-        value = min(6.0, max(1.0, (128 / area) ** 0.5)) if area >= 3 else 1.0
+        value = min(6.0, max(1.0, (reference_area / area) ** 0.5)) if area >= 3 else 1.0
         weights[labels == label] = value
     return weights

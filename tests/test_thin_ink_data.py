@@ -43,3 +43,17 @@ def test_small_components_gain_weight_without_inventing_ink_or_amplifying_single
     assert weights.max() <= 6
     with pytest.raises(ValueError, match="Blank"):
         component_weights(np.zeros_like(ink))
+
+
+def test_canonical_component_balance_preserves_background_and_single_pixel_noise():
+    ink = np.zeros((96, 96), np.float32)
+    ink[10:12, 30:35] = 1
+    ink[30:80, 30:35] = 1
+    ink[90, 90] = 1
+    original = ink.copy()
+    weights = component_weights(ink, expected_shape=(96, 96), balance_to_largest=True)
+    assert weights[10, 31] == 5
+    assert weights[40, 31] == 1
+    assert weights[90, 90] == 1
+    assert not weights[ink == 0].any()
+    np.testing.assert_array_equal(ink, original)

@@ -136,11 +136,17 @@ def worker(request):
     )
     model = CanonicalInk().cuda()
     saved = torch.load(cfg["checkpoint"], map_location="cuda", weights_only=False)
-    assert saved["step"] == 1000
+    assert saved["step"] == cfg.get("source_checkpoint_step", 1000)
     model.load_state_dict(saved["model"])
     initial = {k: v.detach().clone() for k, v in model.state_dict().items()}
     torch.save({"model": initial}, run / "logs/initial-state.pt")
     optimizer = torch.optim.AdamW(model.parameters(), lr=cfg["learning_rate"])
+    pixel_weights = None
+    if cfg.get("pixel_weights"):
+        assert digest(cfg["pixel_weights"]) == cfg["pixel_weights_sha256"]
+        with np.load(cfg["pixel_weights"]) as archive:
+            pixel_weights = torch.tensor(archive["weights"], device="cuda")
+        assert pixel_weights.shape == target.shape
     rng = np.random.default_rng(cfg["seed"])
     counts = np.zeros(len(target), np.int64)
     curve = []
@@ -152,9 +158,9 @@ def worker(request):
         noise = torch.tensor(rng.standard_normal((len(classes), 8)), device="cuda").float()
         local = codes[ids] + cfg["sigma"] * scales * noise
         logits = model(labels[ids], local)
+        weight = (1 + 3 * target[ids]) if pixel_weights is None else pixel_weights[ids]
         losses = (
-            F.binary_cross_entropy_with_logits(logits, target[ids], reduction="none")
-            * (1 + 3 * target[ids])
+            F.binary_cross_entropy_with_logits(logits, target[ids], reduction="none") * weight
         ).mean((1, 2))
         loss = (losses * weights).mean()
         if not torch.isfinite(loss):
@@ -236,7 +242,7 @@ def worker(request):
         {
             "actual_parameter_training": True,
             "new_model_updates": cfg["steps"],
-            "model_lineage_updates": 5000,
+            "model_lineage_updates": cfg["inherited_model_updates"] + cfg["steps"],
             "parameters": sum(p.numel() for p in model.parameters()),
             "parameter_l1_change": sum(
                 float((v - initial[k]).abs().sum()) for k, v in model.state_dict().items()
@@ -244,7 +250,7 @@ def worker(request):
             "seconds_training_and_generation": time.perf_counter() - start,
             "peak_cuda_allocated": torch.cuda.max_memory_allocated(),
             "gpu": torch.cuda.get_device_name(),
-            "checkpoint_sha256": digest(run / "logs/checkpoint-04000.pt"),
+            "checkpoint_sha256": digest(run / f"logs/checkpoint-{cfg['steps']:05d}.pt"),
             "outputs": len(outputs),
             "real_classes": 28,
             "font_only_local_classes": 44,
