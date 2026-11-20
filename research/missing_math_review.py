@@ -9,7 +9,6 @@ import json
 import math
 import re
 import shutil
-import sqlite3
 from collections import Counter
 from contextlib import closing
 from pathlib import Path
@@ -20,6 +19,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from hwsol.profiles.io import atomic_json, sha256
 from hwsol.workspace import Run
+from research.corpus_access import FORBIDDEN_NAME, catalogue
 from research.corpus_registry import SEALED
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -48,74 +48,11 @@ TARGETS = {
     "∬": r"\\iint(?![A-Za-z])|∬",
     "ℝ": r"\\mathbb\s*\{\s*R\s*\}|ℝ",
 }
-FORBIDDEN_NAME = re.compile(r"session[ _-]*c(?:[ _.-]|$)|heldout", re.I)
 FORMULA_SHEET = "c6fa4ab4f530863d0d3c207e4ef782bdc24930452f54f73998a145246c575de9"
 
 
 def hits(text):
     return [symbol for symbol, pattern in TARGETS.items() if re.search(pattern, text or "")]
-
-
-def catalogue(path):
-    """Resolve blocked ancestry using IDs/SHA only, before retrieving any candidate text."""
-    with sqlite3.connect(path.resolve().as_uri() + "?mode=ro", uri=True) as db:
-        doc_meta = db.execute(
-            "SELECT id,json_extract(data,'$.source_hash'),json_extract(data,'$.source_path') "
-            "FROM records WHERE kind='document'"
-        ).fetchall()
-        blocked_sources = set(SEALED) | {
-            digest for _, digest, name in doc_meta if FORBIDDEN_NAME.search(name or "")
-        }
-        sample_meta = db.execute(
-            "SELECT id,json_extract(data,'$.source_hash'),json_extract(data,'$.parents'),"
-            "json_extract(data,'$.dataset_split') FROM records WHERE kind='sample'"
-        ).fetchall()
-        blocked_ids = {
-            sid
-            for sid, digest, _, split in sample_meta
-            if not digest or digest in blocked_sources or split in {"holdout", "test", "sealed"}
-        }
-        while True:
-            extra = {
-                sid
-                for sid, _, parents, _ in sample_meta
-                if any(parent in blocked_ids for parent in json.loads(parents or "[]"))
-            }
-            if extra <= blocked_ids:
-                break
-            blocked_ids |= extra
-        allowed_ids = [sid for sid, *_ in sample_meta if sid not in blocked_ids]
-        allowed_hashes = [digest for _, digest, _ in doc_meta if digest not in blocked_sources]
-
-        def safe_rows(kind, field, values):
-            if not values:
-                return []
-            placeholders = ",".join("?" for _ in values)
-            return [
-                json.loads(raw)
-                for (raw,) in db.execute(
-                    f"SELECT data FROM records WHERE kind=? AND {field} IN ({placeholders})",
-                    [kind, *values],
-                )
-            ]
-
-        documents = safe_rows("document", "json_extract(data,'$.source_hash')", allowed_hashes)
-        pages = safe_rows("page", "json_extract(data,'$.source_hash')", allowed_hashes)
-        samples = safe_rows("sample", "id", allowed_ids)
-        recognitions = safe_rows("recognition", "json_extract(data,'$.sample_id')", allowed_ids)
-    return {
-        "path": str(path),
-        "sha256": sha256(path),
-        "documents": documents,
-        "pages": pages,
-        "samples": samples,
-        "recognitions": recognitions,
-        "filter": {
-            "excluded_source_hashes": sorted(blocked_sources),
-            "blocked_sample_count": len(blocked_ids),
-            "method": "source SHA and ancestry IDs before retrieving sample/recognition text",
-        },
-    }
 
 
 def candidates(catalogues):
