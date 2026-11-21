@@ -68,6 +68,7 @@
     "scripts/verify_release_assets.py": "8770655084b6aca161c53a83754f6d2464a2672c453e50fca73a58f429be76fe",
     "src/hwsol/__init__.py": "732e3cb470eae8a1e46a0f308ae74bc8c942f5545fc5f1e61aa8cd8f05f413ac",
     "src/hwsol/__main__.py": "c7150fd327a3fa93729800905dfe675ce907147268ef79bb66e5c4889294339b",
+    "src/hwsol/_build.json": "a3eed21d836c4a99a2d4195ff2b0eb5c4c9c39c1596f08c2c61eb3f05f30c71e",
     "src/hwsol/adapters/__init__.py": "96c5fa16adeaa6b9ae8266fb4c41433cf513c4591af7c1d0c20cb7cb6523a8ab",
     "src/hwsol/adapters/_mth_worker.py": "22e3c7f8a08353fa2cc6a79af3fe086a34fa2652ce325c744b0e631389a7256f",
     "src/hwsol/adapters/base.py": "01ac2cbacd6ac25033e0bff77f74f09157f642e87c0718bf66b9a8d517358273",
