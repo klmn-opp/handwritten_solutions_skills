@@ -32,7 +32,9 @@ def assignment(tmp_path, monkeypatch):
     folder = tmp_path / "问题"
     shutil.copytree(EXAMPLES / "mixed", folder)
     path = folder / "job.json"
-    return path, json.loads(path.read_text()), tmp_path / "result"
+    job = json.loads(path.read_text())
+    job["profile"] = "bundled-default@v1"  # Frozen generic-renderer fixture.
+    return path, job, tmp_path / "result"
 
 
 def run(assignment, ok=True):

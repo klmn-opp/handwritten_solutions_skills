@@ -1,0 +1,1428 @@
+{
+  "schema_version": 1,
+  "profile": "author-default",
+  "version": "v1",
+  "parent": null,
+  "base": "personal@v1",
+  "created_at": "2026-11-20T16:29:00.850445+00:00",
+  "description": "Compiled personal runtime; exact reviewed contours, no original scans",
+  "source_kind": "derived",
+  "distribution": "OFL-1.1 AND MIT",
+  "assets": [
+    {
+      "path": "ink/banks/f_variants/candidates.json",
+      "sha256": "ef00feda245cc5beab21f89b15772ab96175926d07e19a3ddb36bba0b8927579",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/f_variants/outlines/0000.npz",
+      "sha256": "fcb0cd5c38e7586f91247093968a46bfb9b394613942cfd9d9877bf02b2d1d60",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/f_variants/outlines/0001.npz",
+      "sha256": "0bf256682128d1fd3732d86b874ba6b5b610b93e089a1cac87d6c68fe8728edb",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/f_variants/source-sample.ttf",
+      "sha256": "a23a188082a075b5094956faeb5cdd0b4f919d1c316b41c7ee07706216548aa8",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/historical/manifest.json",
+      "sha256": "725e03ced4b9b782752655d5275e7568d4ceaada8fca3120397599b901de884c",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/historical/outlines/0000.npz",
+      "sha256": "1a4e199b72e2197b0424a588a76fd6b508f65e3c6873782491e47f594eddc598",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/historical/outlines/0001.npz",
+      "sha256": "c8acd4aa782b1d8f58fd9d0ef033fa4ce9b1e03711463cc4882b0a446fb39033",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/historical/selections/0000.json",
+      "sha256": "fd74525e0a9f4af6d217b2cc8c5a7d5e88bfb06375f848ccab5bece5ac7a62b3",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/historical/selections/0001.json",
+      "sha256": "cd141e7365f5f406d422c921e58dc85f3d80be2e4a48dab1ac17e7f0d13d6083",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/legacy/outlines/0000.npz",
+      "sha256": "1d0b443c6fc391c58f826b1806ef50a9d749b11ac56c9cb2665f7b06c48d68cf",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/legacy/outlines/0001.npz",
+      "sha256": "7205f1feb0040f45cce1cf438a9ffd8892ea115d87eda631aa5bbf0007014075",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/legacy/outlines/0002.npz",
+      "sha256": "f205a4bb351eb326cb2784281e64919b7cfa643db308a6ff33b30dae235c6317",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/legacy/outlines/0003.npz",
+      "sha256": "7b919460b0eee0c1bdabf23edecff7492c23037dfe7006a65a1a1b1f9b13f55f",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/legacy/outlines/0004.npz",
+      "sha256": "96bcf25793c4a56b410087a95783a565f03977bb6b0bbae6c11a547903aeba5f",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/legacy/outlines/0005.npz",
+      "sha256": "2c82343fea8ec06a5761da5aa3753a71b77b75639938784a0c1dfdab88e83229",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/legacy/outlines/0006.npz",
+      "sha256": "08bed99d5fd543419c43aa1ee811fe63787ea1e6aeca3f063b8f15e6b4256bfd",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/legacy/outlines/0007.npz",
+      "sha256": "90d401915ba73d5c68810c589c8dd79704e5351ad186c703fae2d9e165d0d883",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/legacy/outlines/0008.npz",
+      "sha256": "4e462d2b8eac089199f3e3a3c88482a3c0c910615ecad83b94de8d58e6355853",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/legacy/outlines/0009.npz",
+      "sha256": "75525b27d78462be938a0c8436598332716364832aa424e32aab6bfde413655c",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/legacy/outlines/0010.npz",
+      "sha256": "ec85288067e3e659a82bacf6a060ee7258231d636cc5d9a3b2d0112272f07e5e",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/legacy/outlines/0011.npz",
+      "sha256": "c34faddf88813eb4689a0ac6f9038c65352b425631771931821e31883a414085",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/legacy/outlines/0012.npz",
+      "sha256": "606799f45bfbdb2e0aa347c5727385d319692f4effb4061857fe03274c0ada34",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/legacy/outlines/0013.npz",
+      "sha256": "8f2ed80d6f92aa307597e9a972894db62e8edc0910cdc19243ee3fe2e25cbfeb",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/legacy/outlines/0014.npz",
+      "sha256": "f2374bfab81a2b2422de25e209809863dde5e9d956d7891c30607e2381d8c6fa",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/legacy/outlines/0015.npz",
+      "sha256": "8fd51533aff60a26903972e2813fdfdcb2446f37e6003c7e1990266603c4018b",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/legacy/outlines/0016.npz",
+      "sha256": "7b656d2b695a5e772f4f4f22c95351f758d145216834ba16c8546e97b802088b",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/legacy/outlines/0017.npz",
+      "sha256": "9f6642d12a99d09ffe6d60fc4bb136906cb9e1a0d38583a82a1d9f88fb604c3f",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/legacy/sources.json",
+      "sha256": "037d6446c9c422f14eadf1bc9986332ece1f93c0aa77530543c13d18fe2e56fc",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/rules/outlines/0000.npz",
+      "sha256": "b2a51c27f0f2f03cac9199942111692f411cba2afbfa603923f0cd5d41f72c28",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/rules/outlines/0001.npz",
+      "sha256": "a261f8a3591a896ce1019c5cd6441c8485a2f94e032dd7365fa2742fa7e22a71",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/rules/outlines/0002.npz",
+      "sha256": "dc8619c8e404716490a3a7916249b94b8e2f686e156e88ef462d42781403d95f",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/rules/outlines/0003.npz",
+      "sha256": "52ac0453f1893a56fa5f9af701e308c588ff65b8775a97191290e5f322eaeef7",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/rules/outlines/0004.npz",
+      "sha256": "443a415ce29075a2b2805e2857e2b283b881d4034b52b817a4bf141045d1e585",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/rules/outlines/0005.npz",
+      "sha256": "8893f91b31d9ec3e408d27780c616e947e82458f8292f84fb521f9c241e89349",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/rules/sources.json",
+      "sha256": "85dcca1f600484524161aa9cad91a8d2eb75a1eeb66cf5d65396fc548398d7d3",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0000.npz",
+      "sha256": "e9eb39d5a5eca2407b0076b802cbbd32280927a833271b86f59c6e22aff752c2",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0001.npz",
+      "sha256": "a0671a1b462284bad85bd5502b72d51a46fb92c034e705675553bebeb2a036f6",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0002.npz",
+      "sha256": "8d1c609760c1174ed29aa961747d68cbf76b7a43ba7838468e6193180b5d21ee",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0003.npz",
+      "sha256": "0e3d8c59bbbe9e499b912ff38ffbfd0597d648525a0a18a97cf5f9dc5f996620",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0004.npz",
+      "sha256": "c15a93e50a33ef7b78162dd02811a709c010ba576f19a62639c7802eb859eaca",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0005.npz",
+      "sha256": "387fdda6f8eea8557a98752883ccc4d617b3f7cab3ef0c0754edf801d73b6ec9",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0006.npz",
+      "sha256": "ed9ce7c67da274867b8c760c85948fcadf1279f6b7a8818e51ca5022efa7fe58",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0007.npz",
+      "sha256": "4d23d55d3be11adb9bd9c8516a940a303f581602bc9e898ee36fe5d6d6b188b2",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0008.npz",
+      "sha256": "75da094072c29b8d8ba2c625205ca65a4346b384ab721bd5aeba6ce411e0f6a8",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0009.npz",
+      "sha256": "1dae26f30bb2462c9456430050072a20296e634de56206245f314ceabcf8afe7",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0010.npz",
+      "sha256": "798dec0ff5ae835296876441520f755e555228b9cfa277e87ec336dfc717f6f8",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0011.npz",
+      "sha256": "8b5e0ea9201161991258305a76d3e29265ee266fbba45bf6bfcff44414a60619",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0012.npz",
+      "sha256": "8d0fbc746644c95c18c06760b5b9bca9cb38dc9da3384bdee6134e4d4564c4ba",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0013.npz",
+      "sha256": "d5a9c47b6951e826577a74c36ccc5a425899f4982c0ad422a638e85ac2246451",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0014.npz",
+      "sha256": "3724f39507a3fc1a639a13586427696e754203c8e7b7ac5efcfc11654ada15e0",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0015.npz",
+      "sha256": "970c4d004660d3edfc8989a68e3d7aedffd46fbd1b84058bf42e462a2d83c48a",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0016.npz",
+      "sha256": "1a20267869ee4c21cdc36db2074d56ed93ae6bff4919216d38c6232561ac3393",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0017.npz",
+      "sha256": "3b610a0d28c029869b198fb8663f4635ce402bb5a4db940cd5c098c2024b7d31",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0018.npz",
+      "sha256": "e2326f12506eac55622fe6c4760623a1d02bc7f141ab7015d649212d64e531da",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0019.npz",
+      "sha256": "ac7c1f8909dfa933b5bbaa7bb8338b5748a55dfa09bf544f3709743eea7fe2de",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0020.npz",
+      "sha256": "6365ba20aae7151a9443b7da6e76960680faa73abe83453b38faedb30f0241b9",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0021.npz",
+      "sha256": "9d1b72a916186e655fb666b3324495e656927d91530f5bfd302bc6978af20a61",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0022.npz",
+      "sha256": "9ed079feedff1e3d5f2323489eda35683a7f8fc5d24085fc28ee2484e81fa3c9",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0023.npz",
+      "sha256": "f0962c626bdf026b2d40faf7aaf14f31a55149172d814958401352db905914fd",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0024.npz",
+      "sha256": "475a26d5dabb3bd47b7aa56e294f87e71914ce15c1fe180cb4a179828a2eff7e",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0025.npz",
+      "sha256": "673447c761c2549b0fdae191fe587baa9ef40dcf68dc32a72290950f1d7c1db8",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0026.npz",
+      "sha256": "195f36fe6d446080304e0b4a434ccf7d2d7ae5d39e4702a88f0e835915e83013",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0027.npz",
+      "sha256": "7952dc47607c215035aa384479ae75af005140168e1cf443e4af779e23c47e29",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0028.npz",
+      "sha256": "b784021f959efe251d59140ed1b6887150423817264eb2f8afcf186bc03bbe59",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0029.npz",
+      "sha256": "0f1c592a61a754e6cdef85c69b4c9bf9270bf08d532c026dcae48cba17aa0198",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0030.npz",
+      "sha256": "012e3b865186665f9e2657a65a50a7f8b5527db2ffb696bd8a566f2f39ac748d",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0031.npz",
+      "sha256": "ce23d7526dee99c42a7870e0542939351cec3470f3a361e9e14b2e1c3788835a",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0032.npz",
+      "sha256": "1b4a59a150ae17b5000928d01e105047f3fd366c1b436a8f885c12c96563206d",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0033.npz",
+      "sha256": "34b128cf76b0d33298b34768d6ba8952e48c8bd32603ee49906a0901a3fb6ac8",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0034.npz",
+      "sha256": "6b0160aa505b6e31528738af08839fc4420733534d5b72a65c5ff532e7e97207",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0035.npz",
+      "sha256": "a0186003690238f5a242a74bb814164ac1f332823ee138e787d0cb7fa336ce5b",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/outlines/0036.npz",
+      "sha256": "08948ab894b0d2b04d2d0ec4c60a9ae74fff7504adff0b80b28cadcd81fb00a0",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/session_o/sources.json",
+      "sha256": "090983a3a9d169d4d5c1d050f81f5c45352d322eff0c077bd1b87039690f6619",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0000.npz",
+      "sha256": "a97c8c67ccde7dd44afe8af3d2e329fdcf8a1e9758aa1b0d24174de4a9a405d8",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0001.npz",
+      "sha256": "cb6e99e9576e76954903634ecee47ca6e00c1ad044746e3c308b30c16c5ad9e6",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0003.npz",
+      "sha256": "d2ddcc88813ac6701305566cd3c60208ea514b8f32aa76acfbbaafa01022d7aa",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0004.npz",
+      "sha256": "2f46617848ea9de1dce1b4507ef2ddaf10596aa3acd3671ab356a1a021a006a7",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0005.npz",
+      "sha256": "69bf3932c5d2eeeef55ccb6626bafaec4b8f63dc20e0c69d8ab34231425ed662",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0007.npz",
+      "sha256": "8cf5180d654cf0edff65ef08d9bfb432fa5ea37902318d8675cd7acdd09439dc",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0008.npz",
+      "sha256": "7c2ec94996cd07da35525b4a44a9369468e2119a42c12f90d2aa54b2eabee425",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0009.npz",
+      "sha256": "8f354b142e0e59c264f9e99f522a57a6d1c645e0d62ea078d02c83305e2b4fde",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0013.npz",
+      "sha256": "2d9d451790a69b5d93f8f54c1df82ad4ee85c845c1a9a5f854376e7b45c27414",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0014.npz",
+      "sha256": "89fdb8139f65305f69cdc8dfbd04a2f6a1f981cb5b9e1418b45ee169acc43e88",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0015.npz",
+      "sha256": "ca12b7512418acf463922ec667a693481287100125114ebc03e69369d45d4d83",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0017.npz",
+      "sha256": "96a2b9197e0e4d15876434b88e0bc941a340a2c167c429af1c6c2e54707a2c98",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0018.npz",
+      "sha256": "1906854d31ea0e848b2dcb126142eac9982d9ea7c9935596e276d8a12e4e06db",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0019.npz",
+      "sha256": "c147c884bc7c2ad28e46579f425c197df0cd6e0038807efd37f4b47263c64840",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0020.npz",
+      "sha256": "8e6ef475b2e99f51748d7a04faa4081aec78858402c3a4d95699d2ca744e3bf9",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0021.npz",
+      "sha256": "3b1a41e6eb35383fb27356565ace846a25b041373a6bbc71286638c6b723598b",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0022.npz",
+      "sha256": "ccb8081ca1709c80570db70f43137be3646a80414b50622f7144d2c691d82b37",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0023.npz",
+      "sha256": "43b8fcc6990b84c5d16b474edd78bcbbc8d58e9bca14d56915134105fcc41518",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0024.npz",
+      "sha256": "bae8f83a398ad257ac7d5a997333505b774da2f7073f2dd650fc7d1eeae0e24f",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0025.npz",
+      "sha256": "f5f497396a9ebe428366c190605f954f6b2af03e170a90d970e8d02f87ddc2a0",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0026.npz",
+      "sha256": "6169bdd3538bba7e36f75d509e975bfcd771782eb77f40a4899e402c12e19384",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0027.npz",
+      "sha256": "c913fa8d4645c4b137ae412b0c8eff669787ef6d2b500b82d4ef8ec1d76ab62a",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0028.npz",
+      "sha256": "3051ced143ba01722355d9b3aabef5ee8234014b1244f12508eccb1cbfd59f34",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0029.npz",
+      "sha256": "69c6eddd70c9525d33f3f7fa092c050962b6fc4850760389748b1c9cd93871aa",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0030.npz",
+      "sha256": "b2a51c27f0f2f03cac9199942111692f411cba2afbfa603923f0cd5d41f72c28",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0031.npz",
+      "sha256": "6d824616747221c450ae728715ed0477c8a952f4b1dcdbdf18ca8a1c3a3d64e9",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0032.npz",
+      "sha256": "d47520fbb86d437babd6fe54fad5b24ca16efb083c8c32c51707cf46feda4c4b",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0033.npz",
+      "sha256": "597f5c16d426642a9c7b62e348a973cab111c2fc373502976a45c9b14dd38294",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0034.npz",
+      "sha256": "458f21f325c01058f85e452e08ad5dd7b60ca94e0e29444503c565e5b0f2f4c0",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0035.npz",
+      "sha256": "f8f22adc98fc28585f197cc78e11587bb0baf24651631d6178faf19e067715a4",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0037.npz",
+      "sha256": "6b86729a69f9f297f565b242f4a66b89cf077503c2506bfa2cdccafb5f192aa4",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0038.npz",
+      "sha256": "acd2cc3b37fed450dba062af77a6c093e3468329bab590e960c6a261b133c49a",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0039.npz",
+      "sha256": "bfd8a741bb30c31324c86b275240f4d856dfdd53cdeca7b73a512614f72afbf3",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0040.npz",
+      "sha256": "893c96db8277b9ccc028fb25414f873af37f00df1e30a35328208b75d6cfea3c",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0041.npz",
+      "sha256": "a261f8a3591a896ce1019c5cd6441c8485a2f94e032dd7365fa2742fa7e22a71",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0042.npz",
+      "sha256": "dc8619c8e404716490a3a7916249b94b8e2f686e156e88ef462d42781403d95f",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0043.npz",
+      "sha256": "85144752d6fbeeb8dc1df9c1d4f2d44ebaecfde3579a35f8ab9cb6b379ca8892",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0044.npz",
+      "sha256": "9e9948628b7b9a6c8c6986017d1c2873bb45cbf0df1ce13fbc94d61b55a02f4b",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0045.npz",
+      "sha256": "d816a83b2e8eab53a524ce79bc64ae4dcd5b10d646a4cb56976aa507c448cbbb",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0046.npz",
+      "sha256": "6a9379be8e63d11c60224aa74dc7c30746b75f5bafc356ddf38c5f6150503a88",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0047.npz",
+      "sha256": "9a8d62d9cce6828a555dd7c36016115a2e30b605cc095f2e224689100e99eb4d",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0048.npz",
+      "sha256": "4b3d0389a746bb99ba0131fa29bb94ec67464a746bff08647d565df787a632b4",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0049.npz",
+      "sha256": "00b7a8aef423c08d58270f14809d7e0bb40038ab720ce7fac755a0c4bad957db",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0050.npz",
+      "sha256": "fe14b35ca3a3950aea8bdb6876e259be19cd6ca8b4810c7ced18edc229192b3f",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0051.npz",
+      "sha256": "3a102d6ac41fb6579e9f3ffc5de0fea41f3ffe14b3e4b96595d3936252ce9586",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0052.npz",
+      "sha256": "f61a4850927225f4505cdbbbe1dab199f9bf1b825d1bcf96aabb50df7cc1c6d4",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0053.npz",
+      "sha256": "5ceddc0417907fd21afbdd7a5dc14fe0114765bfcdd8d97632929a648a2149aa",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0054.npz",
+      "sha256": "f6c69c6c9c1cd01b57a7d9ed59213ba2a5d9d775a15ddd584e85560d78225c7a",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0055.npz",
+      "sha256": "94585f691f4fbb255ce2b3294b8fcc0e86bb46540fb6523ad8175e9483c9d728",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0056.npz",
+      "sha256": "24c335b23997a1cddef1dbb897139273fedadf06d1ea269b10ab603a2097ab24",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0057.npz",
+      "sha256": "bda4c829f4bb0e31858801516d9bd9aa2ea7c9b783bfcbe64b34831130ef56c3",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0058.npz",
+      "sha256": "f4496c3a75a3d5c7a3217e17c7a9945d33a776a166f75765344ea77f958701bc",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0059.npz",
+      "sha256": "0558459952a994db57109e94d1aab2a7235b6ccc5aed1b26354a61e3554f8a1f",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0060.npz",
+      "sha256": "85ed1cb65398df23b88d9ad5c6227b28137128981fad849eca400aa768803fa5",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0061.npz",
+      "sha256": "86a9ccc01745fe2ef2ecaa9f9345107394e1c470669e1ce3aec55b9950ea1d62",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0062.npz",
+      "sha256": "52ac0453f1893a56fa5f9af701e308c588ff65b8775a97191290e5f322eaeef7",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0063.npz",
+      "sha256": "443a415ce29075a2b2805e2857e2b283b881d4034b52b817a4bf141045d1e585",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/outlines/0064.npz",
+      "sha256": "8893f91b31d9ec3e408d27780c616e947e82458f8292f84fb521f9c241e89349",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/banks/sessions/sources.json",
+      "sha256": "1c4c38014c2415a499605275973dcd1b3f7097a4c4d969115ecf05a8bfd05eb8",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/base-profile/font.ttf",
+      "sha256": "60466bbde4f39280838ac15f1121fc975cf841f42b581f74618eff50c8b2bcd9",
+      "role": "font"
+    },
+    {
+      "path": "ink/base-profile/license/377f4f9c19e935228552478eb68cc2ed82910988a60ba60e2ac73b09f32d02d1.txt",
+      "sha256": "377f4f9c19e935228552478eb68cc2ed82910988a60ba60e2ac73b09f32d02d1",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/base-profile/profile.json",
+      "sha256": "af63a6879018fb2086a305dd7b1f874b0f6ab0c1601f670ebd4daa7cf41fcc5e",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/recipe.json",
+      "sha256": "2ba31db319e12e84232c8a5f458ae4cbde0efc56c3bf3ddfd8196afeb559a1ea",
+      "role": "personal-ink"
+    },
+    {
+      "path": "ink/stroke-profile/calibration.json",
+      "sha256": "08bd280c6d3cce649b86705f37cc494860dc6a51543208a557d7b488033cfceb",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/stroke-profile/font.ttf",
+      "sha256": "d8118addcabfdd0ca855d3a2455e3c8f1c318444687235869e9c1fb2a6310a22",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/stroke-profile/license/377f4f9c19e935228552478eb68cc2ed82910988a60ba60e2ac73b09f32d02d1.txt",
+      "sha256": "377f4f9c19e935228552478eb68cc2ed82910988a60ba60e2ac73b09f32d02d1",
+      "role": "provenance"
+    },
+    {
+      "path": "ink/stroke-profile/profile.json",
+      "sha256": "b8cad75b926e7a41271e524bb4dac0d7a0d329ff9c979b56feb69c791b4404b6",
+      "role": "provenance"
+    },
+    {
+      "path": "RUNTIME_LICENSE.txt",
+      "role": "license",
+      "sha256": "8d4ce9d07ca55ad2fce7c9aff2d9f925c2f7a20f99fe5e690288ab7104647a07"
+    }
+  ],
+  "font": "ink/base-profile/font.ttf",
+  "coverage": [
+    0,
+    13,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    112,
+    113,
+    114,
+    115,
+    116,
+    117,
+    118,
+    119,
+    120,
+    121,
+    122,
+    123,
+    124,
+    125,
+    126,
+    160,
+    161,
+    162,
+    163,
+    164,
+    165,
+    166,
+    167,
+    168,
+    169,
+    170,
+    171,
+    172,
+    173,
+    174,
+    175,
+    176,
+    177,
+    178,
+    179,
+    180,
+    182,
+    183,
+    184,
+    185,
+    186,
+    187,
+    188,
+    189,
+    190,
+    191,
+    192,
+    193,
+    194,
+    195,
+    196,
+    197,
+    198,
+    199,
+    200,
+    201,
+    202,
+    203,
+    204,
+    205,
+    206,
+    207,
+    208,
+    209,
+    210,
+    211,
+    212,
+    213,
+    214,
+    215,
+    216,
+    217,
+    218,
+    219,
+    220,
+    221,
+    222,
+    223,
+    224,
+    225,
+    226,
+    227,
+    228,
+    229,
+    230,
+    231,
+    232,
+    233,
+    234,
+    235,
+    236,
+    237,
+    238,
+    239,
+    240,
+    241,
+    242,
+    243,
+    244,
+    245,
+    246,
+    247,
+    248,
+    249,
+    250,
+    251,
+    252,
+    253,
+    254,
+    255,
+    256,
+    257,
+    258,
+    259,
+    260,
+    261,
+    262,
+    263,
+    264,
+    265,
+    266,
+    267,
+    268,
+    269,
+    270,
+    271,
+    272,
+    273,
+    274,
+    275,
+    276,
+    277,
+    278,
+    279,
+    280,
+    281,
+    282,
+    283,
+    284,
+    285,
+    286,
+    287,
+    288,
+    289,
+    290,
+    291,
+    292,
+    293,
+    294,
+    295,
+    296,
+    297,
+    298,
+    299,
+    300,
+    301,
+    302,
+    303,
+    304,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    313,
+    314,
+    315,
+    316,
+    317,
+    318,
+    319,
+    320,
+    321,
+    322,
+    323,
+    324,
+    325,
+    326,
+    327,
+    328,
+    329,
+    330,
+    331,
+    332,
+    333,
+    334,
+    335,
+    336,
+    337,
+    338,
+    339,
+    340,
+    341,
+    342,
+    343,
+    344,
+    345,
+    346,
+    347,
+    348,
+    349,
+    350,
+    351,
+    352,
+    353,
+    354,
+    355,
+    356,
+    357,
+    358,
+    359,
+    360,
+    361,
+    362,
+    363,
+    364,
+    365,
+    366,
+    367,
+    368,
+    369,
+    370,
+    371,
+    372,
+    373,
+    374,
+    375,
+    376,
+    377,
+    378,
+    379,
+    380,
+    381,
+    382,
+    383,
+    402,
+    416,
+    417,
+    431,
+    432,
+    461,
+    462,
+    463,
+    464,
+    465,
+    466,
+    467,
+    468,
+    496,
+    506,
+    507,
+    508,
+    509,
+    510,
+    511,
+    536,
+    537,
+    538,
+    539,
+    567,
+    700,
+    710,
+    711,
+    728,
+    729,
+    730,
+    731,
+    732,
+    733,
+    755,
+    768,
+    769,
+    771,
+    777,
+    783,
+    795,
+    803,
+    805,
+    806,
+    937,
+    955,
+    956,
+    960,
+    963,
+    7680,
+    7681,
+    7742,
+    7743,
+    7808,
+    7809,
+    7810,
+    7811,
+    7812,
+    7813,
+    7840,
+    7841,
+    7842,
+    7843,
+    7844,
+    7845,
+    7846,
+    7847,
+    7848,
+    7849,
+    7850,
+    7851,
+    7852,
+    7853,
+    7854,
+    7855,
+    7856,
+    7857,
+    7858,
+    7859,
+    7860,
+    7861,
+    7862,
+    7863,
+    7864,
+    7865,
+    7866,
+    7867,
+    7868,
+    7869,
+    7870,
+    7871,
+    7872,
+    7873,
+    7874,
+    7875,
+    7876,
+    7877,
+    7878,
+    7879,
+    7880,
+    7881,
+    7882,
+    7883,
+    7884,
+    7885,
+    7886,
+    7887,
+    7888,
+    7889,
+    7890,
+    7891,
+    7892,
+    7893,
+    7894,
+    7895,
+    7896,
+    7897,
+    7898,
+    7899,
+    7900,
+    7901,
+    7902,
+    7903,
+    7904,
+    7905,
+    7906,
+    7907,
+    7908,
+    7909,
+    7910,
+    7911,
+    7912,
+    7913,
+    7914,
+    7915,
+    7916,
+    7917,
+    7918,
+    7919,
+    7920,
+    7921,
+    7922,
+    7923,
+    7924,
+    7925,
+    7926,
+    7927,
+    7928,
+    7929,
+    8211,
+    8212,
+    8216,
+    8217,
+    8218,
+    8220,
+    8221,
+    8222,
+    8224,
+    8225,
+    8226,
+    8230,
+    8240,
+    8249,
+    8250,
+    8260,
+    8304,
+    8308,
+    8309,
+    8310,
+    8311,
+    8312,
+    8313,
+    8319,
+    8355,
+    8356,
+    8359,
+    8363,
+    8364,
+    8482,
+    8721,
+    8722,
+    8730,
+    8734,
+    8747,
+    8776,
+    8800,
+    8804,
+    8805,
+    8901,
+    9674,
+    9829,
+    10075,
+    10076,
+    10077,
+    10078,
+    10086,
+    10087
+  ],
+  "variants": {
+    "40": 2,
+    "41": 2,
+    "43": 4,
+    "44": 2,
+    "45": 2,
+    "46": 2,
+    "47": 2,
+    "48": 4,
+    "49": 4,
+    "50": 4,
+    "51": 4,
+    "52": 4,
+    "53": 4,
+    "54": 4,
+    "55": 4,
+    "56": 4,
+    "57": 4,
+    "61": 4,
+    "65": 2,
+    "66": 2,
+    "67": 2,
+    "68": 2,
+    "69": 2,
+    "70": 2,
+    "71": 2,
+    "72": 2,
+    "73": 2,
+    "74": 2,
+    "75": 2,
+    "76": 2,
+    "77": 2,
+    "78": 2,
+    "79": 2,
+    "80": 2,
+    "81": 2,
+    "82": 2,
+    "83": 2,
+    "84": 2,
+    "85": 2,
+    "86": 2,
+    "87": 2,
+    "88": 2,
+    "89": 2,
+    "90": 2,
+    "97": 2,
+    "98": 2,
+    "99": 2,
+    "100": 2,
+    "101": 2,
+    "102": 2,
+    "103": 2,
+    "104": 2,
+    "105": 2,
+    "106": 2,
+    "107": 2,
+    "108": 2,
+    "109": 2,
+    "110": 2,
+    "111": 2,
+    "112": 2,
+    "113": 2,
+    "114": 2,
+    "115": 2,
+    "116": 2,
+    "117": 2,
+    "118": 2,
+    "119": 2,
+    "120": 4,
+    "121": 4,
+    "122": 2,
+    "963": 2,
+    "8722": 2,
+    "8730": 2,
+    "8747": 2,
+    "8901": 2
+  },
+  "personal_codepoints": [
+    40,
+    41,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    61,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    112,
+    113,
+    114,
+    115,
+    116,
+    117,
+    118,
+    119,
+    120,
+    121,
+    122,
+    963,
+    8722,
+    8730,
+    8747,
+    8901
+  ],
+  "samples": [
+    {
+      "id": "s-c222860c59414473bf606d42eade46b9",
+      "sha256": "0a91c048360b318f2782d1361ad875f482cf268f0f68ae3ce9ab49916c632780",
+      "included": true
+    },
+    {
+      "id": "s-6f23c7cfdf304bafa153c2b86c002a3c",
+      "sha256": "b900324929b89855dff8a1ea2b0b67b1da5df7f961ac50720229201274759676",
+      "included": true
+    }
+  ],
+  "render": {
+    "dpi": 300,
+    "page_width_mm": 210.0,
+    "page_height_mm": 297.0,
+    "margin_mm": 18.0,
+    "font_size_pt": 11.0,
+    "line_spacing": 1.6,
+    "seed": 1909,
+    "paper": "plain",
+    "ink": "#000000",
+    "policy": null,
+    "glyph_metrics": "raw",
+    "math_strokes": "personal",
+    "semantic_layout": true,
+    "word_gap_scale": 1.1448
+  },
+  "build": {
+    "kind": "compiled-personal-runtime/1",
+    "source_profile_sha256": "e7959a8124ba48dc7384c0c1a574bbc6e8da99879c9a8e9809946e69bcc17f81",
+    "source_recipe_sha256": "ae203d5174643a6a58a1080889c5eae60eb9a561da69cf4e917bbe36ace1e502",
+    "neural_updates": 0,
+    "publication_authority": false
+  },
+  "ink_bundle": "ink/recipe.json"
+}

@@ -3,8 +3,9 @@
 For a complete reproducible two-page example, see
 [the public demo Job](../examples/release-demo/job.json),
 [original questions](../examples/release-demo/questions.md) and
-[actual PDF](demo/homework_solutions.pdf). It uses the licensed bundled font,
-not private author handwriting or a neural generator.
+[actual PDF](demo/homework_solutions.pdf). The original Job explicitly selects Patrick Hand for compatibility.
+[The personal-default Job](../examples/release-demo/personal-job.json) omits that
+selection and uses the installed author preset (or your explicitly chosen default).
 
 The runtime typesets checked answers; it does not independently solve an arbitrary
 new problem. An external Agent must read the original and verify its answer.
@@ -17,10 +18,8 @@ Create `question.txt`, `answer.md` and `job.json` together. An example manifest:
 {
   "schema_version": 1,
   "generated_by": "Your Agent; answer independently checked",
-  "profile": "bundled-default@v1",
   "realism": "baseline",
   "language": "en",
-  "render": {"seed": 42, "dpi": 150},
   "problems": [{
     "number": "1",
     "statement": "Evaluate the integral of 2x from zero to three.",
@@ -63,7 +62,9 @@ contract. See [rendering](RENDERING.md), [Profiles](PROFILES.md), and
 
 ## Use a reviewed personal CPU Profile
 
-The bundled font works immediately and needs no qualification evidence. A personal
+The built-in `author-default@v1` works immediately, using its package-bound release
+receipt. It does not require importing a ZIP or making a local qualification bundle.
+The optional Patrick Hand preset also works immediately. A custom personal
 ink Profile has a separate lifecycle so that importing handwriting does not change
 your working default. Keep its ZIP and evidence on your own machine.
 
@@ -72,7 +73,7 @@ hwsol profiles import --source /path/to/personal-ink.zip
 hwsol profiles list
 ```
 
-An archive containing a personal ink recipe is imported as an inactive candidate,
+An archive containing a custom personal ink recipe is imported as an inactive candidate,
 even if another machine previously published it. Its declared source crops and provenance
 travel with the Profile; local publication authority does not. For review, select
 `"backend": "personal-cpu-experimental"` and the returned pinned `profile@version`
@@ -152,3 +153,15 @@ The example RC number is not an issued release or an acceptance claim. Test the
 exact new artifacts on the supported platforms and record their hashes before
 claiming release readiness; an older package's installation evidence is not the
 new package's verification.
+
+## Background selection
+
+Add a Job-level `background` field, for example `"background": {"kind": "dots"}`.
+The same field on a problem overrides the Job choice. Built-in choices are
+`plain`, `lined`, `grid`, and `dots`; local images use
+`{"kind":"image","path":"paper.png","fit":"contain"}` and PDF pages use
+`{"kind":"pdf","path":"worksheet.pdf","page":1,"fit":"contain"}`.
+Keep assets beside the Job and inspect the rendered preview. Current PDF paper
+does not locate writable blank areas or avoid printed questions. The personal
+word-gap preset's lined/grid interaction requires separate verification; see
+[the roadmap](ROADMAP.md).

@@ -1,0 +1,59 @@
+{
+  "schema": "personal-cpu-recipe/2",
+  "recipe": "compiled-outlines/1",
+  "base_profile": "ink/base-profile",
+  "base_profile_sha256": "af63a6879018fb2086a305dd7b1f874b0f6ab0c1601f670ebd4daa7cf41fcc5e",
+  "stroke_profile": "ink/stroke-profile",
+  "stroke_profile_sha256": "b8cad75b926e7a41271e524bb4dac0d7a0d329ff9c979b56feb69c791b4404b6",
+  "calibrated_font_sha256": "60466bbde4f39280838ac15f1121fc975cf841f42b581f74618eff50c8b2bcd9",
+  "banks": {
+    "legacy": "ink/banks/legacy",
+    "sessions": "ink/banks/sessions",
+    "historical": "ink/banks/historical",
+    "rules": "ink/banks/rules",
+    "f_variants": "ink/banks/f_variants",
+    "session_o": "ink/banks/session_o"
+  },
+  "bindings": {
+    "font_sha256": "60466bbde4f39280838ac15f1121fc975cf841f42b581f74618eff50c8b2bcd9",
+    "digit_sample_ids": [
+      "s-c222860c59414473bf606d42eade46b9",
+      "s-6f23c7cfdf304bafa153c2b86c002a3c"
+    ],
+    "horizontal_source_ids": [
+      "N-031-U0305-p1",
+      "N-042-U2212-p1",
+      "N-043-U2212-p1",
+      "N-063-U221A-p1",
+      "N-064-U221A-p1",
+      "N-065-U221A-p1"
+    ],
+    "horizontal_source_sha256": "d455f36021e9a0e4c7d9f1c319dd091c3b1f9da04edd4cbe28412e1a52f8f6f8",
+    "single_bar_source_id": "N-034-U007C-p1"
+  },
+  "admission": {
+    "kind": "lossless-runtime-compilation/1",
+    "source_profile_sha256": "e7959a8124ba48dc7384c0c1a574bbc6e8da99879c9a8e9809946e69bcc17f81",
+    "source_recipe_sha256": "ae203d5174643a6a58a1080889c5eae60eb9a561da69cf4e917bbe36ace1e502",
+    "raw_sources_included": false,
+    "qualification_transferred": false,
+    "neural_parameter_updates": 0
+  },
+  "scan_roles": [
+    "*",
+    "Σ",
+    "Φ",
+    "ζ",
+    "η",
+    "κ",
+    "ξ",
+    "π",
+    "ψ",
+    "∀",
+    "∏",
+    "∮",
+    "≈",
+    "⟨",
+    "⟩"
+  ]
+}

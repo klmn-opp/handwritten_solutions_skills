@@ -200,6 +200,24 @@ def train(
     return build(ProfileStore(), profile, include_traces=include_traces)
 
 
+@studio.command("build")
+@command
+def build_profile(
+    profile: Annotated[str, typer.Option()],
+    source: Annotated[list[Path], typer.Option(help="Scanned PDF or ordered PNG/JPEG pages.")],
+    template: Annotated[Path, typer.Option(help="The original collection template JSON.")],
+    labels_reviewed: Annotated[
+        bool, typer.Option(help="Confirm actual ink was reviewed against every template label.")
+    ] = False,
+) -> dict:
+    """Build and preview a personal CPU Profile from reviewed scans; no activation."""
+    from hwsol.training.onboarding import build_from_scans
+
+    return build_from_scans(
+        ProfileStore(), profile, source, template, labels_reviewed=labels_reviewed
+    )
+
+
 @studio.command("evaluate")
 @command
 def evaluate(

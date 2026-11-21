@@ -1,10 +1,17 @@
 # Distribution licenses and privacy
 
-Project source is MIT, with the full [license](../LICENSE). The sole bundled
-font is unmodified Patrick Hand under SIL OFL 1.1. Its license and provenance are
-included in [the font asset directory](../src/hwsol/assets/presets/patrick-hand).
-The package metadata declares MIT AND OFL-1.1. The bundled font is an engineering
-default, not a personal handwriting sample or model.
+Project source and the author's authorized compiled runtime outlines/configuration
+are MIT, with the full [license](../LICENSE). The default `author-default@v1`
+is the author's accepted personal CPU style. It contains reusable fonts and
+compiled contours, with the owner's explicit permission to distribute them as
+this open-source project's default. Raw scans/crops, private source paths,
+training data and neural weights are not included.
+
+The personal font files derived from Patrick Hand retain SIL OFL 1.1 and their
+original embedded copyright/license notices. The unmodified Patrick Hand remains
+an optional `bundled-default@v1` preset. Its [license and provenance](../src/hwsol/assets/presets/patrick-hand)
+remain included. The package metadata declares MIT AND OFL-1.1; the MIT source
+license does not replace the OFL terms on those fonts.
 
 Runtime dependencies are pinned in `pyproject.toml` and `uv.lock`, including the
 specific Handnote source revision. Their own licenses apply. Matplotlib's math

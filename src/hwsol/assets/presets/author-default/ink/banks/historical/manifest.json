@@ -1,0 +1,47 @@
+{
+  "schema": "compiled-historical-contours/1",
+  "sources": [
+    {
+      "actual_visible_label": "∈",
+      "character": "∈",
+      "clean_isolated_ink": true,
+      "contour_luminance": 180,
+      "crop_sha256": "6b1a0bb7bc74b4cb6bc2c0076f948128dd17f7197f1a3dd44140c3a6e3d57d90",
+      "id": "historical-membership-left",
+      "original_pixels_edited": false,
+      "review_status": "agent-accepted",
+      "source_pdf_sha256": "c6fa4ab4f530863d0d3c207e4ef782bdc24930452f54f73998a145246c575de9",
+      "representation": "compiled-contour/1",
+      "raw_source_included": false,
+      "outline": "outlines/0000.npz",
+      "outline_sha256": "1a4e199b72e2197b0424a588a76fd6b508f65e3c6873782491e47f594eddc598",
+      "contour_archive": "outlines/0000.npz",
+      "contour_archive_sha256": "1a4e199b72e2197b0424a588a76fd6b508f65e3c6873782491e47f594eddc598",
+      "reviewed_component_selection": "selections/0000.json",
+      "reviewed_component_selection_sha256": "fd74525e0a9f4af6d217b2cc8c5a7d5e88bfb06375f848ccab5bece5ac7a62b3"
+    },
+    {
+      "actual_visible_label": "\\int\\int",
+      "character": "∬",
+      "clean_isolated_ink": false,
+      "contour_luminance": 180,
+      "crop_sha256": "3fa7f2eb4895ebd81708956760c3bdf6a1bea652c3ec5df23cb4d39b16335d16",
+      "id": "historical-double-integral-context",
+      "original_pixels_edited": false,
+      "review_status": "agent-accepted",
+      "source_pdf_sha256": "c6fa4ab4f530863d0d3c207e4ef782bdc24930452f54f73998a145246c575de9",
+      "representation": "compiled-contour/1",
+      "raw_source_included": false,
+      "outline": "outlines/0001.npz",
+      "outline_sha256": "c8acd4aa782b1d8f58fd9d0ef033fa4ce9b1e03711463cc4882b0a446fb39033",
+      "contour_archive": "outlines/0001.npz",
+      "contour_archive_sha256": "c8acd4aa782b1d8f58fd9d0ef033fa4ce9b1e03711463cc4882b0a446fb39033",
+      "reviewed_component_selection": "selections/0001.json",
+      "reviewed_component_selection_sha256": "cd141e7365f5f406d422c921e58dc85f3d80be2e4a48dab1ac17e7f0d13d6083"
+    }
+  ],
+  "selected": {
+    "∈": "historical-membership-left",
+    "∬": "historical-double-integral-context"
+  }
+}

@@ -35,9 +35,20 @@ def fail(exc: Exception) -> None:
 
 @app.command()
 def doctor() -> None:
-    """Check the primary CPU backend and licensed test font; never download assets."""
+    """Check the selected CPU Profile and its admission; never download assets."""
     try:
-        selected = ProfileStore().resolve()
+        store = ProfileStore()
+        selected = store.resolve()
+        qualification = None
+        if selected.manifest.ink_bundle:
+            from hwsol.profiles.presets import is_installed_author, validate_author
+            from hwsol.profiles.qualification import validate_published
+
+            qualification = (
+                validate_author(selected)
+                if is_installed_author(selected)
+                else validate_published(store, selected)
+            )
         with TTFont(selected.font) as font:
             points = len(font.getBestCmap() or {})
         packages = {
@@ -69,6 +80,7 @@ def doctor() -> None:
                         "lock_sha256": identity["lock_sha256"],
                     },
                     "profile": selected.provenance(),
+                    "profile_admission": qualification,
                     "packages": packages,
                     "font": {
                         "path": str(selected.font),
@@ -110,6 +122,12 @@ def render_probe(
         if font and profile:
             raise RenderError("Use either --font or --profile, not both")
         selected = None if font else ProfileStore().resolve(profile)
+        if selected and selected.manifest.ink_bundle:
+            raise RenderError(
+                "Personal ink recipes require hwsol render --manifest. "
+                "For a font-only diagnostic, explicitly choose "
+                "--profile bundled-default@v1 or --font /path/to/font.ttf."
+            )
         values = selected.manifest.render.model_dump() if selected else {}
         if config:
             values.update(json.loads(config.read_text("utf-8")))

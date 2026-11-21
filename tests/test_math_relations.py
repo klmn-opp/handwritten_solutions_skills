@@ -17,6 +17,7 @@ def test_relation_aliases_stay_auditable(tmp_path, command, character):
         {
             "schema_version": 1,
             "generated_by": "test",
+            "profile": "bundled-default@v1",
             "problems": [
                 {
                     "number": "1",

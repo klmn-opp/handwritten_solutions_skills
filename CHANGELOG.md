@@ -1,5 +1,17 @@
 # Public distribution notes
 
+## 1.1.0 — personal-first release candidate
+
+Clean installations select the author’s latest accepted personal handwriting,
+including its final word-gap setting. The shipped runtime derivative removes raw
+crops and private paths while retaining exact outlines and declared font licenses.
+Explicit user defaults and the optional Patrick Hand example remain available.
+
+`profile build` provides a reviewed-template scan → CPU font → preview workflow;
+activation remains explicit. This is font construction, not neural training.
+Flexible paragraph/math layout and source-PDF blank-area filling are planned
+separately; see [the roadmap](public_docs/ROADMAP.md).
+
 ## 1.0.0 — CPU release
 
 A complete local Agent Skill and CPU workflow: structured homework Jobs, one major

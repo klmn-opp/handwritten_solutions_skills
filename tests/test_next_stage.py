@@ -22,7 +22,7 @@ from hwsol.training.calibration import AnnotatedPage, measure
 
 @pytest.fixture
 def collected(tmp_path):
-    base = ProfileStore(tmp_path / "store").resolve()
+    base = ProfileStore(tmp_path / "store").resolve("bundled-default@v1")
     return replace(
         base,
         manifest=base.manifest.model_copy(

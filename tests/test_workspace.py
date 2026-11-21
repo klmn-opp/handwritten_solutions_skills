@@ -31,6 +31,7 @@ def fixture_job(root):
         {
             "schema_version": 1,
             "generated_by": "test",
+            "profile": "bundled-default@v1",
             "render": {"dpi": 72},
             "problems": [
                 {

@@ -22,6 +22,12 @@ from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
 FONT = "src/hwsol/assets/presets/patrick-hand/PatrickHand-Regular.ttf"
+AUTHOR_ROOT = "src/hwsol/assets/presets/author-default/"
+AUTHOR_FONTS = {
+    AUTHOR_ROOT + "ink/base-profile/font.ttf",
+    AUTHOR_ROOT + "ink/stroke-profile/font.ttf",
+    AUTHOR_ROOT + "ink/banks/f_variants/source-sample.ttf",
+}
 POLICY = "public_docs/distribution.json"
 PUBLIC_SCHEMA = "hwsol-public-distribution/1"
 PRIVATE_TEXT = re.compile(
@@ -58,7 +64,11 @@ def audit_paths(names):
             or private.intersection(p.parts)
             or p.name.startswith(".env.")
             or p.suffix.lower() in {".pth", ".pt", ".ckpt", ".safetensors", ".pkl", ".key", ".pem"}
-            or (p.suffix.lower() in {".ttf", ".otf"} and name != FONT)
+            or (p.suffix.lower() in {".ttf", ".otf"} and name not in {FONT, *AUTHOR_FONTS})
+            or (
+                name.startswith(AUTHOR_ROOT)
+                and p.suffix.lower() not in {".json", ".npz", ".ttf", ".txt"}
+            )
         ):
             raise ValueError(f"Unexpected release file: {name}")
 
@@ -115,6 +125,22 @@ def audit_public_files(files: dict[str, bytes]) -> dict:
                 private.append(name)
     if private:
         raise ValueError(f"Private operational references in public files: {private}")
+    if AUTHOR_ROOT + "profile.json" in files:
+        profile = json.loads(files[AUTHOR_ROOT + "profile.json"])
+        declared = {AUTHOR_ROOT + asset["path"] for asset in profile["assets"]}
+        declared |= {AUTHOR_ROOT + "profile.json", AUTHOR_ROOT + "release.json"}
+        actual = {name for name in files if name.startswith(AUTHOR_ROOT)}
+        if actual != declared:
+            raise ValueError("Bundled author assets differ from their explicit runtime inventory")
+        for asset in profile["assets"]:
+            if hashlib.sha256(files[AUTHOR_ROOT + asset["path"]]).hexdigest() != asset["sha256"]:
+                raise ValueError("Bundled author asset integrity failed")
+        recipe = json.loads(files[AUTHOR_ROOT + profile["ink_bundle"]])
+        if (
+            profile["distribution"] != "OFL-1.1 AND MIT"
+            or recipe["recipe"] != "compiled-outlines/1"
+        ):
+            raise ValueError("Only the authorized crop-free author runtime derivative can ship")
     missing = []
     for name, data in files.items():
         if not name.endswith(".md"):

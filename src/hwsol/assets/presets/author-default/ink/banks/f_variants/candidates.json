@@ -1,0 +1,41 @@
+[
+  {
+    "id": "sheet-f1",
+    "source": {
+      "id": "sheet-f1",
+      "kind": "accepted-collection-sheet",
+      "original_label": "f",
+      "original_sha256": "beb13d83c15e9c92f13c5dcc65485d74071b7c01b965b0e83d045894188d2648",
+      "font_source_sha256": "a23a188082a075b5094956faeb5cdd0b4f919d1c316b41c7ee07706216548aa8",
+      "source_glyph": "uni0066.s1",
+      "font_variant": 1
+    },
+    "geometry": {
+      "scale": 1.397984862617783,
+      "y_translation": -49.6766765298688,
+      "fit_rmse_font_units": 23.078808664666333,
+      "uniform_scale_no_stroke_dilation": true
+    },
+    "outline": "outlines/0000.npz",
+    "outline_sha256": "fcb0cd5c38e7586f91247093968a46bfb9b394613942cfd9d9877bf02b2d1d60"
+  },
+  {
+    "id": "support-079",
+    "source": {
+      "id": "support-079",
+      "kind": "accepted-historical-word-source",
+      "label": "f",
+      "source_hash": "985ed6df69cf0632fcf73b86582dd67086a2ab13aa4efe85239d6efe2d150cbc",
+      "source_crop_sha256": "259b76685d726f6c9c3fcf79dbf67ac7e49b4b6191f3c17eb53157dcbd0e9838",
+      "sha256": "238c2798a25e6d1aff568763a2ca22dd75bc92a8a0daa8bc4a7b2d8b5a94932e"
+    },
+    "geometry": {
+      "scale": 7.002898840463813,
+      "y_translation": 903.260895641743,
+      "fit_rmse_font_units": 44.9516702204092,
+      "uniform_scale_no_stroke_dilation": true
+    },
+    "outline": "outlines/0001.npz",
+    "outline_sha256": "0bf256682128d1fd3732d86b874ba6b5b610b93e089a1cac87d6c68fe8728edb"
+  }
+]

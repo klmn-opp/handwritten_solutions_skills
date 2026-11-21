@@ -284,7 +284,7 @@ def test_font_cpu_refuses_a_misfiled_ink_recipe(ink_candidate, tmp_path):
 def test_failed_candidate_pin_preserves_real_production_delivery(ink_candidate, tmp_path):
     store, _ = ink_candidate
     workspace = tmp_path / "workspace"
-    path = job_file(tmp_path / "stable-input")
+    path = job_file(tmp_path / "stable-input", profile="bundled-default@v1")
     stable = render_assignment(path, store=store, workspace=workspace)
     assert Path(stable["run"], "rendered/homework_solutions.pdf").is_file()
     pointer = (workspace / "latest.json").read_bytes()
@@ -324,3 +324,21 @@ assert not any(
         [sys.executable, "-c", script], text=True, capture_output=True, timeout=30
     )
     assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.parametrize("license_label", ["local-only", "OFL-1.1 AND MIT"])
+def test_export_reports_original_crops_regardless_of_license_label(
+    ink_candidate, tmp_path, license_label
+):
+    import zipfile
+
+    store, folder = ink_candidate
+    manifest = read(folder / "profile.json")
+    manifest["distribution"] = license_label
+    atomic_json(folder / "profile.json", manifest)
+    archive = tmp_path / "original-recipe.zip"
+    result = store.export("synthetic-ink@v1", archive, candidate=True)
+    assert "original crops" in result["contents"]
+    assert "no raw samples" not in result["contents"]
+    with zipfile.ZipFile(archive) as files:
+        assert "banks/legacy/glyph.png" in files.namelist()

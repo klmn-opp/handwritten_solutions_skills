@@ -109,7 +109,8 @@ def test_public_job_example_matches_runtime_schema():
     assert examples
     for source in examples:
         job = Job.model_validate_json(source)
-        assert job.profile == "bundled-default@v1"
+        assert job.profile is None
+        assert "render" not in job.model_fields_set
         assert job.problems[0].verification.status == "passed"
 
 

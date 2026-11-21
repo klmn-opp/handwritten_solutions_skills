@@ -1,0 +1,11 @@
+{
+  "level": 180,
+  "selected_components": [
+    1,
+    2
+  ],
+  "selected_component_ink_pixels": 1427,
+  "original_review_sha256": "5dfa1e5182a1fb4a631972a193d73317a0bd8b38d2a4fb412c2ae5ea3233cc37",
+  "compiled_contour_sha256": "c8acd4aa782b1d8f58fd9d0ef033fa4ce9b1e03711463cc4882b0a446fb39033",
+  "original_pixels_included": false
+}

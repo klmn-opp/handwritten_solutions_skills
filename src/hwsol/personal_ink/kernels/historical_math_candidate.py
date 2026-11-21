@@ -22,15 +22,25 @@ def load_sources(directory):
     manifest = read(directory / "manifest.json")
     glyphs = {}
     for source in manifest["sources"]:
-        for path_key, hash_key in (
-            ("crop", "crop_sha256"),
+        checks = (
             ("contour_archive", "contour_archive_sha256"),
             ("reviewed_component_selection", "reviewed_component_selection_sha256"),
-        ):
+        )
+        if source.get("representation") == "compiled-contour/1":
+            from hwsol.personal_ink.compiled import load_compiled_outline
+
+            outline = load_compiled_outline(directory, source)
+        else:
+            if source.get("representation") is not None:
+                raise ValueError("Unknown historical source representation")
+            checks = (("crop", "crop_sha256"), *checks)
+            outline = None
+        for path_key, hash_key in checks:
             if sha256(directory / source[path_key]) != source[hash_key]:
                 raise ValueError("Reviewed source/contour evidence changed")
-        with np.load(directory / source["contour_archive"], allow_pickle=False) as data:
-            outline = Outline(data["vertices"], data["codes"], stroke=False)
+        if outline is None:
+            with np.load(directory / source["contour_archive"], allow_pickle=False) as data:
+                outline = Outline(data["vertices"], data["codes"], stroke=False)
         if manifest["selected"].get(source["character"]) == source["id"]:
             glyphs[source["character"]] = ScanGlyph(source, outline)
     if set(glyphs) != TARGETS:

@@ -23,3 +23,9 @@ include .gitignore .github/workflows/release.yml
 include scripts/verify_release_assets.py tests/test_release_assets.py
 recursive-include public_docs/demo *.pdf *.png
 recursive-include public_docs/personal-demo *.pdf *.png
+
+# Personal-first runtime derivative and onboarding regressions.
+include tests/test_profile_onboarding.py tests/test_compiled_ink.py tests/test_bundled_author.py
+recursive-include src/hwsol/assets/presets/author-default *.json *.npz *.ttf *.txt
+
+include .github/workflows/author-preset-acceptance.yml scripts/check_author_preset.py

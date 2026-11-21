@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "backend": "font-cpu",
+  "generated_by": "Handwritten Solutions personal-default example; same independently checked public questions",
+  "language": "en",
+  "realism": "baseline",
+  "problems": [
+    {
+      "id": "public-demo-matrix",
+      "number": "1. A symmetric matrix",
+      "statement": "Find the inverse, solve Ax=b and verify an orthonormal spectral decomposition for A with rows (2,1),(1,2), b=(3,1)^T.",
+      "sources": [
+        {
+          "path": "questions.md",
+          "location": "Problem 1",
+          "sha256": "3dadd8b89137588e814b0942f0c0b16104e6cf979e3f03b9715e98c74d1d4658"
+        }
+      ],
+      "solution": "matrix.md",
+      "verification": {
+        "status": "passed",
+        "evidence": "Independent exact matrix products verify inverse, linear solution, orthonormality and diagonalization.",
+        "checks": [
+          {
+            "lhs": "2*2-1",
+            "rhs": "3"
+          },
+          {
+            "lhs": "2*(5/3)-1/3",
+            "rhs": "3"
+          },
+          {
+            "lhs": "5/3-2/3",
+            "rhs": "1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "public-demo-integral",
+      "number": "2. An integral and its bounds",
+      "statement": "Evaluate the integral of x^2/(1+x) from zero to one, verify its antiderivative, and bound the result using 1<=1+x<=2.",
+      "sources": [
+        {
+          "path": "questions.md",
+          "location": "Problem 2",
+          "sha256": "3dadd8b89137588e814b0942f0c0b16104e6cf979e3f03b9715e98c74d1d4658"
+        }
+      ],
+      "solution": "integral.md",
+      "verification": {
+        "status": "passed",
+        "evidence": "Independent symbolic differentiation and definite integration; bounds from monotonicity and a nonnegative numerator.",
+        "checks": [
+          {
+            "lhs": "1/2-1",
+            "rhs": "-1/2"
+          }
+        ]
+      }
+    }
+  ]
+}

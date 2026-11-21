@@ -135,6 +135,14 @@ class PersonalCpuEngine:
                             else "personal-cpu-experimental",
                             "local_release_qualification": self.qualification,
                             "recipe": self.bundle.description.recipe,
+                            "source_representation": (
+                                "compiled-contours"
+                                if self.bundle.description.recipe == "compiled-outlines/1"
+                                else "reviewed-original-crops"
+                            ),
+                            "raw_sources_included": (
+                                self.bundle.description.recipe == "reviewed-outlines/1"
+                            ),
                             "recipe_sha256": self.bundle.sha256,
                             "profile": profile.provenance(),
                             "base_profile": self.bundle.base.provenance(),
@@ -145,10 +153,16 @@ class PersonalCpuEngine:
                             "source_selection_seed": cfg.seed,
                             "neural_weight_updates": 0,
                             "production_qualified": bool(self.qualification),
-                            "qualification_scope": "this local ProfileStore and exact build; "
-                            "qualification does not activate defaults"
-                            if self.qualification
-                            else "experimental candidate only",
+                            "qualification_scope": (
+                                "installed compiled author preset and verified release environment"
+                                if self.qualification
+                                and self.qualification.get("scope")
+                                == "packaged-compiled-author-preset"
+                                else "this local ProfileStore and exact build; "
+                                "qualification does not activate defaults"
+                                if self.qualification
+                                else "experimental candidate only"
+                            ),
                             **diagnostics,
                         },
                         "handwriting": {

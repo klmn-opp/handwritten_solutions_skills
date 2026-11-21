@@ -29,8 +29,9 @@ CPU 出稿成品，不是神经网络生成的宣传图。作者已授权公开�
 [来源汇总与校验](public_docs/personal-demo/provenance.json)
 
 四页包含线性代数、积分、统计和电磁学，共 827 个数学可见项目，无外部字体回退；
-个人结构规则和程序结构笔画仍单独记录。**演示成品已公开，作者的私人字体、Profile、
-原始笔迹和权重不随包分发。** 你可以使用默认字体直接出稿，也可以建立自己的个人 Profile。
+个人结构规则和程序结构笔画仍单独记录。**新一代发行默认使用作者已验收的个人 CPU 字体与数学轮廓。**
+发行资产由最新稳定 v5 转换而来，保留最终词距；原始扫描、裁剪、训练资料和权重仍不分发。
+既有用户明确设置的默认版本会保留；干净安装使用 `author-default@v1`。
 
 ## 已有功能
 
@@ -45,10 +46,10 @@ CPU 出稿成品，不是神经网络生成的宣传图。作者已授权公开�
 PDF/PNG、Profile 迁移和回滚验证。不同系统的文字排版库可能产生细微落点差异，
 不保证跨系统像素一致。Windows 尚不属于本版已验证的支持范围。
 
-## 开箱即用的默认字体示例
+## 可选的 Patrick Hand 兼容示例
 
-公开安装包随附采用 OFL-1.1 许可的 **Patrick Hand** 默认字体。它与上方作者个人笔迹
-演示不同，适合无需采集个人字形的首次使用。下列输入全部公开，可以直接复现：
+公开安装包也保留采用 OFL-1.1 许可的 **Patrick Hand**，显式选择
+`bundled-default@v1` 即可使用。下列兼容示例继续固定使用它，便于复现旧结果：
 
 [默认字体两页 PDF](public_docs/demo/homework_solutions.pdf) ·
 [默认字体预览与来源](public_docs/demo/README.md) ·
@@ -68,11 +69,12 @@ PDF/PNG、Profile 迁移和回滚验证。不同系统的文字排版库可能�
 ```sh
 uv sync --locked --no-dev
 uv run --frozen hwsol doctor
-uv run --frozen hwsol render --manifest examples/release-demo/job.json --workspace workspace
+uv run --frozen hwsol render --manifest examples/release-demo/personal-job.json --workspace workspace
 uv run --frozen hwsol workspace latest
 ```
 
-第一次安装需要下载锁定的依赖。此后依赖已经缓存时，可以给 `uv` 加上 `--offline`。
+`personal-job.json` 不固定 Profile，因此使用已选择的默认；干净安装即为作者个人笔迹。
+无需导入私人 ZIP 或运行资格审核。第一次安装需要下载锁定的依赖。此后依赖已经缓存时，可以给 `uv` 加上 `--offline`。
 命令会打印实际运行目录；使用它核验成品：
 
 ```sh
@@ -97,7 +99,7 @@ run.json
 
 ```sh
 python3.12 -m venv .venv
-.venv/bin/python -m pip install /path/to/handwritten_solutions-1.0.0-py3-none-any.whl
+.venv/bin/python -m pip install /path/to/handwritten_solutions-1.1.0-py3-none-any.whl
 .venv/bin/hwsol doctor
 ```
 
@@ -121,21 +123,24 @@ wheel 提供命令行程序；演示输入、完整文档与 Skill 文件请使�
 
 ## 使用自己的笔迹
 
-默认字体可以直接使用，无需采集或训练。需要个人化时，可通过本地 Studio 整理
-真实笔迹、核对标签并建立版本化 Profile；这类字形提取与几何校准不是神经网络训练。
+不采集也能直接使用作者随包提供的个人风格。建立自己的 Profile 只需：
 
-已审核的个人墨迹包采用独立流程：
-
-```text
-导入候选 → 完整页面与来源审核 → qualify-ink → publish-ink → 按需 activate
+```sh
+hwsol profile template --output out/my-handwriting.pdf --sets 2
+# 填写、扫描，并核对实际笔迹与标签后：
+hwsol profile build --profile my-handwriting --template out/my-handwriting.json \
+  --source /path/to/filled-scans.pdf --labels-reviewed
+# 打开返回的 PDF/PNG 预览，确认后启用返回的实际版本：
+hwsol profile publish --profile my-handwriting --version v1 --activate
 ```
 
-这里的 `publish-ink` 是向**本机资料库**发布版本，不会上传网络，也不自动设为默认。
-资格与实际包、Profile 和文字排版能力绑定；导出再导入不会携带发布权限。
-详见[个人 CPU Profile 流程](public_docs/GUIDE.md#use-a-reviewed-personal-cpu-profile)。
+[三步详细教程](public_docs/PROFILES.md#从零建立自己的-profile三步)说明采集格式、预览、
+补样和回滚。这里是 CPU 字形提取与几何校准，没有神经网络参数训练。
+`publish` 只写本机资料库，不上传网络。新的基础字体 Profile 无需跨机器资格证据包。
 
-公开发行包含源码、运行时、Skill、示例和有分发许可的默认字体；不包含个人原始作业、
-扫描裁剪、私有 Profile、研究权重或本地操作记录。自己的笔迹与历史数据应保存在私有资料库。
+复杂的自定义数学墨迹配方仍使用独立的候选审核流程；详见
+[个人 CPU Profile 流程](public_docs/GUIDE.md#use-a-reviewed-personal-cpu-profile)。
+发行内置的作者 Profile 已有包内审核记录，普通用户无需重复走这个维护流程。
 
 ## 当前边界与后续方向
 
@@ -143,9 +148,10 @@ wheel 提供命令行程序；演示输入、完整文档与 Skill 文件请使�
 缺少可用字形时会记录回退。有限作业上的零回退不等于所有数学符号全面覆盖。
 发生拒绝时，应保留失败输入、检查原因并核验等价写法，不应删除必要步骤来换取通过。
 
-后续研发将围绕真实词句与连续墨迹监督、共享词级风格、可靠的神经个性化和独立
-偏好评价展开。新模型只有在新内容和完整页面中证明收益后，才会进入可用后端；
-稳定的 CPU 出稿不会依赖这些研究完成。
+下一阶段依次改进：根据内容灵活安排英文与公式、提供直观的背景选择、尝试把答案
+写入原题 PDF 的空白区域。现有背景支持不等于已经具备空白区识别和避让题目能力。
+验收要求与研究边界见[产品路线图](public_docs/ROADMAP.md)。连续神经笔迹继续作为
+独立研究，不阻塞本代个人 CPU 默认与简单 Profile 构建的交付。
 
 - [使用指南](public_docs/GUIDE.md) · [Profile 与 Studio](public_docs/PROFILES.md)
 - [渲染与回退](public_docs/RENDERING.md) · [工作区与运行记录](public_docs/WORKSPACE.md)

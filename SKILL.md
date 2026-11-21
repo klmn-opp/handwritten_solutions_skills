@@ -7,7 +7,9 @@ description: Solve supplied mathematics, physics or statistics homework and prod
 
 Use the installed `hwsol`, or `uv run --offline --frozen --project <skill-directory>
 hwsol ...` in an installed source checkout. This public package uses CPU fonts and
-deterministic math layout. It includes no personal research model or neural-math
+deterministic math layout. A clean install defaults to the author’s accepted
+`author-default@v1`; omit `profile` and `render` to inherit it. Preserve any explicit
+user choice. It includes no personal research model or neural-math
 candidate. Do not claim that font construction trains a neural network.
 
 1. Read the actual text, image or PDF. Preserve the original locally. For PDFs use
@@ -33,7 +35,8 @@ candidate. Do not claim that font construction trains a neural network.
    For an explicitly selected reviewed personal ink candidate, use
    `personal-cpu-experimental`, a pinned candidate Profile and its calibrated
    defaults. Read [candidate selection](references/jobs.md#reviewed-personal-cpu-candidate).
-   This CPU mode is experimental, cannot advance latest and ships no private ink.
+   This custom CPU mode is experimental and cannot advance latest. The installed
+   crop-free author preset instead uses ordinary `font-cpu` with its package receipt.
    For a locally qualified and explicitly published personal ink version, ordinary
    `font-cpu` Jobs can select that pinned Profile. Use baseline realism and inherit
    its reviewed render settings; do not bypass a stale-qualification rejection.
@@ -46,9 +49,11 @@ candidate. Do not claim that font construction trains a neural network.
    fallback. Deliver PDF, PNGs, editable answers and reports. Distinguish Agent
    solution verification from engineering checks and author style judgment.
 
+For basic customization use `profile template`, `profile build --labels-reviewed`,
+then inspect the preview and explicitly `profile publish --activate`.
 Use [Studio and Profiles](public_docs/PROFILES.md) for user-authorized collection,
 font construction, candidate evaluation, activation and rollback. Preserve raw
-sources and labels; keep personal assets local. Normal rendering does not call
+sources and labels; keep new user assets local unless sharing is authorized. Normal rendering does not call
 Studio. Unsupported personal glyphs may use a recorded font fallback.
 
 For personal ink qualification, follow the [local lifecycle](public_docs/GUIDE.md#use-a-reviewed-personal-cpu-profile).

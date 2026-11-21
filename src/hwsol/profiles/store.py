@@ -12,6 +12,7 @@ from pydantic import TypeAdapter
 
 from hwsol.config import data_dir, test_font
 from hwsol.profiles.io import atomic_json, inside, lock, sha256
+from hwsol.profiles.presets import AUTHOR, AUTHOR_REF, author_directory
 from hwsol.profiles.schema import ProfileError, ProfileVersion, name, reference
 from hwsol.profiles.style import PageStyle
 
@@ -102,8 +103,8 @@ class ProfileStore:
 
     def profile_dir(self, profile: str, *, writable: bool = False) -> Path:
         name(profile)
-        if profile == BUNDLED and writable:
-            raise ProfileError("bundled-default is read-only; create a derived Profile")
+        if profile in {BUNDLED, AUTHOR} and writable:
+            raise ProfileError(f"{profile} is read-only; create a derived Profile")
         return inside(self.root, f"profiles/{profile}")
 
     def writer(self, profile: str):
@@ -116,7 +117,7 @@ class ProfileStore:
     def version_names(self, profile: str, area: str = "versions") -> list[str]:
         if area not in {"versions", "candidates"}:
             raise ProfileError("Unknown snapshot area")
-        if profile == BUNDLED:
+        if profile in {BUNDLED, AUTHOR}:
             return ["v1"] if area == "versions" else []
         folder = self.profile_dir(profile) / area
         found = []
@@ -129,7 +130,7 @@ class ProfileStore:
 
     def resolve(self, spec: str | None = None, *, candidate: bool = False) -> LoadedProfile:
         settings = self.settings()
-        spec = spec or settings.get("default_profile", f"{BUNDLED}@v1")
+        spec = spec or settings.get("default_profile", AUTHOR_REF)
         if "@" not in spec:
             name(spec)
             versions = self.version_names(spec)
@@ -141,10 +142,10 @@ class ProfileStore:
             spec = f"{spec}@{chosen}"
         reference(spec)
         profile, version = spec.split("@")
-        if profile == BUNDLED:
+        if profile in {BUNDLED, AUTHOR}:
             if version != "v1" or candidate:
-                raise ProfileError("Only bundled-default@v1 is available")
-            folder = test_font().parent
+                raise ProfileError(f"Only {profile}@v1 is available")
+            folder = test_font().parent if profile == BUNDLED else author_directory()
         else:
             folder = inside(
                 self.profile_dir(profile), f"{'candidates' if candidate else 'versions'}/{version}"
@@ -176,10 +177,16 @@ class ProfileStore:
 
     def activate(self, spec: str) -> dict:
         loaded = self.resolve(spec)
+        qualification = None
         if loaded.manifest.ink_bundle:
-            from hwsol.profiles.qualification import activate_ink
+            from hwsol.profiles.presets import is_installed_author, validate_author
 
-            return activate_ink(self, loaded.manifest.ref)
+            if is_installed_author(loaded):
+                qualification = validate_author(loaded)
+            else:
+                from hwsol.profiles.qualification import activate_ink
+
+                return activate_ink(self, loaded.manifest.ref)
         with lock(self.root / ".settings.lock"):
             settings = self.settings()
             settings["default_profile"] = loaded.manifest.ref
@@ -187,21 +194,24 @@ class ProfileStore:
                 loaded.manifest.version
             )
             atomic_json(self.root / "settings.json", settings)
-        return {"active": loaded.manifest.ref}
+        return {
+            "active": loaded.manifest.ref,
+            **({"qualification": qualification} if qualification is not None else {}),
+        }
 
     def list(self) -> dict:
-        names = {BUNDLED}
+        names = {BUNDLED, AUTHOR}
         folder = self.root / "profiles"
         if folder.exists():
             names.update(
                 p.name for p in folder.iterdir() if p.is_dir() and not p.name.startswith(".")
             )
         return {
-            "default": self.settings().get("default_profile", f"{BUNDLED}@v1"),
+            "default": self.settings().get("default_profile", AUTHOR_REF),
             "profiles": [
                 {
                     "name": n,
-                    "read_only": n == BUNDLED,
+                    "read_only": n in {BUNDLED, AUTHOR},
                     "published": self.version_names(n),
                     "candidates": self.version_names(n, "candidates"),
                 }
@@ -215,6 +225,11 @@ class ProfileStore:
 
     def export(self, spec: str, output: Path, *, candidate: bool = False) -> dict:
         loaded = self.resolve(spec, candidate=candidate)
+        compiled = False
+        if loaded.manifest.ink_bundle:
+            from hwsol.personal_ink.bundle import load_recipe
+
+            compiled = load_recipe(loaded).description.recipe == "compiled-outlines/1"
         output = output.expanduser().absolute()
         output.parent.mkdir(parents=True, exist_ok=True)
         # Exclusive creation protects previous portable snapshots.
@@ -232,7 +247,9 @@ class ProfileStore:
             "archive": str(output),
             "sha256": sha256(output),
             "contents": (
-                "private candidate ink, original crops and provenance; not public distribution"
+                "compiled runtime outlines and fonts; no raw samples or release authority"
+                if compiled
+                else "private candidate ink, original crops and provenance; not public distribution"
                 if loaded.manifest.ink_bundle
                 else "includes explicitly packaged pen traces"
                 if any(a.role == "trajectory" for a in loaded.manifest.assets)

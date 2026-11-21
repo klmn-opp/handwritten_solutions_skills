@@ -113,9 +113,12 @@ def test_300dpi_keeps_a4_physical_size(render, tmp_path):
     assert abs(float(page.mediabox.height) - 841.89) < 1
 
 
-def test_cli_diagnostics_and_exit_codes(tmp_path):
+def test_cli_diagnostics_and_exit_codes(tmp_path, monkeypatch):
     import hwsol
+    from hwsol.profiles.store import ProfileStore
 
+    monkeypatch.setenv("HWSOL_DATA_DIR", str(tmp_path / "profiles"))
+    ProfileStore().activate("bundled-default@v1")
     runner = CliRunner()
     result = runner.invoke(app, ["doctor"])
     assert result.exit_code == 0

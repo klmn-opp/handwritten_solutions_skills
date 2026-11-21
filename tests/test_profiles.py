@@ -185,7 +185,7 @@ def test_published_render_during_candidate_build(tmp_path, capture_template):
 def test_runtime_without_studio_imports(tmp_path):
     # The import hook makes absence of Studio and neural packages an executable boundary.
     code = """
-import importlib.abc, json, sys
+import importlib.abc, json, os, sys
 from pathlib import Path
 class BlockStudio(importlib.abc.MetaPathFinder):
     def find_spec(self, fullname, *args):
@@ -194,7 +194,10 @@ class BlockStudio(importlib.abc.MetaPathFinder):
 sys.meta_path.insert(0, BlockStudio())
 from typer.testing import CliRunner
 from hwsol.cli import app
+from hwsol.profiles.store import ProfileStore
 root = Path(sys.argv[1]); src = root / "input.md"; src.write_text("Runtime $x=1$")
+os.environ["HWSOL_DATA_DIR"] = str(root / "profiles")
+ProfileStore().activate("bundled-default@v1")
 result = CliRunner().invoke(app, ["render-probe", "--input", str(src), "--output", str(root/"out")])
 assert result.exit_code == 0, result.output
 job = Path(sys.argv[2]) / "examples/phase2/euler/job.json"
@@ -305,7 +308,7 @@ def test_portable_archive_rejects_unsafe_entries(tmp_path, entry):
 def test_bundled_read_only_cli_selection_and_machine_errors(tmp_path, monkeypatch):
     monkeypatch.setenv("HWSOL_DATA_DIR", str(tmp_path / "data"))
     store = ProfileStore()
-    assert store.resolve().manifest.source_kind == "test-font"
+    assert store.resolve("bundled-default@v1").manifest.source_kind == "test-font"
     with pytest.raises(ProfileError, match="read-only"):
         store.create("bundled-default")
     runner = CliRunner()

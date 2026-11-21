@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from hwsol.profiles.io import inside, sha256
 from hwsol.profiles.schema import Digest, ProfileError, relative
@@ -40,8 +40,8 @@ class Banks(BaseModel):
 class Recipe(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, allow_inf_nan=False)
 
-    schema_: Literal["personal-cpu-recipe/1"] = Field(alias="schema")
-    recipe: Literal["reviewed-outlines/1"]
+    schema_: Literal["personal-cpu-recipe/1", "personal-cpu-recipe/2"] = Field(alias="schema")
+    recipe: Literal["reviewed-outlines/1", "compiled-outlines/1"]
     base_profile: str
     base_profile_sha256: Digest
     stroke_profile: str
@@ -53,6 +53,17 @@ class Recipe(BaseModel):
     scan_roles: tuple[str, ...] = tuple(sorted("πκΦξη⟨⟩∏≈ζψ∮*"))
 
     _profiles = field_validator("base_profile", "stroke_profile")(relative)
+
+    @model_validator(mode="after")
+    def representation_version(self) -> Recipe:
+        expected = (
+            "personal-cpu-recipe/2"
+            if self.recipe == "compiled-outlines/1"
+            else ("personal-cpu-recipe/1")
+        )
+        if self.schema_ != expected:
+            raise ProfileError("Personal ink recipe representation/version mismatch")
+        return self
 
     @field_validator("scan_roles")
     @classmethod
@@ -128,12 +139,27 @@ def load_recipe(profile: LoadedProfile) -> LoadedRecipe:
         raise ProfileError("Candidate font identity differs from calibrated base")
 
     directories = {}
+    compiled = spec.recipe == "compiled-outlines/1"
     for name, folder in spec.banks.model_dump().items():
         directories[name] = inside(root, folder)
         if name == "historical":
             data = json.loads(registered(f"{folder}/manifest.json").read_text())
             for row in data["sources"]:
-                for key in ("crop", "contour_archive", "reviewed_component_selection"):
+                keys = ("contour_archive", "reviewed_component_selection")
+                if compiled:
+                    if row.get("representation") != "compiled-contour/1":
+                        raise ProfileError("Compiled recipe requires compiled historical contours")
+                    if (
+                        row.get("outline") != row["contour_archive"]
+                        or row.get("outline_sha256") != row["contour_archive_sha256"]
+                    ):
+                        raise ProfileError("Historical compiled contour aliases differ")
+                    registered(f"{folder}/{relative(row['outline'])}")
+                else:
+                    if row.get("representation"):
+                        raise ProfileError("Original recipe cannot substitute compiled contours")
+                    keys = ("crop", *keys)
+                for key in keys:
                     registered(f"{folder}/{relative(row[key])}")
         elif name == "f_variants":
             data = json.loads(registered(f"{folder}/candidates.json").read_text())
@@ -144,7 +170,16 @@ def load_recipe(profile: LoadedProfile) -> LoadedRecipe:
             data = json.loads(registered(f"{folder}/sources.json").read_text())
             for row in data:
                 if row["review_status"] == "agent-accepted":
-                    registered(f"{folder}/{relative(row['crop'])}")
+                    if compiled:
+                        if row.get("representation") != "compiled-contour/1":
+                            raise ProfileError("Compiled recipe requires compiled source contours")
+                        registered(f"{folder}/{relative(row['outline'])}")
+                    else:
+                        if row.get("representation"):
+                            raise ProfileError(
+                                "Original recipe cannot substitute compiled contours"
+                            )
+                        registered(f"{folder}/{relative(row['crop'])}")
                     if not row.get("clean_isolated_ink") or row.get("original_pixels_edited"):
                         raise ProfileError("Only reviewed unedited isolated source ink is admitted")
             if name == "session_o":

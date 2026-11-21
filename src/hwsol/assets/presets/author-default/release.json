@@ -1,0 +1,54 @@
+{
+  "schema": "hwsol-bundled-author-release/1",
+  "profile": "author-default@v1",
+  "profile_sha256": "9f8534b2529333359cb90aded25a3afdd7d78974bb83e3082c905af06e77fd5b",
+  "recipe_sha256": "2ba31db319e12e84232c8a5f458ae4cbde0efc56c3bf3ddfd8196afeb559a1ea",
+  "source_sha256": "99ab4422efc51bb4a56490af0462f87d4d81f2c424af4f05afd9fcf0cc1db3b3",
+  "handnote_source_sha256": "74e25f1e16f6f4f3907ffa60a9c1fc0a2e614366f0942ac2f4c5dc3bd601ea9d",
+  "packages": {
+    "handwritten-solutions": "1.1.0rc1",
+    "handnote": "2.0.0.dev0",
+    "matplotlib": "3.11.2",
+    "fonttools": "4.68.0",
+    "numpy": "2.5.5",
+    "pillow": "13.0.0",
+    "opencv-python-headless": "5.0.0.93",
+    "pypdf": "7.1.0",
+    "pypdfium2": "5.15.2",
+    "sympy": "1.14.0",
+    "pydantic": "2.14.3",
+    "typer": "0.29.1"
+  },
+  "environments": [
+    {
+      "system": "Linux",
+      "machine": "x86_64",
+      "python_minor": "3.12",
+      "pillow_version": "13.0.0",
+      "layout_engine": "RAQM",
+      "libraries": {
+        "raqm": {
+          "enabled": true,
+          "version": "0.11.0"
+        },
+        "harfbuzz": {
+          "enabled": true,
+          "version": "14.5.0"
+        },
+        "fribidi": {
+          "enabled": true,
+          "version": "1.0.8"
+        },
+        "freetype2": {
+          "enabled": true,
+          "version": "2.14.3"
+        }
+      }
+    }
+  ],
+  "evidence_sha256": [
+    "484bbb220171ab42df92d1ff5baf3a1ee4a0e74f5fc14ed6b426a5f44731c338",
+    "df740d8eea165ec03d3be2c419beb2e7c694c5fedea9fa1d0e1559b9a38ad825"
+  ],
+  "scope": "packaged-compiled-author-preset"
+}

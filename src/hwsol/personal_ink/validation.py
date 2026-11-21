@@ -94,9 +94,11 @@ def validate_session_increment(
 ) -> dict:
     """Preserve the sealed Session O geometry, source and clearance criteria.
 
-    Every non-target path and record stays exact. New source contours are recreated
-    independently from unchanged RGB crops. A fresh contact or a worsening gap below
-    0.60 px rejects the page; an unsupported source remains an explicit old glyph.
+    Every non-target path and record stays exact. Source contours are reconstructed
+    from unchanged RGB crops for private recipes, or loaded from hash-bound compiled
+    contours for runtime derivatives. Compilation equivalence is checked separately.
+    A fresh contact or a worsening gap below 0.60 px rejects the page; an unsupported
+    source remains an explicit old glyph.
     """
     if (page.width, page.height) != state.dimensions:
         raise ValueError("Session glyph replacement changed page dimensions")
@@ -159,9 +161,10 @@ def validate_session_increment(
             "personal-stretched-outline",
         }:
             raise ValueError("Session glyph source classification is inconsistent")
-        crop = inside(bank_dir, source["crop"])
-        if sha256(crop) != source["crop_sha256"]:
-            raise ValueError("Session original crop changed")
+        if source.get("representation") != "compiled-contour/1":
+            crop = inside(bank_dir, source["crop"])
+            if sha256(crop) != source["crop_sha256"]:
+                raise ValueError("Session original crop changed")
         sample = ScanGlyph.load(bank_dir, source)
         transform = new["transformation"]
         scales = np.asarray(transform["scale_xy"], dtype=float)
@@ -190,6 +193,8 @@ def validate_session_increment(
                 "item_index": i,
                 "source_id": source["id"],
                 "crop_sha256": source["crop_sha256"],
+                "source_representation": source.get("representation", "original-rgb-crop"),
+                "compiled_outline_sha256": source.get("outline_sha256"),
                 "placed_contour_exact": True,
             }
         )

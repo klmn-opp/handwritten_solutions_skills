@@ -24,7 +24,7 @@ MODES = ("baseline", "layout-enhanced", "stroke-enhanced", "combined")
 
 @pytest.mark.parametrize("mode", MODES)
 def test_result_uses_the_same_ink_as_the_derivation(tmp_path, mode):
-    profile = ProfileStore(tmp_path / "data").resolve()
+    profile = ProfileStore(tmp_path / "data").resolve("bundled-default@v1")
     cfg = RenderConfig()
     source = (
         "The result is $x_{1}=4$.\n\n## Answer: $x_{1}=4$\n\n"
@@ -51,7 +51,7 @@ def test_result_uses_the_same_ink_as_the_derivation(tmp_path, mode):
 def test_uniform_ink_preserves_literal_content_and_mathematical_distinctions(tmp_path):
     from hwsol.jobs.layout import plain_emphasis, validate_markdown
 
-    profile = ProfileStore(tmp_path / "data").resolve()
+    profile = ProfileStore(tmp_path / "data").resolve("bundled-default@v1")
     literal = "field__name__suffix\n\n" + "```\npow = a**b**c\n```"
     assert plain_emphasis(literal) == literal
     assert plain_emphasis(r"__Result $x_{i_j}$__") == r"Result $x_{i_j}$"
@@ -65,6 +65,7 @@ def test_controlled_ablation_and_formula_groups(tmp_path):
     problem = tmp_path / "input"
     shutil.copytree(EXAMPLES / "phase2/mixed", problem)
     job = json.loads((problem / "job.json").read_bytes())
+    job["profile"] = "bundled-default@v1"
     job["problems"] = job["problems"][2:3]
     job["render"] = {"seed": 91, "dpi": 96, "page_width_mm": 180}
     paper = Image.new("RGB", (200, 300), "#fff5ed")
@@ -179,7 +180,9 @@ def test_separate_text_and_math_calibrations_are_used_on_one_page(tmp_path):
         )
         for digit, kind in (("1", "text"), ("2", "math"))
     )
-    profile = replace(ProfileStore(tmp_path / "store").resolve(), styles=styles)
+    profile = replace(
+        ProfileStore(tmp_path / "store").resolve("bundled-default@v1"), styles=styles
+    )
     for identity in ("2", "6"):
         _, report = render_one(
             "Two measured words.\n\n$$x=2$$",
@@ -206,7 +209,7 @@ def test_unsegmented_line_uses_spacing_from_other_observed_lines(tmp_path):
     from hwsol.training.calibration import measure
 
     style = measure(EXAMPLES / "realism/calibration.json", "s-" + "1" * 32)
-    loaded = ProfileStore(tmp_path / "store").resolve()
+    loaded = ProfileStore(tmp_path / "store").resolve("bundled-default@v1")
     blobs = []
     for spacing in (0.2, 0.8):
         # The numeric heading uses the first row; only the unsegmented body row has spaces.

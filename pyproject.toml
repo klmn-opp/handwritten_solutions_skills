@@ -5,7 +5,7 @@ backend-path = ["."]
 
 [project]
 name = "handwritten-solutions"
-version = "1.0.0"
+version = "1.1.0"
 description = "Local Agent Skill for verified handwritten homework PDFs and versioned handwriting profiles"
 readme = "README.md"
 requires-python = ">=3.12,<3.14"
@@ -40,7 +40,7 @@ dev = ["pytest==9.2.0", "ruff==0.17.5", "build==1.6.1"]
 where = ["src"]
 
 [tool.setuptools.package-data]
-hwsol = ["assets/presets/patrick-hand/*", "assets/benchmarks/v1/*", "_build.json"]
+hwsol = ["assets/presets/patrick-hand/*", "assets/presets/author-default/**/*", "assets/presets/author-default/*", "assets/benchmarks/v1/*", "_build.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

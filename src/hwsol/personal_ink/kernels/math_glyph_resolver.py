@@ -19,7 +19,7 @@ from matplotlib.path import Path as MplPath
 from PIL import Image
 
 from hwsol.personal_ink.kernels.readability import join_radicals
-from hwsol.profiles.io import sha256
+from hwsol.profiles.io import inside, sha256
 
 
 @dataclass(frozen=True)
@@ -31,7 +31,13 @@ class ScanGlyph:
     def load(cls, directory: Path, source: dict) -> ScanGlyph:
         if source["review_status"] != "agent-accepted" or not source["clean_isolated_ink"]:
             raise ValueError("Math glyph requires a reviewed, isolated personal sample")
-        path = directory / source["crop"]
+        if source.get("representation") == "compiled-contour/1":
+            from hwsol.personal_ink.compiled import load_compiled_outline
+
+            return cls(source, load_compiled_outline(directory, source))
+        if source.get("representation") is not None:
+            raise ValueError("Unknown personal source representation")
+        path = inside(directory, source["crop"])
         if sha256(path) != source["crop_sha256"]:
             raise ValueError(f"Math glyph crop changed: {path.name}")
         with Image.open(path) as image:

@@ -98,7 +98,7 @@ class ProfileVersion(FrozenModel):
     created_at: str
     description: str
     source_kind: Literal["test-font", "personal-assets", "derived"]
-    distribution: Literal["OFL-1.1", "local-only"] = "local-only"
+    distribution: Literal["OFL-1.1", "OFL-1.1 AND MIT", "local-only"] = "local-only"
     assets: tuple[Asset, ...]
     font: str
     coverage: tuple[int, ...]
@@ -134,8 +134,10 @@ class ProfileVersion(FrozenModel):
         ink_assets = [a for a in self.assets if a.role == "personal-ink"]
         if [a.path for a in ink_assets] != ([self.ink_bundle] if self.ink_bundle else []):
             raise ProfileError("Personal ink requires exactly one matching hashed recipe asset")
-        if self.ink_bundle and self.distribution != "local-only":
-            raise ProfileError("Experimental personal ink assets must remain local-only")
+        if self.ink_bundle and self.distribution not in {"local-only", "OFL-1.1 AND MIT"}:
+            raise ProfileError(
+                "Personal ink needs local-only or authorized runtime asset licensing"
+            )
         if list(self.coverage) != sorted(set(self.coverage)) or any(
             cp < 0 or cp > 0x10FFFF or 0xD800 <= cp <= 0xDFFF for cp in self.coverage
         ):

@@ -98,6 +98,7 @@ def verify_wheel(files: dict[str, bytes], source: dict[str, bytes], version: str
             name.endswith(".py")
             or name == "src/hwsol/_build.json"
             or name.startswith("src/hwsol/assets/presets/patrick-hand/")
+            or name.startswith("src/hwsol/assets/presets/author-default/")
             or name.startswith("src/hwsol/assets/benchmarks/v1/")
         )
     }
