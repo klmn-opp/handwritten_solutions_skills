@@ -180,9 +180,7 @@ def test_separate_text_and_math_calibrations_are_used_on_one_page(tmp_path):
         )
         for digit, kind in (("1", "text"), ("2", "math"))
     )
-    profile = replace(
-        ProfileStore(tmp_path / "store").resolve("bundled-default@v1"), styles=styles
-    )
+    profile = replace(ProfileStore(tmp_path / "store").resolve("bundled-default@v1"), styles=styles)
     for identity in ("2", "6"):
         _, report = render_one(
             "Two measured words.\n\n$$x=2$$",
