@@ -10,6 +10,7 @@ prune docs
 include docs/HANDWRITING_REALISM.md docs/RL_RENDERING.md docs/WORKSPACE.md
 include docs/PHASE0.md
 recursive-include public_docs *.md *.md.in *.json
+recursive-include public_docs/assets *.png
 include scripts/package_release.py scripts/smoke_wheel.py scripts/phase1_demo.py scripts/license_inventory.py
 include tests/conftest.py tests/test_phase0.py tests/test_compatibility.py tests/test_profiles.py
 include tests/test_jobs.py tests/test_realism.py tests/test_rl.py tests/test_lab.py

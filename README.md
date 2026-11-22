@@ -14,42 +14,14 @@ v1.2.4 的默认后端是 **个人 CPU 排版 + 冻结的下一代字形模型**
 安装完成后不需要 GPU、PyTorch 或联网下载模型。整页自由生成、连续连笔和偏好
 优化仍不在本版本范围内。
 
-## 看一下真实个人笔迹输出
+## 项目架构
 
-下面展示的是**作者自己的笔迹 Profile** 生成的完整作业。英文与数学使用真实个人字形，
-公式结构由 Handnote / MathText 排版，必要的结构笔画按已核验规则绘制；这是实际普通
-CPU 出稿成品，不是神经网络生成的宣传图。作者已授权公开这些演示页面，图片和 PDF
-保持验收输出原样。
+![Handwritten Solutions 架构示意：Markdown/LaTeX 输入依次经过神经字形变化、结构感知排版、墨迹与墨色校准，输出 PDF/PNG](public_docs/assets/architecture.png)
 
-| 线性代数：矩阵、方程组与谱分解 | 电磁学：同轴电容器与场能 |
-| --- | --- |
-| ![作者个人笔迹生成的线性代数作业](public_docs/personal-demo/page-01.png) | ![作者个人笔迹生成的电磁学作业](public_docs/personal-demo/page-04.png) |
-
-[下载完整四页个人笔迹 PDF](public_docs/personal-demo/homework_solutions.pdf) ·
-[演示说明](public_docs/personal-demo/README.md) ·
-[来源汇总与校验](public_docs/personal-demo/provenance.json)
-
-四页包含线性代数、积分、统计和电磁学，共 827 个数学可见项目，无外部字体回退；
-个人结构规则和程序结构笔画仍单独记录。这四页保留为 **v1.1.0 CPU 验收输出**，
-用于区分稳定 CPU 路径与新的默认后端。
-
-### 下一代默认后端
-
-作者已验收的七道复杂题由冻结的 `nextgen-v1` 权重生成，同一组权重现在进入
-v1.2.4 的默认后端：
-
-[七道复杂题 A](public_docs/nextgen-demo/complex-A.pdf) ·
-[七道复杂题 B](public_docs/nextgen-demo/complex-B.pdf) ·
-[演示说明与来源](public_docs/nextgen-demo/README.md)
-
-![下一代后端七题样张第 5 页](public_docs/nextgen-demo/page-05-preview.png)
-
-页面中的英文与数学墨迹来自作者个人实写底字、有界形变和确定性墨量校正；
-分数线、根号横线等结构仍由 CPU 排版绘制。v1.2.4 起，所有数学字形强制来自
-个人手写来源：外来数学基字会替换为 O 原子，形变守卫失败时也回退到已适配的
-O 原子，不会再把 STIX/继承字体留在页面上。发行包只包含推理所需的最小底字与
-权重数组，原始扫描、完整训练语料、优化器状态和其它版本权重不分发。
-详见[下一代默认生成后端](public_docs/NEURAL_MODEL.md)。
+输入 Markdown / LaTeX 后，字形变化层对真实个人手写字形做受约束的形变；结构感知
+排版层负责公式结构、字位、基线与间距；墨迹与墨色校准层统一笔画粗细和灰度。
+当前 v1.2.4 的默认后端以 CPU 决定结构、字位与换行，冻结的字形模型只在已有
+字形槽位内改变英文和数学字形；需要确定性输出时，可在 Job 中指定 `font-cpu`。
 
 ## 已有功能
 
@@ -66,20 +38,11 @@ v1.2.4 的实际安装、默认后端出稿、回退和像素核验范围为
 Windows 不在本版验证范围。不同系统的文字排版库可能产生细微落点差异，
 不保证跨系统像素一致。
 
-## 可选的 Patrick Hand 兼容示例
+## 可选的 Patrick Hand 字体
 
-公开安装包也保留采用 OFL-1.1 许可的 **Patrick Hand**，显式选择
-`bundled-default@v1` 即可使用。下列兼容示例继续固定使用它，便于复现旧结果：
-
-[默认字体两页 PDF](public_docs/demo/homework_solutions.pdf) ·
-[默认字体预览与来源](public_docs/demo/README.md) ·
-[原题](examples/release-demo/questions.md) ·
-[解答一](examples/release-demo/matrix.md) ·
-[解答二](examples/release-demo/integral.md) ·
-[可复现 Job](examples/release-demo/job.json)
-
-这个默认示例的根号和导数撇号使用已记录的 STIX 字体回退，
-详见[字形来源](public_docs/demo/provenance.json)。
+公开安装包也保留采用 OFL-1.1 许可的 **Patrick Hand**。如需使用公开许可的通用
+字体出稿，可显式选择 `bundled-default@v1`；默认仍使用作者个人笔迹，该选项不会
+改变默认 Profile。
 
 ## 第一次使用
 
@@ -130,7 +93,7 @@ python3.12 -m venv .venv
 .venv/bin/hwsol doctor
 ```
 
-wheel 提供命令行程序；演示输入、完整文档与 Skill 文件请使用源码包或 Skill 包。
+wheel 提供命令行程序；示例输入、完整文档与 Skill 文件请使用源码包或 Skill 包。
 不要将尚未发布到 PyPI 的版本当作可直接 `pip install handwritten-solutions` 获取的包。
 
 ## 交给 Agent 使用
