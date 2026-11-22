@@ -1,5 +1,14 @@
 # Public distribution notes
 
+## 1.2.2 — macOS native admission
+
+Adds the actual Apple Silicon macOS text environments (arm64, Pillow 13.0.0 BASIC
+layout, FreeType 2.14.3) for Python 3.12 and 3.13 to the bundled author-preset
+admission. Both runtimes completed a clean wheel install, `doctor`, the two-page
+default neural render and `verify --pixels` on the physical Mac. The public CI
+matrix now covers Linux x86_64 and macOS arm64 on Python 3.12/3.13. No weight,
+glyph, layout or rendering setting changed from 1.2.1.
+
 ## 1.2.1 — platform admission correction
 
 Adds the two actual GitHub Linux text environments (x86_64, Python 3.12 and 3.13,

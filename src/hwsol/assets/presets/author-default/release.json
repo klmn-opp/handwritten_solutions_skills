@@ -6,7 +6,7 @@
   "source_sha256": "6cd56a8c46217ab23154ee40b89616b6ee4004e19d51e2e1d29ca179ee19aece",
   "handnote_source_sha256": "74e25f1e16f6f4f3907ffa60a9c1fc0a2e614366f0942ac2f4c5dc3bd601ea9d",
   "packages": {
-    "handwritten-solutions": "1.2.1",
+    "handwritten-solutions": "1.2.2",
     "handnote": "2.0.0.dev0",
     "matplotlib": "3.11.2",
     "fonttools": "4.68.0",
@@ -94,12 +94,64 @@
           "version": "2.14.3"
         }
       }
+    },
+    {
+      "system": "Darwin",
+      "machine": "arm64",
+      "python_minor": "3.12",
+      "pillow_version": "13.0.0",
+      "layout_engine": "BASIC",
+      "libraries": {
+        "raqm": {
+          "enabled": false,
+          "version": null
+        },
+        "harfbuzz": {
+          "enabled": false,
+          "version": null
+        },
+        "fribidi": {
+          "enabled": false,
+          "version": null
+        },
+        "freetype2": {
+          "enabled": true,
+          "version": "2.14.3"
+        }
+      }
+    },
+    {
+      "system": "Darwin",
+      "machine": "arm64",
+      "python_minor": "3.13",
+      "pillow_version": "13.0.0",
+      "layout_engine": "BASIC",
+      "libraries": {
+        "raqm": {
+          "enabled": false,
+          "version": null
+        },
+        "harfbuzz": {
+          "enabled": false,
+          "version": null
+        },
+        "fribidi": {
+          "enabled": false,
+          "version": null
+        },
+        "freetype2": {
+          "enabled": true,
+          "version": "2.14.3"
+        }
+      }
     }
   ],
   "evidence_sha256": [
     "accc689d7ccd6ad863513a9689faa5dd733a07396a676913daed00d155d02bd9",
     "c1c381896e4aa4ccd1396ca89ee15939d86f914452864bf4ff12bef88efa58b9",
-    "c7726562ccda8b7163063de37d012f44d4794c26689fde30774b68c432bdb2b0"
+    "c7726562ccda8b7163063de37d012f44d4794c26689fde30774b68c432bdb2b0",
+    "bea5c2b055c39f96962bbac5d7e55f6ff4b002cedbaa75fab95da18599b68278",
+    "d042380572957867a25fcb16cb0efeb7d424eedb38268b955ef3c7a00404d1e5"
   ],
   "scope": "packaged-compiled-author-preset"
 }
