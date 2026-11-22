@@ -1,0 +1,9 @@
+{
+  "schema": "hwsol-publication/1",
+  "tag": "v1.2.4",
+  "version": "1.2.4",
+  "public_source_commit": "db6ee4dbf9fb913070582ca460dac129fb8719be",
+  "development_source_commit": "24872b09cc2d14d97a577f18e703fb89b6a30446",
+  "public_distribution_sha256": "1bad97000377de53c69c99b1e7ce44175dbdc185ff2e91d8df63a409d7e9b8ec",
+  "sha256sums_sha256": "46634da0189102e38a5d76c902c2dbb1dc30b842686bc9cd423e0c62f2fcbf01"
+}
