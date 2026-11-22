@@ -3,10 +3,10 @@
   "profile": "author-default@v1",
   "profile_sha256": "9f8534b2529333359cb90aded25a3afdd7d78974bb83e3082c905af06e77fd5b",
   "recipe_sha256": "2ba31db319e12e84232c8a5f458ae4cbde0efc56c3bf3ddfd8196afeb559a1ea",
-  "source_sha256": "6cd56a8c46217ab23154ee40b89616b6ee4004e19d51e2e1d29ca179ee19aece",
+  "source_sha256": "4cce3863b56e2d0f138e757654d50db1ad2a262306353206fec5015f00d5f683",
   "handnote_source_sha256": "74e25f1e16f6f4f3907ffa60a9c1fc0a2e614366f0942ac2f4c5dc3bd601ea9d",
   "packages": {
-    "handwritten-solutions": "1.2.2",
+    "handwritten-solutions": "1.2.3",
     "handnote": "2.0.0.dev0",
     "matplotlib": "3.11.2",
     "fonttools": "4.68.0",
@@ -147,7 +147,7 @@
     }
   ],
   "evidence_sha256": [
-    "accc689d7ccd6ad863513a9689faa5dd733a07396a676913daed00d155d02bd9",
+    "20b56b0fdffe32aca42499e4ca9e29e4f8b6927b5654590c58dfad3af24f8c45",
     "c1c381896e4aa4ccd1396ca89ee15939d86f914452864bf4ff12bef88efa58b9",
     "c7726562ccda8b7163063de37d012f44d4794c26689fde30774b68c432bdb2b0",
     "bea5c2b055c39f96962bbac5d7e55f6ff4b002cedbaa75fab95da18599b68278",

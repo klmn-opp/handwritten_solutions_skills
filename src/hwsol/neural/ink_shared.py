@@ -108,6 +108,28 @@ class Model:
             if key not in target["groups"]:
                 raise ValueError(f"Missing independent target for explicit size class {key}")
             desired = target["groups"][key]["weight"]
+            if geometric["area"] == 0:
+                outputs.append(source)
+                logs.append(
+                    {
+                        "id": item.get("id"),
+                        "label": item.get("label"),
+                        "kind": item.get("kind"),
+                        "role": item.get("role"),
+                        "size_class": key,
+                        "mode": mode,
+                        "before": before,
+                        "after": before,
+                        "target_weight": desired,
+                        "eligible": False,
+                        "selected_fraction": 0.0,
+                        "attempts": [],
+                        "changed_pixels": 0,
+                        "skipped": "no exclusive ink",
+                        "neural_updates": 0,
+                    }
+                )
+                continue
             sk = base.thin(a >= 0.25) | base.thin(a >= 0.5)
             oldtop = {t: base.topology(a >= t) for t in [0.25, 0.5]}
             diff = before["weight"] - desired
@@ -157,7 +179,11 @@ class Model:
                         selected = f if diff > 0 else -f
                         break
             after = ink_measure(result)
-            assert not base._guard(a, base.alpha(result), sk, oldtop)
+            reasons = base._guard(a, base.alpha(result), sk, oldtop)
+            if reasons:
+                raise ValueError(
+                    f"Ink guard rejected {item.get('label')!r} (id {item.get('id')}): {reasons}"
+                )
             outputs.append(result)
             logs.append(
                 {

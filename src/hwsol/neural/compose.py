@@ -175,6 +175,7 @@ def compose_page(shape, items, replacements, previous=None):
         hazard = bool(target is not None and np.any((target < 160) & (strong > 0) & ~(old < 160)))
         admitted = target is not None and not hazard
         placed = target if admitted else old
+        item["placed"] = placed
         strong += placed < 160
         view = page[y:Y, x:X]
         np.minimum(view, placed, out=view)
@@ -194,12 +195,17 @@ def compose_page(shape, items, replacements, previous=None):
 
 
 def areas_from_page(page, items):
-    """Per-item ownership masks after composition, reconciled with neighbours."""
+    """Per-item ownership from each placed tile, reconciled with neighbours.
+
+    A page crop contains neighbouring glyphs whenever boxes overlap (for example a
+    radical sign and the radicand). Ownership must come from the item's own placed
+    tile; otherwise the neighbour claims every pixel and the glyph becomes blank.
+    """
     areas = []
     for item in items:
         x, y, X, Y = item["box"]
         local = page[y:Y, x:X]
-        mask = local < 255
+        mask = np.asarray(item.get("placed", item["stable"])) < 255
         areas.append(
             dict(
                 id=item["id"],

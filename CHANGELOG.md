@@ -1,5 +1,25 @@
 # Public distribution notes
 
+## 1.2.3 — personal-source enforcement and radical ownership
+
+Fixes two defects without changing any weight:
+
+- Overlapping glyph boxes (for example a radical sign and its radicand) now keep
+  per-item ownership from each placed tile. The previous page-crop ownership made a
+  radicand blank and triggered an empty ink-guard assertion. Empty tiles are skipped,
+  and guard failures carry a diagnostic message instead of an empty error.
+- Every mathematical glyph whose CPU base was an `external-font` or `inherited-font`
+  is now replaced with a personal O atom. If the neural guard rejects the warp, the
+  fitted personal O atom itself is used; the runtime refuses to leave a foreign math
+  source. This covers `≠`, `%`, `ℏ`, `Γ`, `≡`, `⊆`, `∅`, `∪`, `∉`, `…`, `⇒`, `⇔`
+  and the other O-covered labels.
+- O-covered text marks such as `%` use personal O atoms; `:` and `'` continue to use
+  reviewed personal punctuation. A text mark with no personal sample (for example
+  `;`) keeps the Profile glyph and is listed explicitly in `text_foreign_sources`.
+- Seven-exercise replay: zero foreign math sources, zero text foreign sources,
+  2,411 English neural glyphs, 341 mathematical neural warps and 7 personal-atom
+  fallbacks. Page contours still pass after ink/tone and word spacing.
+
 ## 1.2.2 — macOS native admission
 
 Adds the actual Apple Silicon macOS text environments (arm64, Pillow 13.0.0 BASIC

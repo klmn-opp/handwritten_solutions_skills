@@ -69,3 +69,90 @@ def test_neural_engine_renders_one_page_with_routes():
     assert candidate["glyph_routes"].get("english", 0) > 0
     assert set(candidate["page_contours"]) == {"128", "160", "192"}
     assert candidate["items_detail"]
+
+
+def test_overlapping_tiles_keep_per_item_ownership():
+    import numpy as np
+
+    from hwsol.neural.compose import areas_from_page
+
+    page = np.full((12, 12), 255, np.uint8)
+    left = np.full((4, 8), 255, np.uint8)
+    left[:, :5] = 0
+    right = np.full((4, 8), 255, np.uint8)
+    right[:, 3:] = 0
+    page[4:8, 2:10] = np.minimum(left, right)
+    items = [
+        {
+            "id": 0,
+            "box": [2, 4, 10, 8],
+            "stable": left,
+            "placed": left,
+            "kind": "math",
+            "role": "ordinary",
+            "semantic": "0",
+            "latex": "0",
+        },
+        {
+            "id": 1,
+            "box": [2, 4, 10, 8],
+            "stable": right,
+            "placed": right,
+            "kind": "math",
+            "role": "ordinary",
+            "semantic": "1",
+            "latex": "1",
+        },
+    ]
+    areas = areas_from_page(page, items)
+    # The left-only and right-only pixels stay exclusive; shared pixels are excluded.
+    assert int(areas[0]["mask"].sum()) == 12
+    assert int(areas[1]["mask"].sum()) == 12
+
+
+def test_neural_engine_renders_radical_after_ownership_fix():
+    profile = ProfileStore().resolve("author-default@v1")
+    from hwsol.neural.engine import NextGenEngine
+
+    engine = NextGenEngine(profile)
+    source = "We evaluate the square root directly.\n\n$$\\sqrt{0.36}=0.6$$\n"
+    blob, diagnostics = engine.render_one(
+        source, "2", profile, profile.manifest.render, Background(kind="plain"), None
+    )
+    assert len(PdfReader(io.BytesIO(blob), strict=True).pages) == 1
+    candidate = diagnostics["candidate"]
+    assert candidate["backend"] == "personal-neural@1"
+    assert candidate["neural_weight_updates"] == 0
+    labels = {item["label"]: item["route"] for item in candidate["items_detail"]}
+    assert labels["0"] in {"layout", "identity-rejected", "topology-fallback"}
+    assert labels["√"] == "layout"
+    assert candidate["glyph_routes"].get("math-neural", 0) >= 1
+
+
+def test_foreign_math_and_text_symbols_become_personal():
+    profile = ProfileStore().resolve("author-default@v1")
+    from hwsol.neural.engine import NextGenEngine
+
+    engine = NextGenEngine(profile)
+    source = "A relation $a \\neq b$ and $50\\%$ of a sample; prose 50% is here.\n"
+    blob, diagnostics = engine.render_one(
+        source, "4", profile, profile.manifest.render, Background(kind="plain"), None
+    )
+    assert len(PdfReader(io.BytesIO(blob), strict=True).pages) == 1
+    candidate = diagnostics["candidate"]
+    assert candidate["foreign_sources"] == []
+    assert candidate["neural_weight_updates"] == 0
+    by_label = {}
+    for item in candidate["items_detail"]:
+        by_label.setdefault(item["label"], []).append(item)
+    assert by_label["≠"][0]["source_type"] == "personal-o-atom"
+    assert by_label["≠"][0]["route"] in {"math-neural", "personal-atom"}
+    percents = by_label["%"]
+    assert len(percents) == 2
+    assert all(item["source_type"] == "personal-o-atom" for item in percents)
+    assert all(
+        item["route"] in {"math-neural", "personal-atom", "personal-atom-text"}
+        for item in percents
+    )
+    assert any(item["kind"] == "math" for item in percents)
+    assert any(item["route"] == "personal-atom-text" for item in percents)

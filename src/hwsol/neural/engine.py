@@ -67,17 +67,42 @@ class NextGenEngine:
             return None, source, "fit-rejected"
         return fitted, int(source), "english"
 
+    def _personal_atom(self, item, label):
+        """Fit an existing personal O atom into this exact glyph slot."""
+        pool = self.math_glyphs.get((label, "ordinary"))
+        if not pool:
+            pool = [
+                row
+                for (char, _), rows in self.math_glyphs.items()
+                if char == label
+                for row in rows
+            ]
+        if not pool:
+            return None, None
+        row = pool[(self.seed_base + item["id"]) % len(pool)]
+        native = load_math_gray(self.bundle, row)
+        try:
+            fitted = compose.fit(native, item["stable"].shape[1], item["stable"].shape[0])
+        except ValueError:
+            return None, None
+        if not (fitted < 160).any():
+            return None, None
+        return fitted, row["id"]
+
     def _draw_math(self, item):
         label = item["semantic"]
-        fallback = item["source_type"] in {"external-font", "inherited-font"}
+        foreign = item["source_type"] in {"external-font", "inherited-font"}
         pool = self.math_glyphs.get((label, "ordinary"))
-        if fallback and not pool:
+        if foreign and not pool:
             pool = [
-                row for (char, _), rows in self.math_glyphs.items() if char == label for row in rows
+                row
+                for (char, _), rows in self.math_glyphs.items()
+                if char == label
+                for row in rows
             ]
         anchor = item["stable"]
         source = None
-        if pool and (fallback or label in ("ρ", "ϱ")):
+        if pool and (foreign or label in ("ρ", "ϱ")):
             row = pool[(self.seed_base + item["id"]) % len(pool)]
             native = load_math_gray(self.bundle, row)
             try:
@@ -87,17 +112,28 @@ class NextGenEngine:
             if anchored is not None and (anchored < 160).any():
                 anchor = anchored
                 source = row["id"]
+        if foreign and source is None:
+            raise ValueError(
+                f"No personal handwriting source for math symbol {label!r} "
+                f"(item {item['id']})"
+            )
         key = label + "\u241fordinary"
         if key not in self.math.classes or min(anchor.shape) <= 2:
+            if foreign:
+                return anchor, source, "personal-atom"
             return None, source, "not-modelled"
         padded = np.pad(anchor, 3, constant_values=255)
         seed = self.seed_base + item["id"]
         try:
             warped, diag = self.math.warp_native(padded, label, seed, "ordinary")
         except ValueError:
+            if foreign:
+                return anchor, source, "personal-atom"
             return None, source, "model-refused"
         cropped = warped[3:-3, 3:-3]
         if diag["identity_fallback"] or np.array_equal(cropped, anchor):
+            if foreign:
+                return anchor, source, "personal-atom"
             return None, source, "topology-fallback"
         if (
             compose.signature(cropped) != compose.signature(anchor)
@@ -107,6 +143,8 @@ class NextGenEngine:
             or np.any(warped[:, :3] < 160)
             or np.any(warped[:, -3:] < 160)
         ):
+            if foreign:
+                return anchor, source, "personal-atom"
             return None, source, "guard-rejected"
         if source is None:
             try:
@@ -115,6 +153,17 @@ class NextGenEngine:
             except ValueError:
                 return None, source, "identity-error"
         return cropped, source, "math-neural"
+
+    def _draw_text_symbol(self, item):
+        """A text-context symbol such as a percent sign must still be personal."""
+        label = item["semantic"]
+        fitted, source = self._personal_atom(item, label)
+        if fitted is None:
+            raise ValueError(
+                f"No personal handwriting source for text symbol {label!r} "
+                f"(item {item['id']})"
+            )
+        return fitted, source, "personal-atom-text"
 
     def _draw(self, items):
         replacements = {}
@@ -126,6 +175,18 @@ class NextGenEngine:
                 and item["semantic"] in string.ascii_letters
             ):
                 shape, source, route = self._draw_english(item)
+            elif item["context"] == "text" and item["source_type"] in {
+                "external-font",
+                "inherited-font",
+            }:
+                fitted, source = self._personal_atom(item, item["semantic"])
+                if fitted is None:
+                    # No reviewed personal sample exists for this prose mark.
+                    # Keep the Profile glyph and report it explicitly below.
+                    shape, source, route = None, None, "layout"
+                    item["text_foreign"] = True
+                else:
+                    shape, source, route = fitted, source, "personal-atom-text"
             elif (
                 item["context"] == "mathematics"
                 and not item["structure"]
@@ -138,7 +199,19 @@ class NextGenEngine:
             item["anchor"] = source
             if shape is not None:
                 replacements[item["id"]] = shape
-            routes.append(dict(id=item["id"], label=item["semantic"], route=route))
+                if route in {"personal-atom", "personal-atom-text", "math-neural"} and item[
+                    "source_type"
+                ] in {"external-font", "inherited-font"}:
+                    item["source_type"] = "personal-o-atom"
+                    item["force_personal"] = True
+            routes.append(
+                dict(
+                    id=item["id"],
+                    label=item["semantic"],
+                    route=route,
+                    source_type=item["source_type"],
+                )
+            )
         return replacements, routes
 
     # -- product entry ----------------------------------------------------
@@ -198,17 +271,36 @@ class NextGenEngine:
             full, items = compose.item_tiles(page, renderer, records, settings)
             replacements, routes = self._draw(items)
             final, admitted = compose.compose_page(full.shape, items, replacements, full)
+            foreign = [
+                item
+                for item in items
+                if item["source_type"] in {"external-font", "inherited-font"}
+            ]
+            foreign_math = [item for item in foreign if item["context"] == "mathematics"]
+            if foreign_math:
+                labels = sorted({str(item["semantic"]) for item in foreign_math})
+                raise ValueError(
+                    "No personal handwriting source for rendered math symbols: "
+                    + ", ".join(repr(label) for label in labels)
+                )
+            text_foreign = [item for item in foreign if item["context"] == "text"]
             areas = compose.areas_from_page(final, items)
-            target = ink.document_target(areas)
-            outputs, ink_logs = self.ink.correct_regions(areas, mode="combined", target=target)
-            toned = compose.paste_tone(final, areas, outputs)
+            # A tile fully shared with a neighbour has no exclusive ink and must not
+            # enter the per-item ink fitter.
+            active = [area for area in areas if bool(np.any(area["mask"]))]
+            target = ink.document_target(active)
+            outputs, ink_logs = self.ink.correct_regions(active, mode="combined", target=target)
+            toned = compose.paste_tone(final, active, outputs)
             contours = compose.check_page_contours(final, toned)
             words = compose.text_word_groups(records, settings)
-            text_owners = [area for area in areas if area["kind"] == "text"]
+            text_owners = [area for area in active if area["kind"] == "text"]
             spacing_log = {"schema": "word-gap-integer-applied/1", "moved_letters": 0}
-            if words and {w for word in words for w in word["glyphs"]} >= {
-                area["id"] for area in text_owners
-            }:
+            if (
+                words
+                and text_owners
+                and {w for word in words for w in word["glyphs"]}
+                >= {area["id"] for area in text_owners}
+            ):
                 plan = spacing.plan_spacing(toned, text_owners, words)
                 final, spacing_log = spacing.apply_spacing(toned, text_owners, plan)
             else:
@@ -248,6 +340,13 @@ class NextGenEngine:
             "items": len(admitted),
             "ink_target": target,
             "ink_changes": sum(1 for row in ink_logs if row["changed_pixels"]),
+            "foreign_sources": [],
+            "text_foreign_sources": [
+                {"id": item["id"], "label": item["semantic"]} for item in text_foreign
+            ],
+            "personal_atom_fallbacks": sum(
+                1 for item in items if item["route"] in {"personal-atom", "personal-atom-text"}
+            ),
             "spacing": spacing_log,
             "page_contours": contours,
             "identity": identity or number,
@@ -284,6 +383,7 @@ class NextGenEngine:
                     "box": item["box"],
                     "route": item["route"],
                     "anchor": item.get("anchor"),
+                    "source_type": item["source_type"],
                 }
                 for item in items
             ],

@@ -49,9 +49,12 @@ match the original Torch draws; the model distribution and weights are unchanged
 
 A candidate replacement is admitted only when it introduces no new dark contact,
 keeps the item's connected components and holes, stays inside the page, and (where
-no personal anchor exists) passes the frozen identity recognizer. Unsupported
-symbols, rejected fits, non-plain paper and structure elements keep the stable
-personal-CPU glyph. Deterministic ink and integer word-spacing corrections run on
+no personal anchor exists) passes the frozen identity recognizer. If a mathematical
+base is an external or inherited font, the runtime uses the personal O atom and
+falls back to that fitted O atom when the warp guard rejects; it refuses to leave a
+foreign math source. Text marks with a personal O sample are also replaced; text
+marks without one are reported in `text_foreign_sources`. Structure elements keep
+the stable personal-CPU glyph. Deterministic ink and integer word-spacing corrections run on
 accepted pixels and preserve page-level contour counts.
 
 ## Data and licence
