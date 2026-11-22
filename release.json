@@ -1,0 +1,9 @@
+{
+  "commit": "cdf81d574c4ef4b414bdd49ce71cf67a3c7cce36",
+  "version": "1.2.3",
+  "tag": "v1.2.3",
+  "requested_ref": "refs/tags/v1.2.3",
+  "mode": "stable-tag",
+  "lock_sha256": "2f4f28b16a691cb3537557b97c503c5310ed0c160b1cd9e79307f7e2d8a49ed5",
+  "git_history_included": false
+}
