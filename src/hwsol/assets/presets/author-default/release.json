@@ -6,7 +6,7 @@
   "source_sha256": "6cd56a8c46217ab23154ee40b89616b6ee4004e19d51e2e1d29ca179ee19aece",
   "handnote_source_sha256": "74e25f1e16f6f4f3907ffa60a9c1fc0a2e614366f0942ac2f4c5dc3bd601ea9d",
   "packages": {
-    "handwritten-solutions": "1.2.0",
+    "handwritten-solutions": "1.2.1",
     "handnote": "2.0.0.dev0",
     "matplotlib": "3.11.2",
     "fonttools": "4.68.0",
@@ -38,6 +38,56 @@
         "fribidi": {
           "enabled": true,
           "version": "1.0.8"
+        },
+        "freetype2": {
+          "enabled": true,
+          "version": "2.14.3"
+        }
+      }
+    },
+    {
+      "system": "Linux",
+      "machine": "x86_64",
+      "python_minor": "3.12",
+      "pillow_version": "13.0.0",
+      "layout_engine": "RAQM",
+      "libraries": {
+        "raqm": {
+          "enabled": true,
+          "version": "0.11.0"
+        },
+        "harfbuzz": {
+          "enabled": true,
+          "version": "14.5.0"
+        },
+        "fribidi": {
+          "enabled": true,
+          "version": "1.0.13"
+        },
+        "freetype2": {
+          "enabled": true,
+          "version": "2.14.3"
+        }
+      }
+    },
+    {
+      "system": "Linux",
+      "machine": "x86_64",
+      "python_minor": "3.13",
+      "pillow_version": "13.0.0",
+      "layout_engine": "RAQM",
+      "libraries": {
+        "raqm": {
+          "enabled": true,
+          "version": "0.11.0"
+        },
+        "harfbuzz": {
+          "enabled": true,
+          "version": "14.5.0"
+        },
+        "fribidi": {
+          "enabled": true,
+          "version": "1.0.13"
         },
         "freetype2": {
           "enabled": true,

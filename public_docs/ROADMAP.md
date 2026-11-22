@@ -1,6 +1,6 @@
 # Product priorities
 
-## Delivered in 1.2.0
+## Delivered in 1.2.x
 
 The author's accepted seven-exercise model is now the default backend for the
 bundled author Profile on white paper. It keeps CPU mathematical layout, ships only

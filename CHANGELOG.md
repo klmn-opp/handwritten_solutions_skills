@@ -1,5 +1,14 @@
 # Public distribution notes
 
+## 1.2.1 — platform admission correction
+
+Adds the two actual GitHub Linux text environments (x86_64, Python 3.12 and 3.13,
+FriBidi 1.0.13) to the bundled author-preset admission, alongside the maintainer
+Linux 3.12 environment (FriBidi 1.0.8). Unverified macOS/Windows text stacks remain
+excluded. The public CI matrix is restricted to the platforms this release actually
+verifies. No model weight, glyph, rendering algorithm or output claim changes from
+1.2.0.
+
 ## 1.2.0 — next-generation default backend
 
 Clean installations that use the bundled author Profile now render white-paper
