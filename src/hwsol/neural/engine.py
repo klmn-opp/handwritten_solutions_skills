@@ -29,6 +29,29 @@ from hwsol.profiles.schema import ProfileError
 
 SEED_BASE = 314159
 SEED_PAGE = 10000
+# Supported LaTeX variants with no reviewed O atom use a personal equivalent.
+MATH_VARIANTS = {
+    "ϑ": "θ",
+    "ϖ": "π",
+    "\u0302": "ˆ",
+    "\u0304": "¯",
+    "\u0307": "˙",
+    "\u0308": "¨",
+    "\u0306": "˘",
+    "\u20d7": "→",
+}
+# Blackboard-bold letters are not in the reviewed O set; a plain personal capital
+# preserves the handwritten meaning and avoids a foreign font.
+MATH_VARIANTS.update(
+    {
+        char: letter
+        for char, letter in zip(
+            "𝔸𝔹ℂ𝔻𝔼𝔽𝔾ℍ𝕀𝕁𝕂𝕃𝕄ℕ𝕆ℙℚℝ𝕊𝕋𝕌𝕍𝕎𝕏𝕐ℤ",
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+            strict=True,
+        )
+    }
+)
 
 
 class NextGenEngine:
@@ -67,16 +90,30 @@ class NextGenEngine:
             return None, source, "fit-rejected"
         return fitted, int(source), "english"
 
-    def _personal_atom(self, item, label):
-        """Fit an existing personal O atom into this exact glyph slot."""
+    def _math_pool(self, item, label):
+        """Ordinary O atoms first, then a documented personal variant or any role."""
         pool = self.math_glyphs.get((label, "ordinary"))
+        if not pool and label in MATH_VARIANTS:
+            alias = MATH_VARIANTS[label]
+            pool = self.math_glyphs.get((alias, "ordinary"))
+            if not pool:
+                pool = [
+                    row
+                    for (char, _), rows in self.math_glyphs.items()
+                    if char == alias
+                    for row in rows
+                ]
+            if pool:
+                item["variant_alias"] = alias
         if not pool:
             pool = [
-                row
-                for (char, _), rows in self.math_glyphs.items()
-                if char == label
-                for row in rows
+                row for (char, _), rows in self.math_glyphs.items() if char == label for row in rows
             ]
+        return pool
+
+    def _personal_atom(self, item, label):
+        """Fit an existing personal O atom into this exact glyph slot."""
+        pool = self._math_pool(item, label)
         if not pool:
             return None, None
         row = pool[(self.seed_base + item["id"]) % len(pool)]
@@ -92,14 +129,9 @@ class NextGenEngine:
     def _draw_math(self, item):
         label = item["semantic"]
         foreign = item["source_type"] in {"external-font", "inherited-font"}
-        pool = self.math_glyphs.get((label, "ordinary"))
-        if foreign and not pool:
-            pool = [
-                row
-                for (char, _), rows in self.math_glyphs.items()
-                if char == label
-                for row in rows
-            ]
+        pool = (
+            self._math_pool(item, label) if foreign else self.math_glyphs.get((label, "ordinary"))
+        )
         anchor = item["stable"]
         source = None
         if pool and (foreign or label in ("ρ", "ϱ")):
@@ -114,8 +146,7 @@ class NextGenEngine:
                 source = row["id"]
         if foreign and source is None:
             raise ValueError(
-                f"No personal handwriting source for math symbol {label!r} "
-                f"(item {item['id']})"
+                f"No personal handwriting source for math symbol {label!r} (item {item['id']})"
             )
         key = label + "\u241fordinary"
         if key not in self.math.classes or min(anchor.shape) <= 2:
@@ -160,8 +191,7 @@ class NextGenEngine:
         fitted, source = self._personal_atom(item, label)
         if fitted is None:
             raise ValueError(
-                f"No personal handwriting source for text symbol {label!r} "
-                f"(item {item['id']})"
+                f"No personal handwriting source for text symbol {label!r} (item {item['id']})"
             )
         return fitted, source, "personal-atom-text"
 
@@ -272,9 +302,7 @@ class NextGenEngine:
             replacements, routes = self._draw(items)
             final, admitted = compose.compose_page(full.shape, items, replacements, full)
             foreign = [
-                item
-                for item in items
-                if item["source_type"] in {"external-font", "inherited-font"}
+                item for item in items if item["source_type"] in {"external-font", "inherited-font"}
             ]
             foreign_math = [item for item in foreign if item["context"] == "mathematics"]
             if foreign_math:
@@ -384,6 +412,7 @@ class NextGenEngine:
                     "route": item["route"],
                     "anchor": item.get("anchor"),
                     "source_type": item["source_type"],
+                    "variant_alias": item.get("variant_alias"),
                 }
                 for item in items
             ],

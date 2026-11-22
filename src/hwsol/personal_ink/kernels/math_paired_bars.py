@@ -126,7 +126,7 @@ class PersonalPairedBars:
                 paired_bar_feedback={
                     "original": old,
                     "source_label": "|",
-                    "source_parent_label": self.glyph.source["parent_latex"],
+                    "source_parent_label": self.glyph.source.get("parent_latex"),
                     "semantic_mapping": "two vertical bars -> existing norm delimiter slot",
                     "source_instances": 2,
                     "new_collected_double_bar": False,

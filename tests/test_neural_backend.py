@@ -151,8 +151,7 @@ def test_foreign_math_and_text_symbols_become_personal():
     assert len(percents) == 2
     assert all(item["source_type"] == "personal-o-atom" for item in percents)
     assert all(
-        item["route"] in {"math-neural", "personal-atom", "personal-atom-text"}
-        for item in percents
+        item["route"] in {"math-neural", "personal-atom", "personal-atom-text"} for item in percents
     )
     assert any(item["kind"] == "math" for item in percents)
     assert any(item["route"] == "personal-atom-text" for item in percents)

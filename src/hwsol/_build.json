@@ -1,9 +1,9 @@
 {
-  "commit": "cdf81d574c4ef4b414bdd49ce71cf67a3c7cce36",
-  "version": "1.2.3",
-  "tag": "v1.2.3",
-  "requested_ref": "refs/tags/v1.2.3",
+  "commit": "24872b09cc2d14d97a577f18e703fb89b6a30446",
+  "version": "1.2.4",
+  "tag": "v1.2.4",
+  "requested_ref": "refs/tags/v1.2.4",
   "mode": "stable-tag",
-  "lock_sha256": "2f4f28b16a691cb3537557b97c503c5310ed0c160b1cd9e79307f7e2d8a49ed5",
+  "lock_sha256": "1cd84df5d0adde683e0bb6dfbdde8aad592200b0ade862d151193d9965bdbff6",
   "git_history_included": false
 }

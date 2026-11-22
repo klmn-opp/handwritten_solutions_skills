@@ -405,6 +405,14 @@ def prepared_source(source: str) -> str:
         size = 2 if display else 1
         body = value[size:-size]
         body = _COMMAND.sub(lambda m: r"\mathrm{det}" if m[1] == "det" else m[0], body)
+        # MathText treats these named delimiters as unauditable fallbacks; their
+        # canonical literal forms are semantically identical and reviewable.
+        body = (
+            body.replace(r"\lvert", "|")
+            .replace(r"\rvert", "|")
+            .replace(r"\vert", "|")
+            .replace(r"\Vert", r"\|")
+        )
         if display:
             content = re.search(r"\S(?:[\s\S]*\S)?", body)
             if content:

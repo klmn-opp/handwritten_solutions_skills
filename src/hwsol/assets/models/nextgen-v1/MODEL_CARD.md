@@ -54,7 +54,11 @@ base is an external or inherited font, the runtime uses the personal O atom and
 falls back to that fitted O atom when the warp guard rejects; it refuses to leave a
 foreign math source. Text marks with a personal O sample are also replaced; text
 marks without one are reported in `text_foreign_sources`. Structure elements keep
-the stable personal-CPU glyph. Deterministic ink and integer word-spacing corrections run on
+the stable personal-CPU glyph. Supported variants without a direct O atom use a
+documented personal equivalent (for example vartheta -> personal theta, blackboard
+capitals -> personal plain capitals, combining accents -> reviewed spacing accents,
+named bars -> literal delimiters), recorded as a variant alias rather than a
+foreign font. Deterministic ink and integer word-spacing corrections run on
 accepted pixels and preserve page-level contour counts.
 
 ## Data and licence

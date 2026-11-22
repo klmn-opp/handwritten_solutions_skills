@@ -1,5 +1,26 @@
 # Public distribution notes
 
+## 1.2.4 — complete personal symbol coverage and stress
+
+No model weight, glyph array, checkpoint or neural forward pass changed.
+
+- All 224 ordinary O conditions were driven through the product admission path with
+  a synthetic foreign base; every one returned a personal O result (0 failures).
+- Supported variants without a direct O atom use a documented personal equivalent:
+  `\vartheta`→personal theta, `\varpi`→personal pi, blackboard-bold capitals→personal
+  plain capitals, combining accents (`\hat`, `\bar`, `\dot`, `\ddot`, `\vec`)→the
+  reviewed spacing O accents, and `\lvert/\rvert/\vert/\Vert`→literal delimiters.
+- The paired-bar provenance log now tolerates sources without `parent_latex`.
+- Symbol stress: 12 groups × 2 seeds = 24 pages covering Greek, relations,
+  operators, functions, accents, delimiters, text-math, raw Unicode, radicals,
+  fractions, matrices and dense repetition. Foreign math sources 0, text foreign
+  sources 0, weight updates 0.
+- A 12-page all-symbol Job passed on Linux and macOS with `verify --pixels`; the
+  seven-exercise replay and the `\sqrt{0.36}` regression also pass.
+- Text marks with a personal O sample (including `%`) are personal; marks without
+  any personal sample are listed in `text_foreign_sources` rather than silently
+  claimed as personal.
+
 ## 1.2.3 — personal-source enforcement and radical ownership
 
 Fixes two defects without changing any weight:

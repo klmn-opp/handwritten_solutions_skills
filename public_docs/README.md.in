@@ -9,7 +9,7 @@ Handwritten Solutions 将宿主 Agent 的读题、解题能力与可靠的数学
 Agent 读取文字、图片或 PDF，编写并校核英文 Markdown / LaTeX；本地运行时负责
 数学结构、手写字形、页面布局和输出检查。你也可以直接提供已经完成的解答。
 
-v1.2.3 的默认后端是 **个人 CPU 排版 + 冻结的下一代字形模型**：数学结构、字位、
+v1.2.4 的默认后端是 **个人 CPU 排版 + 冻结的下一代字形模型**：数学结构、字位、
 换行和页面边界由 CPU 排版决定，模型只在已有字形槽位内改变英文与数学字形。
 安装完成后不需要 GPU、PyTorch 或联网下载模型。整页自由生成、连续连笔和偏好
 优化仍不在本版本范围内。
@@ -36,7 +36,7 @@ CPU 出稿成品，不是神经网络生成的宣传图。作者已授权公开�
 ### 下一代默认后端
 
 作者已验收的七道复杂题由冻结的 `nextgen-v1` 权重生成，同一组权重现在进入
-v1.2.3 的默认后端：
+v1.2.4 的默认后端：
 
 [七道复杂题 A](public_docs/nextgen-demo/complex-A.pdf) ·
 [七道复杂题 B](public_docs/nextgen-demo/complex-B.pdf) ·
@@ -45,7 +45,7 @@ v1.2.3 的默认后端：
 ![下一代后端七题样张第 5 页](public_docs/nextgen-demo/page-05-preview.png)
 
 页面中的英文与数学墨迹来自作者个人实写底字、有界形变和确定性墨量校正；
-分数线、根号横线等结构仍由 CPU 排版绘制。v1.2.3 起，所有数学字形强制来自
+分数线、根号横线等结构仍由 CPU 排版绘制。v1.2.4 起，所有数学字形强制来自
 个人手写来源：外来数学基字会替换为 O 原子，形变守卫失败时也回退到已适配的
 O 原子，不会再把 STIX/继承字体留在页面上。发行包只包含推理所需的最小底字与
 权重数组，原始扫描、完整训练语料、优化器状态和其它版本权重不分发。
@@ -61,7 +61,7 @@ O 原子，不会再把 STIX/继承字体留在页面上。发行包只包含推
 - **个人 Profile**：版本化导入、导出、比较、选择和回滚；个人墨迹候选需要独立本地资格审核，导入不会自动改变默认版本。
 - **Agent Skill 与 CLI**：既可交给支持本地 Skill 的 Agent 调用，也可用命令行处理已核验的解答。
 
-v1.2.3 的实际安装、默认后端出稿、回退和像素核验范围为
+v1.2.4 的实际安装、默认后端出稿、回退和像素核验范围为
 **Linux x86_64 与 macOS Apple Silicon（arm64），Python 3.12 / 3.13**。
 Windows 不在本版验证范围。不同系统的文字排版库可能产生细微落点差异，
 不保证跨系统像素一致。
@@ -94,7 +94,7 @@ uv run --frozen hwsol workspace latest
 ```
 
 `nextgen-job.json` 不固定 Profile，也不写 `backend`，因此使用已选择的默认：
-干净安装即为作者个人笔迹，并使用 v1.2.3 的下一代默认后端。无需导入私人 ZIP
+干净安装即为作者个人笔迹，并使用 v1.2.4 的下一代默认后端。无需导入私人 ZIP
 或运行资格审核。第一次安装需要下载锁定的依赖。此后依赖已经缓存时，可以给
 `uv` 加上 `--offline`。
 
@@ -126,7 +126,7 @@ run.json
 
 ```sh
 python3.12 -m venv .venv
-.venv/bin/python -m pip install /path/to/handwritten_solutions-1.2.3-py3-none-any.whl
+.venv/bin/python -m pip install /path/to/handwritten_solutions-1.2.4-py3-none-any.whl
 .venv/bin/hwsol doctor
 ```
 
