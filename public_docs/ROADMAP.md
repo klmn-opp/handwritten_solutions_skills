@@ -1,12 +1,20 @@
 # Product priorities
 
+## Delivered in 1.2.0
+
+The author's accepted seven-exercise model is now the default backend for the
+bundled author Profile on white paper. It keeps CPU mathematical layout, ships only
+the audited inference arrays and glyph subset, runs without Torch, and falls back
+per glyph. See [the model page](NEURAL_MODEL.md).
+
 ## This generation: personal handwriting by default
 
 A clean install must render with the author's latest accepted personal CPU Profile,
 including the final word-gap adjustment. Existing explicit user defaults stay in
 place; Patrick Hand remains an optional compatibility preset. The release ships
-only the authorized runtime derivative: fonts, compiled contours and necessary
-configuration, without original scans/crops, private paths or training weights.
+only the authorized runtime derivative: fonts, compiled contours, the audited
+`nextgen-v1` inference arrays/glyphs and necessary configuration, without original
+scans, private paths, optimizer state or unreleased research checkpoints.
 
 A new user must have a short, supported path to create their own Profile:
 print the character worksheet, write and scan it, review the actual labels, build

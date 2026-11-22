@@ -38,3 +38,15 @@ Every rejected replacement retains a recorded reason; unsupported structure or
 overflow rejects the page. It cannot activate a Profile or advance formal latest.
 It uses no Torch, research modules, old experiment directories or cached word images.
 See [candidate selection and portability](../references/jobs.md#reviewed-personal-cpu-candidate).
+
+The `personal-neural@1` backend runs the frozen `nextgen-v1` model after the stable
+personal CPU composition. It replaces only eligible English letters and ordinary
+mathematical atoms. Fraction bars, radicals, matrices, structure glyphs, unsupported
+symbols and rejected candidates keep the stable CPU glyph. A candidate is rejected
+on a new dark contact, changed components/holes, page-boundary ink, or a failed
+single-symbol identity check. The deterministic ink/tone stage and integer word
+spacing must preserve page contour counts. Non-plain paper delegates to the stable
+CPU path; the bundled author preset currently rejects ruled/grid paper because its
+final word gap requires semantic layout.
+Inference uses NumPy only; no parameter is updated at render time.
+See [the model page](../public_docs/NEURAL_MODEL.md).

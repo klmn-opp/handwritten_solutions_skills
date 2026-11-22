@@ -1,0 +1,2259 @@
+{
+ "english": {
+  "schema": "eng-layout-round-shape/1",
+  "step": 400,
+  "config": {
+   "seed": 2026112205,
+   "steps": 400,
+   "batch": 40,
+   "lr": 0.0001,
+   "trainable": "local.decoder only",
+   "optimizer": "fresh AdamW state; inherited decoder weights",
+   "energy_weights": {
+    "f": 0.25,
+    "t": 1.0,
+    "h": 0.5,
+    "r": 1.0
+   },
+   "posterior_profile_weights": {
+    "f": 0.25,
+    "t": 0.5,
+    "h": 0.25,
+    "r": 0.5
+   },
+   "curvature_weight": 0.001,
+   "h_spread_quantile": 0.95,
+   "h_spread_penalty": 2.0,
+   "free_rng_seed": 2026112206,
+   "local_seed_offset": 314159,
+   "maximum_displacement": 5.0,
+   "maximum_gradient": 0.72,
+   "selected_endpoint": false
+  },
+  "letters": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+  "local_labels": "fthr"
+ },
+ "math": {
+  "schema": "math-variation-continuation/1",
+  "step": 1200,
+  "config": {
+   "seed": 2026112241,
+   "steps": 1200,
+   "batch": 32,
+   "lr": 0.0003,
+   "max_displacement_px": 4.0,
+   "max_gradient": 0.45,
+   "reconstruction_weight": 0.6,
+   "identity_weight": 0.08,
+   "semantic_weight": 0.02,
+   "energy_weight": 2.0,
+   "topology_weight": 0.08,
+   "mass_weight": 0.1,
+   "kl_weight": 0.003,
+   "curvature_weight": 0.001,
+   "focus": [
+    "Φ",
+    "φ",
+    "ϕ",
+    "ρ",
+    "λ",
+    "=",
+    "(",
+    ")"
+   ],
+   "focus_per_batch": 16,
+   "comparison_seeds": [
+    2026112211,
+    2026112212,
+    2026112213,
+    2026112214
+   ]
+  },
+  "classes": [
+   "!␟ordinary",
+   "%␟ordinary",
+   "(␟ordinary",
+   "(␟tall",
+   ")␟ordinary",
+   ")␟tall",
+   "*␟ordinary",
+   "+␟ordinary",
+   ",␟ordinary",
+   ".␟decimal",
+   "/␟unit",
+   "0␟ordinary",
+   "1␟ordinary",
+   "2␟ordinary",
+   "3␟ordinary",
+   "4␟ordinary",
+   "5␟ordinary",
+   "6␟ordinary",
+   "7␟ordinary",
+   "8␟ordinary",
+   "9␟ordinary",
+   ":=␟ordinary",
+   ":␟definition",
+   "<␟ordinary",
+   "=␟ordinary",
+   ">␟ordinary",
+   "A␟ordinary",
+   "B␟ordinary",
+   "C␟ordinary",
+   "D␟ordinary",
+   "E␟ordinary",
+   "F␟ordinary",
+   "G␟ordinary",
+   "H␟ordinary",
+   "I␟ordinary",
+   "J␟ordinary",
+   "K␟ordinary",
+   "L␟ordinary",
+   "M␟ordinary",
+   "N␟ordinary",
+   "O␟ordinary",
+   "P␟ordinary",
+   "Q␟ordinary",
+   "R␟ordinary",
+   "S␟ordinary",
+   "T␟ordinary",
+   "U␟ordinary",
+   "V␟ordinary",
+   "W␟ordinary",
+   "X␟ordinary",
+   "Y␟ordinary",
+   "Z␟ordinary",
+   "[␟ordinary",
+   "[␟tall",
+   "]␟ordinary",
+   "]␟tall",
+   "arched_accent␟accent",
+   "a␟ordinary",
+   "b␟ordinary",
+   "cross_mark␟superscript",
+   "c␟ordinary",
+   "degree_mark␟superscript",
+   "d␟ordinary",
+   "epsilon_like␟observed-variant",
+   "e␟ordinary",
+   "f␟ordinary",
+   "g␟ordinary",
+   "h␟ordinary",
+   "i␟ordinary",
+   "j␟ordinary",
+   "k␟ordinary",
+   "l␟ordinary",
+   "m␟ordinary",
+   "n␟ordinary",
+   "ornate_I␟observed-variant",
+   "overbrace␟structure",
+   "overline␟accent",
+   "o␟ordinary",
+   "p␟ordinary",
+   "q␟ordinary",
+   "r␟ordinary",
+   "s␟ordinary",
+   "t␟ordinary",
+   "underbrace␟structure",
+   "u␟ordinary",
+   "vector_accent␟accent",
+   "v␟ordinary",
+   "wide_hat␟accent",
+   "w␟ordinary",
+   "x␟ordinary",
+   "y␟ordinary",
+   "z␟ordinary",
+   "{␟ordinary",
+   "|␟delimiter",
+   "}␟ordinary",
+   "¨␟accent",
+   "¬␟ordinary",
+   "¯␟accent",
+   "±␟ordinary",
+   "×␟ordinary",
+   "÷␟ordinary",
+   "ˆ␟accent",
+   "˘␟accent",
+   "˙␟accent",
+   "Α␟ordinary",
+   "Β␟ordinary",
+   "Γ␟ordinary",
+   "Δ␟ordinary",
+   "Ε␟ordinary",
+   "Ζ␟ordinary",
+   "Η␟ordinary",
+   "Θ␟ordinary",
+   "Ι␟ordinary",
+   "Κ␟ordinary",
+   "Λ␟ordinary",
+   "Μ␟ordinary",
+   "Ν␟ordinary",
+   "Ξ␟ordinary",
+   "Ο␟ordinary",
+   "Π␟ordinary",
+   "Ρ␟ordinary",
+   "Σ␟ordinary",
+   "Τ␟ordinary",
+   "Υ␟ordinary",
+   "Φ␟ordinary",
+   "Χ␟ordinary",
+   "Ψ␟ordinary",
+   "Ω␟ordinary",
+   "α␟ordinary",
+   "β␟ordinary",
+   "γ␟ordinary",
+   "δ␟ordinary",
+   "ε␟ordinary",
+   "ζ␟ordinary",
+   "η␟ordinary",
+   "θ␟ordinary",
+   "ι␟ordinary",
+   "κ␟ordinary",
+   "λ␟ordinary",
+   "μ␟ordinary",
+   "ν␟ordinary",
+   "ξ␟ordinary",
+   "ο␟ordinary",
+   "π␟ordinary",
+   "ρ␟ordinary",
+   "ς␟ordinary",
+   "σ␟ordinary",
+   "τ␟ordinary",
+   "υ␟ordinary",
+   "φ␟ordinary",
+   "χ␟ordinary",
+   "ψ␟ordinary",
+   "ω␟ordinary",
+   "ϕ␟ordinary",
+   "ϰ␟ordinary",
+   "ϱ␟ordinary",
+   "ϵ␟ordinary",
+   "‖␟delimiter",
+   "•␟ordinary",
+   "…␟ordinary",
+   "′␟superscript",
+   "″␟superscript",
+   "‴␟superscript",
+   "ℏ␟ordinary",
+   "ℓ␟ordinary",
+   "←␟ordinary",
+   "↑␟ordinary",
+   "→␟ordinary",
+   "↓␟ordinary",
+   "↔␟ordinary",
+   "↗␟ordinary",
+   "↘␟ordinary",
+   "↠␟ordinary",
+   "↦␟ordinary",
+   "↪␟ordinary",
+   "⇐␟ordinary",
+   "⇒␟ordinary",
+   "⇔␟ordinary",
+   "∀␟ordinary",
+   "∂␟ordinary",
+   "∃␟ordinary",
+   "∄␟ordinary",
+   "∅␟ordinary",
+   "∇␟ordinary",
+   "∈␟ordinary",
+   "∉␟ordinary",
+   "∋␟ordinary",
+   "∏␟ordinary",
+   "∑␟ordinary",
+   "−␟ordinary",
+   "∓␟ordinary",
+   "∖␟ordinary",
+   "∘␟ordinary",
+   "√␟structural",
+   "∝␟ordinary",
+   "∞␟ordinary",
+   "∠␟ordinary",
+   "∣␟ordinary",
+   "∤␟ordinary",
+   "∥␟ordinary",
+   "∧␟ordinary",
+   "∨␟ordinary",
+   "∩␟ordinary",
+   "∪␟ordinary",
+   "∫␟ordinary",
+   "∬␟ordinary",
+   "∭␟ordinary",
+   "∮␟ordinary",
+   "∯␟ordinary",
+   "∰␟ordinary",
+   "∴␟ordinary",
+   "∵␟ordinary",
+   "∼␟ordinary",
+   "≃␟ordinary",
+   "≅␟ordinary",
+   "≈␟ordinary",
+   "≠␟ordinary",
+   "≡␟ordinary",
+   "≤␟ordinary",
+   "≥␟ordinary",
+   "≪␟ordinary",
+   "≫␟ordinary",
+   "≲␟ordinary",
+   "≳␟ordinary",
+   "⊂␟ordinary",
+   "⊃␟ordinary",
+   "⊆␟ordinary",
+   "⊇␟ordinary",
+   "⊈␟ordinary",
+   "⊊␟ordinary",
+   "⊕␟ordinary",
+   "⊗␟ordinary",
+   "⊙␟ordinary",
+   "⊢␟ordinary",
+   "⊤␟ordinary",
+   "⊥␟ordinary",
+   "⊨␟ordinary",
+   "⋅␟ordinary",
+   "⋆␟ordinary",
+   "⋮␟ordinary",
+   "⋯␟ordinary",
+   "⋱␟ordinary",
+   "⌈␟ordinary",
+   "⌉␟ordinary",
+   "⌊␟ordinary",
+   "⌋␟ordinary",
+   "△␟ordinary",
+   "⟨␟ordinary",
+   "⟩␟ordinary",
+   "⟶␟ordinary",
+   "⟷␟ordinary",
+   "⟺␟ordinary"
+  ],
+  "recognition_labels": [
+   "!",
+   "%",
+   "(",
+   ")",
+   "*",
+   "+",
+   ",",
+   ".",
+   "/",
+   "0",
+   "1",
+   "2",
+   "3",
+   "4",
+   "5",
+   "6",
+   "7",
+   "8",
+   "9",
+   ":",
+   ":=",
+   "<",
+   "=",
+   ">",
+   "A",
+   "B",
+   "C",
+   "D",
+   "E",
+   "F",
+   "G",
+   "H",
+   "I",
+   "J",
+   "K",
+   "L",
+   "M",
+   "N",
+   "O",
+   "P",
+   "Q",
+   "R",
+   "S",
+   "T",
+   "U",
+   "V",
+   "W",
+   "X",
+   "Y",
+   "Z",
+   "[",
+   "]",
+   "a",
+   "arched_accent",
+   "b",
+   "c",
+   "cross_mark",
+   "d",
+   "degree_mark",
+   "e",
+   "epsilon_like",
+   "f",
+   "g",
+   "h",
+   "i",
+   "j",
+   "k",
+   "l",
+   "m",
+   "n",
+   "o",
+   "ornate_I",
+   "overbrace",
+   "overline",
+   "p",
+   "q",
+   "r",
+   "s",
+   "t",
+   "u",
+   "underbrace",
+   "v",
+   "vector_accent",
+   "w",
+   "wide_hat",
+   "x",
+   "y",
+   "z",
+   "{",
+   "|",
+   "}",
+   "¨",
+   "¬",
+   "¯",
+   "±",
+   "×",
+   "÷",
+   "ˆ",
+   "˘",
+   "˙",
+   "Α",
+   "Β",
+   "Γ",
+   "Δ",
+   "Ε",
+   "Ζ",
+   "Η",
+   "Θ",
+   "Ι",
+   "Κ",
+   "Λ",
+   "Μ",
+   "Ν",
+   "Ξ",
+   "Ο",
+   "Π",
+   "Ρ",
+   "Σ",
+   "Τ",
+   "Υ",
+   "Φ",
+   "Χ",
+   "Ψ",
+   "Ω",
+   "α",
+   "β",
+   "γ",
+   "δ",
+   "ε",
+   "ζ",
+   "η",
+   "θ",
+   "ι",
+   "κ",
+   "λ",
+   "μ",
+   "ν",
+   "ξ",
+   "ο",
+   "π",
+   "ρ",
+   "ς",
+   "σ",
+   "τ",
+   "υ",
+   "φ",
+   "χ",
+   "ψ",
+   "ω",
+   "ϕ",
+   "ϰ",
+   "ϱ",
+   "ϵ",
+   "‖",
+   "•",
+   "…",
+   "′",
+   "″",
+   "‴",
+   "ℏ",
+   "ℓ",
+   "←",
+   "↑",
+   "→",
+   "↓",
+   "↔",
+   "↗",
+   "↘",
+   "↠",
+   "↦",
+   "↪",
+   "⇐",
+   "⇒",
+   "⇔",
+   "∀",
+   "∂",
+   "∃",
+   "∄",
+   "∅",
+   "∇",
+   "∈",
+   "∉",
+   "∋",
+   "∏",
+   "∑",
+   "−",
+   "∓",
+   "∖",
+   "∘",
+   "√",
+   "∝",
+   "∞",
+   "∠",
+   "∣",
+   "∤",
+   "∥",
+   "∧",
+   "∨",
+   "∩",
+   "∪",
+   "∫",
+   "∬",
+   "∭",
+   "∮",
+   "∯",
+   "∰",
+   "∴",
+   "∵",
+   "∼",
+   "≃",
+   "≅",
+   "≈",
+   "≠",
+   "≡",
+   "≤",
+   "≥",
+   "≪",
+   "≫",
+   "≲",
+   "≳",
+   "⊂",
+   "⊃",
+   "⊆",
+   "⊇",
+   "⊈",
+   "⊊",
+   "⊕",
+   "⊗",
+   "⊙",
+   "⊢",
+   "⊤",
+   "⊥",
+   "⊨",
+   "⋅",
+   "⋆",
+   "⋮",
+   "⋯",
+   "⋱",
+   "⌈",
+   "⌉",
+   "⌊",
+   "⌋",
+   "△",
+   "⟨",
+   "⟩",
+   "⟶",
+   "⟷",
+   "⟺"
+  ],
+  "targets": [
+   "!␟ordinary",
+   "%␟ordinary",
+   "(␟ordinary",
+   "(␟tall",
+   ")␟ordinary",
+   ")␟tall",
+   "*␟ordinary",
+   "+␟ordinary",
+   ".␟decimal",
+   "/␟unit",
+   ":=␟ordinary",
+   ":␟definition",
+   "<␟ordinary",
+   "=␟ordinary",
+   ">␟ordinary",
+   "[␟ordinary",
+   "[␟tall",
+   "]␟ordinary",
+   "]␟tall",
+   "arched_accent␟accent",
+   "cross_mark␟superscript",
+   "degree_mark␟superscript",
+   "epsilon_like␟observed-variant",
+   "ornate_I␟observed-variant",
+   "overline␟accent",
+   "vector_accent␟accent",
+   "wide_hat␟accent",
+   "{␟ordinary",
+   "|␟delimiter",
+   "}␟ordinary",
+   "¨␟accent",
+   "¯␟accent",
+   "±␟ordinary",
+   "×␟ordinary",
+   "÷␟ordinary",
+   "ˆ␟accent",
+   "˘␟accent",
+   "˙␟accent",
+   "Α␟ordinary",
+   "Β␟ordinary",
+   "Γ␟ordinary",
+   "Δ␟ordinary",
+   "Ε␟ordinary",
+   "Ζ␟ordinary",
+   "Η␟ordinary",
+   "Θ␟ordinary",
+   "Ι␟ordinary",
+   "Κ␟ordinary",
+   "Λ␟ordinary",
+   "Μ␟ordinary",
+   "Ν␟ordinary",
+   "Ξ␟ordinary",
+   "Ο␟ordinary",
+   "Π␟ordinary",
+   "Ρ␟ordinary",
+   "Σ␟ordinary",
+   "Τ␟ordinary",
+   "Υ␟ordinary",
+   "Φ␟ordinary",
+   "Χ␟ordinary",
+   "Ψ␟ordinary",
+   "Ω␟ordinary",
+   "α␟ordinary",
+   "β␟ordinary",
+   "γ␟ordinary",
+   "δ␟ordinary",
+   "ε␟ordinary",
+   "ζ␟ordinary",
+   "η␟ordinary",
+   "θ␟ordinary",
+   "ι␟ordinary",
+   "κ␟ordinary",
+   "λ␟ordinary",
+   "μ␟ordinary",
+   "ν␟ordinary",
+   "ξ␟ordinary",
+   "ο␟ordinary",
+   "π␟ordinary",
+   "ρ␟ordinary",
+   "ς␟ordinary",
+   "σ␟ordinary",
+   "τ␟ordinary",
+   "υ␟ordinary",
+   "φ␟ordinary",
+   "χ␟ordinary",
+   "ψ␟ordinary",
+   "ω␟ordinary",
+   "ϕ␟ordinary",
+   "ϰ␟ordinary",
+   "ϱ␟ordinary",
+   "ϵ␟ordinary",
+   "‖␟delimiter",
+   "•␟ordinary",
+   "′␟superscript",
+   "‴␟superscript",
+   "ℏ␟ordinary",
+   "ℓ␟ordinary",
+   "←␟ordinary",
+   "↑␟ordinary",
+   "→␟ordinary",
+   "↓␟ordinary",
+   "↔␟ordinary",
+   "↗␟ordinary",
+   "↘␟ordinary",
+   "↠␟ordinary",
+   "↦␟ordinary",
+   "↪␟ordinary",
+   "⇐␟ordinary",
+   "⇒␟ordinary",
+   "⇔␟ordinary",
+   "∅␟ordinary",
+   "∇␟ordinary",
+   "∈␟ordinary",
+   "∉␟ordinary",
+   "∋␟ordinary",
+   "∏␟ordinary",
+   "∑␟ordinary",
+   "−␟ordinary",
+   "∓␟ordinary",
+   "∖␟ordinary",
+   "∘␟ordinary",
+   "√␟structural",
+   "∝␟ordinary",
+   "∞␟ordinary",
+   "∠␟ordinary",
+   "∤␟ordinary",
+   "∥␟ordinary",
+   "∩␟ordinary",
+   "∪␟ordinary",
+   "∫␟ordinary",
+   "∬␟ordinary",
+   "∴␟ordinary",
+   "∵␟ordinary",
+   "∼␟ordinary",
+   "≃␟ordinary",
+   "≅␟ordinary",
+   "≈␟ordinary",
+   "≠␟ordinary",
+   "≡␟ordinary",
+   "≤␟ordinary",
+   "≥␟ordinary",
+   "≪␟ordinary",
+   "≫␟ordinary",
+   "≲␟ordinary",
+   "≳␟ordinary",
+   "⊂␟ordinary",
+   "⊃␟ordinary",
+   "⊆␟ordinary",
+   "⊇␟ordinary",
+   "⊈␟ordinary",
+   "⊊␟ordinary",
+   "⊕␟ordinary",
+   "⊗␟ordinary",
+   "⊙␟ordinary",
+   "⊢␟ordinary",
+   "⊥␟ordinary",
+   "⊨␟ordinary",
+   "⋅␟ordinary",
+   "⋆␟ordinary",
+   "⌈␟ordinary",
+   "⌉␟ordinary",
+   "⌊␟ordinary",
+   "⌋␟ordinary",
+   "△␟ordinary",
+   "⟨␟ordinary",
+   "⟩␟ordinary"
+  ],
+  "support": {
+   "!␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "%␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "(␟ordinary": {
+    "count": 13,
+    "original_lines": 5,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "(␟tall": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   ")␟ordinary": {
+    "count": 9,
+    "original_lines": 4,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   ")␟tall": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "*␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "+␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   ",␟ordinary": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   ".␟decimal": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "/␟unit": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "0␟ordinary": {
+    "count": 4,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "1␟ordinary": {
+    "count": 4,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "2␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "3␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "4␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "5␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "6␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "7␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "8␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "9␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   ":=␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   ":␟definition": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "<␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "=␟ordinary": {
+    "count": 38,
+    "original_lines": 7,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   ">␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "A␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "B␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "C␟ordinary": {
+    "count": 6,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "D␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "E␟ordinary": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "F␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "G␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "H␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "I␟ordinary": {
+    "count": 4,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "J␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "K␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "L␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "M␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "N␟ordinary": {
+    "count": 6,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "O␟ordinary": {
+    "count": 4,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "P␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Q␟ordinary": {
+    "count": 6,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "R␟ordinary": {
+    "count": 6,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "S␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "T␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "U␟ordinary": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "V␟ordinary": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "W␟ordinary": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "X␟ordinary": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Y␟ordinary": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Z␟ordinary": {
+    "count": 5,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "[␟ordinary": {
+    "count": 4,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "[␟tall": {
+    "count": 5,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "]␟ordinary": {
+    "count": 4,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "]␟tall": {
+    "count": 4,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "arched_accent␟accent": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "a␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "b␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "cross_mark␟superscript": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "c␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "degree_mark␟superscript": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "d␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "epsilon_like␟observed-variant": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "e␟ordinary": {
+    "count": 6,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "f␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "g␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "h␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "i␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "j␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "k␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "l␟ordinary": {
+    "count": 4,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "m␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "n␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "ornate_I␟observed-variant": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "overbrace␟structure": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "overline␟accent": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "o␟ordinary": {
+    "count": 4,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "p␟ordinary": {
+    "count": 5,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "q␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "r␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "s␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "t␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "underbrace␟structure": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "u␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "vector_accent␟accent": {
+    "count": 8,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "v␟ordinary": {
+    "count": 6,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "wide_hat␟accent": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "w␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "x␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "y␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "z␟ordinary": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "{␟ordinary": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "|␟delimiter": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "}␟ordinary": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "¨␟accent": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "¬␟ordinary": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "¯␟accent": {
+    "count": 6,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "±␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "×␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "÷␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "ˆ␟accent": {
+    "count": 8,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "˘␟accent": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "˙␟accent": {
+    "count": 6,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Α␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Β␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Γ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Δ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Ε␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Ζ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Η␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Θ␟ordinary": {
+    "count": 6,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "Ι␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Κ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Λ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Μ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Ν␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Ξ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Ο␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Π␟ordinary": {
+    "count": 4,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "Ρ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Σ␟ordinary": {
+    "count": 6,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "Τ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Υ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Φ␟ordinary": {
+    "count": 9,
+    "original_lines": 3,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "Χ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Ψ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "Ω␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "α␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "β␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "γ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "δ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "ε␟ordinary": {
+    "count": 6,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "ζ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "η␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "θ␟ordinary": {
+    "count": 9,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "ι␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "κ␟ordinary": {
+    "count": 6,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "λ␟ordinary": {
+    "count": 4,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "μ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "ν␟ordinary": {
+    "count": 6,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "ξ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "ο␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "π␟ordinary": {
+    "count": 5,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "ρ␟ordinary": {
+    "count": 5,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "ς␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "σ␟ordinary": {
+    "count": 6,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "τ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "υ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "φ␟ordinary": {
+    "count": 10,
+    "original_lines": 4,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "χ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "ψ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "ω␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "ϕ␟ordinary": {
+    "count": 4,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "ϰ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "ϱ␟ordinary": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "ϵ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "‖␟delimiter": {
+    "count": 4,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "•␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "…␟ordinary": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "′␟superscript": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "″␟superscript": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "‴␟superscript": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "ℏ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "ℓ␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "←␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "↑␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "→␟ordinary": {
+    "count": 4,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "↓␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "↔␟ordinary": {
+    "count": 4,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "↗␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "↘␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "↠␟ordinary": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "↦␟ordinary": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "↪␟ordinary": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⇐␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⇒␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⇔␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∀␟ordinary": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "∂␟ordinary": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "∃␟ordinary": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "∄␟ordinary": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "∅␟ordinary": {
+    "count": 6,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∇␟ordinary": {
+    "count": 6,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∈␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∉␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∋␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∏␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∑␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "−␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∓␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∖␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∘␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "√␟structural": {
+    "count": 5,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∝␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∞␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∠␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∣␟ordinary": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "∤␟ordinary": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∥␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∧␟ordinary": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "∨␟ordinary": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "∩␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∪␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∫␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∬␟ordinary": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∭␟ordinary": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "∮␟ordinary": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "∯␟ordinary": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "∰␟ordinary": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "∴␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∵␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "∼␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "≃␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "≅␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "≈␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "≠␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "≡␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "≤␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "≥␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "≪␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "≫␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "≲␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "≳␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⊂␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⊃␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⊆␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⊇␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⊈␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⊊␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⊕␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⊗␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⊙␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⊢␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⊤␟ordinary": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "⊥␟ordinary": {
+    "count": 4,
+    "original_lines": 2,
+    "stochastic_pairs": true,
+    "mode": "crossline"
+   },
+   "⊨␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⋅␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⋆␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⋮␟ordinary": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "⋯␟ordinary": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "⋱␟ordinary": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "⌈␟ordinary": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⌉␟ordinary": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⌊␟ordinary": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⌋␟ordinary": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "△␟ordinary": {
+    "count": 3,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⟨␟ordinary": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⟩␟ordinary": {
+    "count": 2,
+    "original_lines": 1,
+    "stochastic_pairs": true,
+    "mode": "within_line_repeat"
+   },
+   "⟶␟ordinary": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "⟷␟ordinary": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   },
+   "⟺␟ordinary": {
+    "count": 1,
+    "original_lines": 1,
+    "stochastic_pairs": false,
+    "mode": "singleton"
+   }
+  }
+ }
+}

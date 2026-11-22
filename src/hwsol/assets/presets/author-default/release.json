@@ -3,10 +3,10 @@
   "profile": "author-default@v1",
   "profile_sha256": "9f8534b2529333359cb90aded25a3afdd7d78974bb83e3082c905af06e77fd5b",
   "recipe_sha256": "2ba31db319e12e84232c8a5f458ae4cbde0efc56c3bf3ddfd8196afeb559a1ea",
-  "source_sha256": "99ab4422efc51bb4a56490af0462f87d4d81f2c424af4f05afd9fcf0cc1db3b3",
+  "source_sha256": "6cd56a8c46217ab23154ee40b89616b6ee4004e19d51e2e1d29ca179ee19aece",
   "handnote_source_sha256": "74e25f1e16f6f4f3907ffa60a9c1fc0a2e614366f0942ac2f4c5dc3bd601ea9d",
   "packages": {
-    "handwritten-solutions": "1.1.0",
+    "handwritten-solutions": "1.2.0",
     "handnote": "2.0.0.dev0",
     "matplotlib": "3.11.2",
     "fonttools": "4.68.0",
@@ -37,106 +37,6 @@
         },
         "fribidi": {
           "enabled": true,
-          "version": "1.0.13"
-        },
-        "freetype2": {
-          "enabled": true,
-          "version": "2.14.3"
-        }
-      }
-    },
-    {
-      "system": "Linux",
-      "machine": "x86_64",
-      "python_minor": "3.13",
-      "pillow_version": "13.0.0",
-      "layout_engine": "RAQM",
-      "libraries": {
-        "raqm": {
-          "enabled": true,
-          "version": "0.11.0"
-        },
-        "harfbuzz": {
-          "enabled": true,
-          "version": "14.5.0"
-        },
-        "fribidi": {
-          "enabled": true,
-          "version": "1.0.13"
-        },
-        "freetype2": {
-          "enabled": true,
-          "version": "2.14.3"
-        }
-      }
-    },
-    {
-      "system": "Darwin",
-      "machine": "arm64",
-      "python_minor": "3.12",
-      "pillow_version": "13.0.0",
-      "layout_engine": "BASIC",
-      "libraries": {
-        "raqm": {
-          "enabled": false,
-          "version": null
-        },
-        "harfbuzz": {
-          "enabled": false,
-          "version": null
-        },
-        "fribidi": {
-          "enabled": false,
-          "version": null
-        },
-        "freetype2": {
-          "enabled": true,
-          "version": "2.14.3"
-        }
-      }
-    },
-    {
-      "system": "Darwin",
-      "machine": "arm64",
-      "python_minor": "3.13",
-      "pillow_version": "13.0.0",
-      "layout_engine": "BASIC",
-      "libraries": {
-        "raqm": {
-          "enabled": false,
-          "version": null
-        },
-        "harfbuzz": {
-          "enabled": false,
-          "version": null
-        },
-        "fribidi": {
-          "enabled": false,
-          "version": null
-        },
-        "freetype2": {
-          "enabled": true,
-          "version": "2.14.3"
-        }
-      }
-    },
-    {
-      "system": "Linux",
-      "machine": "x86_64",
-      "python_minor": "3.12",
-      "pillow_version": "13.0.0",
-      "layout_engine": "RAQM",
-      "libraries": {
-        "raqm": {
-          "enabled": true,
-          "version": "0.11.0"
-        },
-        "harfbuzz": {
-          "enabled": true,
-          "version": "14.5.0"
-        },
-        "fribidi": {
-          "enabled": true,
           "version": "1.0.8"
         },
         "freetype2": {
@@ -147,11 +47,9 @@
     }
   ],
   "evidence_sha256": [
-    "6961f70feb9848a125ca8445678d03ac8375e19f26bc720df0e39e44b35da493",
-    "3862ad3fa90484477baa7db7c56d01d2dc16d54e5d1eb7211e8c1f5071f13ee5",
-    "1b94772bd5c9b01a56427a1789287defca09459f129fda2c2e0b469c74cece92",
-    "ff853b629d60d692941c4517dad09886c60e2543544401771ee8c12ea4ca1270",
-    "a56b1521f5529f9cbb7e5d2893cfce48783d0fb3bd86eaf5a73df1fc2a326ba2"
+    "accc689d7ccd6ad863513a9689faa5dd733a07396a676913daed00d155d02bd9",
+    "c1c381896e4aa4ccd1396ca89ee15939d86f914452864bf4ff12bef88efa58b9",
+    "c7726562ccda8b7163063de37d012f44d4794c26689fde30774b68c432bdb2b0"
   ],
   "scope": "packaged-compiled-author-preset"
 }

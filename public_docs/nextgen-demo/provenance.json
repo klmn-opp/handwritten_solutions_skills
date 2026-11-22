@@ -1,0 +1,17 @@
+{
+  "schema": "hwsol-nextgen-demo/1",
+  "model_bundle": "nextgen-v1",
+  "source_run": "20261122T035712092532Z-seven-complex-exercise-render-and-coverage-ec00d36d",
+  "draw_run": "20261122T035653357538Z-complex-exercise-frozen-model-draws-87f1b742",
+  "training_updates_on_pages": 0,
+  "weights": {
+    "english": "e2bc61dd88afeb307796455ec11f51c1c9061087773c0dec54b09ee34b8e7189",
+    "math": "4814d3ff602c6cc447071957ca4b30c889fd03dc9a3bb4e9318a8f295c29aa85"
+  },
+  "files": {
+    "complex-A.pdf": "7a0d0fa831857b5b4bac870af9146262b3b791c520a8ef21a31fbb22ea587c45",
+    "complex-B.pdf": "7cf19d520421ea33264bbf91e42464d21ce4d21a4f17fb2d139071a43d0bd763",
+    "page-05-preview.png": "f4d1dd27eec96c041bc2a86035917b741a7d7f6fb10c572aaac8731b9c8b60a5"
+  },
+  "notes": "Author-accepted research pages; product inference uses the same frozen arrays with Job-derived seeds."
+}

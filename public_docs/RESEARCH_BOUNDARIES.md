@@ -17,15 +17,17 @@ incorrect answer does not verify it. OCR is an imperfect diagnostic, not truth.
 `hwsol lab models` and `hwsol lab prepare --help` expose optional experiment
 adapters. They are excluded from ordinary rendering and do not make the CPU
 runtime depend on Torch. Research workers, private handwriting, GPU environments,
-VAE/model checkpoints, historical experiment results and the developer's personal
-math resolver candidate are not supplied in public packages.
+unreleased VAE/model checkpoints, historical experiment results and the developer's
+personal math resolver candidate are not supplied in public packages. The audited
+`nextgen-v1` inference subset is the only neural model shipped.
 
 Do not expect `lab diffink` or a neural sampling command to work without the
 explicit compatible external worker, assets and separate environment it requests.
 Some reproduced adapters have vocabulary, prefix or reference-data restrictions;
 check the command's validation and upstream documentation. A held result is not
-production handwriting. There is no approved general neural or hybrid backend
-in this distribution.
+production handwriting. The scoped `personal-neural@1` backend uses the frozen
+`nextgen-v1` model for bounded glyph variation only; there is no approved general
+text-to-page neural generator in this distribution.
 
 Training and independent generation require separate evidence, fixed data splits,
 bounded budgets and complete-page validation. Neither lower loss nor a successful

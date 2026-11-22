@@ -460,6 +460,7 @@
       "enum": [
         "font-cpu",
         "personal-cpu-experimental",
+        "personal-neural",
         "diffink-experimental"
       ],
       "title": "Backend",

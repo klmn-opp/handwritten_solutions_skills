@@ -1,6 +1,26 @@
 # Public distribution notes
 
-## 1.1.0 — personal-first release candidate
+## 1.2.0 — next-generation default backend
+
+Clean installations that use the bundled author Profile now render white-paper
+Jobs with the frozen `nextgen-v1` model: personal CPU layout, bounded English and
+mathematical glyph variation, deterministic ink/tone correction and integer word
+spacing. The model runs on CPU with NumPy only; PyTorch is not required.
+
+The release ships the two accepted checkpoints as value-identical float32 arrays
+plus the minimal inference glyph subset. No optimizer state, raw scan, full
+training corpus or other version's weights are included. Every array is checked
+against its source checkpoint; publication does not retrain or modify any weight.
+Unsupported symbols, structure elements and failed guards fall back to the stable
+CPU glyph and record the reason. Non-plain paper delegates to the stable CPU path;
+the bundled author preset currently rejects ruled/grid paper because its final word
+gap requires semantic layout.
+
+Actual installation and rendering evidence for this version covers Linux x86_64
+with Python 3.12; macOS and Windows are not re-verified in 1.2.0. Explicit
+`"backend": "font-cpu"` and the Patrick Hand example remain available.
+
+## 1.1.0rc1 — personal-first release candidate
 
 Clean installations select the author’s latest accepted personal handwriting,
 including its final word-gap setting. The shipped runtime derivative removes raw

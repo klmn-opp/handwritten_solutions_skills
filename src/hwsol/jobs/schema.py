@@ -68,7 +68,9 @@ class Problem(Record):
 
 class Job(Record):
     schema_version: Literal[1]
-    backend: Literal["font-cpu", "personal-cpu-experimental", "diffink-experimental"] = "font-cpu"
+    backend: Literal[
+        "font-cpu", "personal-cpu-experimental", "personal-neural", "diffink-experimental"
+    ] = "font-cpu"
     realism: Realism = "baseline"
     generated_by: Text
     language: Text = "en"

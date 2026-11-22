@@ -159,13 +159,16 @@ def build(
     from hwsol.jobs.layout import render_one
 
     job = load_job(manifest)
-    experimental = job.backend == "personal-cpu-experimental"
-    if job.backend not in {"font-cpu", "personal-cpu-experimental"}:
+    selected = store.resolve(job.profile, candidate=job.backend == "personal-cpu-experimental")
+    backend = job.backend
+    if "backend" not in job.model_fields_set and selected.manifest.ref == "author-default@v1":
+        backend = "personal-neural"
+    experimental = backend == "personal-cpu-experimental"
+    if backend not in {"font-cpu", "personal-cpu-experimental", "personal-neural"}:
         raise ValueError("diffink-experimental is not admitted to production; use the isolated lab")
     if realism is not None:
         job = Job.model_validate({**job.model_dump(exclude_unset=True), "realism": realism})
     root = manifest.resolve().parent
-    selected = store.resolve(job.profile, candidate=experimental)
     if job.profile_sha256 and job.profile_sha256 != selected.manifest_sha256:
         raise ValueError("Pinned Profile digest does not match")
     job.profile, job.profile_sha256 = selected.manifest.ref, selected.manifest_sha256
@@ -176,6 +179,21 @@ def build(
         from hwsol.personal_ink.runtime import PersonalCpuEngine
 
         render_one = PersonalCpuEngine(selected).render_one
+    elif backend == "personal-neural":
+        from hwsol.neural.engine import NextGenEngine
+        from hwsol.profiles.presets import is_installed_author, validate_author
+        from hwsol.profiles.qualification import validate_published
+
+        if not selected.manifest.ink_bundle:
+            raise ValueError("personal-neural requires a personal ink Profile")
+        qualification = (
+            validate_author(selected)
+            if is_installed_author(selected)
+            else validate_published(store, selected)
+        )
+        if job.render != selected.manifest.render:
+            raise ValueError("Qualified personal ink requires its reviewed Profile render settings")
+        render_one = NextGenEngine(selected, qualification=qualification).render_one
     elif selected.manifest.ink_bundle:
         from hwsol.personal_ink.runtime import PersonalCpuEngine
         from hwsol.profiles.presets import is_installed_author, validate_author

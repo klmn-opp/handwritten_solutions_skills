@@ -9,9 +9,10 @@ Handwritten Solutions 将宿主 Agent 的读题、解题能力与可靠的数学
 Agent 读取文字、图片或 PDF，编写并校核英文 Markdown / LaTeX；本地运行时负责
 数学结构、手写字形、页面布局和输出检查。你也可以直接提供已经完成的解答。
 
-v1.0 的产品核心是 **CPU 字体与结构渲染**。安装完成后，正常出稿不需要 GPU、
-PyTorch 或下载生成模型。连续神经笔迹、个人风格学习与偏好优化仍是后续研究方向，
-不会被当作本版本已经具备的生成能力。
+v1.2.0 的默认后端是 **个人 CPU 排版 + 冻结的下一代字形模型**：数学结构、字位、
+换行和页面边界由 CPU 排版决定，模型只在已有字形槽位内改变英文与数学字形。
+安装完成后不需要 GPU、PyTorch 或联网下载模型。整页自由生成、连续连笔和偏好
+优化仍不在本版本范围内。
 
 ## 看一下真实个人笔迹输出
 
@@ -29,9 +30,24 @@ CPU 出稿成品，不是神经网络生成的宣传图。作者已授权公开�
 [来源汇总与校验](public_docs/personal-demo/provenance.json)
 
 四页包含线性代数、积分、统计和电磁学，共 827 个数学可见项目，无外部字体回退；
-个人结构规则和程序结构笔画仍单独记录。**新一代发行默认使用作者已验收的个人 CPU 字体与数学轮廓。**
-发行资产由最新稳定 v5 转换而来，保留最终词距；原始扫描、裁剪、训练资料和权重仍不分发。
-既有用户明确设置的默认版本会保留；干净安装使用 `author-default@v1`。
+个人结构规则和程序结构笔画仍单独记录。这四页保留为 **v1.1.0 CPU 验收输出**，
+用于区分稳定 CPU 路径与新的默认后端。
+
+### 下一代默认后端
+
+作者已验收的七道复杂题由冻结的 `nextgen-v1` 权重生成，同一组权重现在进入
+v1.2.0 的默认后端：
+
+[七道复杂题 A](public_docs/nextgen-demo/complex-A.pdf) ·
+[七道复杂题 B](public_docs/nextgen-demo/complex-B.pdf) ·
+[演示说明与来源](public_docs/nextgen-demo/README.md)
+
+![下一代后端七题样张第 5 页](public_docs/nextgen-demo/page-05-preview.png)
+
+页面中的英文与数学墨迹来自作者个人实写底字、有界形变和确定性墨量校正；
+分数线、根号横线等结构仍由 CPU 排版绘制。发行包只包含推理所需的最小底字与
+权重数组，原始扫描、完整训练语料、优化器状态和其它版本权重不分发。
+详见[下一代默认生成后端](public_docs/NEURAL_MODEL.md)。
 
 ## 已有功能
 
@@ -39,12 +55,14 @@ CPU 出稿成品，不是神经网络生成的宣传图。作者已授权公开�
 - **数学结构排版**：分数、根号、求和、积分、上下标和支持范围内的矩阵；保留原始 LaTeX 与结构记录，不交给自由图像生成器猜测。
 - **英文与数学混排**：英文说明、连续计算和公式统一排版，支持最高 300 DPI 的逐页 PNG。
 - **核验与来源**：保存原题引用、解答 Markdown、解析后的 Job、字形来源、边界检查和输出文件摘要；错误、回退与不支持的结构明确报告。
+- **下一代默认后端**：作者个人 Profile 的白纸 Job 默认启用冻结的英文/数学字形变化；不需要 Torch，失败时按字位回退到稳定 CPU 字形。
 - **个人 Profile**：版本化导入、导出、比较、选择和回滚；个人墨迹候选需要独立本地资格审核，导入不会自动改变默认版本。
 - **Agent Skill 与 CLI**：既可交给支持本地 Skill 的 Agent 调用，也可用命令行处理已核验的解答。
 
-发行候选已在 **Linux x86_64、macOS Apple Silicon，Python 3.12 / 3.13** 上完成真实安装、
-PDF/PNG、Profile 迁移和回滚验证。不同系统的文字排版库可能产生细微落点差异，
-不保证跨系统像素一致。Windows 尚不属于本版已验证的支持范围。
+v1.2.0 的实际安装、默认后端出稿、回退和像素核验范围为
+**Linux x86_64、Python 3.12**。macOS 与 Windows 未在本版本重新验证，
+作者预设的包内准入不会在未验证环境上自动启用。不同系统的文字排版库可能
+产生细微落点差异，不保证跨系统像素一致。
 
 ## 可选的 Patrick Hand 兼容示例
 
@@ -69,12 +87,19 @@ PDF/PNG、Profile 迁移和回滚验证。不同系统的文字排版库可能�
 ```sh
 uv sync --locked --no-dev
 uv run --frozen hwsol doctor
-uv run --frozen hwsol render --manifest examples/release-demo/personal-job.json --workspace workspace
+uv run --frozen hwsol render --manifest examples/release-demo/nextgen-job.json --workspace workspace
 uv run --frozen hwsol workspace latest
 ```
 
-`personal-job.json` 不固定 Profile，因此使用已选择的默认；干净安装即为作者个人笔迹。
-无需导入私人 ZIP 或运行资格审核。第一次安装需要下载锁定的依赖。此后依赖已经缓存时，可以给 `uv` 加上 `--offline`。
+`nextgen-job.json` 不固定 Profile，也不写 `backend`，因此使用已选择的默认：
+干净安装即为作者个人笔迹，并使用 v1.2.0 的下一代默认后端。无需导入私人 ZIP
+或运行资格审核。第一次安装需要下载锁定的依赖。此后依赖已经缓存时，可以给
+`uv` 加上 `--offline`。
+
+神经后端的推理在 CPU 上运行，每个白纸页面通常需要约半分钟到一分钟，而不是纯 CPU 路径的几秒。
+横线、方格、点阵和图片/PDF 背景当前委托稳定 CPU 路径；作者预设的最终词距要求
+语义排版，因此这些背景在有该设置的 Profile 上会被明确拒绝，而不是静默出稿。
+需要完全确定性或更快出稿时，在 Job 中显式写 `"backend": "font-cpu"`。
 命令会打印实际运行目录；使用它核验成品：
 
 ```sh
@@ -99,7 +124,7 @@ run.json
 
 ```sh
 python3.12 -m venv .venv
-.venv/bin/python -m pip install /path/to/handwritten_solutions-1.1.0-py3-none-any.whl
+.venv/bin/python -m pip install /path/to/handwritten_solutions-1.2.0-py3-none-any.whl
 .venv/bin/hwsol doctor
 ```
 
@@ -138,6 +163,9 @@ hwsol profile publish --profile my-handwriting --version v1 --activate
 补样和回滚。这里是 CPU 字形提取与几何校准，没有神经网络参数训练。
 `publish` 只写本机资料库，不上传网络。新的基础字体 Profile 无需跨机器资格证据包。
 
+本版本的下一代字形后端只对随包发行、已有包内审核的作者 Profile 启用；
+用户自建 Profile 和 Patrick Hand 继续使用稳定 CPU 路径。
+
 复杂的自定义数学墨迹配方仍使用独立的候选审核流程；详见
 [个人 CPU Profile 流程](public_docs/GUIDE.md#use-a-reviewed-personal-cpu-profile)。
 发行内置的作者 Profile 已有包内审核记录，普通用户无需重复走这个维护流程。
@@ -148,10 +176,15 @@ hwsol profile publish --profile my-handwriting --version v1 --activate
 缺少可用字形时会记录回退。有限作业上的零回退不等于所有数学符号全面覆盖。
 发生拒绝时，应保留失败输入、检查原因并核验等价写法，不应删除必要步骤来换取通过。
 
+下一代模型覆盖 52 个英文大小写字母和 252 个数学「符号及用途」条件；未覆盖的
+符号、结构元素、拟合失败、身份识别不一致或新增笔画接触会保留稳定 CPU 字形，
+并在 `validation_report.json` 中记录。模型不会生成新的公式结构，也不保证连续
+连笔。非白纸背景目前不做神经替换。
+
 下一阶段依次改进：根据内容灵活安排英文与公式、提供直观的背景选择、尝试把答案
-写入原题 PDF 的空白区域。现有背景支持不等于已经具备空白区识别和避让题目能力。
-验收要求与研究边界见[产品路线图](public_docs/ROADMAP.md)。连续神经笔迹继续作为
-独立研究，不阻塞本代个人 CPU 默认与简单 Profile 构建的交付。
+写入原题 PDF 的空白区域，以及把神经后端扩展到用户自建 Profile。现有背景支持
+不等于已经具备空白区识别和避让题目能力。验收要求与研究边界见
+[产品路线图](public_docs/ROADMAP.md)。
 
 - [使用指南](public_docs/GUIDE.md) · [Profile 与 Studio](public_docs/PROFILES.md)
 - [渲染与回退](public_docs/RENDERING.md) · [工作区与运行记录](public_docs/WORKSPACE.md)

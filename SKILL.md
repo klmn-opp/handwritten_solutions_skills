@@ -9,8 +9,10 @@ Use the installed `hwsol`, or `uv run --offline --frozen --project <skill-direct
 hwsol ...` in an installed source checkout. This public package uses CPU fonts and
 deterministic math layout. A clean install defaults to the author’s accepted
 `author-default@v1`; omit `profile` and `render` to inherit it. Preserve any explicit
-user choice. It includes no personal research model or neural-math
-candidate. Do not claim that font construction trains a neural network.
+user choice. The bundled author Profile also enables the frozen `nextgen-v1`
+glyph-variation backend on white paper; it is not a general text generator and its
+weights are not updated at render time. Do not claim that font construction trains
+a neural network.
 
 1. Read the actual text, image or PDF. Preserve the original locally. For PDFs use
    `hwsol read-page --source <pdf> --page <n> --output <new.png>` and inspect every

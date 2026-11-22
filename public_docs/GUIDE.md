@@ -4,8 +4,10 @@ For a complete reproducible two-page example, see
 [the public demo Job](../examples/release-demo/job.json),
 [original questions](../examples/release-demo/questions.md) and
 [actual PDF](demo/homework_solutions.pdf). The original Job explicitly selects Patrick Hand for compatibility.
-[The personal-default Job](../examples/release-demo/personal-job.json) omits that
-selection and uses the installed author preset (or your explicitly chosen default).
+[The next-generation default Job](../examples/release-demo/nextgen-job.json) omits
+the Profile and backend, so it uses the installed author preset and the v1.2.0
+neural default. [The pinned CPU Job](../examples/release-demo/personal-job.json)
+keeps `"backend": "font-cpu"` for the v1.1.0 deterministic replay.
 
 The runtime typesets checked answers; it does not independently solve an arbitrary
 new problem. An external Agent must read the original and verify its answer.
@@ -59,6 +61,21 @@ For a typesetting-only probe, use `hwsol render-probe --input <answer.md> --outp
 <new-directory>`. This legacy probe is not the complete one-problem-per-page Job
 contract. See [rendering](RENDERING.md), [Profiles](PROFILES.md), and
 [workspace behavior](WORKSPACE.md).
+
+## Next-generation default backend
+
+When the Job omits `backend` and resolves to the installed bundled author Profile,
+v1.2.0 uses `personal-neural@1`. The stable personal CPU layout still decides math
+structure, slots, line breaks and page bounds; the frozen model changes only glyph
+shape. Accepted pixels then receive deterministic ink/tone correction and integer
+word spacing.
+
+PyTorch is not installed or imported. Inference runs on the CPU with NumPy, so a
+four-page document usually takes minutes rather than seconds. Use an explicit
+`"backend": "font-cpu"` for the previous deterministic path. Lined, grid, dot,
+image and PDF backgrounds currently delegate to the stable CPU path; the bundled
+author preset rejects ruled/grid paper because its final word gap requires
+semantic layout, rather than silently changing the accepted spacing. See [the model page](NEURAL_MODEL.md) for coverage, guards and limits.
 
 ## Use a reviewed personal CPU Profile
 
