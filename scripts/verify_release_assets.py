@@ -100,6 +100,7 @@ def verify_wheel(files: dict[str, bytes], source: dict[str, bytes], version: str
             or name.startswith("src/hwsol/assets/presets/patrick-hand/")
             or name.startswith("src/hwsol/assets/presets/author-default/")
             or name.startswith("src/hwsol/assets/benchmarks/v1/")
+            or name.startswith("src/hwsol/assets/models/")
         )
     }
     actual = {name: data for name, data in files.items() if name.startswith("hwsol/")}
